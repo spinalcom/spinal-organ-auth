@@ -25,27 +25,62 @@ import * as express from "express";
 import * as fileUpload from "express-fileupload";
 import * as bodyParser from "body-parser";
 import * as cors from "cors";
+import * as morgan from "morgan";
 import * as _ from "lodash";
-import config from "../config"
+import config from "./config"
+import path = require("path");
+import * as methodOverride from 'method-override';
+import { RegisterRoutes } from "./routes";
+import { Response as ExResponse, Request as ExRequest } from "express";
+import * as swaggerUi from "swagger-ui-express";
+const jsonFile = require ('../build/swagger.json')
 
+/**
+ *
+ *
+ * @return {*}  {express.Express}
+ */
 function Server(): express.Express {
 
   const app = express();
+
+
   // enable files upload
   app.use(fileUpload({
     createParentPath: true
   }));
-
+  app.use(morgan('tiny'));
   app.use(cors());
   app.disable('x-powered-by');
-  app.use(bodyParser.urlencoded({
+  app.use(express.json());
+  app.use(express.urlencoded({
     extended: true
-  }));
-  app.use(bodyParser.json());
-  // app.use(morgan('dev'));
-  app.listen(config.api.port, () => console.log('app listening on port 4000!'));
-  app.get('/', function (req, res) {
+  }));  
+  app.use(methodOverride());
+  app.use('/static', express.static(path.join(__dirname, 'public')));
+
+  //app.use('/docs', express.static(__dirname + '/swagger-ui'));
+
+  app.use('/api-docs', swaggerUi.serve);
+  app.get('/api-docs', swaggerUi.setup(jsonFile));
+
+  app.use('/swagger.json', (req, res) => {
+      res.sendFile(__dirname + '/swagger.json');
+  });
+
+
+  app.listen(config.api.port, () =>   console.log(`app listening at http://localhost:${config.api.port}`)
+  );
+
+  app.get('/getHello', function (req, res) {
     res.send('hello server')
-  })
+  });
+// sendFile will go here
+//app.get('/', function(req, res) {
+//  res.sendFile(path.join(__dirname, '../public/index.html'));
+//});
+RegisterRoutes(app);
+
+  return
 }
 export default Server;

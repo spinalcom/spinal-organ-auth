@@ -28,7 +28,13 @@ import {
   SpinalContext,
   SpinalNode,
 } from 'spinal-env-viewer-graph-service';
-
+import {
+  BUILDING_LIST,
+  APP_API_PROFILE_LIST,
+  USER_ST_PROFILE_LIST,
+  AUTH_SERVICE_APP_RELATION_TYPE_PTR_LST,
+  AUTH_SERVICE_APP_BUILDING_RELATION_NAME
+} from '../constant'
 
 
 export class AuthGraphService {
@@ -41,21 +47,34 @@ export class AuthGraphService {
     let promises = [];
     // const graph = new SpinalGraph('AuthGraph');
 
-    const UserSTProfileList = new SpinalContext('UserSTProfileList');
-    const AppApiProfileList = new SpinalContext('AppApiProfileList');
-    const buildingList = new SpinalContext('buildingList');
+    const UserList = new SpinalContext(USER_ST_PROFILE_LIST);
+    const AppApiList = new SpinalContext(APP_API_PROFILE_LIST);
+    const buildingList = new SpinalContext(BUILDING_LIST);
 
     promises.push(
       this.graph.addContext(buildingList),
-      this.graph.addContext(AppApiProfileList),
-      this.graph.addContext(AppApiProfileList),
-      this.graph.addContext(UserSTProfileList),
+      this.graph.addContext(AppApiList),
+      this.graph.addContext(UserList),
     )
+
+    //CRUD BUILDINGS
+
+    
     return Promise.all(promises).then(() => {
       return this.graph;
     });
   }
+async newBuilding(nameBuilding:string) : Promise<SpinalNode<any>>{
+  console.log("hello");
 
+    const context = await SpinalGraphService.getContext(BUILDING_LIST)
+        const building = new SpinalNode(nameBuilding);
+        const res = context.addChildInContext(building,AUTH_SERVICE_APP_BUILDING_RELATION_NAME,AUTH_SERVICE_APP_RELATION_TYPE_PTR_LST,context)
+        return res;
+       
+    
+
+}
 
 }
 // module.exports.AuthGraphService = AuthGraphService;

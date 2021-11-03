@@ -27,7 +27,7 @@ import { SpinalGraphService } from 'spinal-env-viewer-graph-service';
 import { SpinalContext, SpinalGraph, SpinalNode } from 'spinal-model-graph';
 import { AuthGraphService } from './services/authGraphService'
 const { SpinalServiceUser } = require('spinal-service-user');
-import Server from './services/server'
+import Server from './server'
 
 import config from './config'
 import SpinalMiddleware from './spinalMiddleware';
@@ -41,12 +41,13 @@ async function main() {
   var childrens = await spinalMiddleware.getGraph().getChildren('hasContext')
   if (childrens.length === 0) {
     await authGraphService.init();
+    await authGraphService.newBuilding("b1");
   }
 
-  // var contextsIds = await spinalMiddleware.getGraph().getChildrenIds()
-  // for (const context of contextsIds) {
-  //   SpinalGraphService.removeFromGraph(context)
-  // }
+   //var contextsIds = await spinalMiddleware.getGraph().getChildrenIds()
+   //for (const context of contextsIds) {
+   //  SpinalGraphService.removeFromGraph(context)
+   //}
 
 }
 main();
