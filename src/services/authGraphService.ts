@@ -30,10 +30,10 @@ import {
 } from 'spinal-env-viewer-graph-service';
 import {
   BUILDING_LIST,
-  APP_API_PROFILE_LIST,
-  USER_ST_PROFILE_LIST,
-  AUTH_SERVICE_APP_RELATION_TYPE_PTR_LST,
-  AUTH_SERVICE_APP_BUILDING_RELATION_NAME
+  APP_LIST,
+  USER_LIST,
+  AUTH_SERVICE_RELATION_TYPE_PTR_LST,
+  AUTH_SERVICE_BUILDING_RELATION_NAME
 } from '../constant'
 
 
@@ -47,8 +47,8 @@ export class AuthGraphService {
     let promises = [];
     // const graph = new SpinalGraph('AuthGraph');
 
-    const UserList = new SpinalContext(USER_ST_PROFILE_LIST);
-    const AppApiList = new SpinalContext(APP_API_PROFILE_LIST);
+    const UserList = new SpinalContext(USER_LIST);
+    const AppApiList = new SpinalContext(APP_LIST);
     const buildingList = new SpinalContext(BUILDING_LIST);
 
     promises.push(
@@ -69,7 +69,7 @@ async newBuilding(nameBuilding:string) : Promise<SpinalNode<any>>{
 
     const context = await SpinalGraphService.getContext(BUILDING_LIST)
         const building = new SpinalNode(nameBuilding);
-        const res = context.addChildInContext(building,AUTH_SERVICE_APP_BUILDING_RELATION_NAME,AUTH_SERVICE_APP_RELATION_TYPE_PTR_LST,context)
+        const res = context.addChildInContext(building,AUTH_SERVICE_BUILDING_RELATION_NAME,AUTH_SERVICE_RELATION_TYPE_PTR_LST,context)
         return res;
        
     

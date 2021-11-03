@@ -27,7 +27,7 @@ import { SpinalGraphService } from 'spinal-env-viewer-graph-service';
 import { SpinalContext, SpinalGraph, SpinalNode } from 'spinal-model-graph';
 import { AuthGraphService } from './services/authGraphService'
 const { SpinalServiceUser } = require('spinal-service-user');
-import { store } from './utilities'
+import { store } from './utilities/utilitiesFunctions'
 
 import config from './config'
 

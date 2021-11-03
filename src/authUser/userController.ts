@@ -8,26 +8,28 @@ import {
     Route,
     SuccessResponse,
   } from "tsoa";
-  import { AuthUser } from "./user.model";
-  import { UsersService, UserCreationParams } from "./authUserService";
+  import { User,UserCreationParams } from "./user.model";
+  import { UsersService,  } from "./userService";
   
+
   @Route("users")
   export class UsersController extends Controller {
     @Get("{userId}")
     public async getUser(
-      @Path() userId: number,
-      @Query() name?: string
-    ): Promise<AuthUser> {
-      return new UsersService().getUser(userId, name);
+      @Path() userId: string,
+      //@Query() name?: string
+    ): Promise<User> {
+      this.setStatus(201); // set return status 201
+      return new UsersService().getUser(userId);
     }
   
     @SuccessResponse("201", "Created") // Custom success response
     @Post()
     public async createUser(
       @Body() requestBody: UserCreationParams
-    ): Promise<void> {
+    ): Promise<User> {
       this.setStatus(201); // set return status 201
-      new UsersService().createUser(requestBody);
-      return;
+      let user = new UsersService().createUser(requestBody);
+      return user;
     }
   }

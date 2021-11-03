@@ -9,27 +9,26 @@ import * as express from 'express';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
-    "AuthUser": {
+    "User": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"double"}]},
-            "name": {"dataType":"string","required":true},
-            "firstname": {"dataType":"string"},
-            "email": {"dataType":"string"},
-            "password": {"dataType":"string"},
+            "id": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"double"}],"required":true},
+            "type": {"dataType":"string","required":true},
+            "userName": {"dataType":"string","required":true},
+            "password": {"dataType":"string","required":true},
             "userProfileId": {"dataType":"string"},
+            "role": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Pick_AuthUser.email-or-name_": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"email":{"dataType":"string"},"name":{"dataType":"string","required":true}},"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "UserCreationParams": {
-        "dataType": "refAlias",
-        "type": {"ref":"Pick_AuthUser.email-or-name_","validators":{}},
+        "dataType": "refObject",
+        "properties": {
+            "userName": {"dataType":"string","required":true},
+            "password": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
@@ -46,8 +45,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function UsersController_getUser(request: any, response: any, next: any) {
             const args = {
-                    userId: {"in":"path","name":"userId","required":true,"dataType":"double"},
-                    name: {"in":"query","name":"name","dataType":"string"},
+                    userId: {"in":"path","name":"userId","required":true,"dataType":"string"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
