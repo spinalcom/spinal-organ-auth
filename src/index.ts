@@ -38,16 +38,12 @@ async function main() {
   console.log("connexion to hub inisialiser");
 
   const authGraphService = new AuthGraphService(spinalMiddleware.getGraph());
-  var childrens = await spinalMiddleware.getGraph().getChildren('hasContext')
-  if (childrens.length === 0) {
-    await authGraphService.init();
-    await authGraphService.newBuilding("b1");
-  }
-
-   //var contextsIds = await spinalMiddleware.getGraph().getChildrenIds()
-   //for (const context of contextsIds) {
-   //  SpinalGraphService.removeFromGraph(context)
-   //}
+  authGraphService.init();
+  
+   var contextsIds = await spinalMiddleware.getGraph().getChildrenIds()
+   for (const context of contextsIds) {
+     SpinalGraphService.removeFromGraph(context)
+   }
 
 }
 main();

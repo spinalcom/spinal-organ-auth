@@ -4,6 +4,7 @@ import {
     Get,
     Path,
     Post,
+    Put,
     Query,
     Route,
     SuccessResponse,
@@ -22,13 +23,37 @@ import {
       this.setStatus(201); // set return status 201
       return new UsersService().getUser(userId);
     }
+
+
+    @Get()
+    public async getUsers(
+      //@Path() userId: string,
+      //@Query() name?: string
+    ): Promise<User[]> {
+      this.setStatus(201); // set return status 201
+      return  new UsersService().getUsers();
+    }
+
+
+    @Post()
+    public async login(
+      @Body() requestBody: UserCreationParams
+    ): Promise<{}> {
+      console.log(requestBody);
+      
+      let login = new UsersService().login(requestBody);
+      return login;
+    }
+
   
     @SuccessResponse("201", "Created") // Custom success response
     @Post()
     public async createUser(
       @Body() requestBody: UserCreationParams
     ): Promise<User> {
-      this.setStatus(201); // set return status 201
+      console.log(requestBody);
+      
+      //this.setStatus(201); // set return status 201
       let user = new UsersService().createUser(requestBody);
       return user;
     }
