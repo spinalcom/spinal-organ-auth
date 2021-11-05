@@ -22,9 +22,9 @@ import { HttpStatusCode } from "../utilities/http-status-code";
 import { User, UserCreationParams } from "./user.model";
 //import { bcrypt } from "bcrypt";
 //export type UserCreationParams = Pick<User, "userName">;
-import SpinalMiddleware from '../spinalMiddleware'
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+import SpinalMiddleware from "../spinalMiddleware";
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 /**
  * @export
@@ -32,149 +32,191 @@ const jwt = require('jsonwebtoken');
  */
 export class UsersService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
-  public graph: SpinalGraph<any>
+  public graph: SpinalGraph<any>;
   constructor() {
     this.spinalMiddleware.init();
-    this.graph = this.spinalMiddleware.getGraph()
+    this.graph = this.spinalMiddleware.getGraph();
   }
-
 
   public async getUsers(): Promise<User[]> {
     try {
       var usersObjectList = [];
-      const context = await SpinalGraphService.getContext(USER_LIST);
-      const users = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
-      for (const user of users) {
-        let userObject: User = {
-          id: user.getId().get(),
-          type: user.getType().get(),
-          userName: user.getName().get(),
-          password: await user.element.load(),
-          role: await user.element.load(),
-        };
-        usersObjectList.push(userObject);
+      const contexts = await this.graph.getChildren("hasContext");
+      for (const context of contexts) {
+        if (context.getName().get() === USER_LIST) {
+          console.log("=================",context.getName().get());
+
+          const users = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
+          for (const user of users) {
+            //var buildingList = [];
+            //for (const building of user.info.buildingList) {
+            //  if (building) {
+            //    var appList = [];
+            //    for (const app of building.appList) {
+            //      appList.push({
+            //        id: app.id,
+            //        appProfileList: app.appProfileList,
+            //      });
+            //    }
+            //    buildingList.push({
+            //      id: building.id,
+            //      appList: appList,
+            //    });
+            //  }
+            //}
+            console.log("============***=====",user.info.userName.get());
+
+            var userObject: User = {
+              id: user.getId().get(),
+              type: user.getType().get(),
+              userName: user.info.userName.get(),
+              password: user.info.password.get(),
+              role: user.info.role.get(),
+            };
+            console.log("**********",userObject);
+            usersObjectList.push(userObject);
+          }
+
+        }
       }
+   
       return usersObjectList;
     } catch (error) {
       return error;
     }
   }
 
-  public async getUser(id: string): Promise<User> {
-    const context = await SpinalGraphService.getContext(USER_LIST);
-    const users = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
-    var userObject: User;
-    for (const user of users) {
-      if (user.getId().get() === id) {
-        userObject = {
-          id: user.getId().get(),
-          type: user.getType().get(),
-          userName: user.getName().get(),
-          password: user.info.password.get(),
-          role: user.info.role.get(),
-        };
+  public async getUser(): Promise<User> {
+    const contexts = await this.graph.getChildren("hasContext");
+    for (const context of contexts) {
+      if (context.getName().get() === USER_LIST) {
+        console.log("context",context.getName().get());
+        
+        const users = await context.getChildren(
+          AUTH_SERVICE_USER_RELATION_NAME
+        );
+        ;
+        for (const user of users) {
+          console.log("user",user.info.userName.get());
+          
+          if (user.getId().get() === "userId") {
+            var userObject: User = {
+              id: user.getId().get(),
+              type: user.getType().get(),
+              userName: user.getName().get(),
+              password: user.info.password.get(),
+              role: user.info.role.get(),
+            };
+            return userObject
+          }
+        }
       }
     }
-    if (userObject) {
-      return userObject;
-    } else {
-      throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
-    }
+    //if (userObject) {
+    //  return userObject;
+    //} else {
+    //  throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+    //}
   }
 
   public async createUser(
     userCreationParams: UserCreationParams
   ): Promise<User> {
-    //const context = await SpinalGraphService.getContext(USER_LIST);
-    const contexts = await this.graph.getChildren('hasContext');
+    const contexts = await this.graph.getChildren("hasContext");
     for (const context of contexts) {
       if (context.getName().get() === USER_LIST) {
         var userCreated = bcrypt
-        .hash(userCreationParams.password, 10)
-        .then(async (hash) => {
-          const userObject = {
-            type: USER_TYPE,
-            userName: userCreationParams.userName,
-            password: hash,
-            userProfileId: "",
-            role: "",
-          };
-          const UserId = SpinalGraphService.createNode(userObject, undefined);
-          
-          const res = await SpinalGraphService.addChildInContext(
-            context.getId().get(),
-            UserId,
-            context.getId().get(),
-            AUTH_SERVICE_USER_RELATION_NAME,
-            AUTH_SERVICE_RELATION_TYPE_PTR_LST
-          );
+          .hash(userCreationParams.password, 10)
+          .then(async (hash) => {
+            const userObject = {
+              type: USER_TYPE,
+              userName: userCreationParams.userName,
+              password: hash,
+              userProfileId: "",
+              role: "",
+            };
+            const UserId = SpinalGraphService.createNode(userObject, undefined);
 
-          return {
-            id: res.getId().get(),
-            type: res.getType().get(),
-            userName: res.info.userName.get(),
-            password: res.info.password.get(),
-            role: res.info.role.get() === undefined ? "" : res.info.role.get(),
-          };
-        });
-        return userCreated
+            const res = await SpinalGraphService.addChildInContext(
+              context.getId().get(),
+              UserId,
+              context.getId().get(),
+              AUTH_SERVICE_USER_RELATION_NAME,
+              AUTH_SERVICE_RELATION_TYPE_PTR_LST
+            );
+
+            return {
+              id: res.getId().get(),
+              type: res.getType().get(),
+              userName: res.info.userName.get(),
+              password: res.info.password.get(),
+              role: res.info.role.get(),
+            };
+          });
+        return userCreated;
       }
     }
   }
 
-  public async updateUser(id :string): Promise<User> {
+  //public async updateUser(id :string): Promise<User> {
+  //  const context = await SpinalGraphService.getContext(USER_LIST);
+  //  const users = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
+  //  var userObject: User;
+  //  for (const user of users) {
+  //    if (user.getId().get() === id) {
+  //      userObject = {
+  //        id: user.getId().get(),
+  //        type: user.getType().get(),
+  //        userName: user.getName().get(),
+  //        password: user.info.password.get(),
+  //        role: user.info.role.get(),
+  //      };
+  //    }
+  //  }
+  //  return
+  //}
+
+  public async delete(id: string): Promise<void> {
     const context = await SpinalGraphService.getContext(USER_LIST);
     const users = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
-    var userObject: User;
     for (const user of users) {
       if (user.getId().get() === id) {
-        userObject = {
-          id: user.getId().get(),
-          type: user.getType().get(),
-          userName: user.getName().get(),
-          password: user.info.password.get(),
-          role: user.info.role.get(),
-        };
-      }
-    }
-    return
-  }
-
-  public async delete(id:string):Promise<void> {
-    const context = await SpinalGraphService.getContext(USER_LIST);
-    const users = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
-    for (const user of users) {
-      if (user.getId().get() === id) {
-        SpinalGraphService.removeFromGraph(id)
+        SpinalGraphService.removeFromGraph(id);
       }
     }
   }
 
-  public async login(userCreationParams:UserCreationParams):Promise<string> {
-    const contexts = await this.graph.getChildren('hasContext');
+  public async login(userCreationParams: UserCreationParams): Promise<string> {
+    const contexts = await this.graph.getChildren("hasContext");
     for (const context of contexts) {
-      if (context.getName().get()===USER_LIST) {
-        const users = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
+      if (context.getName().get() === USER_LIST) {
+        const users = await context.getChildren(
+          AUTH_SERVICE_USER_RELATION_NAME
+        );
         for (const user of users) {
           if (userCreationParams.userName === user.info.userName) {
-            bcrypt.compare(userCreationParams.password, user.password).then(valid =>{
-              if (!valid) {
-                throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
-              }else{
-                return {
-                  userId: user.getId().get(),
-                  token: jwt.sign(
-                    { userId: user.getId().get() },
-                    'RANDOM_TOKEN_SECRET',
-                    { expiresIn: '24h' }
-                  ) 
+            bcrypt
+              .compare(userCreationParams.password, user.password)
+              .then((valid) => {
+                if (!valid) {
+                  throw new OperationError(
+                    "NOT_FOUND",
+                    HttpStatusCode.NOT_FOUND
+                  );
+                } else {
+                  return {
+                    userId: user.getId().get(),
+                    token: jwt.sign(
+                      { userId: user.getId().get() },
+                      "RANDOM_TOKEN_SECRET",
+                      { expiresIn: "24h" }
+                    ),
+                  };
                 }
-              }
-            })
-          }else{
+              });
+          } else {
             throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
           }
-          
         }
       }
     }
@@ -182,3 +224,9 @@ export class UsersService {
     return context.getName().get();
   }
 }
+
+//app.get('/:id', auth,(res,req,next)=>{
+//res.json('hello')
+//});
+
+//119064160

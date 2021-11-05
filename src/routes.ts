@@ -14,10 +14,12 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"double"}],"required":true},
             "type": {"dataType":"string","required":true},
+            "name": {"dataType":"string"},
             "userName": {"dataType":"string","required":true},
-            "password": {"dataType":"string","required":true},
+            "password": {"dataType":"string"},
             "userProfileId": {"dataType":"string"},
             "role": {"dataType":"string"},
+            "buldingList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"appList":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfileList":{"dataType":"array","array":{"dataType":"string"},"required":true},"id":{"dataType":"string","required":true}}},"required":true},"id":{"dataType":"string","required":true}}}},
         },
         "additionalProperties": false,
     },

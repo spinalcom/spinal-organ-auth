@@ -20,30 +20,32 @@ import {
       @Path() userId: string,
       //@Query() name?: string
     ): Promise<User> {
+      
       this.setStatus(201); // set return status 201
-      return new UsersService().getUser(userId);
+      return new UsersService().getUser();
     }
-
-
+//
+//
     @Get()
     public async getUsers(
       //@Path() userId: string,
       //@Query() name?: string
     ): Promise<User[]> {
-      this.setStatus(201); // set return status 201
+      console.log("=================");
+      //this.setStatus(201); // set return status 201
       return  new UsersService().getUsers();
     }
 
 
-    @Post()
-    public async login(
-      @Body() requestBody: UserCreationParams
-    ): Promise<{}> {
-      console.log(requestBody);
-      
-      let login = new UsersService().login(requestBody);
-      return login;
-    }
+    //@Post()
+    //public async login(
+    //  @Body() requestBody: UserCreationParams
+    //): Promise<{}> {
+    //  console.log(requestBody);
+    //  
+    //  let login = new UsersService().login(requestBody);
+    //  return login;
+    //}
 
   
     @SuccessResponse("201", "Created") // Custom success response

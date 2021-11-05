@@ -4,5 +4,12 @@ export interface AuthBuilding {
   id? :string;
   name? :string;
   type? :string;
-  [key: string]: any;
+  apps: string[]
+}
+
+
+export interface AppProfile{
+  id: string;
+  label:string;
+
 }
