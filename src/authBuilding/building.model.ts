@@ -1,6 +1,6 @@
 import { Model } from 'spinal-core-connectorjs_type';
 
-export interface AuthBuilding {
+export interface IBuilding {
   id? :string;
   name? :string;
   type? :string;

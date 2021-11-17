@@ -40,6 +40,8 @@ import {
   AUTH_SERVICE_RELATION_TYPE_PTR_LST,
   AUTH_SERVICE_BUILDING_RELATION_NAME,
 } from "../constant";
+import {UsersService} from '../authUser/userService'
+import {IUserCreationParams, IUser} from '../authUser/user.model'
 
 export class AuthGraphService {
   public graph: SpinalGraph<any>;
@@ -68,6 +70,19 @@ export class AuthGraphService {
       return this.graph;
     });
   }
+
+  async createAuthAdmin(): Promise<void>{
+
+    let userCreationParams : IUserCreationParams = {
+      userName : "authAdmin",
+      password : "spinalcom",
+      userProfileId: "",
+      role: "authAdmin",
+    }
+     let user = new UsersService().createUser(userCreationParams);
+  }
+
+
   async newBuilding(nameBuilding: string): Promise<SpinalNode<any>> {
     console.log("hello");
 

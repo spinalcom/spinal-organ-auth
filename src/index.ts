@@ -26,6 +26,7 @@ import { spinalCore, FileSystem } from 'spinal-core-connectorjs_type';
 import { SpinalGraphService } from 'spinal-env-viewer-graph-service';
 import { SpinalContext, SpinalGraph, SpinalNode } from 'spinal-model-graph';
 import { AuthGraphService } from './services/authGraphService'
+import { UsersService } from './authUser/userService';
 const { SpinalServiceUser } = require('spinal-service-user');
 import Server from './server'
 
@@ -35,15 +36,16 @@ import SpinalMiddleware from './spinalMiddleware';
 async function main() {
   const spinalMiddleware = SpinalMiddleware.getInstance()
   await spinalMiddleware.init();
-  console.log("connexion to hub inisialiser");
-
+  console.log("connexion to hub inisialiser ...");
   const authGraphService = new AuthGraphService(spinalMiddleware.getGraph());
   await authGraphService.init();
-  
-   //var contextsIds = await spinalMiddleware.getGraph().getChildrenIds()
-   //for (const context of contextsIds) {
-   //  SpinalGraphService.removeFromGraph(context)
-   //}
+  //verification user
+  let usersService = new UsersService()
+  let users = await usersService.getUsers();
+  if (users.length === 0) {
+    await authGraphService.createAuthAdmin()
+    console.log("admin created ..");
+  }
 
 }
 main();

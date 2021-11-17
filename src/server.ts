@@ -61,24 +61,18 @@ function Server(): express.Express {
 
   //app.use('/docs', express.static(__dirname + '/swagger-ui'));
 
-  app.use('/api-docs', swaggerUi.serve);
-  app.get('/api-docs', swaggerUi.setup(jsonFile));
+  //app.use('/api-docs', swaggerUi.serve);
+  //app.get('/api-docs', swaggerUi.setup(jsonFile));
+//
+  //app.use('/swagger.json', (req, res) => {
+  //    res.sendFile(__dirname + '/swagger.json');
+  //});
 
-  app.use('/swagger.json', (req, res) => {
-      res.sendFile(__dirname + '/swagger.json');
-  });
 
-
-  app.listen(config.api.port, () =>   console.log(`app listening at http://localhost:${config.api.port}`)
+  app.listen(config.api.port, () =>   console.log(`app listening at http://localhost:${config.api.port} ....`)
   );
 
-  app.get('/getHello', function (req, res) {
-    res.send('hello server')
-  });
-// sendFile will go here
-//app.get('/', function(req, res) {
-//  res.sendFile(path.join(__dirname, '../public/index.html'));
-//});
+
 RegisterRoutes(app);
 
   return

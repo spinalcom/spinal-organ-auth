@@ -4,7 +4,8 @@ export type OperationErrorMessage =
   | "UNKNOWN_ERROR"
   | "EMAIL_IN_USE"
   | "NOT_FOUND"
-  | "INVALID_EMAIL";
+  | "INVALID_EMAIL"
+  | "UNAUTHORIZED ROLE";
 
 export class OperationError extends Error {
   constructor(message: OperationErrorMessage, readonly status: HttpStatusCode) {
