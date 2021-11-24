@@ -8,14 +8,11 @@ export interface IUser {
   name?: string
   userName: string;
   password?: string;
-  userProfileId?: string;
   role?: string;
-  buldingList?: {
-    id:string;
-    appList: {
-      id: string;
-      appProfileList: string[];
-    }[]
+  rights?: {
+    userProfileId?: string;
+    plateformId?: string,
+    serverId? : string,
   }[]
 }
  /**
@@ -28,12 +25,10 @@ export interface IUser {
   password: string;
   userProfileId?: string;
   role?: string;
-  buldingList?: {
-    id:string;
-    appList: {
-      id: string;
-      appProfileList: string[];
-    }[]
+  rights?: {
+    userProfileId?: string;
+    plateformId?: string,
+    serverId? : string,
   }[]
  }
 

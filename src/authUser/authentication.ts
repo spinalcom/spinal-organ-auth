@@ -36,6 +36,8 @@ export function expressAuthentication(
         if (err) {
           reject(err);
         } else {
+          console.log(decoded);
+          //verify jwt 
           // Check if JWT contains all required scopes
           for (let scope of scopes) {
             if (!decoded.scopes.includes(scope)) {

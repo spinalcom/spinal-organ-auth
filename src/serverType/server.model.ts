@@ -22,22 +22,35 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-
 import { Model } from 'spinal-core-connectorjs_type';
 
-
-export interface IPlatform {
-  id: string;
+export interface IUserProfile {
+  profileId: string;
   name: string;
-  type: string
 }
 
-export interface IPlateformCreationParams {
+export interface IServerCreationParams {
+  name: string;
+  type: string;
+  clientId: string;
+  clientSecret: string;
+  profileList: IUserProfile[]
+}
+
+export interface IServerUpdateParams {
+  name: string;
+  clientId: string;
+  clientSecret: string;
+
+}
+
+export interface IServer {
   id?: string;
-  name: string;
-  type?: string
+  name?: string;
+  type?: string;
+  clientId: string;
+  clientSecret: string;
+  profileList: IUserProfile[]
 }
 
-export interface IPlatformUpdateParams {
-  name: string;
-}
+

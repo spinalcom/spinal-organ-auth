@@ -43,8 +43,8 @@ async function main() {
   let usersService = new UsersService()
   let users = await usersService.getUsers();
   if (users.length === 0) {
-    await authGraphService.createAuthAdmin()
-    console.log("admin created ..");
+    let res = await usersService.createAuthAdmin()
+    console.log("=====", res);
   }
 
 }

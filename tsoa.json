@@ -20,6 +20,10 @@
           "write:pets": "modify things",
           "read:pets": "read things"
         }
+      },
+      "jwt": {
+        "type": "jwt"
+
       }
     },
     "yaml": true,
@@ -32,6 +36,7 @@
     "basePath": "/v1"
   },
   "routes": {
+    "authenticationModule": "./src/authUser/authentication.ts",
     "basePath": "",
     "entryFile": "./src/services/server.ts",
     "middleware": "express",

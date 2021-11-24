@@ -34,14 +34,13 @@ import {
   SpinalNode,
 } from "spinal-env-viewer-graph-service";
 import {
-  BUILDING_LIST,
-  APP_LIST,
+  PLATFORM_LIST,
+  SERVER_LIST,
   USER_LIST,
   AUTH_SERVICE_RELATION_TYPE_PTR_LST,
-  AUTH_SERVICE_BUILDING_RELATION_NAME,
 } from "../constant";
-import {UsersService} from '../authUser/userService'
-import {IUserCreationParams, IUser} from '../authUser/user.model'
+import { UsersService } from '../authUser/userService'
+import { IUserCreationParams, IUser } from '../authUser/user.model'
 
 export class AuthGraphService {
   public graph: SpinalGraph<any>;
@@ -57,12 +56,12 @@ export class AuthGraphService {
       UserList = new SpinalContext(USER_LIST);
       promises.push(this.graph.addContext(UserList));
     }
-    if ((await this.graph.getContext(APP_LIST)) === undefined) {
-      AppApiList = new SpinalContext(APP_LIST);
+    if ((await this.graph.getContext(PLATFORM_LIST)) === undefined) {
+      AppApiList = new SpinalContext(PLATFORM_LIST);
       promises.push(this.graph.addContext(AppApiList));
     }
-    if ((await this.graph.getContext(BUILDING_LIST)) === undefined) {
-      buildingList = new SpinalContext(BUILDING_LIST);
+    if ((await this.graph.getContext(SERVER_LIST)) === undefined) {
+      buildingList = new SpinalContext(SERVER_LIST);
       promises.push(this.graph.addContext(buildingList));
     }
 
@@ -71,30 +70,19 @@ export class AuthGraphService {
     });
   }
 
-  async createAuthAdmin(): Promise<void>{
 
-    let userCreationParams : IUserCreationParams = {
-      userName : "authAdmin",
-      password : "spinalcom",
-      userProfileId: "",
-      role: "authAdmin",
-    }
-     let user = new UsersService().createUser(userCreationParams);
-  }
+  // async newBuilding(nameBuilding: string): Promise<SpinalNode<any>> {
+  //   console.log("hello");
 
-
-  async newBuilding(nameBuilding: string): Promise<SpinalNode<any>> {
-    console.log("hello");
-
-    const context = await SpinalGraphService.getContext(BUILDING_LIST);
-    const building = new SpinalNode(nameBuilding);
-    const res = context.addChildInContext(
-      building,
-      AUTH_SERVICE_BUILDING_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST,
-      context
-    );
-    return res;
-  }
+  //   const context = await SpinalGraphService.getContext(BUILDING_LIST);
+  //   const building = new SpinalNode(nameBuilding);
+  //   const res = context.addChildInContext(
+  //     building,
+  //     AUTH_SERVICE_BUILDING_RELATION_NAME,
+  //     AUTH_SERVICE_RELATION_TYPE_PTR_LST,
+  //     context
+  //   );
+  //   return res;
+  // }
 }
 // module.exports.AuthGraphService = AuthGraphService;

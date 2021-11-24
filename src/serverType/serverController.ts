@@ -35,52 +35,62 @@ import {
   Security,
   SuccessResponse,
 } from "tsoa";
-import { IPlatform, IPlateformCreationParams, IPlatformUpdateParams } from "./platform.model";
-import { PlatformsService } from "./platformServices"
+import {
+  IUserProfile,
+  IServerCreationParams,
+  IServerUpdateParams,
+  IServer
+} from "./server.model";
+import { ServersService } from "./serverServices"
 
-@Route("platforms")
-export class PlatformsController extends Controller {
+
+@Route("servers")
+export class ServersController extends Controller {
+
 
   @SuccessResponse("201", "Created") // Custom success response
   @Post()
-  public async createPlateform(
-    @Body() requestBody: IPlateformCreationParams
-  ): Promise<IPlatform> {
+  public async createServer(
+    @Body() requestBody
+  ): Promise<IServer> {
     //return Promise.resolve();
-    let platform = new PlatformsService().createPlateform(requestBody);
+    let server = new ServersService().createServer(requestBody);
     this.setStatus(201); // set return status 201rt
-    return platform;
+    return server;
   }
+
   @Get()
-  public async getPlatforms():
-    Promise<IPlatform[]> {
+  public async getServers():
+    Promise<IServer[]> {
     this.setStatus(201); // set return status 201
-    return new PlatformsService().getPlateforms();
+    return new ServersService().getServers();
   }
 
-  @Get("{platformId}")
-  public async getPlateform(
-    @Path() platformId: string
-  ): Promise<IPlatform> {
+  @Get("{serverId}")
+  public async getServer(
+    @Path() serverId: string
+  ): Promise<IServer> {
     this.setStatus(201); // set return status 201
-    return new PlatformsService().getPlateform(platformId);
+    return new ServersService().getServer(serverId);
   }
 
-  @Delete('{platformId}')
-  public async deletePlatform(
-    @Path() platformId: string
+
+  @Delete('{serverId}')
+  public async deleteServer(
+    @Path() serverId: string
   ): Promise<void> {
-    return new PlatformsService().deletePlatform(platformId);
+    return new ServersService().deleteServer(serverId);
   }
 
 
-  @Put('{platformId}')
+  @Put('{serverId}')
   public async updatePlateform(
-    @Path() platformId: string,
-    @Body() requestBody: IPlatformUpdateParams
+    @Path() serverId: string,
+    @Body() requestBody: IServerUpdateParams
 
-  ): Promise<IPlatform> {
-    return new PlatformsService().updatePlateform(platformId, requestBody);
+  ): Promise<IServer> {
+    return new ServersService().updateServer(serverId, requestBody);
   }
+
 
 }
