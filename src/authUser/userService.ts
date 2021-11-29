@@ -45,8 +45,7 @@ import { expressAuthentication } from "./authentication"
 import { OperationError } from "../utilities/operation-error";
 import { HttpStatusCode } from "../utilities/http-status-code";
 import { IUser, IUserCreationParams, IUserUpdateParams, IUserLoginParams } from "./user.model";
-//import { bcrypt } from "bcrypt";
-//export type UserCreationParams = Pick<User, "userName">;
+import config from "../config"
 import SpinalMiddleware from "../spinalMiddleware";
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -136,12 +135,14 @@ export class UsersService {
                   );
                 } else {
                   return {
-                    userId: user.getId().get(),
                     token: jwt.sign(
                       { userId: user.getId().get() },
                       "RANDOM_TOKEN_SECRET",
                       { expiresIn: "24h" }
                     ),
+                    userId: user.getId().get(),
+                    hubUser: config.spinalConnector.user,
+                    hubPassword: config.spinalConnector.password,
                   };
                 }
               });

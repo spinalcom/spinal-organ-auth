@@ -47,7 +47,7 @@ import { ServersService } from "./serverServices"
 @Route("servers")
 export class ServersController extends Controller {
 
-
+  @Security("jwt")
   @SuccessResponse("201", "Created") // Custom success response
   @Post()
   public async createServer(
@@ -59,6 +59,7 @@ export class ServersController extends Controller {
     return server;
   }
 
+  @Security("jwt")
   @Get()
   public async getServers():
     Promise<IServer[]> {
@@ -66,6 +67,7 @@ export class ServersController extends Controller {
     return new ServersService().getServers();
   }
 
+  @Security("jwt")
   @Get("{serverId}")
   public async getServer(
     @Path() serverId: string
@@ -74,7 +76,7 @@ export class ServersController extends Controller {
     return new ServersService().getServer(serverId);
   }
 
-
+  @Security("jwt")
   @Delete('{serverId}')
   public async deleteServer(
     @Path() serverId: string
@@ -82,7 +84,7 @@ export class ServersController extends Controller {
     return new ServersService().deleteServer(serverId);
   }
 
-
+  @Security("jwt")
   @Put('{serverId}')
   public async updatePlateform(
     @Path() serverId: string,

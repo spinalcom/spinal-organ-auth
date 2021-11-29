@@ -41,6 +41,7 @@ import { PlatformsService } from "./platformServices"
 @Route("platforms")
 export class PlatformsController extends Controller {
 
+  @Security("jwt")
   @SuccessResponse("201", "Created") // Custom success response
   @Post()
   public async createPlateform(
@@ -51,6 +52,8 @@ export class PlatformsController extends Controller {
     this.setStatus(201); // set return status 201rt
     return platform;
   }
+
+  @Security("jwt")
   @Get()
   public async getPlatforms():
     Promise<IPlatform[]> {
@@ -58,6 +61,7 @@ export class PlatformsController extends Controller {
     return new PlatformsService().getPlateforms();
   }
 
+  @Security("jwt")
   @Get("{platformId}")
   public async getPlateform(
     @Path() platformId: string
@@ -66,6 +70,8 @@ export class PlatformsController extends Controller {
     return new PlatformsService().getPlateform(platformId);
   }
 
+
+  @Security("jwt")
   @Delete('{platformId}')
   public async deletePlatform(
     @Path() platformId: string
@@ -73,7 +79,7 @@ export class PlatformsController extends Controller {
     return new PlatformsService().deletePlatform(platformId);
   }
 
-
+  @Security("jwt")
   @Put('{platformId}')
   public async updatePlateform(
     @Path() platformId: string,

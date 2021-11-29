@@ -43,21 +43,20 @@ class SpinalMiddleware {
 
   }
   constructor() {
-
-  }
-
-  async init() {
     // connection string to connect to spinalhub
     const connect_opt =
       `http://${config.spinalConnector.user}:${config.spinalConnector.password}@${config.spinalConnector.host}:${config.spinalConnector.port}/`;
 
     // initialize the connection
     this.conn = spinalCore.connect(connect_opt);
+  }
+
+  async init() {
+
     return new Promise<void>((resolve, reject) => {
       // get the Model from the spinalhub, "onLoadSuccess" and "onLoadError" are 2
       // callback function.
       spinalCore.load(this.conn, "/__users__/admin/auth file", this.onLoadSuccess.bind(this, resolve), this.onLoadError.bind(this, resolve, reject));
-
     })
 
   }

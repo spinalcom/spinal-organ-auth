@@ -22,21 +22,12 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-const config = {
-  spinalConnector: {
-    user: process.env.SPINAL_USER_ID || 168, // user id
-    password: process.env.SPINAL_PASSWORD ||
-      "3HNvC6fftqHz", // user password
-    host: process.env.SPINALHUB_IP || "localhost", // can be an ip address
-    port: process.env.SPINALHUB_PORT || 7777 // port
-  },
-  api: {
-    host: process.env.REQUESTS_HOST || 'localhost', // internal port
-    port: 4040 // internal port
-  },
-  file: {
-    // path to a digital twin in spinalhub filesystem
-    path: process.env.SPINAL_DTWIN_PATH || '/__users__/admin/Digital twin',
-  }
-};
-export default config;
+import Vue from 'vue';
+import App from './App.vue';
+import router from './router';
+
+Vue.config.productionTip = false;
+
+new Vue({
+  render: (h) => h(App),
+}).$mount('#app');
