@@ -206,6 +206,38 @@ export class ServersService {
     }
   }
 
+  public async createAuthServer(): Promise<IServer> {
+
+    const contexts = await this.graph.getChildren("hasContext");
+    for (const context of contexts) {
+      if (context.getName().get() === SERVER_LIST) {
+        const serverObject: IServerCreationParams = {
+          name: "ServerAuth",
+          type: SERVER_TYPE,
+          clientId: this.regenerateKey("id", false),
+          clientSecret: this.regenerateKey("secret", false),
+          profileList: []
+        }
+        const ServerId = SpinalGraphService.createNode(serverObject, undefined);
+        const res = SpinalGraphService.addChildInContext(
+          context.getId().get(),
+          ServerId,
+          context.getId().get(),
+          AUTH_SERVICE_SERVER_RELATION_NAME,
+          AUTH_SERVICE_RELATION_TYPE_PTR_LST
+        )
+
+        return {
+          name: "ServerAuth",
+          type: SERVER_TYPE,
+          clientId: this.regenerateKey("id", false),
+          clientSecret: this.regenerateKey("secret", false),
+          profileList: []
+        }
+      }
+    }
+  }
+
 
   public regenerateKey(type, ask = true) {
     let r = true
@@ -224,6 +256,7 @@ export class ServersService {
       //     if (type == 'secret')
       //       this.form.secretType = 'text'
     }
+
   }
 
 

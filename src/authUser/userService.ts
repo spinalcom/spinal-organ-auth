@@ -30,9 +30,13 @@ import {
 } from "spinal-core-connectorjs_type";
 import {
   USER_LIST,
+  SERVER_LIST,
   AUTH_SERVICE_USER_RELATION_NAME,
   USER_TYPE,
   AUTH_SERVICE_RELATION_TYPE_PTR_LST,
+  TOKEN_TYPE,
+  TOKEN_LIST,
+  AUTH_SERVICE_TOKEN_RELATION_NAME
 } from "../constant";
 import { SPINAL_RELATION_PTR_LST_TYPE } from "spinal-env-viewer-graph-service";
 import {
@@ -45,10 +49,12 @@ import { expressAuthentication } from "./authentication"
 import { OperationError } from "../utilities/operation-error";
 import { HttpStatusCode } from "../utilities/http-status-code";
 import { IUser, IUserCreationParams, IUserUpdateParams, IUserLoginParams } from "./user.model";
+import { IToken } from "../tokens/token.model"
 import config from "../config"
 import SpinalMiddleware from "../spinalMiddleware";
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+import jwt_decode from "jwt-decode";
 
 /**
  * @export
@@ -115,7 +121,7 @@ export class UsersService {
       }
     }
   }
-  public async login(userLoginParams: IUserLoginParams): Promise<string> {
+  public async login(userLoginParams: IUserLoginParams): Promise<IToken> {
     const contexts = await this.graph.getChildren("hasContext");
     for (const context of contexts) {
       if (context.getName().get() === USER_LIST) {
@@ -126,7 +132,7 @@ export class UsersService {
           if (userLoginParams.userName === user.info.userName.get()) {
             return bcrypt
               .compare(userLoginParams.password, user.info.password.get())
-              .then((valid) => {
+              .then(async (valid) => {
                 if (!valid) {
 
                   throw new OperationError(
@@ -134,16 +140,46 @@ export class UsersService {
                     HttpStatusCode.NOT_FOUND
                   );
                 } else {
-                  return {
-                    token: jwt.sign(
-                      { userId: user.getId().get() },
-                      "RANDOM_TOKEN_SECRET",
-                      { expiresIn: "24h" }
-                    ),
+                  let token = jwt.sign(
+                    { userId: user.getId().get() },
+                    "RANDOM_TOKEN_SECRET",
+                    { expiresIn: "24h" }
+                  )
+                  let decodedToken = jwt_decode(token);
+                  let tokenObj: IToken = {
+                    token: token,
+                    // @ts-ignore
+                    createdToken: decodedToken.iat,
+                    // @ts-ignore
+                    expieredToken: decodedToken.exp,
                     userId: user.getId().get(),
+                    userProfileId: user.info.userProfileId.get(),
                     hubUser: config.spinalConnector.user,
                     hubPassword: config.spinalConnector.password,
                   };
+                  let tokenContext = SpinalGraphService.getContext(TOKEN_LIST);
+                  const TokenId = SpinalGraphService.createNode({
+                    name: "token_" + user.getName().get(),
+                    type: TOKEN_TYPE,
+                    token: token,
+                    // @ts-ignore
+                    createdToken: decodedToken.iat,
+                    // @ts-ignore
+                    expieredToken: decodedToken.exp,
+                    userId: user.getId().get(),
+                    userProfileId: user.info.userProfileId.get(),
+                    serverId: "dfghj",
+                    hubUser: config.spinalConnector.user,
+                    hubPassword: config.spinalConnector.password,
+                  }, undefined);
+                  const res = await SpinalGraphService.addChildInContext(
+                    tokenContext.getId().get(),
+                    TokenId,
+                    tokenContext.getId().get(),
+                    AUTH_SERVICE_TOKEN_RELATION_NAME,
+                    AUTH_SERVICE_RELATION_TYPE_PTR_LST
+                  );
+                  return tokenObj
                 }
               });
           }
@@ -155,6 +191,7 @@ export class UsersService {
 
   public async getUsers(): Promise<IUser[]> {
     try {
+
       var usersObjectList = [];
       const contexts = await this.graph.getChildren("hasContext");
       for (const context of contexts) {
@@ -309,6 +346,23 @@ export class UsersService {
           );
         } else return userCreated;
       }
+    }
+  }
+
+  public async getUserProfileByToken(verifyToken: string) {
+    const contexts = await this.graph.getChildren("hasContext");
+    for (const context of contexts) {
+      if (context.getName().get() === TOKEN_LIST) {
+        let tokens = await context.getChildren(AUTH_SERVICE_TOKEN_RELATION_NAME)
+        for (const token of tokens) {
+          if (token.info.token.get() === verifyToken) {
+            return {
+              userProfileId: token.info.userProfileId.get()
+            }
+          }
+        }
+      }
+
     }
   }
 }

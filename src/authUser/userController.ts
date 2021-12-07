@@ -35,9 +35,10 @@ import {
   Security,
   SuccessResponse,
 } from "tsoa";
-import { IUser, IUserCreationParams, IUserUpdateParams, IUserLoginParams } from "./user.model";
+import { IUser, IUserCreationParams, IUserUpdateParams, IUserLoginParams, IUserProfile } from "./user.model";
 import { UsersService } from "./userService";
 import { expressAuthentication } from "./authentication"
+import { IToken } from "../tokens/token.model";
 
 @Route("users")
 export class UsersController extends Controller {
@@ -92,9 +93,18 @@ export class UsersController extends Controller {
   @Post("/login")
   public async login(
     @Body() requestBody: IUserLoginParams
-  ): Promise<string> {
+  ): Promise<IToken> {
     this.setStatus(201); // set return status 201    
     return new UsersService().login(requestBody);
+  }
+
+  @Security("jwt")
+  @Get("/getUserProfileByToken/{verifyToken}")
+  public async getUserProfileByToken(
+    @Path() verifyToken: string
+  ): Promise<IUserProfile> {
+    this.setStatus(201); // set return status 201    
+    return new UsersService().getUserProfileByToken(verifyToken);
   }
 
 

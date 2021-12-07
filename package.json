@@ -57,6 +57,7 @@
     "express": "^4.17.1",
     "express-fileupload": "^1.2.1",
     "jsonwebtoken": "^8.5.1",
+    "jwt-decode": "^3.1.2",
     "method-override": "^3.0.0",
     "morgan": "^1.10.0",
     "routes": "^2.1.0",

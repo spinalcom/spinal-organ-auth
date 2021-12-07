@@ -183,5 +183,32 @@ export class PlatformsService {
     }
   }
 
+
+
+  public async createAuthPlateform(): Promise<IPlatform> {
+    const contexts = await this.graph.getChildren("hasContext");
+    for (const context of contexts) {
+      if (context.getName().get() === PLATFORM_LIST) {
+        const platformObject: IPlateformCreationParams = {
+          type: PLATFORM_TYPE,
+          name: "authenticationPlatform",
+        }
+        const PlatformId = SpinalGraphService.createNode(platformObject, undefined);
+        const res = await SpinalGraphService.addChildInContext(
+          context.getId().get(),
+          PlatformId,
+          context.getId().get(),
+          AUTH_SERVICE_PLATFORM_RELATION_NAME,
+          AUTH_SERVICE_RELATION_TYPE_PTR_LST
+        );
+        return {
+          id: res.getId().get(),
+          type: res.getType().get(),
+          name: res.getName().get()
+        };
+      }
+    }
+  }
+
 }
 

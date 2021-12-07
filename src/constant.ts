@@ -42,18 +42,21 @@ export const AUTH_SERVICE_RELATION_TYPE_PTR_LST = 'PtrLst';
 export const AUTH_SERVICE_RELATION_TYPE_LST_PTR = 'LstPtr';
 export const USER_TYPE = 'AuthServiceUser';
 export const PLATFORM_TYPE = 'AuthServicePlatform';
-export const SERVER_TYPE = 'AuthServiceServer'
+export const SERVER_TYPE = 'AuthServiceServer';
+export const TOKEN_TYPE = 'AuthServiceToken';
 
 
 // RelationName
 export const AUTH_SERVICE_PLATFORM_RELATION_NAME = 'HasPlatform';
 export const AUTH_SERVICE_SERVER_RELATION_NAME = 'HasServer';
 export const AUTH_SERVICE_USER_RELATION_NAME = 'HasUser';
+export const AUTH_SERVICE_TOKEN_RELATION_NAME = 'HasToken';
 
 //ContextName
 export const PLATFORM_LIST = 'platformList';
 export const SERVER_LIST = 'serverList';
-export const USER_LIST = 'UserList';
+export const USER_LIST = 'userList';
+export const TOKEN_LIST = 'tokenList'
 
 // Error
 //const ERROR_PREFIX: string = 'SpinalTwinAdmin Service App Error: ';

@@ -37,10 +37,9 @@ import {
   PLATFORM_LIST,
   SERVER_LIST,
   USER_LIST,
+  TOKEN_LIST,
   AUTH_SERVICE_RELATION_TYPE_PTR_LST,
 } from "../constant";
-import { UsersService } from '../authUser/userService'
-import { IUserCreationParams, IUser } from '../authUser/user.model'
 
 export class AuthGraphService {
   public graph: SpinalGraph<any>;
@@ -50,19 +49,26 @@ export class AuthGraphService {
   async init(): Promise<SpinalGraph<any>> {
     let promises = [];
     var UserList;
-    var AppApiList;
-    var buildingList;
+    var platformList;
+    var serverList;
+    var tokenList;
+
     if ((await this.graph.getContext(USER_LIST)) === undefined) {
       UserList = new SpinalContext(USER_LIST);
       promises.push(this.graph.addContext(UserList));
     }
     if ((await this.graph.getContext(PLATFORM_LIST)) === undefined) {
-      AppApiList = new SpinalContext(PLATFORM_LIST);
-      promises.push(this.graph.addContext(AppApiList));
+      platformList = new SpinalContext(PLATFORM_LIST);
+      promises.push(this.graph.addContext(platformList));
     }
     if ((await this.graph.getContext(SERVER_LIST)) === undefined) {
-      buildingList = new SpinalContext(SERVER_LIST);
-      promises.push(this.graph.addContext(buildingList));
+      serverList = new SpinalContext(SERVER_LIST);
+      promises.push(this.graph.addContext(serverList));
+    }
+
+    if ((await this.graph.getContext(TOKEN_LIST)) === undefined) {
+      tokenList = new SpinalContext(TOKEN_LIST);
+      promises.push(this.graph.addContext(tokenList));
     }
 
     return Promise.all(promises).then(() => {
@@ -70,19 +76,4 @@ export class AuthGraphService {
     });
   }
 
-
-  // async newBuilding(nameBuilding: string): Promise<SpinalNode<any>> {
-  //   console.log("hello");
-
-  //   const context = await SpinalGraphService.getContext(BUILDING_LIST);
-  //   const building = new SpinalNode(nameBuilding);
-  //   const res = context.addChildInContext(
-  //     building,
-  //     AUTH_SERVICE_BUILDING_RELATION_NAME,
-  //     AUTH_SERVICE_RELATION_TYPE_PTR_LST,
-  //     context
-  //   );
-  //   return res;
-  // }
 }
-// module.exports.AuthGraphService = AuthGraphService;

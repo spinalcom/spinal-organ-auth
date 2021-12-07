@@ -27,8 +27,11 @@ import { SpinalGraphService } from 'spinal-env-viewer-graph-service';
 import { SpinalContext, SpinalGraph, SpinalNode } from 'spinal-model-graph';
 import { AuthGraphService } from './services/authGraphService'
 import { UsersService } from './authUser/userService';
+import { PlatformsService } from './platform/platformServices';
+import { ServersService } from './serverType/serverServices';
 const { SpinalServiceUser } = require('spinal-service-user');
 import Server from './server'
+import { TokensService } from "./tokens/tokenService"
 
 import config from './config'
 import SpinalMiddleware from './spinalMiddleware';
@@ -36,7 +39,7 @@ import SpinalMiddleware from './spinalMiddleware';
 async function main() {
   const spinalMiddleware = SpinalMiddleware.getInstance()
   await spinalMiddleware.init();
-  console.log("connexion to hub inisialiser ...");
+  console.log("connection to hub initialize ...");
   const authGraphService = new AuthGraphService(spinalMiddleware.getGraph());
   await authGraphService.init();
   //verification user
@@ -44,8 +47,35 @@ async function main() {
   let users = await usersService.getUsers();
   if (users.length === 0) {
     let res = await usersService.createAuthAdmin()
-    console.log("=====", res);
+    if (res !== undefined) {
+      console.log("Auth Admin created ...");
+    }
   }
+  let plateformsService = new PlatformsService()
+  let plateforms = await plateformsService.getPlateforms();
+  if (plateforms.length === 0) {
+    let res = await plateformsService.createAuthPlateform();
+    if (res !== undefined) {
+      console.log("Auth Plateform created ...");
+    }
+  }
+
+  let serversService = new ServersService();
+  let servers = await serversService.getServers();
+  if (servers.length === 0) {
+    let res = await serversService.createAuthServer();
+    if (res !== undefined) {
+      console.log("Auth Server created ...");
+    }
+  }
+  let TimerToken: number;
+  TimerToken = setTimeout(async function () {
+    let tokensService = new TokensService();
+    await tokensService.verify()
+  }, 86400) as unknown as number;
+
+
+
 
 }
 main();
