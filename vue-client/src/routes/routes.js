@@ -254,11 +254,11 @@ const routes = [
     redirect: '/login',
     name: 'Home',
   },
-  componentsMenu,
-  formsMenu,
-  tablesMenu,
-  mapsMenu,
-  pagesMenu,
+  // componentsMenu,
+  // formsMenu,
+  // tablesMenu,
+  // mapsMenu,
+  // pagesMenu,
   authPages,
   {
     path: '/',
@@ -267,23 +267,23 @@ const routes = [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        y: { default: Dashboard },
+        components: { default: Dashboard },
       },
-      {
-        path: 'calendar',
-        name: 'Calendar',
-        components: { default: Calendar },
-      },
-      {
-        path: 'charts',
-        name: 'Charts',
-        components: { default: Charts },
-      },
-      {
-        path: 'widgets',
-        name: 'Widgets',
-        components: { default: Widgets },
-      },
+      // {
+      //   path: 'calendar',
+      //   name: 'Calendar',
+      //   components: { default: Calendar },
+      // },
+      // {
+      //   path: 'charts',
+      //   name: 'Charts',
+      //   components: { default: Charts },
+      // },
+      // {
+      //   path: 'widgets',
+      //   name: 'Widgets',
+      //   components: { default: Widgets },
+      // },
     ],
   },
 ];

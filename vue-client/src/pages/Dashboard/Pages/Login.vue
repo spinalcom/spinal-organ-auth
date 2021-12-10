@@ -104,7 +104,7 @@ export default {
       // }
       try {
         await tokenGen(this.userName, this.password);
-        this.$router.push("/dashboard");
+        this.$router.push("/register");
       } catch (error) {}
     },
     async showusers() {

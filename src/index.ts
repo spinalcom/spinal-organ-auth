@@ -74,9 +74,6 @@ async function main() {
     await tokensService.verify()
   }, 86400) as unknown as number;
 
-
-
-
 }
 main();
 Server();
