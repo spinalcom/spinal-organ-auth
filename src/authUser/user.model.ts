@@ -30,6 +30,7 @@ export interface IUser {
   id: string | number;
   type: string
   name?: string
+  userType: string
   userName: string;
   password?: string;
   role?: string;
@@ -47,10 +48,10 @@ export interface IUser {
 export interface IUserCreationParams {
   userName: string;
   password: string;
-  userProfileId?: string;
+  userType: string;
   role?: string;
+  userProfileList: string[];
   rights?: {
-    userProfileId?: string;
     plateformId?: string,
     serverId?: string,
   }[]

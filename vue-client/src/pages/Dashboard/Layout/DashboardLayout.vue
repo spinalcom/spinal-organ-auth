@@ -41,7 +41,29 @@ with this file. If not, see
           :link="{ name: 'Auth Menu', icon: 'dashboard', path: '/dashboard' }"
         >
         </sidebar-item>
-        <sidebar-item :link="{ name: 'Login', path: '/login' }"></sidebar-item>
+
+        <sidebar-item
+          :link="{
+            name: 'Users',
+            icon: 'person',
+            path: '/users',
+          }"
+        ></sidebar-item>
+
+        <sidebar-item
+          :link="{
+            name: 'Platforms',
+            icon: 'apps',
+            path: '/platforms',
+          }"
+        ></sidebar-item>
+        <sidebar-item
+          :link="{
+            name: 'Servers',
+            icon: 'hub',
+            path: '/servers',
+          }"
+        ></sidebar-item>
       </template>
     </side-bar>
     <div class="main-panel">

@@ -60,7 +60,7 @@ async function* genToken(user, pass) {
 export let isLogedin = false;
 let _tokenGen = null;
 export async function tokenGen(user = null, pass = null) {
-  console.log(_tokenGen);
+  // console.log(_tokenGen);
   try {
     if (!_tokenGen) {
       _tokenGen = genToken(user, pass);

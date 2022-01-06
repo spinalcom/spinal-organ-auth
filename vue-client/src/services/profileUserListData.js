@@ -21,8 +21,7 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-
-export var data = [
+const profiles = [
   {
     id: 'SpinalNode-fa56d5bc-c7ad-1f22-8c55-5cbc5239028d-17cff2596a3',
     name: 'profile1',
@@ -93,4 +92,75 @@ export var data = [
       },
     ],
   },
+  {
+    id: 'SpinalNode-fa56d5bc-c7ad-1f22-8c55-5cbc5239028d-17cff2596a3',
+    name: 'profile3',
+    graphId: 'SpinalGraph-ed89b877-bb1e-9a7b-38b3-f728b107913e-17cff25969f',
+    appList: [
+      {
+        data: {
+          name: 'Equipment',
+          id: 'SpinalNode-f8947dba-d179-9a29-9eb7-23861b4ae258-17cff118eb5',
+        },
+        role: [
+          {
+            id: 'SpinalNode-2670be07-ca52-faeb-5036-7b6ad303c5b6-17cff118eb4',
+            name: 'Lecture',
+          },
+        ],
+      },
+      {
+        data: {
+          name: 'Ticket',
+          id: 'SpinalNode-da6ea6d6-1a2c-b407-7248-082d63c775d9-17cff118eb5',
+        },
+        role: [
+          {
+            id: 'SpinalNode-2670be07-ca52-faeb-5036-7b6ad303c5b6-17cff118eb4',
+            name: 'Lecture',
+          },
+          {
+            id: 'SpinalNode-d43fc836-0e14-553a-d580-b07296b54c15-17cff118eb4',
+            name: 'Ecriture',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'SpinalNode-fa56d5bc-c7ad-1f22-8c55-5cbc5239028d-17cff2596a3',
+    name: 'profile4',
+    graphId: 'SpinalGraph-ed89b877-bb1e-9a7b-38b3-f728b107913e-17cff25969f',
+    appList: [
+      {
+        data: {
+          name: 'Equipment',
+          id: 'SpinalNode-f8947dba-d179-9a29-9eb7-23861b4ae258-17cff118eb5',
+        },
+        role: [
+          {
+            id: 'SpinalNode-2670be07-ca52-faeb-5036-7b6ad303c5b6-17cff118eb4',
+            name: 'Lecture',
+          },
+        ],
+      },
+      {
+        data: {
+          name: 'Ticket',
+          id: 'SpinalNode-da6ea6d6-1a2c-b407-7248-082d63c775d9-17cff118eb5',
+        },
+        role: [
+          {
+            id: 'SpinalNode-2670be07-ca52-faeb-5036-7b6ad303c5b6-17cff118eb4',
+            name: 'Lecture',
+          },
+          {
+            id: 'SpinalNode-d43fc836-0e14-553a-d580-b07296b54c15-17cff118eb4',
+            name: 'Ecriture',
+          },
+        ],
+      },
+    ],
+  },
 ];
+export default profiles;

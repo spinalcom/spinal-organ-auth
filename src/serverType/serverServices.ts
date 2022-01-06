@@ -71,7 +71,8 @@ export class ServersService {
           type: SERVER_TYPE,
           clientId: this.regenerateKey("id", false),
           clientSecret: this.regenerateKey("secret", false),
-          profileList: []
+          uri: serverCreationParms.uri,
+          profileList: serverCreationParms.profileList
         }
         const ServerId = SpinalGraphService.createNode(serverObject, undefined);
         const res = SpinalGraphService.addChildInContext(
@@ -87,7 +88,8 @@ export class ServersService {
           type: SERVER_TYPE,
           clientId: this.regenerateKey("id", false),
           clientSecret: this.regenerateKey("secret", false),
-          profileList: []
+          uri: serverCreationParms.uri,
+          profileList: serverCreationParms.profileList
         }
       }
     }
@@ -112,6 +114,7 @@ export class ServersService {
               name: server.getName().get(),
               clientId: server.info.clientId.get(),
               clientSecret: server.info.clientSecret.get(),
+              uri: server.info.uri.get(),
               profileList: server.info.profileList.get(),
             };
             serversObjectList.push(ServerObject);
@@ -140,6 +143,7 @@ export class ServersService {
               name: server.getName().get(),
               clientId: server.info.clientId.get(),
               clientSecret: server.info.clientSecret.get(),
+              uri: server.info.uri.get(),
               profileList: server.info.profileList.get(),
             };
           }
@@ -169,7 +173,8 @@ export class ServersService {
               server.info.clientId.set(requestBody.clientId)
             } else if (requestBody.clientSecret !== undefined) {
               server.info.clientSecret.set(requestBody.clientSecret)
-            }
+            } else if (requestBody.uri !== undefined)
+              server.info.uri.set(requestBody.uri)
 
             serverObject = {
               id: server.getId().get(),
@@ -177,6 +182,7 @@ export class ServersService {
               type: server.getType().get(),
               clientId: server.info.clientId.get(),
               clientSecret: server.info.clientSecret.get(),
+              uri: server.info.uri.get(),
               profileList: server.info.profileList.get()
             }
 
@@ -216,6 +222,7 @@ export class ServersService {
           type: SERVER_TYPE,
           clientId: this.regenerateKey("id", false),
           clientSecret: this.regenerateKey("secret", false),
+          uri: "localhost...",
           profileList: []
         }
         const ServerId = SpinalGraphService.createNode(serverObject, undefined);
@@ -232,6 +239,7 @@ export class ServersService {
           type: SERVER_TYPE,
           clientId: this.regenerateKey("id", false),
           clientSecret: this.regenerateKey("secret", false),
+          uri: "localhost...",
           profileList: []
         }
       }

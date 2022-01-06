@@ -62,163 +62,168 @@ import GoogleMaps from '@/pages/Dashboard/Maps/GoogleMaps.vue';
 import FullScreenMap from '@/pages/Dashboard/Maps/FullScreenMap.vue';
 import VectorMaps from '@/pages/Dashboard/Maps/VectorMaps.vue';
 
+// import Server from '@/pages/Dashboard/Pages/Server.vue';
+import Platforms from '@/pages/Dashboard/Pages/Platforms.vue';
+import Servers from '@/pages/Dashboard/Pages/Servers.vue';
+import Users from '@/pages/Dashboard/Pages/Users.vue';
+import AddServer from '@/pages/Dashboard/Pages/AddServer.vue';
 // Calendar
 import Calendar from '@/pages/Dashboard/Calendar.vue';
 // Charts
 import Charts from '@/pages/Dashboard/Charts.vue';
 import Widgets from '@/pages/Dashboard/Widgets.vue';
 
-let componentsMenu = {
-  path: '/components',
-  component: DashboardLayout,
-  redirect: '/components/buttons',
-  name: 'Components',
-  children: [
-    {
-      path: 'buttons',
-      name: 'Buttons',
-      components: { default: Buttons },
-    },
-    {
-      path: 'grid-system',
-      name: 'Grid System',
-      components: { default: GridSystem },
-    },
-    {
-      path: 'panels',
-      name: 'Panels',
-      components: { default: Panels },
-    },
-    {
-      path: 'sweet-alert',
-      name: 'Sweet Alert',
-      components: { default: SweetAlert },
-    },
-    {
-      path: 'notifications',
-      name: 'Notifications',
-      components: { default: Notifications },
-    },
-    {
-      path: 'icons',
-      name: 'Icons',
-      components: { default: Icons },
-    },
-    {
-      path: 'typography',
-      name: 'Typography',
-      components: { default: Typography },
-    },
-  ],
-};
-let formsMenu = {
-  path: '/forms',
-  component: DashboardLayout,
-  redirect: '/forms/regular',
-  name: 'Forms',
-  children: [
-    {
-      path: 'regular',
-      name: 'Regular Forms',
-      components: { default: RegularForms },
-    },
-    {
-      path: 'extended',
-      name: 'Extended Forms',
-      components: { default: ExtendedForms },
-    },
-    {
-      path: 'validation',
-      name: 'Validation Forms',
-      components: { default: ValidationForms },
-    },
-    {
-      path: 'wizard',
-      name: 'Wizard',
-      components: { default: Wizard },
-    },
-  ],
-};
+// let componentsMenu = {
+//   path: '/components',
+//   component: DashboardLayout,
+//   redirect: '/components/buttons',
+//   name: 'Components',
+//   children: [
+//     {
+//       path: 'buttons',
+//       name: 'Buttons',
+//       components: { default: Buttons },
+//     },
+//     {
+//       path: 'grid-system',
+//       name: 'Grid System',
+//       components: { default: GridSystem },
+//     },
+//     {
+//       path: 'panels',
+//       name: 'Panels',
+//       components: { default: Panels },
+//     },
+//     {
+//       path: 'sweet-alert',
+//       name: 'Sweet Alert',
+//       components: { default: SweetAlert },
+//     },
+//     {
+//       path: 'notifications',
+//       name: 'Notifications',
+//       components: { default: Notifications },
+//     },
+//     {
+//       path: 'icons',
+//       name: 'Icons',
+//       components: { default: Icons },
+//     },
+//     {
+//       path: 'typography',
+//       name: 'Typography',
+//       components: { default: Typography },
+//     },
+//   ],
+// };
+// let formsMenu = {
+//   path: '/forms',
+//   component: DashboardLayout,
+//   redirect: '/forms/regular',
+//   name: 'Forms',
+//   children: [
+//     {
+//       path: 'regular',
+//       name: 'Regular Forms',
+//       components: { default: RegularForms },
+//     },
+//     {
+//       path: 'extended',
+//       name: 'Extended Forms',
+//       components: { default: ExtendedForms },
+//     },
+//     {
+//       path: 'validation',
+//       name: 'Validation Forms',
+//       components: { default: ValidationForms },
+//     },
+//     {
+//       path: 'wizard',
+//       name: 'Wizard',
+//       components: { default: Wizard },
+//     },
+//   ],
+// };
 
-let tablesMenu = {
-  path: '/table-list',
-  component: DashboardLayout,
-  redirect: '/table-list/regular',
-  name: 'Tables',
-  children: [
-    {
-      path: 'regular',
-      name: 'Regular Tables',
-      components: { default: RegularTables },
-    },
-    {
-      path: 'extended',
-      name: 'Extended Tables',
-      components: { default: ExtendedTables },
-    },
-    {
-      path: 'paginated',
-      name: 'Pagianted Tables',
-      components: { default: PaginatedTables },
-    },
-  ],
-};
+// let tablesMenu = {
+//   path: '/table-list',
+//   component: DashboardLayout,
+//   redirect: '/table-list/regular',
+//   name: 'Tables',
+//   children: [
+//     {
+//       path: 'regular',
+//       name: 'Regular Tables',
+//       components: { default: RegularTables },
+//     },
+//     {
+//       path: 'extended',
+//       name: 'Extended Tables',
+//       components: { default: ExtendedTables },
+//     },
+//     {
+//       path: 'paginated',
+//       name: 'Pagianted Tables',
+//       components: { default: PaginatedTables },
+//     },
+//   ],
+// };
 
-let mapsMenu = {
-  path: '/maps',
-  component: DashboardLayout,
-  name: 'Maps',
-  redirect: '/maps/google',
-  children: [
-    {
-      path: 'google',
-      name: 'Google Maps',
-      components: { default: GoogleMaps },
-    },
-    {
-      path: 'full-screen',
-      name: 'Full Screen Map',
-      meta: {
-        hideContent: true,
-        hideFooter: true,
-        navbarAbsolute: true,
-      },
-      components: { default: FullScreenMap },
-    },
-    {
-      path: 'vector-map',
-      name: 'Vector Map',
-      components: { default: VectorMaps },
-    },
-  ],
-};
+// let mapsMenu = {
+//   path: '/maps',
+//   component: DashboardLayout,
+//   name: 'Maps',
+//   redirect: '/maps/google',
+//   children: [
+//     {
+//       path: 'google',
+//       name: 'Google Maps',
+//       components: { default: GoogleMaps },
+//     },
+//     {
+//       path: 'full-screen',
+//       name: 'Full Screen Map',
+//       meta: {
+//         hideContent: true,
+//         hideFooter: true,
+//         navbarAbsolute: true,
+//       },
+//       components: { default: FullScreenMap },
+//     },
+//     {
+//       path: 'vector-map',
+//       name: 'Vector Map',
+//       components: { default: VectorMaps },
+//     },
+//   ],
+// };
 
-let pagesMenu = {
-  path: '/pages',
-  component: DashboardLayout,
-  name: 'Pages',
-  redirect: '/pages/user',
-  children: [
-    {
-      path: 'user',
-      name: 'User Page',
-      components: { default: User },
-    },
-    {
-      path: 'timeline',
-      name: 'Timeline Page',
-      components: { default: TimeLine },
-    },
-    {
-      path: 'rtl',
-      name: 'وحة القيادة',
-      meta: {
-        rtlActive: true,
-      },
-      components: { default: RtlSupport },
-    },
-  ],
-};
+// let pagesMenu = {
+//   path: '/pages',
+//   component: DashboardLayout,
+//   name: 'Pages',
+//   redirect: '/pages/user',
+//   children: [
+//     {
+//       path: 'user',
+//       name: 'User Page',
+//       components: { default: User },
+//     },
+//     {
+//       path: 'timeline',
+//       name: 'Timeline Page',
+//       components: { default: TimeLine },
+//     },
+//     {
+//       path: 'rtl',
+//       name: 'وحة القيادة',
+//       meta: {
+//         rtlActive: true,
+//       },
+//       components: { default: RtlSupport },
+//     },
+//   ],
+// };
 
 let authPages = {
   path: '/',
@@ -269,21 +274,26 @@ const routes = [
         name: 'Dashboard',
         components: { default: Dashboard },
       },
-      // {
-      //   path: 'calendar',
-      //   name: 'Calendar',
-      //   components: { default: Calendar },
-      // },
-      // {
-      //   path: 'charts',
-      //   name: 'Charts',
-      //   components: { default: Charts },
-      // },
-      // {
-      //   path: 'widgets',
-      //   name: 'Widgets',
-      //   components: { default: Widgets },
-      // },
+      {
+        path: 'platforms',
+        name: 'Platforms',
+        components: { default: Platforms },
+      },
+      {
+        path: 'servers',
+        name: 'Servers',
+        components: { default: Servers },
+      },
+      {
+        path: 'users',
+        name: 'Users',
+        components: { default: Users },
+      },
+      {
+        path: 'AddServer',
+        name: 'AddServer',
+        components: { default: AddServer },
+      },
     ],
   },
 ];

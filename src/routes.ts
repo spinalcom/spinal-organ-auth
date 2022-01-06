@@ -22,6 +22,7 @@ const models: TsoaRoute.Models = {
             "id": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"double"}],"required":true},
             "type": {"dataType":"string","required":true},
             "name": {"dataType":"string"},
+            "userType": {"dataType":"string","required":true},
             "userName": {"dataType":"string","required":true},
             "password": {"dataType":"string"},
             "role": {"dataType":"string"},
@@ -35,9 +36,10 @@ const models: TsoaRoute.Models = {
         "properties": {
             "userName": {"dataType":"string","required":true},
             "password": {"dataType":"string","required":true},
-            "userProfileId": {"dataType":"string"},
+            "userType": {"dataType":"string","required":true},
             "role": {"dataType":"string"},
-            "rights": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"serverId":{"dataType":"string"},"plateformId":{"dataType":"string"},"userProfileId":{"dataType":"string"}}}},
+            "userProfileList": {"dataType":"array","array":{"dataType":"string"},"required":true},
+            "rights": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"serverId":{"dataType":"string"},"plateformId":{"dataType":"string"}}}},
         },
         "additionalProperties": false,
     },
@@ -62,6 +64,7 @@ const models: TsoaRoute.Models = {
             "createdToken": {"dataType":"double"},
             "expieredToken": {"dataType":"double"},
             "userId": {"dataType":"string"},
+            "userType": {"dataType":"string","required":true},
             "userProfileId": {"dataType":"string"},
             "serverId": {"dataType":"string"},
             "hubUser": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"double"}]},
@@ -123,6 +126,7 @@ const models: TsoaRoute.Models = {
             "type": {"dataType":"string"},
             "clientId": {"dataType":"string","required":true},
             "clientSecret": {"dataType":"string","required":true},
+            "uri": {"dataType":"string","required":true},
             "profileList": {"dataType":"array","array":{"dataType":"refObject","ref":"IUserProfile"},"required":true},
         },
         "additionalProperties": false,
@@ -134,6 +138,7 @@ const models: TsoaRoute.Models = {
             "name": {"dataType":"string","required":true},
             "clientId": {"dataType":"string","required":true},
             "clientSecret": {"dataType":"string","required":true},
+            "uri": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -173,7 +178,6 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/users',
-            authenticateMiddleware([{"jwt":[]}]),
 
             function UsersController_getUsers(request: any, response: any, next: any) {
             const args = {
@@ -268,6 +272,29 @@ export function RegisterRoutes(app: express.Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/users/userProfilesList',
+            authenticateMiddleware([{"jwt":[]}]),
+
+            function UsersController_userProfilesList(request: any, response: any, next: any) {
+            const args = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new UsersController();
+
+
+              const promise = controller.userProfilesList.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/users/login',
 
             function UsersController_login(request: any, response: any, next: any) {
@@ -309,6 +336,51 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.getUserProfileByToken.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/users/getInfoToken/:token',
+
+            function UsersController_getInfoToken(request: any, response: any, next: any) {
+            const args = {
+                    token: {"in":"path","name":"token","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new UsersController();
+
+
+              const promise = controller.getInfoToken.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/users/getRoles',
+
+            function UsersController_getRoles(request: any, response: any, next: any) {
+            const args = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new UsersController();
+
+
+              const promise = controller.getRoles.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

@@ -52,6 +52,7 @@ import { IUser, IUserCreationParams, IUserUpdateParams, IUserLoginParams } from 
 import { IToken } from "../tokens/token.model"
 import config from "../config"
 import SpinalMiddleware from "../spinalMiddleware";
+import data from "./profileUserListData"
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 import jwt_decode from "jwt-decode";
@@ -72,22 +73,21 @@ export class UsersService {
   public async createUser(
     userCreationParams: IUserCreationParams
   ): Promise<IUser> {
-    console.log("hello service");
-
     const contexts = await this.graph.getChildren("hasContext");
     for (const context of contexts) {
       if (context.getName().get() === USER_LIST) {
-        console.log("hello context");
-
         var userCreated = bcrypt
           .hash(userCreationParams.password, 10)
           .then(async (hash) => {
+
             const userObject = {
               type: USER_TYPE,
               name: userCreationParams.userName,
+              userType: userCreationParams.userType,
               userName: userCreationParams.userName,
               password: hash,
-              userProfileId: userCreationParams.userProfileId,
+              userProfileList: userCreationParams.userProfileList,
+              rights: userCreationParams.rights,
               role: userCreationParams.role,
             };
             if (userObject.role !== "authAdmin" && userObject.userName !== "authAdmin") {
@@ -106,6 +106,8 @@ export class UsersService {
                 type: res.getType().get(),
                 userName: res.info.userName.get(),
                 role: res.info.role.get(),
+                userType: res.info.userType.get(),
+
               };
             } else {
               return undefined
@@ -153,6 +155,7 @@ export class UsersService {
                     // @ts-ignore
                     expieredToken: decodedToken.exp,
                     userId: user.getId().get(),
+                    userType: user.info.userType.get(),
                     userProfileId: user.info.userProfileId.get(),
                     hubUser: config.spinalConnector.user,
                     hubPassword: config.spinalConnector.password,
@@ -167,6 +170,7 @@ export class UsersService {
                     // @ts-ignore
                     expieredToken: decodedToken.exp,
                     userId: user.getId().get(),
+                    userType: user.info.userType.get(),
                     userProfileId: user.info.userProfileId.get(),
                     serverId: "dfghj",
                     hubUser: config.spinalConnector.user,
@@ -191,7 +195,6 @@ export class UsersService {
 
   public async getUsers(): Promise<IUser[]> {
     try {
-
       var usersObjectList = [];
       const contexts = await this.graph.getChildren("hasContext");
       for (const context of contexts) {
@@ -205,6 +208,7 @@ export class UsersService {
               type: user.getType().get(),
               userName: user.info.userName.get(),
               password: user.info.password.get(),
+              userType: user.info.userType.get(),
               role: user.info.role.get(),
             };
             usersObjectList.push(userObject);
@@ -218,11 +222,24 @@ export class UsersService {
     }
   }
 
+
+
+
+  public async userProfilesList(): Promise<any[]> {
+    try {
+      return data;
+    } catch (error) {
+      return error;
+    }
+  }
+
+
+
   public async getUser(id): Promise<IUser> {
     const contexts = await this.graph.getChildren("hasContext");
     for (const context of contexts) {
       if (context.getName().get() === USER_LIST) {
-        console.log("context", context.getName().get());
+        // console.log("context", context.getName().get());
 
         const users = await context.getChildren(
           AUTH_SERVICE_USER_RELATION_NAME
@@ -234,6 +251,7 @@ export class UsersService {
               type: user.getType().get(),
               userName: user.getName().get(),
               password: user.info.password.get(),
+              userType: user.info.userType.get(),
               role: user.info.role.get(),
             };
             //return userObject;
@@ -272,6 +290,7 @@ export class UsersService {
           type: user.getType().get(),
           userName: user.getName().get(),
           password: user.info.password.get(),
+          userType: user.info.userType.get(),
           role: user.info.role.get(),
         };
       }
@@ -301,7 +320,9 @@ export class UsersService {
     let userCreationParams: IUserCreationParams = {
       userName: "authAdmin",
       password: "spinalcom",
-      userProfileId: "",
+      userType: "authAdmin",
+      userProfileList: [],
+      rights: [],
       role: "authAdmin",
     }
     const contexts = await this.graph.getChildren("hasContext");
@@ -315,7 +336,8 @@ export class UsersService {
               name: userCreationParams.userName,
               userName: userCreationParams.userName,
               password: hash,
-              userProfileId: userCreationParams.userProfileId,
+              userType: userCreationParams.userType,
+              userProfileId: userCreationParams.rights,
               role: userCreationParams.role,
             };
             if (userObject.role === "authAdmin" && userObject.userName === "authAdmin") {
@@ -332,6 +354,7 @@ export class UsersService {
                 id: res.getId().get(),
                 type: res.getType().get(),
                 userName: res.info.userName.get(),
+                userType: res.info.userType.get(),
                 role: res.info.role.get(),
               };
             } else {
@@ -364,6 +387,38 @@ export class UsersService {
       }
 
     }
+  }
+  public async getInfoToken(tokenParam: string) {
+
+    const contexts = await this.graph.getChildren("hasContext");
+    for (const context of contexts) {
+      if (context.getName().get() === TOKEN_LIST) {
+        let tokens = await context.getChildren(AUTH_SERVICE_TOKEN_RELATION_NAME)
+        for (const token of tokens) {
+          if (token.info.token.get() === tokenParam) {
+            return {
+              name: token.info.name.get(),
+              userProfileId: token.info.userProfileId.get(),
+              token: token.info.token.get(),
+              createdToken: token.info.createdToken.get(),
+              expieredToken: token.info.expieredToken.get(),
+              userId: token.info.userId.get(),
+              userType: token.info.userType.get(),
+              serverId: token.info.serverId.get(),
+              id: token.info.id.get(),
+            }
+          }
+        }
+      }
+
+    }
+  }
+
+
+  public async getRoles(): Promise<{ name: string }[]> {
+    return [{
+      name: "Super User"
+    }, { name: "Simple User" }]
   }
 }
 

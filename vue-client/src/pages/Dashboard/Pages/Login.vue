@@ -54,13 +54,13 @@ with this file. If not, see
         >
           Log In
         </md-button>
-        <md-button
+        <!-- <md-button
           slot="footer"
           class="md-simple md-success md-lg"
           @click="showusers"
         >
           Users
-        </md-button>
+        </md-button> -->
       </login-card>
     </div>
   </div>
@@ -104,7 +104,7 @@ export default {
       // }
       try {
         await tokenGen(this.userName, this.password);
-        this.$router.push("/register");
+        this.$router.push("/Dashboard");
       } catch (error) {}
     },
     async showusers() {
@@ -114,7 +114,6 @@ export default {
           "x-access-token": this.info.data.token
         }
       });
-      console.log("users", rep);
     }
   }
 };

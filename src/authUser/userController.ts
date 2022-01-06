@@ -54,7 +54,7 @@ export class UsersController extends Controller {
     return user;
   }
 
-  @Security("jwt")
+  // @Security("jwt")
   @Get()
   public async getUsers():
     Promise<IUser[]> {
@@ -89,6 +89,14 @@ export class UsersController extends Controller {
   }
 
 
+  @Security("jwt")
+  @Post("/userProfilesList")
+  public async userProfilesList():
+    Promise<any[]> {
+    this.setStatus(201); // set return status 201
+    return new UsersService().userProfilesList();
+  }
+
 
   @Post("/login")
   public async login(
@@ -106,6 +114,23 @@ export class UsersController extends Controller {
     this.setStatus(201); // set return status 201    
     return new UsersService().getUserProfileByToken(verifyToken);
   }
+
+  // @Security("jwt")
+  @Get("/getInfoToken/{token}")
+  public async getInfoToken(
+    @Path() token: string
+  ): Promise<IUserProfile> {
+    this.setStatus(201); // set return status 201    
+    return new UsersService().getInfoToken(token);
+  }
+
+  // @Security("jwt")
+  @Post("/getRoles")
+  public async getRoles(): Promise<{ name: string }[]> {
+    this.setStatus(201); // set return status 201    
+    return new UsersService().getRoles();
+  }
+
 
 
 

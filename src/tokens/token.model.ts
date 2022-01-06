@@ -35,6 +35,7 @@ export interface IToken {
   createdToken?: number;
   expieredToken?: number;
   userId?: string;
+  userType: string;
   userProfileId?: string;
   serverId?: string;
   hubUser?: string | number;

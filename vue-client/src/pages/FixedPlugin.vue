@@ -1,3 +1,27 @@
+<!--
+Copyright 2021 SpinalCom - www.spinalcom.com
+
+This file is part of SpinalCore.
+
+Please read all of the following terms and conditions
+of the Free Software license Agreement ("Agreement")
+carefully.
+
+This Agreement is a legally binding contract between
+the Licensee (as defined below) and SpinalCom that
+sets forth the terms and conditions that govern your
+use of the Program. By installing and/or using the
+Program, you agree to abide by all the terms and
+conditions stated or referenced herein.
+
+If you do not agree to abide by these terms and
+conditions, do not demonstrate your acceptance and do
+not install or use the Program.
+You should have received a copy of the license along
+with this file. If not, see
+<http://resources.spinalcom.com/licenses.pdf>.
+-->
+
 <template>
   <div class="fixed-plugin" v-click-outside="closeDropDown">
     <div class="dropdown show-dropdown" :class="{ show: isOpen }">
@@ -33,14 +57,14 @@
           Sidebar Mini
           <md-switch
             :value="!sidebarMini"
-            @change="val => updateValue('sidebarMini', val)"
+            @change="(val) => updateValue('sidebarMini', val)"
           ></md-switch>
         </li>
         <li class="adjustments-line sidebar-img">
           Sidebar Image
           <md-switch
             :value="!sidebarImg"
-            @change="val => updateValueImg('sidebarImg', val)"
+            @change="(val) => updateValueImg('sidebarImg', val)"
           ></md-switch>
         </li>
 
@@ -54,36 +78,6 @@
           <a class="img-holder switch-trigger">
             <img :src="item.image" alt="" />
           </a>
-        </li>
-
-        <li class="button-container">
-          <div class="">
-            <md-button
-              class="md-success md-block"
-              :href="proUrl"
-              target="_blank"
-              >Buy Now</md-button
-            >
-          </div>
-        </li>
-
-        <li class="button-container">
-          <div class="">
-            <md-button
-              class="md-default md-block"
-              :href="documentationLink"
-              target="_blank"
-              >Documentation</md-button
-            >
-          </div>
-        </li>
-
-        <li class="button-container">
-          <div class="">
-            <md-button class="md-block md-info" :href="freeUrl" target="_blank"
-              >Get Free Demo</md-button
-            >
-          </div>
         </li>
       </ul>
     </div>
