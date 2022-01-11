@@ -24,18 +24,20 @@
 
 
 import { Model } from 'spinal-core-connectorjs_type';
-
+import { IServer } from '../serverType/server.model';
 
 export interface IPlatform {
   id: string;
   name: string;
-  type: string
+  type: string;
+  serverList: IServer[];
 }
 
 export interface IPlateformCreationParams {
   id?: string;
   name: string;
-  type?: string
+  type: string;
+  serverList?: IServer[];
 }
 
 export interface IPlatformUpdateParams {

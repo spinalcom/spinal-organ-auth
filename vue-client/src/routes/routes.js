@@ -294,6 +294,11 @@ const routes = [
         name: 'AddServer',
         components: { default: AddServer },
       },
+      {
+        path: 'user',
+        name: 'User Page',
+        components: { default: User },
+      },
     ],
   },
 ];

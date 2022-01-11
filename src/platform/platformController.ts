@@ -45,9 +45,8 @@ export class PlatformsController extends Controller {
   @SuccessResponse("201", "Created") // Custom success response
   @Post()
   public async createPlateform(
-    @Body() requestBody: IPlateformCreationParams
-  ): Promise<IPlatform> {
-    //return Promise.resolve();
+    @Body() requestBody
+  ): Promise<any> {
     let platform = new PlatformsService().createPlateform(requestBody);
     this.setStatus(201); // set return status 201rt
     return platform;

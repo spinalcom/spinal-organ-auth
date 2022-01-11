@@ -239,8 +239,6 @@ export class UsersService {
     const contexts = await this.graph.getChildren("hasContext");
     for (const context of contexts) {
       if (context.getName().get() === USER_LIST) {
-        // console.log("context", context.getName().get());
-
         const users = await context.getChildren(
           AUTH_SERVICE_USER_RELATION_NAME
         );

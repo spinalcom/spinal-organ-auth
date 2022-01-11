@@ -90,34 +90,6 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IPlatform": {
-        "dataType": "refObject",
-        "properties": {
-            "id": {"dataType":"string","required":true},
-            "name": {"dataType":"string","required":true},
-            "type": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IPlateformCreationParams": {
-        "dataType": "refObject",
-        "properties": {
-            "id": {"dataType":"string"},
-            "name": {"dataType":"string","required":true},
-            "type": {"dataType":"string"},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IPlatformUpdateParams": {
-        "dataType": "refObject",
-        "properties": {
-            "name": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IServer": {
         "dataType": "refObject",
         "properties": {
@@ -128,6 +100,25 @@ const models: TsoaRoute.Models = {
             "clientSecret": {"dataType":"string","required":true},
             "uri": {"dataType":"string","required":true},
             "profileList": {"dataType":"array","array":{"dataType":"refObject","ref":"IUserProfile"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IPlatform": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "name": {"dataType":"string","required":true},
+            "type": {"dataType":"string","required":true},
+            "serverList": {"dataType":"array","array":{"dataType":"refObject","ref":"IServer"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IPlatformUpdateParams": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -392,7 +383,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function PlatformsController_createPlateform(request: any, response: any, next: any) {
             const args = {
-                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"IPlateformCreationParams"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

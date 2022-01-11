@@ -47,7 +47,7 @@ with this file. If not, see
                 <span
                   class="md-error"
                   v-else-if="!$v.formServer.serverName.minlength"
-                  >Invalid first name</span
+                  >Invalid Server name</span
                 >
               </md-field>
 
@@ -142,9 +142,17 @@ with this file. If not, see
           >
         </md-card-actions>
       </md-card>
-      <md-snackbar :md-active.sync="serverSaved"
-        >The server {{ lastServer }} was saved with success!</md-snackbar
+      <md-snackbar
+        :md-active.sync="serverSaved"
+        :md-position="position"
+        :md-duration="isInfinity ? Infinity : duration"
+        md-persistent
       >
+        <span>The server {{ lastServer }} was saved with success!</span>
+        <!-- <md-button class="md-primary" @click="showSnackbar = false"
+          >Retry</md-button
+        > -->
+      </md-snackbar>
     </form>
   </div>
 </template>
@@ -170,6 +178,9 @@ export default {
   components: { Multiselect },
   data: () => ({
     token: null,
+    position: "center",
+    duration: 3000,
+    isInfinity: false,
     formServer: {
       serverName: null,
       clientId: null,
@@ -226,7 +237,6 @@ export default {
       this.formServer.userProfileValue = null;
     },
     async saveServer() {
-      console.log("=======", this.formServer.userProfileValue);
       this.sending = true;
       const rep = await axios.post(
         "http://localhost:4040/servers",
@@ -282,11 +292,7 @@ export default {
     this.getServers();
     this.getUserProfileData();
   },
-  watch: {
-    // display: function() {
-    //   console.log("======", this.formServer.userProfileValue);
-    // }
-  }
+  watch: {}
 };
 </script>
 

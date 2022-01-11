@@ -33,8 +33,8 @@ import {
   AUTH_SERVICE_PLATFORM_RELATION_NAME,
   PLATFORM_TYPE,
   AUTH_SERVICE_RELATION_TYPE_PTR_LST,
+  AUTH_SERVICE_SERVER_RELATION_NAME,
 } from "../constant";
-import { SPINAL_RELATION_PTR_LST_TYPE } from "spinal-env-viewer-graph-service";
 import {
   SpinalGraphService,
   SpinalGraph,
@@ -71,6 +71,7 @@ export class PlatformsService {
         const platformObject: IPlateformCreationParams = {
           type: PLATFORM_TYPE,
           name: platformCreationParms.name,
+          serverList: platformCreationParms.serverList
         }
         const PlatformId = SpinalGraphService.createNode(platformObject, undefined);
         const res = await SpinalGraphService.addChildInContext(
@@ -80,10 +81,22 @@ export class PlatformsService {
           AUTH_SERVICE_PLATFORM_RELATION_NAME,
           AUTH_SERVICE_RELATION_TYPE_PTR_LST
         );
+        if (platformCreationParms.serverList.length !== 0) {
+          for (const serverChild of platformCreationParms.serverList) {
+            const checkserverCreates = await SpinalGraphService.addChild(res.getId().get(), serverChild.id, AUTH_SERVICE_SERVER_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+            if (checkserverCreates === true) {
+              console.log("lien entre platform et serveur est creer");
+            } else {
+              console.log("lien entre platform et serveur est koooooooooooo");
+            }
+          }
+        }
+
         return {
           id: res.getId().get(),
           type: res.getType().get(),
-          name: res.getName().get()
+          name: res.getName().get(),
+          serverList: res.info.serverList.get()
         };
 
       }
@@ -101,7 +114,8 @@ export class PlatformsService {
             var PlatformObject: IPlatform = {
               id: platform.getId().get(),
               type: platform.getType().get(),
-              name: platform.getName().get()
+              name: platform.getName().get(),
+              serverList: platform.info.serverList.get()
             };
           }
         }
@@ -126,7 +140,8 @@ export class PlatformsService {
             var PlatformObject: IPlatform = {
               id: platform.getId().get(),
               type: platform.getType().get(),
-              name: platform.getName().get()
+              name: platform.getName().get(),
+              serverList: platform.info.serverList.get()
             };
             platformObjectList.push(PlatformObject);
           }
@@ -152,13 +167,16 @@ export class PlatformsService {
               return {
                 id: platform.getId().get(),
                 type: platform.getType().get(),
-                name: platform.getName().get()
+                name: platform.getName().get(),
+                serverList: platform.info.serverList.get()
               };
             } else {
               return {
                 id: platform.getId().get(),
                 type: platform.getType().get(),
-                name: platform.getName().get()
+                name: platform.getName().get(),
+                serverList: platform.info.serverList.get()
+
               };
             }
           }
@@ -192,6 +210,7 @@ export class PlatformsService {
         const platformObject: IPlateformCreationParams = {
           type: PLATFORM_TYPE,
           name: "authenticationPlatform",
+          serverList: [],
         }
         const PlatformId = SpinalGraphService.createNode(platformObject, undefined);
         const res = await SpinalGraphService.addChildInContext(
@@ -204,7 +223,8 @@ export class PlatformsService {
         return {
           id: res.getId().get(),
           type: res.getType().get(),
-          name: res.getName().get()
+          name: res.getName().get(),
+          serverList: res.info.serverList.get()
         };
       }
     }

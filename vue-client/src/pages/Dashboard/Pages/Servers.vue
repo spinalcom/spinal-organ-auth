@@ -34,16 +34,9 @@ with this file. If not, see
             >
           </div>
           <h4 class="title" v-if="display === false">
-            Liste de profiles de serveurs
+            List Of Server Profiles
           </h4>
-          <h4 class="title" v-if="display === true">Ajouter un Serveur</h4>
-          <h4 class="title" v-if="display === true">
-            Modifier un profil de serveur
-          </h4>
-          <h4 class="title" v-if="display === true">
-            Détail du profil de serveur
-          </h4>
-
+          <h4 class="title" v-if="display === true">Server Profile Detail</h4>
           <md-table
             v-if="display === false"
             :value="serverList"
@@ -59,74 +52,95 @@ with this file. If not, see
               <md-table-cell md-label="Actions">
                 <md-icon
                   class="text-center text-primary"
-                  @click.native="displayAdd('detail', item)"
+                  @click.native="showServerDetail(item)"
                   >visibility</md-icon
                 >
                 <md-icon
                   class="text-center text-primary"
-                  @click.native="displayAdd('detail', item)"
+                  @click.native="deleteServer(item)"
                   >delete</md-icon
                 >
               </md-table-cell>
             </md-table-row>
           </md-table>
-          <md-button
+          <!-- <md-button
             class="md-primary pull-right"
             v-if="display === false"
             @click="displayAdd()"
             >Ajouter</md-button
-          >
+          > -->
         </md-card-header>
         <md-card-content>
-          <ValidationObserver ref="form" v-if="display === true">
-            <form @submit.prevent="validate" v-if="display === true">
-              <div>
-                <div class="md-layout">
-                  <div
-                    class="md-layout-item md-size-100 mt-4 md-small-size-100"
-                  >
-                    <br />
-                    <md-field>
-                      <label>Server Name</label>
-                      <md-input v-model="serverData.serverName" type="text">
-                      </md-input>
-                    </md-field>
-                    <md-field>
-                      <label>Server Name</label>
-                      <md-input v-model="serverData.serverName" type="text">
-                      </md-input>
-                    </md-field>
-                    <md-field>
-                      <label>Server Name</label>
-                      <md-input v-model="serverData.serverName" type="text">
-                      </md-input>
-                    </md-field>
+          <h4 v-if="itemSelected != null && display === true">
+            {{ itemSelected.name }}
+          </h4>
+          <div
+            class="md-layout"
+            v-if="itemSelected != null && display === true"
+          >
+            <div class="md-layout-item">
+              <md-field>
+                <label>ClientId</label>
+                <md-input v-model="itemSelected.clientId" type="text" disabled>
+                </md-input>
+              </md-field>
+              <md-field>
+                <label>clientSecret</label>
+                <md-input
+                  v-model="itemSelected.clientSecret"
+                  :type="secretType"
+                  disabled
+                >
+                </md-input>
+              </md-field>
+              <md-field>
+                <label>URI</label>
+                <md-input v-model="itemSelected.uri" type="text" disabled>
+                </md-input>
+              </md-field>
+            </div>
+
+            <div class="md-layout-item">
+              <md-list
+                v-for="(profile, index) in itemSelected.profileList"
+                :key="index"
+                class="md-double-line"
+              >
+                <md-subheader>
+                  {{ profile.name
+                  }}<md-icon class="md-primary"
+                    >manage_accounts</md-icon
+                  ></md-subheader
+                >
+                <md-list-item
+                  v-for="(app, index) in profile.appList"
+                  :key="index"
+                >
+                  <div class="md-list-item-text">
+                    <ul>
+                      {{
+                        app.data.name
+                      }}
+                      :
+                      <li v-for="(role, index) in app.role" :key="index">
+                        {{ role.name }}
+                      </li>
+                    </ul>
                   </div>
-                </div>
-              </div>
-              <hr />
-              <md-card-actions>
-                <div>
-                  <md-button @click="cancelAdd" class="btn-next md-danger">
-                    Annuler
-                  </md-button>
-                  <md-button @click="saveProfile" class="btn-next md-primary">
-                    Enregistrer
-                  </md-button>
-                </div>
-              </md-card-actions>
-            </form>
-          </ValidationObserver>
+                </md-list-item>
+              </md-list>
+            </div>
+          </div>
         </md-card-content>
       </md-card>
     </div>
   </div>
 </template>
 <script>
-import { Pagination } from "../../../components";
+// import { Pagination } from "../../../components";
 // import { spinalIO } from "../../../services/spinalIO";
-import { SlideYDownTransition } from "vue2-transitions";
-import Multiselect from "vue-multiselect";
+// import { SlideYDownTransition } from "vue2-transitions";
+// import Multiselect from "vue-multiselect";
 import {
   SpinalGraph,
   SpinalGraphService
@@ -138,13 +152,11 @@ export default {
   components: {},
   data() {
     return {
+      token: "",
       display: false,
+      secretType: "password",
+      itemSelected: null,
       serverList: [],
-      serverData: {
-        serverName: "",
-        clientId: "",
-        clientSecret: ""
-      },
       currentSort: "name",
       currentSortOrder: "asc",
       pagination: {
@@ -161,15 +173,38 @@ export default {
      */
   },
   methods: {
-    displayAdd() {
+    showServerDetail(item) {
       this.display = true;
+      this.itemSelected = item;
+    },
+    toggleSecretVisibility() {
+      if (this.secretType == "password") {
+        this.secretType = "text";
+      } else {
+        this.secretType = "password";
+      }
+    },
+    async deleteServer(item, ask = true) {
+      let r = true;
+      if (ask)
+        r = confirm(
+          "Are you sure you want to delete the Server, you can lost all config of this Server!"
+        );
+      if (r === true) {
+        await axios.delete(`http://localhost:4040/servers/${item.id}`, {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        });
+      }
+      this.reloadData();
+    },
+    reloadData() {
+      this.getServers();
     },
     cancelAdd() {
       this.display = false;
-      this.$refs.form.reset();
-    },
-    saveProfile() {
-      // console.log("save profile server");
     },
     async getServers() {
       const rep = await axios.get("http://localhost:4040/servers", {
@@ -179,7 +214,6 @@ export default {
         }
       });
       this.serverList = rep.data;
-      // console.log("servers", rep.data);
     },
     customSort(value) {
       return value.sort((a, b) => {
@@ -204,10 +238,17 @@ export default {
   }
 };
 </script>
-<style lang="css" scoped>
+<style lang="scss" scoped>
 .md-card .md-card-actions {
   border: 0;
   margin-left: 20px;
   margin-right: 20px;
+}
+.md-list {
+  width: 320px;
+  max-width: 100%;
+  display: inline-block;
+  vertical-align: top;
+  border: 1px solid rgba(#000, 0.12);
 }
 </style>

@@ -44,20 +44,13 @@ with this file. If not, see
           >
             <hr />
             <md-table-row slot="md-table-row" slot-scope="{ item }">
-              <md-table-cell md-label="Intitulé" md-sort-by="name">{{
+              <md-table-cell md-label="name" md-sort-by="name">{{
                 item.name
               }}</md-table-cell>
+              <md-table-cell md-label="Servers">{{
+                serverLength(item)
+              }}</md-table-cell>
               <md-table-cell md-label="Actions">
-                <md-icon
-                  class="text-center text-primary"
-                  @click.native="showItem(item)"
-                  >visibility</md-icon
-                >
-                <md-icon
-                  class="text-center text-primary"
-                  @click.native="editItem(item)"
-                  >edit</md-icon
-                >
                 <md-icon
                   class="text-center text-primary"
                   @click.native="deleteItem(item)"
@@ -74,20 +67,41 @@ with this file. If not, see
           >
         </md-card-header>
         <md-card-content>
-          <ValidationObserver ref="form" v-if="display === true">
-            <form @submit.prevent="validate" v-if="display === true">
+          <form
+            novalidate
+            @submit.prevent="validatePlatform"
+            v-if="display === true"
+          >
+            <md-card class="md-layout md-size-100 md-small-size-100">
               <div class="md-layout">
                 <div class="md-layout-item md-size-50 mt-4 md-small-size-50">
-                  <md-field>
-                    <label>Platform Name</label>
-                    <md-input v-model="platformData.platformName" type="text">
+                  <md-field :class="getValidationClass('platformName')">
+                    <label for="platformName">Platform Name</label>
+                    <md-input
+                      name="platformName"
+                      id="platformName"
+                      autocomplete="given-name"
+                      v-model="formPlatform.platformName"
+                      :disabled="sending"
+                    >
                     </md-input>
+
+                    <span
+                      class="md-error"
+                      v-if="!$v.formPlatform.platformName.required"
+                      >The name is required</span
+                    >
+                    <span
+                      class="md-error"
+                      v-else-if="!$v.formPlatform.platformName.minlength"
+                      >Invalid name</span
+                    >
                   </md-field>
 
                   <md-field>
                     <label>Servers :</label>
                     <multiselect
-                      v-model="serverValue"
+                      v-model="formPlatform.serverValue"
                       :options="serverList"
                       :multiple="true"
                       :close-on-select="false"
@@ -104,24 +118,33 @@ with this file. If not, see
                     </multiselect>
                   </md-field>
                 </div>
-
                 <div class="md-layout-item md-size-50 mt-4 md-small-size-50">
                   <AddServer v-if="display === true"></AddServer>
                 </div>
               </div>
-              <hr />
-              <md-card-actions>
-                <div>
-                  <md-button @click="cancelAdd" class="btn-next md-danger">
-                    Annuler
-                  </md-button>
-                  <md-button @click="savePlatform" class="btn-next md-primary">
-                    Enregistrer
-                  </md-button>
-                </div>
-              </md-card-actions>
-            </form>
-          </ValidationObserver>
+            </md-card>
+            <md-progress-bar md-mode="indeterminate" v-if="sending" />
+
+            <md-card-actions>
+              <div>
+                <md-button @click="cancelAdd" class="btn-next md-danger">
+                  Annuler
+                </md-button>
+                <md-button
+                  type="submit"
+                  class="btn-next md-primary"
+                  @click="validatePlatform"
+                  :disabled="sending"
+                >
+                  Enregistrer
+                </md-button>
+              </div>
+            </md-card-actions>
+            <md-snackbar :md-active.sync="platformSaved"
+              >The platform {{ lastPlatform }} was saved with
+              success!</md-snackbar
+            >
+          </form>
         </md-card-content>
       </md-card>
     </div>
@@ -149,40 +172,85 @@ export default {
   mixins: [validationMixin],
   components: { Multiselect, AddServer },
   data: () => ({
-    test: "",
     token: null,
     display: false,
-    serverValue: null,
+    formPlatform: {
+      platformName: null,
+      serverValue: []
+    },
+    platformSaved: false,
+    sending: false,
+    lastPlatform: null,
     serverList: [],
     currentSort: "name",
     currentSortOrder: "asc",
-    platformData: {
-      platformName: ""
-    },
     platformList: []
   }),
+  validations: {
+    formPlatform: {
+      platformName: {
+        required,
+        minLength: minLength(3)
+      },
+
+      serverValue: {
+        required
+      }
+    }
+  },
   computed: {},
   methods: {
-    async savePlatform() {
-      if (this.platformData.platformName !== "") {
-        const rep = await axios.post(
-          "http://localhost:4040/platforms",
-          { name: this.platformData.platformName },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "x-access-token": this.token
-            }
-          }
-        );
-        this.display = false;
+    serverLength(item) {
+      return item.serverList.length;
+    },
+    getValidationClass(fieldName) {
+      const field = this.$v.formPlatform[fieldName];
+      if (field) {
+        return {
+          "md-invalid": field.$invalid && field.$dirty
+        };
       }
+    },
+    clearForm() {
+      this.$v.$reset();
+      this.formPlatform.serverName = null;
+      this.formPlatform.serverValue = null;
+    },
+
+    async savePlatform() {
+      this.sending = true;
+      const rep = await axios.post(
+        "http://localhost:4040/platforms",
+        {
+          name: this.formPlatform.platformName,
+          serverList: this.formPlatform.serverValue
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      window.setTimeout(() => {
+        this.lastPlatform = `${this.formPlatform.platformName}`;
+        this.platformSaved = true;
+        this.sending = false;
+        this.clearForm();
+      }, 1500);
       this.reloadData();
+      this.display = false;
+    },
+    validatePlatform() {
+      this.$v.$touch();
+
+      if (!this.$v.$invalid) {
+        this.savePlatform();
+      }
     },
     showItem(item) {
       // console.log(item);
     },
-    editItem(item) {},
     async deleteItem(item, ask = true) {
       let r = true;
       if (ask)
@@ -207,7 +275,6 @@ export default {
         }
       });
       this.platformList = rep.data;
-      // console.log("servers", rep.data);
     },
     async getServers() {
       const rep = await axios.get("http://localhost:4040/servers", {
@@ -231,8 +298,9 @@ export default {
       this.display = true;
     },
     cancelAdd() {
+      this.$v.$reset();
       this.display = false;
-      this.$refs.form.reset();
+      // this.$refs.formPlatform.reset();
     },
     reloadData() {
       this.getPlatforms();

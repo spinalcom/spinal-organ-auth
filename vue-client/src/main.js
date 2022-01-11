@@ -72,7 +72,6 @@ router.beforeEach((to, from, next) => {
       next();
     })
     .catch(() => {
-      console.log('***********');
       router.push('Login');
     });
 });
