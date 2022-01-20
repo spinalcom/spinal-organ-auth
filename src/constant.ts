@@ -22,25 +22,21 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-export const DIGITAL_TWIN_FILE_MODEL_TYPE = 'Digital twin';
 
-export const DIGITAL_TWIN_PANEL_TITLE = 'Digital Twin Manager';
 
-export const DIGITAL_TWIN_OPEN_MANAGER_BUTTON = 'Digital Twin Manager';
-export const DIGITAL_TWIN_OPEN_MANAGER_BUTTON_DESCRIPTION =
-  'Digital Twin Manager';
 
-export const DIGITAL_TWIN_CREATE_MANAGER_BUTTON = 'Create a Digital twin';
-export const DIGITAL_TWIN_CREATE_MANAGER_BUTTON_DESCRIPTION =
-  'Create a Digital twin';
 
-export const SPINAL_TWIN_ADMIN = 'Spinal Twin Admin';
-export const SPINALAPP_TYPE = 'SpinalTwinAdminServiceApp';
+
+
 
 // Type
 export const AUTH_SERVICE_RELATION_TYPE_PTR_LST = 'PtrLst';
 export const AUTH_SERVICE_RELATION_TYPE_LST_PTR = 'LstPtr';
 export const USER_TYPE = 'AuthServiceUser';
+export const USER_TOKEN_CATEGORY_TYPE = 'AuthServiceUserCategory'
+export const APPLICATION_TYPE = 'AuthServiceApplication'
+export const APPLICATION_TOKEN_CATEGORY_TYPE = 'AuthServiceApplicationCategory'
+
 export const PLATFORM_TYPE = 'AuthServicePlatform';
 export const SERVER_TYPE = 'AuthServiceServer';
 export const TOKEN_TYPE = 'AuthServiceToken';
@@ -50,17 +46,15 @@ export const TOKEN_TYPE = 'AuthServiceToken';
 export const AUTH_SERVICE_PLATFORM_RELATION_NAME = 'HasPlatform';
 export const AUTH_SERVICE_SERVER_RELATION_NAME = 'HasServer';
 export const AUTH_SERVICE_USER_RELATION_NAME = 'HasUser';
+export const AUTH_SERVICE_APPLICATION_RELATION_NAME = 'HasApplication'
 export const AUTH_SERVICE_TOKEN_RELATION_NAME = 'HasToken';
+export const AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME = 'HasCategoryToken'
 
 //ContextName
 export const PLATFORM_LIST = 'platformList';
 export const SERVER_LIST = 'serverList';
 export const USER_LIST = 'userList';
+export const APPLICATION_LIST = 'applicationList'
 export const TOKEN_LIST = 'tokenList'
 
-// Error
-//const ERROR_PREFIX: string = 'SpinalTwinAdmin Service App Error: ';
-//export const USER_BASE_EMPTY = 'User Base Empty';
-//export const USER_NOT_FOUND = 'User Not Found';
-//export const CANNOT_CREATE_INTERNAL_ERROR =
-//  ERROR_PREFIX + 'Internal error: cannot create process';
+

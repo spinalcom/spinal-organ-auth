@@ -28,7 +28,7 @@
  * @export
  * @interface Token
  */
-export interface IToken {
+export interface IUserToken {
   name?: string;
   type?: string;
   token?: string;
@@ -38,7 +38,15 @@ export interface IToken {
   userType: string;
   userProfileId?: string;
   serverId?: string;
-  hubUser?: string | number;
-  hubPassword?: string;
+}
+
+export interface IApplicationToken {
+  name?: string;
+  type?: string;
+  token?: string;
+  createdToken?: number;
+  expieredToken?: number;
+  applicationId?: string;
+  applicationProfileId?: string;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 SpinalCom - www.spinalcom.com
+ * Copyright 2022 SpinalCom - www.spinalcom.com
  * 
  * This file is part of SpinalCore.
  * 
@@ -22,48 +22,6 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Model } from 'spinal-core-connectorjs_type';
+const data = []
 
-export interface IUserProfile {
-  id: string;
-  name: string;
-  graphId?: string;
-  appList?: {
-    data: {
-      name: string;
-      id: string;
-    },
-    role: {
-      id: string;
-      name: string;
-    }[]
-  }[]
-}
-
-export interface IServerCreationParams {
-  name: string;
-  type: string;
-  clientId: string;
-  clientSecret: string;
-  uri: string;
-  profileList: IUserProfile[]
-}
-
-export interface IServerUpdateParams {
-  name: string;
-  clientId: string;
-  clientSecret: string;
-  uri: string,
-}
-
-export interface IServer {
-  id?: string;
-  name?: string;
-  type?: string;
-  clientId: string;
-  clientSecret: string;
-  uri: string;
-  profileList: IUserProfile[]
-}
-
-
+export default data;

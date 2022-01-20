@@ -49,18 +49,25 @@ with this file. If not, see
             path: '/users',
           }"
         ></sidebar-item>
+        <sidebar-item
+          :link="{
+            name: 'Applications',
+            icon: 'apps',
+            path: '/Application',
+          }"
+        ></sidebar-item>
 
         <sidebar-item
           :link="{
             name: 'Platforms',
-            icon: 'apps',
+            icon: 'hub',
             path: '/platforms',
           }"
         ></sidebar-item>
         <sidebar-item
           :link="{
             name: 'Servers',
-            icon: 'hub',
+            icon: 'dns',
             path: '/servers',
           }"
         ></sidebar-item>

@@ -30,7 +30,6 @@ import {
 } from "spinal-core-connectorjs_type";
 import {
   USER_LIST,
-  SERVER_LIST,
   AUTH_SERVICE_USER_RELATION_NAME,
   USER_TYPE,
   AUTH_SERVICE_RELATION_TYPE_PTR_LST,
@@ -38,7 +37,6 @@ import {
   TOKEN_LIST,
   AUTH_SERVICE_TOKEN_RELATION_NAME
 } from "../constant";
-import { SPINAL_RELATION_PTR_LST_TYPE } from "spinal-env-viewer-graph-service";
 import {
   SpinalGraphService,
   SpinalGraph,
@@ -49,7 +47,7 @@ import { expressAuthentication } from "./authentication"
 import { OperationError } from "../utilities/operation-error";
 import { HttpStatusCode } from "../utilities/http-status-code";
 import { IUser, IUserCreationParams, IUserUpdateParams, IUserLoginParams } from "./user.model";
-import { IToken } from "../tokens/token.model"
+import { IUserToken } from "../tokens/token.model"
 import config from "../config"
 import SpinalMiddleware from "../spinalMiddleware";
 import data from "./profileUserListData"
@@ -59,9 +57,9 @@ import jwt_decode from "jwt-decode";
 
 /**
  * @export
- * @class UsersService
+ * @class UserService
  */
-export class UsersService {
+export class UserService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
   public graph: SpinalGraph<any>;
   constructor() {
@@ -107,7 +105,6 @@ export class UsersService {
                 userName: res.info.userName.get(),
                 role: res.info.role.get(),
                 userType: res.info.userType.get(),
-
               };
             } else {
               return undefined
@@ -123,7 +120,7 @@ export class UsersService {
       }
     }
   }
-  public async login(userLoginParams: IUserLoginParams): Promise<IToken> {
+  public async login(userLoginParams: IUserLoginParams): Promise<IUserToken> {
     const contexts = await this.graph.getChildren("hasContext");
     for (const context of contexts) {
       if (context.getName().get() === USER_LIST) {
@@ -148,42 +145,46 @@ export class UsersService {
                     { expiresIn: "24h" }
                   )
                   let decodedToken = jwt_decode(token);
-                  let tokenObj: IToken = {
-                    token: token,
-                    // @ts-ignore
-                    createdToken: decodedToken.iat,
-                    // @ts-ignore
-                    expieredToken: decodedToken.exp,
-                    userId: user.getId().get(),
-                    userType: user.info.userType.get(),
-                    userProfileId: user.info.userProfileId.get(),
-                    hubUser: config.spinalConnector.user,
-                    hubPassword: config.spinalConnector.password,
-                  };
-                  let tokenContext = SpinalGraphService.getContext(TOKEN_LIST);
-                  const TokenId = SpinalGraphService.createNode({
-                    name: "token_" + user.getName().get(),
-                    type: TOKEN_TYPE,
-                    token: token,
-                    // @ts-ignore
-                    createdToken: decodedToken.iat,
-                    // @ts-ignore
-                    expieredToken: decodedToken.exp,
-                    userId: user.getId().get(),
-                    userType: user.info.userType.get(),
-                    userProfileId: user.info.userProfileId.get(),
-                    serverId: "dfghj",
-                    hubUser: config.spinalConnector.user,
-                    hubPassword: config.spinalConnector.password,
-                  }, undefined);
-                  const res = await SpinalGraphService.addChildInContext(
-                    tokenContext.getId().get(),
-                    TokenId,
-                    tokenContext.getId().get(),
-                    AUTH_SERVICE_TOKEN_RELATION_NAME,
-                    AUTH_SERVICE_RELATION_TYPE_PTR_LST
-                  );
-                  return tokenObj
+
+                  const tokenContext = SpinalGraphService.getContext(TOKEN_LIST);
+                  const categoryTokenUserList = await tokenContext.getChildren('HasCategoryToken');
+                  for (const categoryTokenUser of categoryTokenUserList) {
+                    if (categoryTokenUser.getName().get() === "User Token") {
+                      const TokenId = SpinalGraphService.createNode({
+                        name: "token_" + user.getName().get(),
+                        type: TOKEN_TYPE,
+                        token: token,
+                        // @ts-ignore
+                        createdToken: decodedToken.iat,
+                        // @ts-ignore
+                        expieredToken: decodedToken.exp,
+                        userId: user.getId().get(),
+                        userType: user.info.userType.get(),
+                        userProfileId: user.info.userProfileId.get(),
+                      }, undefined);
+                      const res = await SpinalGraphService.addChildInContext(
+                        categoryTokenUserList[0].getId().get(),
+                        TokenId,
+                        tokenContext.getId().get(),
+                        AUTH_SERVICE_TOKEN_RELATION_NAME,
+                        AUTH_SERVICE_RELATION_TYPE_PTR_LST
+                      );
+                      let tokenObj: IUserToken = {
+                        name: res.getName().get(),
+                        type: res.getType().get(),
+                        token: token,
+                        // @ts-ignore
+                        createdToken: decodedToken.iat,
+                        // @ts-ignore
+                        expieredToken: decodedToken.exp,
+                        userId: user.getId().get(),
+                        userType: user.info.userType.get(),
+                        userProfileId: user.info.userProfileId.get(),
+                      };
+                      return tokenObj
+
+                    }
+                  }
                 }
               });
           }

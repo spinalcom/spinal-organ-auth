@@ -54,9 +54,9 @@ import { platform } from "process";
  *
  *
  * @export
- * @class PlatformsService
+ * @class PlatformService
  */
-export class PlatformsService {
+export class PlatformService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
   public graph: SpinalGraph<any>;
   constructor() {

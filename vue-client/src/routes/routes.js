@@ -66,6 +66,7 @@ import VectorMaps from '@/pages/Dashboard/Maps/VectorMaps.vue';
 import Platforms from '@/pages/Dashboard/Pages/Platforms.vue';
 import Servers from '@/pages/Dashboard/Pages/Servers.vue';
 import Users from '@/pages/Dashboard/Pages/Users.vue';
+import Application from '@/pages/Dashboard/Pages/Application.vue';
 import AddServer from '@/pages/Dashboard/Pages/AddServer.vue';
 // Calendar
 import Calendar from '@/pages/Dashboard/Calendar.vue';
@@ -295,12 +296,17 @@ const routes = [
         components: { default: AddServer },
       },
       {
-        path: 'user',
+        path: 'User',
         name: 'User Page',
         components: { default: User },
+      },
+      {
+        path: 'Application',
+        name: 'App Page',
+        components: { default: Application },
       },
     ],
   },
 ];
-
+Application;
 export default routes;

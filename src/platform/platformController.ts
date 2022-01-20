@@ -36,7 +36,7 @@ import {
   SuccessResponse,
 } from "tsoa";
 import { IPlatform, IPlateformCreationParams, IPlatformUpdateParams } from "./platform.model";
-import { PlatformsService } from "./platformServices"
+import { PlatformService } from "./platformServices"
 
 @Route("platforms")
 export class PlatformsController extends Controller {
@@ -47,7 +47,7 @@ export class PlatformsController extends Controller {
   public async createPlateform(
     @Body() requestBody
   ): Promise<any> {
-    let platform = new PlatformsService().createPlateform(requestBody);
+    let platform = new PlatformService().createPlateform(requestBody);
     this.setStatus(201); // set return status 201rt
     return platform;
   }
@@ -57,7 +57,7 @@ export class PlatformsController extends Controller {
   public async getPlatforms():
     Promise<IPlatform[]> {
     this.setStatus(201); // set return status 201
-    return new PlatformsService().getPlateforms();
+    return new PlatformService().getPlateforms();
   }
 
   @Security("jwt")
@@ -66,7 +66,7 @@ export class PlatformsController extends Controller {
     @Path() platformId: string
   ): Promise<IPlatform> {
     this.setStatus(201); // set return status 201
-    return new PlatformsService().getPlateform(platformId);
+    return new PlatformService().getPlateform(platformId);
   }
 
 
@@ -75,7 +75,7 @@ export class PlatformsController extends Controller {
   public async deletePlatform(
     @Path() platformId: string
   ): Promise<void> {
-    return new PlatformsService().deletePlatform(platformId);
+    return new PlatformService().deletePlatform(platformId);
   }
 
   @Security("jwt")
@@ -85,7 +85,7 @@ export class PlatformsController extends Controller {
     @Body() requestBody: IPlatformUpdateParams
 
   ): Promise<IPlatform> {
-    return new PlatformsService().updatePlateform(platformId, requestBody);
+    return new PlatformService().updatePlateform(platformId, requestBody);
   }
 
 }

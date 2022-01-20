@@ -41,7 +41,7 @@ import {
   IServerUpdateParams,
   IServer
 } from "./server.model";
-import { ServersService } from "./serverServices"
+import { ServerService } from "./serverServices"
 
 
 @Route("servers")
@@ -54,7 +54,7 @@ export class ServersController extends Controller {
     @Body() requestBody
   ): Promise<IServer> {
     //return Promise.resolve();
-    let server = new ServersService().createServer(requestBody);
+    let server = new ServerService().createServer(requestBody);
     this.setStatus(201); // set return status 201rt
     return server;
   }
@@ -64,7 +64,7 @@ export class ServersController extends Controller {
   public async getServers():
     Promise<IServer[]> {
     this.setStatus(201); // set return status 201
-    return new ServersService().getServers();
+    return new ServerService().getServers();
   }
 
   @Security("jwt")
@@ -73,7 +73,7 @@ export class ServersController extends Controller {
     @Path() serverId: string
   ): Promise<IServer> {
     this.setStatus(201); // set return status 201
-    return new ServersService().getServer(serverId);
+    return new ServerService().getServer(serverId);
   }
 
   @Security("jwt")
@@ -81,7 +81,7 @@ export class ServersController extends Controller {
   public async deleteServer(
     @Path() serverId: string
   ): Promise<void> {
-    return new ServersService().deleteServer(serverId);
+    return new ServerService().deleteServer(serverId);
   }
 
   @Security("jwt")
@@ -91,7 +91,7 @@ export class ServersController extends Controller {
     @Body() requestBody: IServerUpdateParams
 
   ): Promise<IServer> {
-    return new ServersService().updateServer(serverId, requestBody);
+    return new ServerService().updateServer(serverId, requestBody);
   }
 
 

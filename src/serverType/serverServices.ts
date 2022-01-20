@@ -51,8 +51,8 @@ import {
 } from "./server.model";
 const bcrypt = require("bcrypt");
 import SpinalMiddleware from "../spinalMiddleware";
-
-export class ServersService {
+import { regenerateKey } from "../utilities/utilitiesFunctions"
+export class ServerService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
   public graph: SpinalGraph<any>;
   constructor() {
@@ -69,13 +69,13 @@ export class ServersService {
         const serverObject: IServerCreationParams = {
           name: serverCreationParms.name,
           type: SERVER_TYPE,
-          clientId: this.regenerateKey("id", false),
-          clientSecret: this.regenerateKey("secret", false),
+          clientId: serverCreationParms.clientId,
+          clientSecret: serverCreationParms.clientSecret,
           uri: serverCreationParms.uri,
           profileList: serverCreationParms.profileList
         }
         const ServerId = SpinalGraphService.createNode(serverObject, undefined);
-        const res = SpinalGraphService.addChildInContext(
+        const res = await SpinalGraphService.addChildInContext(
           context.getId().get(),
           ServerId,
           context.getId().get(),
@@ -84,12 +84,13 @@ export class ServersService {
         )
 
         return {
-          name: serverCreationParms.name,
-          type: SERVER_TYPE,
-          clientId: this.regenerateKey("id", false),
-          clientSecret: this.regenerateKey("secret", false),
-          uri: serverCreationParms.uri,
-          profileList: serverCreationParms.profileList
+          id: res.getId().get(),
+          name: res.getName().get(),
+          type: res.getType().get(),
+          clientId: res.info.clientId.get(),
+          clientSecret: res.info.clientSecret.get(),
+          uri: res.info.uri.get(),
+          profileList: res.info.profileList.get()
         }
       }
     }
@@ -220,13 +221,13 @@ export class ServersService {
         const serverObject: IServerCreationParams = {
           name: "ServerAuth",
           type: SERVER_TYPE,
-          clientId: this.regenerateKey("id", false),
-          clientSecret: this.regenerateKey("secret", false),
+          clientId: regenerateKey("id", false),
+          clientSecret: regenerateKey("secret", false),
           uri: "localhost...",
           profileList: []
         }
         const ServerId = SpinalGraphService.createNode(serverObject, undefined);
-        const res = SpinalGraphService.addChildInContext(
+        const res = await SpinalGraphService.addChildInContext(
           context.getId().get(),
           ServerId,
           context.getId().get(),
@@ -235,37 +236,19 @@ export class ServersService {
         )
 
         return {
-          name: "ServerAuth",
-          type: SERVER_TYPE,
-          clientId: this.regenerateKey("id", false),
-          clientSecret: this.regenerateKey("secret", false),
-          uri: "localhost...",
-          profileList: []
+          id: res.getId().get(),
+          name: res.getName().get(),
+          type: res.getType().get(),
+          clientId: res.info.clientId.get(),
+          clientSecret: res.info.clientSecret.get(),
+          uri: res.info.uri.get(),
+          profileList: res.info.profileList.get()
         }
       }
     }
   }
 
 
-  public regenerateKey(type, ask = true) {
-    let r = true
-    if (ask)
-      r = confirm("Are you sure you want to generate a new secret? All clients using this key will stop working.")
-    if (r === true) {
-      let length = 64,
-        charset = "abcdef0123456789",
-        retVal = ""
-      for (var i = 0, n = charset.length; i < length; ++i) {
-        retVal += charset.charAt(Math.floor(Math.random() * n))
-      }
-
-      return retVal
-      //     this.app[type] = retVal
-      //     if (type == 'secret')
-      //       this.form.secretType = 'text'
-    }
-
-  }
 
 
 

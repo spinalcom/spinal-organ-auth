@@ -22,7 +22,7 @@ const models: TsoaRoute.Models = {
             "id": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"double"}],"required":true},
             "type": {"dataType":"string","required":true},
             "name": {"dataType":"string"},
-            "userType": {"dataType":"string","required":true},
+            "userType": {"dataType":"string"},
             "userName": {"dataType":"string","required":true},
             "password": {"dataType":"string"},
             "role": {"dataType":"string"},
@@ -36,7 +36,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "userName": {"dataType":"string","required":true},
             "password": {"dataType":"string","required":true},
-            "userType": {"dataType":"string","required":true},
+            "userType": {"dataType":"string"},
             "role": {"dataType":"string"},
             "userProfileList": {"dataType":"array","array":{"dataType":"string"},"required":true},
             "rights": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"serverId":{"dataType":"string"},"plateformId":{"dataType":"string"}}}},
@@ -55,7 +55,7 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IToken": {
+    "IUserToken": {
         "dataType": "refObject",
         "properties": {
             "name": {"dataType":"string"},
@@ -67,8 +67,6 @@ const models: TsoaRoute.Models = {
             "userType": {"dataType":"string","required":true},
             "userProfileId": {"dataType":"string"},
             "serverId": {"dataType":"string"},
-            "hubUser": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"double"}]},
-            "hubPassword": {"dataType":"string"},
         },
         "additionalProperties": false,
     },

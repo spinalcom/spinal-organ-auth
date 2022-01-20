@@ -37,7 +37,13 @@ import {
   PLATFORM_LIST,
   SERVER_LIST,
   USER_LIST,
+  APPLICATION_LIST,
   TOKEN_LIST,
+  USER_TYPE,
+  USER_TOKEN_CATEGORY_TYPE,
+  APPLICATION_TYPE,
+  APPLICATION_TOKEN_CATEGORY_TYPE,
+  AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME,
   AUTH_SERVICE_RELATION_TYPE_PTR_LST,
 } from "../constant";
 
@@ -48,15 +54,22 @@ export class AuthGraphService {
   }
   async init(): Promise<SpinalGraph<any>> {
     let promises = [];
-    var UserList;
-    var platformList;
-    var serverList;
-    var tokenList;
+    var userList: SpinalContext<spinal.Model>;
+    var applicationList: SpinalContext<spinal.Model>;
+    var platformList: SpinalContext<spinal.Model>;
+    var serverList: SpinalContext<spinal.Model>;
+    var tokenList: SpinalContext<spinal.Model>;
 
     if ((await this.graph.getContext(USER_LIST)) === undefined) {
-      UserList = new SpinalContext(USER_LIST);
-      promises.push(this.graph.addContext(UserList));
+      userList = new SpinalContext(USER_LIST);
+      promises.push(this.graph.addContext(userList));
     }
+
+    if ((await this.graph.getContext(APPLICATION_LIST)) === undefined) {
+      applicationList = new SpinalContext(APPLICATION_LIST);
+      promises.push(this.graph.addContext(applicationList));
+    }
+
     if ((await this.graph.getContext(PLATFORM_LIST)) === undefined) {
       platformList = new SpinalContext(PLATFORM_LIST);
       promises.push(this.graph.addContext(platformList));
@@ -75,5 +88,4 @@ export class AuthGraphService {
       return this.graph;
     });
   }
-
 }

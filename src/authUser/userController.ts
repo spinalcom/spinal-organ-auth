@@ -36,9 +36,9 @@ import {
   SuccessResponse,
 } from "tsoa";
 import { IUser, IUserCreationParams, IUserUpdateParams, IUserLoginParams, IUserProfile } from "./user.model";
-import { UsersService } from "./userService";
+import { UserService } from "./userService";
 import { expressAuthentication } from "./authentication"
-import { IToken } from "../tokens/token.model";
+import { IUserToken } from "../tokens/token.model";
 
 @Route("users")
 export class UsersController extends Controller {
@@ -49,7 +49,7 @@ export class UsersController extends Controller {
     @Body() requestBody: IUserCreationParams
   ): Promise<IUser> {
     //return Promise.resolve();
-    let user = new UsersService().createUser(requestBody);
+    let user = new UserService().createUser(requestBody);
     this.setStatus(201); // set return status 201rt
     return user;
   }
@@ -59,7 +59,7 @@ export class UsersController extends Controller {
   public async getUsers():
     Promise<IUser[]> {
     this.setStatus(201); // set return status 201
-    return new UsersService().getUsers();
+    return new UserService().getUsers();
   }
 
   @Security("jwt")
@@ -68,7 +68,7 @@ export class UsersController extends Controller {
     @Path() userId: string
   ): Promise<IUser> {
     this.setStatus(201); // set return status 201
-    return new UsersService().getUser(userId);
+    return new UserService().getUser(userId);
   }
 
   @Security("jwt")
@@ -76,7 +76,7 @@ export class UsersController extends Controller {
   public async deleteUser(
     @Path() userId: string
   ): Promise<void> {
-    return new UsersService().deleteUser(userId);
+    return new UserService().deleteUser(userId);
   }
 
   @Security("jwt")
@@ -85,7 +85,7 @@ export class UsersController extends Controller {
     @Path() userId: string,
     @Body() requestBody: IUserUpdateParams
   ): Promise<IUser> {
-    return new UsersService().updateUser(userId, requestBody);
+    return new UserService().updateUser(userId, requestBody);
   }
 
 
@@ -94,16 +94,16 @@ export class UsersController extends Controller {
   public async userProfilesList():
     Promise<any[]> {
     this.setStatus(201); // set return status 201
-    return new UsersService().userProfilesList();
+    return new UserService().userProfilesList();
   }
 
 
   @Post("/login")
   public async login(
     @Body() requestBody: IUserLoginParams
-  ): Promise<IToken> {
+  ): Promise<IUserToken> {
     this.setStatus(201); // set return status 201    
-    return new UsersService().login(requestBody);
+    return new UserService().login(requestBody);
   }
 
   @Security("jwt")
@@ -112,7 +112,7 @@ export class UsersController extends Controller {
     @Path() verifyToken: string
   ): Promise<IUserProfile> {
     this.setStatus(201); // set return status 201    
-    return new UsersService().getUserProfileByToken(verifyToken);
+    return new UserService().getUserProfileByToken(verifyToken);
   }
 
   // @Security("jwt")
@@ -121,14 +121,14 @@ export class UsersController extends Controller {
     @Path() token: string
   ): Promise<IUserProfile> {
     this.setStatus(201); // set return status 201    
-    return new UsersService().getInfoToken(token);
+    return new UserService().getInfoToken(token);
   }
 
   // @Security("jwt")
   @Post("/getRoles")
   public async getRoles(): Promise<{ name: string }[]> {
     this.setStatus(201); // set return status 201    
-    return new UsersService().getRoles();
+    return new UserService().getRoles();
   }
 
 

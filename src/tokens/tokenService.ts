@@ -33,6 +33,9 @@ import {
   AUTH_SERVICE_TOKEN_RELATION_NAME,
   TOKEN_LIST,
   AUTH_SERVICE_RELATION_TYPE_PTR_LST,
+  USER_TOKEN_CATEGORY_TYPE,
+  APPLICATION_TOKEN_CATEGORY_TYPE,
+  AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME
 } from "../constant";
 import { SPINAL_RELATION_PTR_LST_TYPE } from "spinal-env-viewer-graph-service";
 import {
@@ -43,7 +46,6 @@ import {
 } from "spinal-env-viewer-graph-service";
 import { OperationError } from "../utilities/operation-error";
 import { HttpStatusCode } from "../utilities/http-status-code";
-import { IToken } from "./token.model"
 import config from "../config"
 import SpinalMiddleware from "../spinalMiddleware";
 const bcrypt = require("bcrypt");
@@ -59,7 +61,34 @@ export class TokensService {
     this.graph = this.spinalMiddleware.getGraph();
   }
 
-
+  public async createTokenTree(): Promise<void> {
+    let promises = [];
+    const context = await this.graph.getContext(TOKEN_LIST);
+    const userTokenGroupObject = {
+      type: USER_TOKEN_CATEGORY_TYPE,
+      name: "User Token"
+    }
+    const applicationTokenGroupObject = {
+      type: APPLICATION_TOKEN_CATEGORY_TYPE,
+      name: "Application Token"
+    }
+    const userTokenCategoryId = SpinalGraphService.createNode(userTokenGroupObject, undefined);
+    const applicationTokenCategoryId = SpinalGraphService.createNode(applicationTokenGroupObject, undefined);
+    await SpinalGraphService.addChildInContext(
+      context.getId().get(),
+      userTokenCategoryId,
+      context.getId().get(),
+      AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME,
+      AUTH_SERVICE_RELATION_TYPE_PTR_LST
+    );
+    await SpinalGraphService.addChildInContext(
+      context.getId().get(),
+      applicationTokenCategoryId,
+      context.getId().get(),
+      AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME,
+      AUTH_SERVICE_RELATION_TYPE_PTR_LST
+    );
+  }
 
   public async verify(): Promise<void> {
 

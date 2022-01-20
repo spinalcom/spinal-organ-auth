@@ -49,3 +49,21 @@ export function store(fs: any, model: spinal.Model, path: string, callback_succe
     }
   })
 }
+
+
+export function regenerateKey(type, ask = true) {
+  let r = true
+  if (ask)
+    r = confirm("Are you sure you want to generate a new secret? All clients using this key will stop working.")
+  if (r === true) {
+    let length = 64,
+      charset = "abcdef0123456789",
+      retVal = ""
+    for (var i = 0, n = charset.length; i < length; ++i) {
+      retVal += charset.charAt(Math.floor(Math.random() * n))
+    }
+
+    return retVal;
+  }
+}
+

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 SpinalCom - www.spinalcom.com
+ * Copyright 2022 SpinalCom - www.spinalcom.com
  * 
  * This file is part of SpinalCore.
  * 
@@ -23,53 +23,63 @@
  */
 
 /**
+ *
+ *
  * @export
- * @interface User
+ * @interface IApplication
  */
-export interface IUser {
+export interface IApplication {
   id: string | number;
   type: string
   name?: string
-  userType?: string
-  userName: string;
-  password?: string;
-  role?: string;
+  appType?: string
+  clientId: string;
+  clientSecret?: string;
   rights?: {
-    userProfileId?: string;
-    plateformId?: string,
-    serverId?: string,
+    applicationProfileId?: string;
+    plateformList?: string[],
   }[]
 }
+
+
 /**
-
+ *
+ *
  * @export
- * @interface IUserCreationParams
+ * @interface IApplicationCreationParams
  */
-export interface IUserCreationParams {
-  userName: string;
-  password: string;
-  userType?: string;
-  role?: string;
-  userProfileList: string[];
+export interface IApplicationCreationParams {
+  name: string;
+  clientId: string;
+  clientSecret: string;
+  appType?: string
   rights?: {
-    plateformId?: string,
-    serverId?: string,
+    applicationProfileId?: string;
+    plateformList?: string[],
   }[]
 }
 
-export interface IUserUpdateParams {
-  userName?: string;
-  password?: string;
+
+/**
+ *
+ *
+ * @export
+ * @interface IApplicationUpdateParams
+ */
+export interface IApplicationUpdateParams {
+  name?: string;
+  clientId?: string;
+  clientSecret?: string;
   userProfileId?: string;
-  role?: string;
 }
 
-
-export interface IUserLoginParams {
-  userName: string;
-  password: string;
-}
-
-export interface IUserProfile {
-  userProfileId: string;
+/**
+ *
+ *
+ * @export
+ * @interface IApplicationLoginParams
+ */
+export interface IApplicationLoginParams {
+  clientId?: string;
+  clientSecret?: string;
 }

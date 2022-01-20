@@ -26,9 +26,10 @@ import { spinalCore, FileSystem } from 'spinal-core-connectorjs_type';
 import { SpinalGraphService } from 'spinal-env-viewer-graph-service';
 import { SpinalContext, SpinalGraph, SpinalNode } from 'spinal-model-graph';
 import { AuthGraphService } from './services/authGraphService'
-import { UsersService } from './authUser/userService';
-import { PlatformsService } from './platform/platformServices';
-import { ServersService } from './serverType/serverServices';
+import { UserService } from './authUser/userService';
+import { ApplicationService } from './authApplication/applicationService';
+import { PlatformService } from './platform/platformServices';
+import { ServerService } from './serverType/serverServices';
 const { SpinalServiceUser } = require('spinal-service-user');
 import Server from './server'
 import { TokensService } from "./tokens/tokenService"
@@ -43,15 +44,18 @@ async function main() {
   const authGraphService = new AuthGraphService(spinalMiddleware.getGraph());
   await authGraphService.init();
   //verification user
-  let usersService = new UsersService()
-  let users = await usersService.getUsers();
+  let userService = new UserService()
+  let users = await userService.getUsers();
   if (users.length === 0) {
-    let res = await usersService.createAuthAdmin()
+    let res = await userService.createAuthAdmin()
     if (res !== undefined) {
       console.log("Auth Admin created ...");
     }
   }
-  let plateformsService = new PlatformsService()
+
+
+  // start organ with platform config
+  let plateformsService = new PlatformService()
   let plateforms = await plateformsService.getPlateforms();
   if (plateforms.length === 0) {
     let res = await plateformsService.createAuthPlateform();
@@ -60,14 +64,22 @@ async function main() {
     }
   }
 
-  let serversService = new ServersService();
-  let servers = await serversService.getServers();
+  // start organ with server config
+  let serverService = new ServerService();
+  let servers = await serverService.getServers();
   if (servers.length === 0) {
-    let res = await serversService.createAuthServer();
+    let res = await serverService.createAuthServer();
     if (res !== undefined) {
       console.log("Auth Server created ...");
     }
   }
+
+  //config token context tree
+  var tokensService = new TokensService();
+  await tokensService.createTokenTree();
+
+
+  // start organ with token config
   let TimerToken: number;
   TimerToken = setTimeout(async function () {
     let tokensService = new TokensService();
