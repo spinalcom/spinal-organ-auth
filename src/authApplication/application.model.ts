@@ -35,9 +35,10 @@ export interface IApplication {
   appType?: string
   clientId: string;
   clientSecret?: string;
+  applicationProfileList?: string[],
   rights?: {
-    applicationProfileId?: string;
-    plateformList?: string[],
+    plateformList?: string,
+    serverId?: string
   }[]
 }
 
@@ -53,9 +54,10 @@ export interface IApplicationCreationParams {
   clientId: string;
   clientSecret: string;
   appType?: string
+  applicationProfileList?: string[],
   rights?: {
-    applicationProfileId?: string;
-    plateformList?: string[],
+    plateformList?: string,
+    serverId?: string
   }[]
 }
 
@@ -70,7 +72,6 @@ export interface IApplicationUpdateParams {
   name?: string;
   clientId?: string;
   clientSecret?: string;
-  userProfileId?: string;
 }
 
 /**

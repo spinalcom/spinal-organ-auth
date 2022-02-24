@@ -90,6 +90,7 @@ export class TokensService {
     );
   }
 
+
   public async verify(): Promise<void> {
 
     const contexts = await this.graph.getChildren("hasContext");

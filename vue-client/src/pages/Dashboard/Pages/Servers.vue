@@ -28,17 +28,35 @@ with this file. If not, see
       <md-card>
         <md-card-header class="md-card-header-icon md-card-header-primary">
           <div class="card-icon">
-            <md-icon v-if="display === false">hub</md-icon>
-            <md-icon @click.native="cancelAdd" v-if="display === true"
+            <md-icon v-if="displayShow === false && displayEdit === false"
+              >dns</md-icon
+            >
+            <md-icon
+              class="cursorP"
+              @click.native="cancelAdd"
+              v-if="displayShow === true"
+              >arrow_back</md-icon
+            >
+            <md-icon
+              class="cursorP"
+              @click.native="cancelAdd"
+              v-if="displayEdit === true"
               >arrow_back</md-icon
             >
           </div>
-          <h4 class="title" v-if="display === false">
+          <h4
+            class="title"
+            v-if="displayShow === false && displayEdit === false"
+          >
             List Of Server Profiles
           </h4>
-          <h4 class="title" v-if="display === true">Server Profile Detail</h4>
+          <h4 class="title" v-if="displayShow === true">
+            Server Profile Detail
+          </h4>
+          <h4 class="title" v-if="displayEdit === true">Server Profile Edit</h4>
+
           <md-table
-            v-if="display === false"
+            v-if="displayShow === false && displayEdit === false"
             :value="serverList"
             :md-sort-order.sync="currentSortOrder"
             :md-sort-fn="customSort"
@@ -46,17 +64,25 @@ with this file. If not, see
           >
             <hr />
             <md-table-row slot="md-table-row" slot-scope="{ item }">
-              <md-table-cell md-label="Intitulé" md-sort-by="name">{{
+              <md-table-cell md-label="Name" md-sort-by="name">{{
+                item.name
+              }}</md-table-cell>
+              <md-table-cell md-label="Platform" md-sort-by="name">{{
                 item.name
               }}</md-table-cell>
               <md-table-cell md-label="Actions">
                 <md-icon
-                  class="text-center text-primary"
+                  class="text-center text-primary cursorP"
                   @click.native="showServerDetail(item)"
                   >visibility</md-icon
                 >
                 <md-icon
-                  class="text-center text-primary"
+                  class="text-center text-primary cursorP"
+                  @click.native="ShowEditServer(item)"
+                  >edit</md-icon
+                >
+                <md-icon
+                  class="text-center text-primary cursorP"
                   @click.native="deleteServer(item)"
                   >delete</md-icon
                 >
@@ -71,12 +97,12 @@ with this file. If not, see
           > -->
         </md-card-header>
         <md-card-content>
-          <h4 v-if="itemSelected != null && display === true">
+          <h4 v-if="itemSelected != null && displayShow === true">
             {{ itemSelected.name }}
           </h4>
           <div
             class="md-layout"
-            v-if="itemSelected != null && display === true"
+            v-if="itemSelected != null && displayShow === true"
           >
             <div class="md-layout-item">
               <md-field>
@@ -132,40 +158,178 @@ with this file. If not, see
             </div>
           </div>
         </md-card-content>
+        <form novalidate class="md-layout" @submit.prevent="validateServer">
+          <md-card class="md-layout-item md-size-100 md-small-size-100">
+            <md-card-content>
+              <div
+                class="md-layout"
+                v-if="itemSelected != null && displayEdit === true"
+              >
+                <md-field :class="getValidationClass('serverName')">
+                  <label for="serverName">Server Name</label>
+                  <md-input
+                    name="serverName"
+                    id="serverName"
+                    autocomplete="given-name"
+                    v-model="formServer.serverName"
+                    :disabled="sending"
+                  />
+                  <span
+                    class="md-error"
+                    v-if="!$v.formServer.serverName.required"
+                    >The name is required</span
+                  >
+                  <span
+                    class="md-error"
+                    v-else-if="!$v.formServer.serverName.minlength"
+                    >Invalid Server name</span
+                  >
+                </md-field>
+
+                <md-field :class="getValidationClass('clientId')">
+                  <label for="clientId">clientId</label>
+                  <md-input
+                    name="clientId"
+                    id="clientId"
+                    autocomplete="given-name"
+                    v-model="formServer.clientId"
+                    :disabled="sending"
+                  />
+                  <span class="md-error" v-if="!$v.formServer.clientId.required"
+                    >The clientId is required</span
+                  >
+                  <span
+                    class="md-error"
+                    v-else-if="!$v.formServer.serverName.minlength"
+                    >Invalid clientId</span
+                  >
+                </md-field>
+
+                <md-field :class="getValidationClass('clientSecret')">
+                  <label for="clientSecret">clientSecret</label>
+                  <md-input
+                    name="clientSecret"
+                    id="clientSecret"
+                    autocomplete="given-name"
+                    v-model="formServer.clientSecret"
+                    :disabled="sending"
+                  />
+                  <span
+                    class="md-error"
+                    v-if="!$v.formServer.clientSecret.required"
+                    >The clientSecret is required</span
+                  >
+                  <span
+                    class="md-error"
+                    v-else-if="!$v.formServer.clientSecret.minlength"
+                    >Invalid clientSecret</span
+                  >
+                </md-field>
+
+                <md-field :class="getValidationClass('uri')">
+                  <label for="uri">uri</label>
+                  <md-input
+                    name="uri"
+                    id="uri"
+                    autocomplete="given-name"
+                    v-model="formServer.uri"
+                    :disabled="sending"
+                  />
+                  <span class="md-error" v-if="!$v.formServer.uri.required"
+                    >The uri is required</span
+                  >
+                  <span
+                    class="md-error"
+                    v-else-if="!$v.formServer.uri.minlength"
+                    >Invalid uri</span
+                  >
+                </md-field>
+              </div>
+            </md-card-content>
+            <md-progress-bar md-mode="indeterminate" v-if="sending" />
+            <md-card-actions>
+              <md-button
+                v-if="displayEdit === true"
+                type="submit"
+                class="md-primary"
+                :disabled="sending"
+                >Edit</md-button
+              >
+            </md-card-actions>
+          </md-card>
+          <md-snackbar
+            :md-active.sync="serverSaved"
+            :md-position="position"
+            :md-duration="isInfinity ? Infinity : duration"
+            md-persistent
+          >
+            <span>The server {{ lastServer }} was updated with success!</span>
+          </md-snackbar>
+        </form>
       </md-card>
     </div>
   </div>
 </template>
 <script>
-// import { Pagination } from "../../../components";
-// import { spinalIO } from "../../../services/spinalIO";
-// import { SlideYDownTransition } from "vue2-transitions";
-// import Multiselect from "vue-multiselect";
-import {
-  SpinalGraph,
-  SpinalGraphService
-} from "spinal-env-viewer-graph-service";
 import axios from "axios";
+import { validationMixin } from "vuelidate";
+import {
+  required,
+  email,
+  minLength,
+  maxLength
+} from "vuelidate/lib/validators";
 
 export default {
   name: "Server",
+  mixins: [validationMixin],
+
   components: {},
   data() {
     return {
       token: "",
-      display: false,
+      displayShow: false,
+      displayEdit: false,
       secretType: "password",
       itemSelected: null,
       serverList: [],
       currentSort: "name",
       currentSortOrder: "asc",
-      pagination: {
-        perPage: 5,
-        currentPage: 1,
-        perPageOptions: [5, 10, 25, 50],
-        total: 0
-      }
+      mixins: [validationMixin],
+      position: "center",
+      duration: 3000,
+      isInfinity: false,
+      formServer: {
+        serverName: null,
+        clientId: null,
+        clientSecret: null,
+        uri: null
+      },
+      sending: false,
+      serverSaved: false,
+      lastServer: null
     };
+  },
+
+  validations: {
+    formServer: {
+      serverName: {
+        required,
+        minLength: minLength(3)
+      },
+      clientId: {
+        required,
+        minLength: minLength(3)
+      },
+      clientSecret: {
+        required,
+        minLength: minLength(3)
+      },
+      uri: {
+        required,
+        minLength: minLength(3)
+      }
+    }
   },
   computed: {
     /***
@@ -174,8 +338,62 @@ export default {
   },
   methods: {
     showServerDetail(item) {
-      this.display = true;
+      this.displayShow = true;
       this.itemSelected = item;
+    },
+    ShowEditServer(item) {
+      this.displayEdit = true;
+      this.itemSelected = item;
+    },
+    validateServer() {
+      this.$v.$touch();
+
+      if (!this.$v.$invalid) {
+        this.editServer();
+      }
+    },
+    async editServer() {
+      this.sending = true;
+      const rep = await axios.put(
+        `http://localhost:4040/servers/${this.itemSelected.id}`,
+        {
+          name: this.formServer.serverName,
+          clientId: this.formServer.clientId,
+          clientSecret: this.formServer.clientSecret,
+          uri: this.formServer.uri
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      if (rep !== undefined) {
+        this.getServers();
+        window.setTimeout(() => {
+          this.lastServer = `${this.formServer.serverName}`;
+          this.serverSaved = true;
+          this.sending = false;
+          this.clearForm();
+          this.displayEdit = false;
+        }, 1500);
+      }
+    },
+    getValidationClass(fieldName) {
+      const field = this.$v.formServer[fieldName];
+      if (field) {
+        return {
+          "md-invalid": field.$invalid && field.$dirty
+        };
+      }
+    },
+    clearForm() {
+      this.$v.$reset();
+      this.formServer.serverName = null;
+      this.formServer.clientId = null;
+      this.formServer.clientSecret = null;
+      this.formServer.uri = null;
     },
     toggleSecretVisibility() {
       if (this.secretType == "password") {
@@ -204,7 +422,8 @@ export default {
       this.getServers();
     },
     cancelAdd() {
-      this.display = false;
+      this.displayShow = false;
+      this.displayEdit = false;
     },
     async getServers() {
       const rep = await axios.get("http://localhost:4040/servers", {
@@ -250,5 +469,8 @@ export default {
   display: inline-block;
   vertical-align: top;
   border: 1px solid rgba(#000, 0.12);
+}
+.cursorP {
+  cursor: pointer;
 }
 </style>

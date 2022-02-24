@@ -28,53 +28,168 @@ with this file. If not, see
       <md-card>
         <md-card-header class="md-card-header-icon md-card-header-primary">
           <div class="card-icon">
-            <md-icon v-if="display === false">apps</md-icon>
-            <md-icon @click.native="cancelAdd" v-if="display === true"
+            <md-icon
+              v-if="
+                displayAddPlatform === false &&
+                displayEditPlatform === false &&
+                displayConfigServer === false
+              "
+              >hub</md-icon
+            >
+            <md-icon
+              class="cursorP"
+              @click.native="cancelAdd"
+              v-if="
+                displayAddPlatform === true ||
+                displayEditPlatform === true ||
+                displayConfigServer == true
+              "
               >arrow_back</md-icon
             >
           </div>
-          <h4 class="title" v-if="display === false">Liste de plateformes</h4>
-          <h4 class="title" v-if="display === true">Ajouter une Platefome</h4>
+          <h4
+            class="title"
+            v-if="
+              displayAddPlatform === false &&
+              displayEditPlatform === false &&
+              displayConfigServer === false
+            "
+          >
+            Liste de plateformes
+          </h4>
+          <h4 class="title" v-if="displayAddPlatform === true">
+            Add a Platefom
+          </h4>
+          <h4 class="title" v-if="displayEditPlatform === true">
+            Edit a Platefom
+          </h4>
+          <h4 class="title" v-if="displayConfigServer === true">
+            Config a Server
+          </h4>
           <md-table
-            v-if="display === false"
+            v-if="
+              displayAddPlatform === false &&
+              displayEditPlatform === false &&
+              displayConfigServer === false
+            "
             :value="platformList"
             :md-sort-order.sync="currentSortOrder"
             :md-sort-fn="customSort"
             class="paginated-table table-striped table-hover"
           >
-            <hr />
-            <md-table-row slot="md-table-row" slot-scope="{ item }">
+            <md-table-row slot="md-table-row" slot-scope="{ item }" md-expand>
               <md-table-cell md-label="name" md-sort-by="name">{{
                 item.name
               }}</md-table-cell>
-              <md-table-cell md-label="Servers">{{
-                serverLength(item)
-              }}</md-table-cell>
-              <md-table-cell md-label="Actions">
+              <md-table-cell md-label="Servers"
+                >{{ serverLength(item) }}
+              </md-table-cell>
+              <md-table-cell md-label="Server Config">
                 <md-icon
-                  class="text-center text-primary"
-                  @click.native="deleteItem(item)"
+                  class="text-center text-primary cursorP"
+                  @click.native="showPanelConfigServer(item)"
+                  >chevron_right</md-icon
+                >
+              </md-table-cell>
+
+              <md-table-cell md-label="Edit">
+                <md-icon
+                  class="text-center text-primary cursorP"
+                  @click.native="showEditPlatformItem(item)"
+                  >edit</md-icon
+                >
+              </md-table-cell>
+
+              <md-table-cell md-label="Delete">
+                <md-icon
+                  class="text-center text-primary cursorP"
+                  @click.native="deletePlatformItem(item)"
                   >delete</md-icon
                 >
               </md-table-cell>
             </md-table-row>
           </md-table>
+
           <md-button
             class="md-primary pull-right"
-            v-if="display === false"
+            v-if="
+              displayAddPlatform === false &&
+              displayEditPlatform === false &&
+              displayConfigServer === false
+            "
             @click="displayAdd()"
-            >Ajouter</md-button
+            >Add Platform</md-button
           >
         </md-card-header>
-        <md-card-content>
-          <form
-            novalidate
-            @submit.prevent="validatePlatform"
-            v-if="display === true"
-          >
+        <md-card-content v-if="displayAddPlatform === true">
+          <form novalidate class="md-layout" @submit.prevent="validatePlatform">
             <md-card class="md-layout md-size-100 md-small-size-100">
-              <div class="md-layout">
-                <div class="md-layout-item md-size-50 mt-4 md-small-size-50">
+              <md-card-content>
+                <div class="md-layout md-gutter">
+                  <div class="md-layout-item md-small-size-100">
+                    <md-field :class="getValidationClass('platformName')">
+                      <label for="platformName">Platform Name</label>
+                      <md-input
+                        name="platformName"
+                        id="platformName"
+                        autocomplete="given-name"
+                        v-model="formPlatform.platformName"
+                        :disabled="sending"
+                      >
+                      </md-input>
+                      <span
+                        class="md-error"
+                        v-if="!$v.formPlatform.platformName.required"
+                        >The name is required
+                      </span>
+                      <span
+                        class="md-error"
+                        v-else-if="!$v.formPlatform.platformName.minlength"
+                        >Invalid name
+                      </span>
+                    </md-field>
+                  </div>
+                </div>
+              </md-card-content>
+              <md-progress-bar md-mode="indeterminate" v-if="sending" />
+              <md-card-actions>
+                <md-button @click="cancelAdd" class="btn-next md-danger">
+                  Cancel
+                </md-button>
+                <md-button
+                  type="submit"
+                  class="btn-next md-primary"
+                  :disabled="sending"
+                >
+                  register
+                </md-button>
+              </md-card-actions>
+            </md-card>
+            <md-snackbar
+              :md-active.sync="platformSaved"
+              :md-position="position"
+              :md-duration="isInfinity ? Infinity : duration"
+              md-persistent
+            >
+              <span>
+                The platform {{ lastPlatform }} was saved with success!
+              </span>
+            </md-snackbar>
+          </form>
+        </md-card-content>
+
+        <!-- ************************************************* -->
+
+        <form
+          novalidate
+          class="md-layout"
+          @submit.prevent="validateEditPlatform"
+          v-if="displayEditPlatform === true"
+        >
+          <md-card class="md-layout md-size-100 md-small-size-100">
+            <md-card-content>
+              <div class="md-layout md-gutter">
+                <div class="md-layout-item md-small-size-100">
                   <md-field :class="getValidationClass('platformName')">
                     <label for="platformName">Platform Name</label>
                     <md-input
@@ -85,67 +200,90 @@ with this file. If not, see
                       :disabled="sending"
                     >
                     </md-input>
-
                     <span
                       class="md-error"
                       v-if="!$v.formPlatform.platformName.required"
-                      >The name is required</span
-                    >
+                      >The name is required
+                    </span>
                     <span
                       class="md-error"
                       v-else-if="!$v.formPlatform.platformName.minlength"
-                      >Invalid name</span
-                    >
+                      >Invalid name
+                    </span>
                   </md-field>
-
-                  <md-field>
-                    <label>Servers :</label>
-                    <multiselect
-                      v-model="formPlatform.serverValue"
-                      :options="serverList"
-                      :multiple="true"
-                      :close-on-select="false"
-                      :clear-on-select="false"
-                      :preserve-search="true"
-                      placeholder="Select one or more servers"
-                      track-by="name"
-                      label="name"
-                    >
-                      <span slot="noResult"
-                        >Oops! No elements found. Consider changing the search
-                        query.</span
-                      >
-                    </multiselect>
-                  </md-field>
-                </div>
-                <div class="md-layout-item md-size-50 mt-4 md-small-size-50">
-                  <AddServer v-if="display === true"></AddServer>
                 </div>
               </div>
-            </md-card>
+            </md-card-content>
             <md-progress-bar md-mode="indeterminate" v-if="sending" />
-
             <md-card-actions>
-              <div>
-                <md-button @click="cancelAdd" class="btn-next md-danger">
-                  Annuler
-                </md-button>
-                <md-button
-                  type="submit"
-                  class="btn-next md-primary"
-                  @click="validatePlatform"
-                  :disabled="sending"
-                >
-                  Enregistrer
-                </md-button>
-              </div>
+              <md-button @click="cancelAdd" class="btn-next md-danger">
+                Cancel
+              </md-button>
+              <md-button
+                type="submit"
+                class="btn-next md-primary"
+                :disabled="sending"
+              >
+                Edit
+              </md-button>
             </md-card-actions>
-            <md-snackbar :md-active.sync="platformSaved"
-              >The platform {{ lastPlatform }} was saved with
-              success!</md-snackbar
+          </md-card>
+          <md-snackbar
+            :md-active.sync="platformSaved"
+            :md-position="position"
+            :md-duration="isInfinity ? Infinity : duration"
+            md-persistent
+          >
+            <span>
+              The platform {{ lastPlatform }} was updated with success!
+            </span>
+          </md-snackbar>
+        </form>
+
+        <!-- ********************************************************************** -->
+
+        <div
+          class="md-layout md-size-100 md-small-size-100"
+          v-if="displayConfigServer === true"
+        >
+          <div class="md-layout-item">
+            <md-list
+              v-for="(server, index) in serverList"
+              :key="index"
+              class="md-double-line"
             >
-          </form>
-        </md-card-content>
+              <md-subheader>
+                {{ server.name
+                }}<md-icon class="md-primary">dns</md-icon></md-subheader
+              >
+              <!-- <md-list-item>{{ server.name }}</md-list-item>
+              <md-list-item>{{ server.clientId }}</md-list-item>
+              <md-list-item>{{ server.clientSecret }}</md-list-item>
+              <md-list-item>{{ server.uri }}</md-list-item> -->
+              <!-- <md-list-item
+                v-for="(profile, index) in server.profileList"
+                :key="index"
+              >
+                <div class="md-list-item-text">
+                  <ul>
+                    {{
+                      profile.data.name
+                    }}
+                    :
+                    <li v-for="(role, index) in profile.role" :key="index">
+                      {{ profile.name }}
+                    </li>
+                  </ul>
+                </div>
+              </md-list-item> -->
+            </md-list>
+          </div>
+
+          <AddServer
+            class="md-layout-item"
+            :itemSelectedId="itemSelected.id"
+          ></AddServer>
+        </div>
       </md-card>
     </div>
   </div>
@@ -170,60 +308,43 @@ import {
 export default {
   name: "Platform",
   mixins: [validationMixin],
-  components: { Multiselect, AddServer },
+  components: { AddServer },
   data: () => ({
     token: null,
-    display: false,
+    position: "center",
+    duration: 3000,
+    isInfinity: false,
+    displayAddPlatform: false,
+    displayEditPlatform: false,
+    displayConfigServer: false,
+    itemSelected: null,
     formPlatform: {
-      platformName: null,
-      serverValue: []
+      platformName: null
     },
     platformSaved: false,
     sending: false,
     lastPlatform: null,
-    serverList: [],
     currentSort: "name",
     currentSortOrder: "asc",
-    platformList: []
+    platformList: [],
+    serverList: []
   }),
   validations: {
     formPlatform: {
       platformName: {
         required,
         minLength: minLength(3)
-      },
-
-      serverValue: {
-        required
       }
     }
   },
   computed: {},
   methods: {
-    serverLength(item) {
-      return item.serverList.length;
-    },
-    getValidationClass(fieldName) {
-      const field = this.$v.formPlatform[fieldName];
-      if (field) {
-        return {
-          "md-invalid": field.$invalid && field.$dirty
-        };
-      }
-    },
-    clearForm() {
-      this.$v.$reset();
-      this.formPlatform.serverName = null;
-      this.formPlatform.serverValue = null;
-    },
-
     async savePlatform() {
       this.sending = true;
       const rep = await axios.post(
         "http://localhost:4040/platforms",
         {
-          name: this.formPlatform.platformName,
-          serverList: this.formPlatform.serverValue
+          name: this.formPlatform.platformName
         },
         {
           headers: {
@@ -232,26 +353,60 @@ export default {
           }
         }
       );
-      window.setTimeout(() => {
-        this.lastPlatform = `${this.formPlatform.platformName}`;
-        this.platformSaved = true;
-        this.sending = false;
-        this.clearForm();
-      }, 1500);
+      if (rep !== undefined) {
+        window.setTimeout(() => {
+          this.lastPlatform = `${this.formPlatform.platformName}`;
+          this.platformSaved = true;
+          this.sending = false;
+          this.clearForm();
+        }, 1500);
+      }
       this.reloadData();
-      this.display = false;
     },
-    validatePlatform() {
-      this.$v.$touch();
-
-      if (!this.$v.$invalid) {
-        this.savePlatform();
+    showEditPlatformItem(item, ask = true) {
+      let r = true;
+      if (ask)
+        r = confirm(
+          "Are you sure you want to update the platform, you can lost the old config of this platform!"
+        );
+      if (r === true) {
+        this.displayEditPlatform = true;
+        this.itemSelected = item;
       }
     },
-    showItem(item) {
-      // console.log(item);
+    async editPlatformItem() {
+      const rep = await axios.put(
+        `http://localhost:4040/platforms/${this.itemSelected.id}`,
+        {
+          name: this.formPlatform.platformName
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      if (rep !== undefined) {
+        window.setTimeout(() => {
+          this.lastPlatform = `${this.formPlatform.platformName}`;
+          this.platformSaved = true;
+          this.sending = false;
+          this.clearForm();
+        }, 1500);
+      }
+      this.reloadData();
     },
-    async deleteItem(item, ask = true) {
+    showPanelConfigServer(item) {
+      this.displayConfigServer = true;
+      this.itemSelected = item;
+      this.getServers();
+      const arr = [...this.platformList];
+      const element = arr.find(el => {
+        return el.id == item.id;
+      });
+    },
+    async deletePlatformItem(item, ask = true) {
       let r = true;
       if (ask)
         r = confirm(
@@ -277,12 +432,16 @@ export default {
       this.platformList = rep.data;
     },
     async getServers() {
-      const rep = await axios.get("http://localhost:4040/servers", {
-        headers: {
-          "Content-Type": "application/json",
-          "x-access-token": this.token
+      const rep = await axios.get(
+        `http://localhost:4040/platforms/${this.itemSelected.id}/getServers`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
         }
-      });
+      );
+      console.log("*=*=*=*=*=", rep.data);
       this.serverList = rep.data;
     },
     customSort(value) {
@@ -295,21 +454,51 @@ export default {
       });
     },
     displayAdd() {
-      this.display = true;
+      this.displayAddPlatform = true;
     },
     cancelAdd() {
       this.$v.$reset();
-      this.display = false;
-      // this.$refs.formPlatform.reset();
+      this.displayAddPlatform = false;
+      this.displayEditPlatform = false;
+      this.displayConfigServer = false;
     },
     reloadData() {
       this.getPlatforms();
-      this.getServers();
+      // this.getServers();
+    },
+    validatePlatform() {
+      this.$v.$touch();
+
+      if (!this.$v.$invalid) {
+        this.savePlatform();
+      }
+    },
+    validateEditPlatform() {
+      this.$v.$touch();
+
+      if (!this.$v.$invalid) {
+        this.editPlatformItem();
+      }
+    },
+    serverLength(item) {
+      return "in progress";
+    },
+    getValidationClass(fieldName) {
+      const field = this.$v.formPlatform[fieldName];
+      if (field) {
+        return {
+          "md-invalid": field.$invalid && field.$dirty
+        };
+      }
+    },
+    clearForm() {
+      this.$v.$reset();
+      this.formPlatform.platformName = null;
     }
   },
   mounted() {
     this.token = localStorage.getItem("token");
-    this.getServers();
+    // this.getServers();
     this.getPlatforms();
     EventBus.$on("reloadServerList", () => {
       this.getServers();
@@ -336,5 +525,26 @@ export default {
   top: 0;
   right: 0;
   left: 0;
+}
+
+.platform-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.list-item {
+  width: 90%;
+}
+
+.cursorP {
+  cursor: pointer;
+}
+.md-list {
+  width: 320px;
+  max-width: 100%;
+  display: inline-block;
+  vertical-align: top;
+  border: 1px solid rgba(#000, 0.12);
 }
 </style>

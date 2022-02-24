@@ -120,8 +120,6 @@ export class ApplicationService {
   }
 
 
-
-
   public async login(applicationLoginParams: IApplicationLoginParams): Promise<IApplicationToken> {
     const contexts = await this.graph.getChildren("hasContext");
     for (const context of contexts) {
@@ -149,7 +147,9 @@ export class ApplicationService {
                   const tokenContext = SpinalGraphService.getContext(TOKEN_LIST);
                   const categoryTokenApplicationList = await tokenContext.getChildren('HasCategoryToken');
                   for (const categoryTokenApplication of categoryTokenApplicationList) {
-                    if (categoryTokenApplication.getName().get() === "Application Token") {
+                    // @ts-ignore
+                    SpinalGraphService._addNode(categoryTokenApplication);
+                    if (categoryTokenApplication.getType().get() === "AuthServiceApplicationCategory") {
                       const TokenId = SpinalGraphService.createNode({
                         name: "token_" + app.getName().get(),
                         type: TOKEN_TYPE,
@@ -158,10 +158,11 @@ export class ApplicationService {
                         createdToken: decodedToken.iat,
                         // @ts-ignore
                         expieredToken: decodedToken.exp,
-                        applicationProfileId: app.info.applicationProfileId.get(),
+                        applicationId: app.getId().get(),
+                        // applicationProfileList: app.info.applicationProfileList.get(),
                       }, undefined);
                       const res = await SpinalGraphService.addChildInContext(
-                        tokenContext.getId().get(),
+                        categoryTokenApplication.getId().get(),
                         TokenId,
                         tokenContext.getId().get(),
                         AUTH_SERVICE_TOKEN_RELATION_NAME,
@@ -175,7 +176,7 @@ export class ApplicationService {
                         createdToken: decodedToken.iat,
                         // @ts-ignore
                         expieredToken: decodedToken.exp,
-                        applicationProfileId: app.info.applicationProfileId.get(),
+                        // applicationProfileList: app.info.applicationProfileList.get(),
                       };
                       return tokenObj
                     }
@@ -189,10 +190,118 @@ export class ApplicationService {
     }
   }
 
-
-
-  public async getApplications() {
-
+  public async getApplications(): Promise<IApplication[]> {
+    try {
+      var applicationObjectList = [];
+      const contexts = await this.graph.getChildren("hasContext");
+      for (const context of contexts) {
+        if (context.getName().get() === APPLICATION_LIST) {
+          const applications = await context.getChildren(
+            AUTH_SERVICE_APPLICATION_RELATION_NAME
+          );
+          for (const app of applications) {
+            var appObject: IApplication = {
+              id: app.getId().get(),
+              type: app.getType().get(),
+              name: app.getName().get(),
+              clientId: app.info.clientId.get(),
+              clientSecret: app.info.clientSecret.get(),
+              // applicationProfileList: app.info.applicationProfileList.get(),
+              // rights: app.info.rights.get()
+            };
+            applicationObjectList.push(appObject);
+          }
+        }
+      }
+      return applicationObjectList;
+    } catch (error) {
+      return error;
+    }
   }
+
+
+
+  public async getApplication(id: string): Promise<IApplication> {
+    const contexts = await this.graph.getChildren("hasContext");
+    for (const context of contexts) {
+      if (context.getName().get() === APPLICATION_LIST) {
+        const applications = await context.getChildren(
+          AUTH_SERVICE_APPLICATION_RELATION_NAME
+        );
+        for (const app of applications) {
+          if (app.getId().get() === id) {
+            var appObject: IApplication = {
+              id: app.getId().get(),
+              type: app.getType().get(),
+              name: app.getName().get(),
+              clientId: app.info.clientId.get(),
+              clientSecret: app.info.clientSecret.get(),
+              // applicationProfileList: app.info.applicationProfileList.get(),
+              // rights: app.info.rights.get()
+            };
+          }
+        }
+      }
+    }
+    if (appObject) {
+      return appObject;
+    } else {
+      throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+    }
+  }
+
+  public async updateApplication(applicationId: string, requestBody: IApplicationUpdateParams): Promise<IApplication> {
+    const context = await SpinalGraphService.getContext(APPLICATION_LIST);
+    const applications = await context.getChildren(AUTH_SERVICE_APPLICATION_RELATION_NAME);
+    var appObject: IApplication;
+    for (const app of applications) {
+      if (app.getId().get() === applicationId) {
+        if (requestBody.name !== undefined) {
+          app.info.name.set(requestBody.name)
+        }
+        if (app.info.clientId !== undefined) {
+          app.info.clientId.set(requestBody.clientId)
+        }
+        if (app.info.clientSecret !== undefined) {
+          app.info.clientSecret.set(requestBody.clientSecret)
+        }
+
+        appObject = {
+          id: app.getId().get(),
+          type: app.getType().get(),
+          name: app.getName().get(),
+          clientId: app.info.clientId.get(),
+          clientSecret: app.info.clientSecret.get(),
+          applicationProfileList: app.info.applicationProfileList.get(),
+          rights: app.info.rights.get()
+        };
+
+      }
+      else {
+        throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+      }
+    }
+    return appObject
+  }
+
+  public async deleteApplication(applicationId: string): Promise<void> {
+    const contexts = await this.graph.getChildren("hasContext");
+    for (const context of contexts) {
+      if (context.getName().get() === APPLICATION_LIST) {
+        const applications = await context.getChildren(
+          AUTH_SERVICE_APPLICATION_RELATION_NAME
+        );
+        for (const app of applications) {
+          if (app.getId().get() === applicationId) {
+            await app.removeFromGraph();
+          }
+          else {
+            throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+          }
+        }
+      }
+    }
+  }
+
 
 }

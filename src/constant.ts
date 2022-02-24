@@ -38,13 +38,13 @@ export const APPLICATION_TYPE = 'AuthServiceApplication'
 export const APPLICATION_TOKEN_CATEGORY_TYPE = 'AuthServiceApplicationCategory'
 
 export const PLATFORM_TYPE = 'AuthServicePlatform';
-export const SERVER_TYPE = 'AuthServiceServer';
+export const ORGAN_TYPE = 'AuthServiceOrgan';
 export const TOKEN_TYPE = 'AuthServiceToken';
 
 
 // RelationName
 export const AUTH_SERVICE_PLATFORM_RELATION_NAME = 'HasPlatform';
-export const AUTH_SERVICE_SERVER_RELATION_NAME = 'HasServer';
+export const AUTH_SERVICE_ORGAN_RELATION_NAME = 'HasOrgan';
 export const AUTH_SERVICE_USER_RELATION_NAME = 'HasUser';
 export const AUTH_SERVICE_APPLICATION_RELATION_NAME = 'HasApplication'
 export const AUTH_SERVICE_TOKEN_RELATION_NAME = 'HasToken';
@@ -52,7 +52,6 @@ export const AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME = 'HasCategoryToken'
 
 //ContextName
 export const PLATFORM_LIST = 'platformList';
-export const SERVER_LIST = 'serverList';
 export const USER_LIST = 'userList';
 export const APPLICATION_LIST = 'applicationList'
 export const TOKEN_LIST = 'tokenList'

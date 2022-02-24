@@ -1,19 +1,19 @@
 /*
  * Copyright 2021 SpinalCom - www.spinalcom.com
- * 
+ *
  * This file is part of SpinalCore.
- * 
+ *
  * Please read all of the following terms and conditions
  * of the Free Software license Agreement ("Agreement")
  * carefully.
- * 
+ *
  * This Agreement is a legally binding contract between
  * the Licensee (as defined below) and SpinalCom that
  * sets forth the terms and conditions that govern your
  * use of the Program. By installing and/or using the
  * Program, you agree to abide by all the terms and
  * conditions stated or referenced herein.
- * 
+ *
  * If you do not agree to abide by these terms and
  * conditions, do not demonstrate your acceptance and do
  * not install or use the Program.
@@ -34,58 +34,60 @@ import {
   Route,
   Security,
   SuccessResponse,
-} from "tsoa";
-import { IPlatform, IPlateformCreationParams, IPlatformUpdateParams } from "./platform.model";
-import { PlatformService } from "./platformServices"
+} from 'tsoa';
+import { IOrgan } from '../organ/organ.model';
+import {
+  IPlatform,
+  IPlateformCreationParams,
+  IPlatformUpdateParams,
+} from './platform.model';
+import { PlatformService } from './platformServices';
 
-@Route("platforms")
+@Route('platforms')
 export class PlatformsController extends Controller {
-
-  @Security("jwt")
-  @SuccessResponse("201", "Created") // Custom success response
+  @Security('jwt')
+  @SuccessResponse('201', 'Created') // Custom success response
   @Post()
-  public async createPlateform(
-    @Body() requestBody
-  ): Promise<any> {
+  public async createPlateform(@Body() requestBody): Promise<any> {
     let platform = new PlatformService().createPlateform(requestBody);
     this.setStatus(201); // set return status 201rt
     return platform;
   }
 
-  @Security("jwt")
+  @Security('jwt')
   @Get()
-  public async getPlatforms():
-    Promise<IPlatform[]> {
+  public async getPlatforms(): Promise<IPlatform[]> {
     this.setStatus(201); // set return status 201
     return new PlatformService().getPlateforms();
   }
 
-  @Security("jwt")
-  @Get("{platformId}")
-  public async getPlateform(
-    @Path() platformId: string
-  ): Promise<IPlatform> {
+  @Security('jwt')
+  @Get('{platformId}')
+  public async getPlateform(@Path() platformId: string): Promise<IPlatform> {
     this.setStatus(201); // set return status 201
     return new PlatformService().getPlateform(platformId);
   }
 
-
-  @Security("jwt")
+  @Security('jwt')
   @Delete('{platformId}')
-  public async deletePlatform(
-    @Path() platformId: string
-  ): Promise<void> {
+  public async deletePlatform(@Path() platformId: string): Promise<void> {
     return new PlatformService().deletePlatform(platformId);
   }
 
-  @Security("jwt")
+  @Security('jwt')
   @Put('{platformId}')
   public async updatePlateform(
     @Path() platformId: string,
     @Body() requestBody: IPlatformUpdateParams
-
   ): Promise<IPlatform> {
     return new PlatformService().updatePlateform(platformId, requestBody);
   }
 
+  @Security('jwt')
+  @Get('{platformId}/getOrgans')
+  public async getOrgansFromPlatform(
+    @Path() platformId: string
+  ): Promise<IOrgan[]> {
+    return new PlatformService().getOrgansFromPlatform(platformId);
+  }
 }

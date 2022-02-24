@@ -36,7 +36,7 @@ export interface IUserToken {
   expieredToken?: number;
   userId?: string;
   userType: string;
-  userProfileId?: string;
+  userProfileList?: string[];
   serverId?: string;
 }
 
@@ -47,6 +47,6 @@ export interface IApplicationToken {
   createdToken?: number;
   expieredToken?: number;
   applicationId?: string;
-  applicationProfileId?: string;
+  applicationProfileList?: string[];
 }
 

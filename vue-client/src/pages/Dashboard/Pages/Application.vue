@@ -26,21 +26,11 @@ with this file. If not, see
   <div class="md-layout">
     <div class="md-layout-item md-size-20 mt-4 md-small-size-100"></div>
     <div class="md-layout-item md-size-60 mt-4 md-small-size-100">
-      <h1>Users</h1>
+      <h1>Applications</h1>
       <md-card>
         <md-card-header class="md-card-header-icon md-card-header-primary">
-          <h4 class="title" v-if="display === false">
-            Sélectionner un Utilisateur ou Une Application
-          </h4>
-          <h4 class="title" v-if="display === true">
-            Enregistrer votre DigitalTwin
-          </h4>
-          <md-button
-            class="md-primary pull-right"
-            v-if="display === false"
-            @click="displayAdd"
-            >Nouveau Utilisateur</md-button
-          >
+          <h4 class="title" v-if="display === false">Select an Application</h4>
+
           <md-button
             class="md-primary pull-right"
             v-if="display === false"
@@ -85,7 +75,7 @@ with this file. If not, see
                         @click="getUserProfile"
                         class="btn-next md-primary"
                       >
-                        Valider
+                        Edit
                       </md-button>
                     </div>
                   </md-card-actions>

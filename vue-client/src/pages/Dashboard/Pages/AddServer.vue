@@ -149,9 +149,6 @@ with this file. If not, see
         md-persistent
       >
         <span>The server {{ lastServer }} was saved with success!</span>
-        <!-- <md-button class="md-primary" @click="showSnackbar = false"
-          >Retry</md-button
-        > -->
       </md-snackbar>
     </form>
   </div>
@@ -176,6 +173,9 @@ export default {
   name: "AddServer",
   mixins: [validationMixin],
   components: { Multiselect },
+  props: {
+    itemSelectedId: String
+  },
   data: () => ({
     token: null,
     position: "center",
@@ -239,7 +239,7 @@ export default {
     async saveServer() {
       this.sending = true;
       const rep = await axios.post(
-        "http://localhost:4040/servers",
+        `http://localhost:4040/servers/${this.itemSelectedId}`,
         {
           name: this.formServer.serverName,
           clientId: this.formServer.clientId,
@@ -255,7 +255,6 @@ export default {
         }
       );
       if (rep !== undefined) {
-        this.getServers();
         EventBus.$emit("reloadServerList");
         window.setTimeout(() => {
           this.lastServer = `${this.formServer.serverName}`;
@@ -289,7 +288,7 @@ export default {
   },
   mounted() {
     this.token = localStorage.getItem("token");
-    this.getServers();
+
     this.getUserProfileData();
   },
   watch: {}

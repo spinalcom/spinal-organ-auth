@@ -35,7 +35,6 @@ import {
 } from "spinal-env-viewer-graph-service";
 import {
   PLATFORM_LIST,
-  SERVER_LIST,
   USER_LIST,
   APPLICATION_LIST,
   TOKEN_LIST,
@@ -57,7 +56,6 @@ export class AuthGraphService {
     var userList: SpinalContext<spinal.Model>;
     var applicationList: SpinalContext<spinal.Model>;
     var platformList: SpinalContext<spinal.Model>;
-    var serverList: SpinalContext<spinal.Model>;
     var tokenList: SpinalContext<spinal.Model>;
 
     if ((await this.graph.getContext(USER_LIST)) === undefined) {
@@ -74,11 +72,6 @@ export class AuthGraphService {
       platformList = new SpinalContext(PLATFORM_LIST);
       promises.push(this.graph.addContext(platformList));
     }
-    if ((await this.graph.getContext(SERVER_LIST)) === undefined) {
-      serverList = new SpinalContext(SERVER_LIST);
-      promises.push(this.graph.addContext(serverList));
-    }
-
     if ((await this.graph.getContext(TOKEN_LIST)) === undefined) {
       tokenList = new SpinalContext(TOKEN_LIST);
       promises.push(this.graph.addContext(tokenList));
