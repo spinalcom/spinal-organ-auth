@@ -1,19 +1,19 @@
 /*
- * Copyright 2021 SpinalCom - www.spinalcom.com
- *
+ * Copyright 2022 SpinalCom - www.spinalcom.com
+ * 
  * This file is part of SpinalCore.
- *
+ * 
  * Please read all of the following terms and conditions
  * of the Free Software license Agreement ("Agreement")
  * carefully.
- *
+ * 
  * This Agreement is a legally binding contract between
  * the Licensee (as defined below) and SpinalCom that
  * sets forth the terms and conditions that govern your
  * use of the Program. By installing and/or using the
  * Program, you agree to abide by all the terms and
  * conditions stated or referenced herein.
- *
+ * 
  * If you do not agree to abide by these terms and
  * conditions, do not demonstrate your acceptance and do
  * not install or use the Program.
@@ -45,7 +45,7 @@ import Chartist from 'chartist';
 
 // router setup
 import routes from './routes/routes';
-import { tokenGen } from './routes/genToken';
+
 // plugin setup
 Vue.use(VueRouter);
 Vue.use(DashboardPlugin);
@@ -62,19 +62,7 @@ const router = new VueRouter({
   },
   linkExactActiveClass: 'nav-item active',
 });
-router.beforeEach((to, from, next) => {
-  console.log('to', to);
-  const noLogin = ['Login'];
-  if (noLogin.includes(to.name)) return next();
 
-  tokenGen()
-    .then(() => {
-      next();
-    })
-    .catch(() => {
-      router.push('Login');
-    });
-});
 // global library setup
 Vue.prototype.$Chartist = Chartist;
 

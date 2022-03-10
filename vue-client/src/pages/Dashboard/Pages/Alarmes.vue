@@ -50,19 +50,6 @@ with this file. If not, see
         </template>
       </stats-card>
     </div>
-    <div class="md-layout-item md-medium-size-50 md-xsmall-size-100 md-size-25">
-      <stats-card header-color="green">
-        <template slot="header">
-          <div class="card-icon">
-            <md-icon>generating_tokens</md-icon>
-          </div>
-          <p class="category">Tokens</p>
-          <h3 class="title">
-            <animated-number :value="184"></animated-number>
-          </h3>
-        </template>
-      </stats-card>
-    </div>
 
     <div class="md-layout-item md-size-100">
       <md-card>
@@ -70,17 +57,25 @@ with this file. If not, see
           <div class="card-icon">
             <md-icon>backup_table</md-icon>
           </div>
-          <h4 class="title">Backup Platform Table</h4>
+          <h4 class="title">Backup Alaram Table</h4>
+          <div class="button">
+            <md-button>Current Alarms</md-button>
+            <md-button>Alarm History </md-button>
+          </div>
         </md-card-header>
         <md-card-content>
-          <md-table v-model="platformList">
+          <md-table v-model="alaramList">
             <md-table-row slot="md-table-row" slot-scope="{ item }">
-              <md-table-cell md-label="#">{{ item.id }}</md-table-cell>
-              <md-table-cell md-label="Name">{{ item.name }}</md-table-cell>
-              <md-table-cell md-label="State">{{
-                item.statusPlatform
+              <md-table-cell md-label="Alarme type">{{
+                item.name
               }}</md-table-cell>
-              <md-table-cell md-label="Summary">{{ "note 0" }}</md-table-cell>
+              <md-table-cell md-label="Platforms">{{
+                item.platform
+              }}</md-table-cell>
+              <md-table-cell md-label="Summary">{{
+                item.Summary
+              }}</md-table-cell>
+              <md-table-cell md-label="Date">{{ item.date }}</md-table-cell>
               <md-table-cell md-label="Detail" :class="getAlignClasses(item)">
                 <md-button
                   class="md-just-icon"
@@ -107,6 +102,26 @@ export default {
   },
   data() {
     return {
+      alaramList: [
+        {
+          name: "Alarme type 1",
+          platform: "bos2",
+          Summary: "Le BOS ne répond pas au ping depuis 10 minutes",
+          date: "05/05/2021 01:01:01"
+        },
+        {
+          name: "Alarme type 2",
+          platform: "bos1",
+          Summary: "Le BOS ne répond pas au ping depuis 15 minutes",
+          date: "05/05/2021 01:01:01"
+        },
+        {
+          name: "Alarme type 3",
+          platform: "bos3",
+          Summary: "Le BOS est ",
+          date: "05/05/2021 01:01:01"
+        }
+      ],
       platformList: []
     };
   },
@@ -168,6 +183,9 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.button {
+  margin-top: 10px;
+}
 .text-right .md-table-cell-container {
   display: flex;
   justify-content: flex-end;

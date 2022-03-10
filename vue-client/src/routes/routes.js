@@ -64,6 +64,9 @@ import VectorMaps from '@/pages/Dashboard/Maps/VectorMaps.vue';
 
 // import Server from '@/pages/Dashboard/Pages/Server.vue';
 import Platforms from '@/pages/Dashboard/Pages/Platforms.vue';
+import Alarmes from '@/pages/Dashboard/Pages/Alarmes.vue';
+// import Sparkline from "@/pages/Dashboard/Pages/Sparklines.vue";
+
 import Servers from '@/pages/Dashboard/Pages/Servers.vue';
 import Users from '@/pages/Dashboard/Pages/Users.vue';
 import Application from '@/pages/Dashboard/Pages/Application.vue';
@@ -274,6 +277,11 @@ const routes = [
         path: 'dashboard',
         name: 'Dashboard',
         components: { default: Dashboard },
+      },
+      {
+        path: 'alarmes',
+        name: 'Alarmes',
+        components: { default: Alarmes },
       },
       {
         path: 'platforms',

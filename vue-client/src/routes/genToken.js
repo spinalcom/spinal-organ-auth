@@ -21,15 +21,15 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-import axios from 'axios';
-const TOKEN = 'token';
+import axios from "axios";
+const TOKEN = "token";
 async function getToken(user, pass) {
   let userparams = {
     userName: user,
-    password: pass,
+    password: pass
   };
   const { data } = await axios.post(
-    'http://localhost:4040/users/login',
+    "http://localhost:4040/users/login",
     userparams
   );
   if (data) {
@@ -39,7 +39,7 @@ async function getToken(user, pass) {
 
   return {
     limit: data.expieredToken,
-    token: data.token,
+    token: data.token
   };
 }
 

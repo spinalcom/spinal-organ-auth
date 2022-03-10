@@ -57,14 +57,14 @@ with this file. If not, see
           Sidebar Mini
           <md-switch
             :value="!sidebarMini"
-            @change="(val) => updateValue('sidebarMini', val)"
+            @change="val => updateValue('sidebarMini', val)"
           ></md-switch>
         </li>
         <li class="adjustments-line sidebar-img">
           Sidebar Image
           <md-switch
             :value="!sidebarImg"
-            @change="(val) => updateValueImg('sidebarImg', val)"
+            @change="val => updateValueImg('sidebarImg', val)"
           ></md-switch>
         </li>
 

@@ -441,7 +441,6 @@ export default {
           }
         }
       );
-      console.log("*=*=*=*=*=", rep.data);
       this.serverList = rep.data;
     },
     customSort(value) {

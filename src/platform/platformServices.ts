@@ -84,8 +84,6 @@ export class PlatformService {
           name: platformCreationParms.name,
           url: platformCreationParms.url,
           statusPlatform: platformCreationParms.statusPlatform,
-          platformID: platformCreationParms.platformID,
-          platformSecret: platformCreationParms.platformSecret,
           TokenBosAdmin: this.generateTokenBosAdmin(platformCreationParms.name),
         };
         const PlatformId = SpinalGraphService.createNode(
@@ -108,8 +106,6 @@ export class PlatformService {
           name: res.getName().get(),
           statusPlatform: res.info.statusPlatform.get(),
           url: res.info.url.get(),
-          platformID: res.info.platformID.get(),
-          platformSecret: res.info.platformSecret.get(),
           TokenBosAdmin: res.info.TokenBosAdmin.get(),
         };
       }
@@ -131,8 +127,6 @@ export class PlatformService {
               name: platform.getName().get(),
               statusPlatform: platform.info.statusPlatform.get(),
               url: platform.info.url.get(),
-              platformID: platform.info.platformID.get(),
-              platformSecret: platform.info.platformSecret.get(),
               TokenBosAdmin: platform.info.TokenBosAdmin.get(),
             };
           }
@@ -161,8 +155,6 @@ export class PlatformService {
               name: platform.getName().get(),
               statusPlatform: platform.info.statusPlatform.get(),
               url: platform.info.url.get(),
-              platformID: platform.info.platformID.get(),
-              platformSecret: platform.info.platformSecret.get(),
               TokenBosAdmin: platform.info.TokenBosAdmin.get(),
             };
             platformObjectList.push(PlatformObject);
@@ -189,8 +181,6 @@ export class PlatformService {
             platform.info.name.set(requestBody.name);
             platform.info.statusPlatform.set(requestBody.statusPlatform);
             platform.info.url.set(requestBody.url);
-            platform.info.platformID.set(requestBody.platformID);
-            platform.info.platformSecret.set(requestBody.platformSecret);
 
             return {
               id: platform.getId().get(),
@@ -198,8 +188,6 @@ export class PlatformService {
               name: platform.getName().get(),
               statusPlatform: platform.info.statusPlatform.get(),
               url: platform.info.url.get(),
-              platformID: platform.info.platformID.get(),
-              platformSecret: platform.info.platformSecret.get(),
               TokenBosAdmin: platform.info.TokenBosAdmin.get(),
             };
           }
@@ -268,8 +256,6 @@ export class PlatformService {
           type: PLATFORM_TYPE,
           statusPlatform: 'On',
           url: 'process.env.url',
-          platformID: regenerateKey('platformID', false),
-          platformSecret: regenerateKey('platformSecret', false),
           TokenBosAdmin: '',
         };
         const PlatformId = SpinalGraphService.createNode(
@@ -289,8 +275,6 @@ export class PlatformService {
           name: res.getName().get(),
           statusPlatform: res.info.statusPlatform.get(),
           url: res.info.url.get(),
-          platformID: res.info.platformID.get(),
-          platformSecret: res.info.platformSecret.get(),
           TokenBosAdmin: res.info.TokenBosAdmin.get(),
         };
       }

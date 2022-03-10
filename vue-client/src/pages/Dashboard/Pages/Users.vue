@@ -28,7 +28,7 @@ with this file. If not, see
     <div class="md-layout-item md-size-60 mt-4 md-small-size-100">
       <h1 v-if="display === false">Users</h1>
       <md-card>
-        <md-card-header class="md-card-header-icon md-card-header-primary">
+        <!-- <md-card-header class="md-card-header-icon md-card-header-primary">
           <div class="card-icon">
             <md-icon v-if="display === false">person</md-icon>
             <md-icon
@@ -69,7 +69,7 @@ with this file. If not, see
               </md-card-actions>
             </div>
           </div>
-        </md-card-content>
+        </md-card-content> -->
         <!-- *********************************************************** , -->
         <form
           novalidate
@@ -363,4 +363,3 @@ export default {
 }
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
-
