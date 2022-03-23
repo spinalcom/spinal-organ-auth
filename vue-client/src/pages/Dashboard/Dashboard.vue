@@ -32,7 +32,7 @@ with this file. If not, see
           </div>
           <p class="category">Platforms</p>
           <h3 class="title">
-            <animated-number :value="7"></animated-number>
+            <animated-number :value="platformNumber"></animated-number>
           </h3>
         </template>
       </stats-card>
@@ -58,7 +58,7 @@ with this file. If not, see
           </div>
           <p class="category">Tokens</p>
           <h3 class="title">
-            <animated-number :value="184"></animated-number>
+            <animated-number :value="tokenNumber"></animated-number>
           </h3>
         </template>
       </stats-card>
@@ -80,7 +80,14 @@ with this file. If not, see
               <md-table-cell md-label="State">{{
                 item.statusPlatform
               }}</md-table-cell>
-              <md-table-cell md-label="Summary">{{ "note 0" }}</md-table-cell>
+              <md-table-cell md-label="Summary">
+                <sparkline :indicatorStyles="spIndicatorStyles1">
+                  <sparklineLine
+                    :data="spData1"
+                    :limit="spData1.length"
+                    :styles="spLineStyles1"
+                  /> </sparkline
+              ></md-table-cell>
               <md-table-cell md-label="Detail" :class="getAlignClasses(item)">
                 <md-button
                   class="md-just-icon"
@@ -107,7 +114,23 @@ export default {
   },
   data() {
     return {
-      platformList: []
+      platformNumber: 0,
+      tokenNumber: 0,
+      platformList: [],
+      tokenList: [],
+      spData1: (() => {
+        const len = 50;
+        return Array.from(
+          {
+            length: len
+          },
+          () => Math.floor(Math.random() * len)
+        );
+      })(),
+      spIndicatorStyles1: false,
+      spLineStyles1: {
+        stroke: "#54a5ff"
+      }
     };
   },
   methods: {
@@ -119,7 +142,19 @@ export default {
         }
       });
       this.platformList = rep.data;
+      return this.platformList;
     },
+    async getTokens() {
+      const rep = await axios.get("http://localhost:4040/tokens", {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": this.token
+        }
+      });
+      this.tokenList = rep.data;
+      return this.tokenList;
+    },
+
     getClass: function(item, id) {
       let classes = "";
       switch (item) {
@@ -161,9 +196,16 @@ export default {
       this.$router.push("/Login");
     }
   },
-  mounted() {
+  async mounted() {
     this.token = localStorage.getItem("token");
-    this.getPlatforms();
+    this.platformNumber = (await this.getPlatforms()).length;
+    this.tokenNumber = (await this.getTokens()).length;
+  },
+  watch: {
+    platformList() {
+      console.log("hello", this.platformList.length);
+      this.platformNumber = this.platformList.length;
+    }
   }
 };
 </script>

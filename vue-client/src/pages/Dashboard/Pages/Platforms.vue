@@ -24,7 +24,29 @@ with this file. If not, see
 
 <template>
   <div class="md-layout">
-    <div class="md-layout-item">
+    <div class="md-layout-item md-size-95 mt-4 md-small-size-100">
+      <div>
+        <md-button
+          class="md-warning pull-right"
+          v-if="
+            displayAddPlatform === false &&
+            displayEditPlatform === false &&
+            displayConfigServer === false
+          "
+          @click="displayAdd()"
+          >Add Platform</md-button
+        >
+        <md-button
+          class="md-warning pull-right"
+          v-if="
+            displayAddPlatform === false &&
+            displayEditPlatform === false &&
+            displayConfigServer === false
+          "
+          @click="generateRegisterKey()"
+          >Generate Registration Key</md-button
+        >
+      </div>
       <md-card>
         <md-card-header class="md-card-header-icon md-card-header-primary">
           <div class="card-icon">
@@ -109,17 +131,6 @@ with this file. If not, see
               </md-table-cell>
             </md-table-row>
           </md-table>
-
-          <md-button
-            class="md-primary pull-right"
-            v-if="
-              displayAddPlatform === false &&
-              displayEditPlatform === false &&
-              displayConfigServer === false
-            "
-            @click="displayAdd()"
-            >Add Platform</md-button
-          >
         </md-card-header>
         <md-card-content v-if="displayAddPlatform === true">
           <form novalidate class="md-layout" @submit.prevent="validatePlatform">
@@ -339,6 +350,7 @@ export default {
   },
   computed: {},
   methods: {
+    generateRegisterKey() {},
     async savePlatform() {
       this.sending = true;
       const rep = await axios.post(

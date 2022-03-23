@@ -87,6 +87,9 @@ export class UserService {
               name: userCreationParams.userName,
               userType: userCreationParams.userType,
               userName: userCreationParams.userName,
+              email: userCreationParams.email,
+              telephone: userCreationParams.telephone,
+              info: userCreationParams.info,
               password: hash,
               userProfileList: userCreationParams.userProfileList,
               platformList: userCreationParams.platformList,
@@ -223,6 +226,8 @@ export class UserService {
       const context = SpinalGraphService.getContext(USER_LIST);
       const users = await context.getChildren('HasUser');
       for (const user of users) {
+        console.log(user.getName().get());
+
         var userObject: IUser = {
           id: user.getId().get(),
           type: user.getType().get(),

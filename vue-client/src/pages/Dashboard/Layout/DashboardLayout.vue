@@ -27,7 +27,7 @@ with this file. If not, see
     class="wrapper"
     :class="[
       { 'nav-open': $sidebar.showSidebar },
-      { rtl: $route.meta.rtlActive }
+      { rtl: $route.meta.rtlActive },
     ]"
   >
     <notifications></notifications>
@@ -52,14 +52,14 @@ with this file. If not, see
             :link="{
               name: 'Users',
               icon: 'person',
-              path: '/users'
+              path: '/users',
             }"
           ></sidebar-item>
           <sidebar-item
             :link="{
               name: 'Applications',
               icon: 'apps',
-              path: '/Application'
+              path: '/Application',
             }"
           ></sidebar-item>
 
@@ -67,14 +67,7 @@ with this file. If not, see
             :link="{
               name: 'Platforms',
               icon: 'hub',
-              path: '/platforms'
-            }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{
-              name: 'Servers',
-              icon: 'dns',
-              path: '/servers'
+              path: '/platforms',
             }"
           ></sidebar-item>
         </sidebar-item>

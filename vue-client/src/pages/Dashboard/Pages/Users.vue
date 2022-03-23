@@ -24,11 +24,38 @@ with this file. If not, see
 
 <template>
   <div class="md-layout">
-    <div class="md-layout-item md-size-20 mt-4 md-small-size-100"></div>
-    <div class="md-layout-item md-size-60 mt-4 md-small-size-100">
-      <h1 v-if="display === false">Users</h1>
-      <md-card>
-        <!-- <md-card-header class="md-card-header-icon md-card-header-primary">
+    <div class="md-layout-item md-size-95 mt-4 md-small-size-100">
+      <div class="buttonAdd">
+        <md-button class="md-warning" @click="display()">Add User</md-button>
+      </div>
+      <div class="md-layout-item md-size-100" v-if="display === false">
+        <md-card>
+          <md-card-header class="md-card-header-icon md-card-header-green">
+            <div class="card-icon">
+              <md-icon>backup_table</md-icon>
+            </div>
+            <h4 class="title">Backup User Table</h4>
+          </md-card-header>
+          <md-card-content>
+            <md-table v-model="userList">
+              <md-table-row slot="md-table-row" slot-scope="{ item }">
+                <md-table-cell md-label="Name">{{ item.name }}</md-table-cell>
+                <md-table-cell md-label="State">{{
+                  item.platformList
+                }}</md-table-cell>
+                <md-table-cell md-label="Detail" :class="getAlignClasses(item)">
+                  <md-button
+                    class="md-just-icon"
+                    :class="getClass(item.icon1, item.id)"
+                    ><md-icon>arrow_forward</md-icon></md-button
+                  >
+                </md-table-cell>
+              </md-table-row>
+            </md-table>
+          </md-card-content>
+        </md-card>
+      </div>
+      <!-- <md-card-header class="md-card-header-icon md-card-header-primary">
           <div class="card-icon">
             <md-icon v-if="display === false">person</md-icon>
             <md-icon
@@ -70,7 +97,8 @@ with this file. If not, see
             </div>
           </div>
         </md-card-content> -->
-        <!-- *********************************************************** , -->
+      <!-- *********************************************************** , -->
+      <md-card>
         <form
           novalidate
           class="md-layout"
@@ -335,7 +363,43 @@ export default {
         }
       });
       this.userList = rep.data;
-    }
+    },
+    getClass: function(item, id) {
+      let classes = "";
+      switch (item) {
+        case "person": {
+          classes = "md-info";
+          break;
+        }
+        case "edit": {
+          classes = "md-success";
+          break;
+        }
+        case "close": {
+          classes = "md-danger";
+          break;
+        }
+      }
+      switch (id) {
+        case 1:
+        case 5: {
+          break;
+        }
+        case 2:
+        case 4: {
+          classes = `${classes} md-round`;
+          break;
+        }
+        case 3: {
+          classes = `${classes} md-simple`;
+          break;
+        }
+      }
+      return classes;
+    },
+    getAlignClasses: ({ id }) => ({
+      "text-right": id
+    })
   },
   mounted() {
     this.token = localStorage.getItem("token");
@@ -353,6 +417,14 @@ export default {
 };
 </script>
 <style lang="css" scoped>
+.buttonAdd {
+  float: right;
+  margin-right: 20px;
+  margin-bottom: 50px;
+}
+.backupUser {
+  margin-top: 50px;
+}
 .md-card .md-card-actions {
   border: 0;
   margin-left: 20px;

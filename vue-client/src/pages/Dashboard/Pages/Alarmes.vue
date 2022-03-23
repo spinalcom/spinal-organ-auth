@@ -32,7 +32,7 @@ with this file. If not, see
           </div>
           <p class="category">Platforms</p>
           <h3 class="title">
-            <animated-number :value="7"></animated-number>
+            <animated-number :value="platformNumber"></animated-number>
           </h3>
         </template>
       </stats-card>
@@ -102,6 +102,8 @@ export default {
   },
   data() {
     return {
+      platformList: [],
+      platformNumber: 0,
       alaramList: [
         {
           name: "Alarme type 1",
@@ -121,8 +123,7 @@ export default {
           Summary: "Le BOS est ",
           date: "05/05/2021 01:01:01"
         }
-      ],
-      platformList: []
+      ]
     };
   },
   methods: {
@@ -134,6 +135,7 @@ export default {
         }
       });
       this.platformList = rep.data;
+      return this.platformList;
     },
     getClass: function(item, id) {
       let classes = "";
@@ -176,9 +178,9 @@ export default {
       this.$router.push("/Login");
     }
   },
-  mounted() {
+  async mounted() {
     this.token = localStorage.getItem("token");
-    this.getPlatforms();
+    this.platformNumber = (await this.getPlatforms()).length;
   }
 };
 </script>

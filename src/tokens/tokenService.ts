@@ -27,7 +27,7 @@ import {
   Ptr,
   spinalCore,
   FileSystem,
-} from "spinal-core-connectorjs_type";
+} from 'spinal-core-connectorjs_type';
 import {
   TOKEN_TYPE,
   AUTH_SERVICE_TOKEN_RELATION_NAME,
@@ -35,23 +35,21 @@ import {
   AUTH_SERVICE_RELATION_TYPE_PTR_LST,
   USER_TOKEN_CATEGORY_TYPE,
   APPLICATION_TOKEN_CATEGORY_TYPE,
-  AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME
-} from "../constant";
-import { SPINAL_RELATION_PTR_LST_TYPE } from "spinal-env-viewer-graph-service";
+  AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME,
+} from '../constant';
+import { SPINAL_RELATION_PTR_LST_TYPE } from 'spinal-env-viewer-graph-service';
 import {
   SpinalGraphService,
   SpinalGraph,
   SpinalContext,
   SpinalNode,
-} from "spinal-env-viewer-graph-service";
-import { OperationError } from "../utilities/operation-error";
-import { HttpStatusCode } from "../utilities/http-status-code";
-import config from "../config"
-import SpinalMiddleware from "../spinalMiddleware";
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-
-
+} from 'spinal-env-viewer-graph-service';
+import { OperationError } from '../utilities/operation-error';
+import { HttpStatusCode } from '../utilities/http-status-code';
+import config from '../config';
+import SpinalMiddleware from '../spinalMiddleware';
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 export class TokensService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
@@ -66,14 +64,20 @@ export class TokensService {
     const context = await this.graph.getContext(TOKEN_LIST);
     const userTokenGroupObject = {
       type: USER_TOKEN_CATEGORY_TYPE,
-      name: "User Token"
-    }
+      name: 'User Token',
+    };
     const applicationTokenGroupObject = {
       type: APPLICATION_TOKEN_CATEGORY_TYPE,
-      name: "Application Token"
-    }
-    const userTokenCategoryId = SpinalGraphService.createNode(userTokenGroupObject, undefined);
-    const applicationTokenCategoryId = SpinalGraphService.createNode(applicationTokenGroupObject, undefined);
+      name: 'Application Token',
+    };
+    const userTokenCategoryId = SpinalGraphService.createNode(
+      userTokenGroupObject,
+      undefined
+    );
+    const applicationTokenCategoryId = SpinalGraphService.createNode(
+      applicationTokenGroupObject,
+      undefined
+    );
     await SpinalGraphService.addChildInContext(
       context.getId().get(),
       userTokenCategoryId,
@@ -90,20 +94,19 @@ export class TokensService {
     );
   }
 
-
   public async verify(): Promise<void> {
-
-    const contexts = await this.graph.getChildren("hasContext");
+    const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
       if (context.getName().get() === TOKEN_LIST) {
-        let tokens = await context.getChildren(AUTH_SERVICE_TOKEN_RELATION_NAME)
+        let tokens = await context.getChildren(
+          AUTH_SERVICE_TOKEN_RELATION_NAME
+        );
         for (const token of tokens) {
           if (token.info.expieredToken.get() > new Date().getTime()) {
-            console.log("date exp plus grand");
+            console.log('date exp plus grand');
             await token.removeFromGraph();
-          }
-          else {
-            console.log("date exp plus petit");
+          } else {
+            console.log('date exp plus petit');
             console.log(new Date(token.info.expieredToken.get()));
           }
         }
@@ -111,4 +114,74 @@ export class TokensService {
     }
   }
 
+  public async getTokens() {
+    const context = await this.graph.getContext(TOKEN_LIST);
+    const categoriesToken = await context.getChildren('HasCategoryToken');
+    var tokenList = [];
+    for (const category of categoriesToken) {
+      const categoryTokens = await category.getChildren('HasToken');
+      for (const token of categoryTokens) {
+        let info = {
+          id: token.getId().get(),
+          type: token.getType().get(),
+          name: token.getName().get(),
+          token: token.info.token.get(),
+          createdToken: token.info.createdToken.get(),
+          expieredToken: token.info.expieredToken.get(),
+          userId: token.info.userId.get(),
+          userType: token.info.userType.get(),
+        };
+        tokenList.push(info);
+      }
+    }
+    return tokenList;
+  }
+  public async getUserTokens() {
+    const context = await this.graph.getContext(TOKEN_LIST);
+    const categoriesToken = await context.getChildren('HasCategoryToken');
+    var tokenList = [];
+    for (const category of categoriesToken) {
+      if (category.getName().get() === 'User Token') {
+        const categoryTokens = await category.getChildren('HasToken');
+        for (const token of categoryTokens) {
+          let info = {
+            id: token.getId().get(),
+            type: token.getType().get(),
+            name: token.getName().get(),
+            token: token.info.token.get(),
+            createdToken: token.info.createdToken.get(),
+            expieredToken: token.info.expieredToken.get(),
+            userId: token.info.userId.get(),
+            userType: token.info.userType.get(),
+          };
+          tokenList.push(info);
+        }
+      }
+    }
+    return tokenList;
+  }
+  public async getApplicationTokens() {
+    const context = await this.graph.getContext(TOKEN_LIST);
+    const categoriesToken = await context.getChildren('HasCategoryToken');
+    var tokenList = [];
+    for (const category of categoriesToken) {
+      if (category.getName().get() === 'Application Token') {
+        const categoryTokens = await category.getChildren('HasToken');
+        for (const token of categoryTokens) {
+          let info = {
+            id: token.getId().get(),
+            type: token.getType().get(),
+            name: token.getName().get(),
+            token: token.info.token.get(),
+            createdToken: token.info.createdToken.get(),
+            expieredToken: token.info.expieredToken.get(),
+            userId: token.info.userId.get(),
+            userType: token.info.userType.get(),
+          };
+          tokenList.push(info);
+        }
+      }
+    }
+    return tokenList;
+  }
 }
