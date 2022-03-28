@@ -28,8 +28,9 @@ async function getToken(user, pass) {
     userName: user,
     password: pass
   };
+  console.error(process.env.SPINAL_HOST_API);
   const { data } = await axios.post(
-    "http://localhost:4040/users/login",
+    "/users/login",
     userparams
   );
   if (data) {

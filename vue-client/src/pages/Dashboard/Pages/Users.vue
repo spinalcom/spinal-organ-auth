@@ -243,10 +243,6 @@ with this file. If not, see
 </template>
 <script>
 import Multiselect from "vue-multiselect";
-import {
-  SpinalGraph,
-  SpinalGraphService
-} from "spinal-env-viewer-graph-service";
 import axios from "axios";
 import { validationMixin } from "vuelidate";
 import {

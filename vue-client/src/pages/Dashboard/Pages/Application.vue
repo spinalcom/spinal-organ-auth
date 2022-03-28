@@ -206,10 +206,6 @@ with this file. If not, see
 import Multiselect from "vue-multiselect";
 // register globally
 // Vue.component("multiselect", Multiselect);
-import {
-  SpinalGraph,
-  SpinalGraphService
-} from "spinal-env-viewer-graph-service";
 import axios from "axios";
 export default {
   components: { Multiselect },
@@ -252,7 +248,6 @@ export default {
       const checkIndex = res => res.data;
     },
     saveUser() {
-      // console.log("**********************", this.userData);
     },
     changeUser() {},
     getInfoUser() {},

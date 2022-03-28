@@ -300,10 +300,7 @@ with this file. If not, see
   </div>
 </template>
 <script>
-import {
-  SpinalGraph,
-  SpinalGraphService
-} from "spinal-env-viewer-graph-service";
+
 // import Places from 'vue-places'
 import AddServer from "./AddServer.vue";
 import EventBus from "../../../EventBus";

@@ -57,7 +57,8 @@ function Server(): express.Express {
     extended: true
   }));  
   app.use(methodOverride());
-  app.use('/static', express.static(path.join(__dirname, 'public')));
+  // app.use('/static', express.static(path.join(__dirname, 'public')));
+ app.use(express.static('/home/ubuntu/spinalcom/spinal_viewer_usine_spinalcom_8050/module/spinal-organ-auth/vue-client/dist'));
 
   //app.use('/docs', express.static(__dirname + '/swagger-ui'));
 

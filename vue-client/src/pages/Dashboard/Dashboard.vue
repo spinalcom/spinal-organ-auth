@@ -203,7 +203,6 @@ export default {
   },
   watch: {
     platformList() {
-      console.log("hello", this.platformList.length);
       this.platformNumber = this.platformList.length;
     }
   }
