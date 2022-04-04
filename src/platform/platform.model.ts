@@ -38,15 +38,25 @@ export interface IPlateformCreationParams {
   name: string;
   type?: string;
   url: string;
-  statusPlatform: string;
+  statusPlatform?: statusPlatform;
   TokenBosAdmin?: string;
 }
 
 export interface IPlatformUpdateParams {
   name: string;
-  statusPlatform: statusPlatform;
+  statusPlatform?: statusPlatform;
   url?: string;
   TokenBosAdmin?: string;
+}
+export interface IRegisterParams {
+  platformCreationParms: IPlateformCreationParams;
+  registerKey: string;
+}
+export interface IRegisterKeyObject {
+  id: string;
+  name: string;
+  type: string;
+  value: string;
 }
 
 export enum statusPlatform {

@@ -60,7 +60,6 @@ import data from './profileUserListData';
 import bcrypt = require('bcrypt');
 import jwt = require('jsonwebtoken');
 import jwt_decode from 'jwt-decode';
-
 /**
  * @export
  * @class UserService
@@ -358,7 +357,7 @@ export class UserService {
   async createAuthAdmin(): Promise<IUser> {
     let userCreationParams: IUserCreationParams = {
       userName: 'authAdmin',
-      password: 'spinalcom',
+      password: process.env.AUTH_ADMIN_PASSWORD,
       email: 'spinalcom@spinalcom.com',
       telephone: '0123321234',
       info: '',

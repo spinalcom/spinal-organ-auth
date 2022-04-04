@@ -21,19 +21,19 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-import * as express from "express";
-import * as fileUpload from "express-fileupload";
-import * as bodyParser from "body-parser";
-import * as cors from "cors";
-import * as morgan from "morgan";
-import * as _ from "lodash";
-import config from "./config"
-import path = require("path");
+import * as express from 'express';
+import * as fileUpload from 'express-fileupload';
+import * as bodyParser from 'body-parser';
+import * as cors from 'cors';
+import * as morgan from 'morgan';
+import * as _ from 'lodash';
+import config from './config';
+import path = require('path');
 import * as methodOverride from 'method-override';
-import { RegisterRoutes } from "./routes";
-import { Response as ExResponse, Request as ExRequest } from "express";
-import * as swaggerUi from "swagger-ui-express";
-const jsonFile = require ('../build/swagger.json')
+import { RegisterRoutes } from './routes';
+import { Response as ExResponse, Request as ExRequest } from 'express';
+import * as swaggerUi from 'swagger-ui-express';
+const jsonFile = require('../build/swagger.json');
 
 /**
  *
@@ -41,41 +41,42 @@ const jsonFile = require ('../build/swagger.json')
  * @return {*}  {express.Express}
  */
 function Server(): express.Express {
-
   const app = express();
 
-
   // enable files upload
-  app.use(fileUpload({
-    createParentPath: true
-  }));
+  app.use(
+    fileUpload({
+      createParentPath: true,
+    })
+  );
   app.use(morgan('tiny'));
   app.use(cors());
   app.disable('x-powered-by');
   app.use(express.json());
-  app.use(express.urlencoded({
-    extended: true
-  }));  
+  app.use(
+    express.urlencoded({
+      extended: true,
+    })
+  );
   app.use(methodOverride());
   // app.use('/static', express.static(path.join(__dirname, 'public')));
- app.use(express.static('/home/ubuntu/spinalcom/spinal_viewer_usine_spinalcom_8050/module/spinal-organ-auth/vue-client/dist'));
+  app.use(express.static('../vue-client/dist'));
 
   //app.use('/docs', express.static(__dirname + '/swagger-ui'));
 
   //app.use('/api-docs', swaggerUi.serve);
   //app.get('/api-docs', swaggerUi.setup(jsonFile));
-//
+  //
   //app.use('/swagger.json', (req, res) => {
   //    res.sendFile(__dirname + '/swagger.json');
   //});
 
-
-  app.listen(config.api.port, () =>   console.log(`app listening at http://localhost:${config.api.port} ....`)
+  app.listen(config.api.port, () =>
+    console.log(`app listening at http://localhost:${config.api.port} ....`)
   );
 
+  RegisterRoutes(app);
 
-RegisterRoutes(app);
-
-  return
+  return;
 }
 export default Server;

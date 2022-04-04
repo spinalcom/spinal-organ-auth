@@ -21,16 +21,16 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-import axios from "axios";
-const TOKEN = "token";
+const TOKEN = 'token';
+const instanceAxios = require('../services/axiosConfig');
 async function getToken(user, pass) {
   let userparams = {
     userName: user,
-    password: pass
+    password: pass,
   };
-  console.error(process.env.SPINAL_HOST_API);
-  const { data } = await axios.post(
-    "/users/login",
+  // console.error(process.env.SPINAL_HOST_API);
+  const { data } = await instanceAxios.instanceAxios.post(
+    '/users/login',
     userparams
   );
   if (data) {
@@ -40,7 +40,7 @@ async function getToken(user, pass) {
 
   return {
     limit: data.expieredToken,
-    token: data.token
+    token: data.token,
   };
 }
 

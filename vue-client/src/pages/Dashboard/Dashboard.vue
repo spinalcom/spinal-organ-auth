@@ -106,6 +106,7 @@ with this file. If not, see
 <script>
 import { StatsCard, AnimatedNumber } from "@/components";
 import axios from "axios";
+const instanceAxios = require("../../services/axiosConfig");
 
 export default {
   components: {
@@ -135,7 +136,7 @@ export default {
   },
   methods: {
     async getPlatforms() {
-      const rep = await axios.get("http://localhost:4040/platforms", {
+      const rep = await instanceAxios.instanceAxios.get("/platforms", {
         headers: {
           "Content-Type": "application/json",
           "x-access-token": this.token
@@ -145,7 +146,7 @@ export default {
       return this.platformList;
     },
     async getTokens() {
-      const rep = await axios.get("http://localhost:4040/tokens", {
+      const rep = await instanceAxios.instanceAxios.get("/tokens", {
         headers: {
           "Content-Type": "application/json",
           "x-access-token": this.token

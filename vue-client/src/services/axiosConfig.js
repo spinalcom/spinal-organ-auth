@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 SpinalCom - www.spinalcom.com
+ * Copyright 2022 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -21,20 +21,10 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-
-const config = {
-  spinalConnector: {
-    user: process.env.SPINAL_USER_ID || 168, // user id
-    password: process.env.SPINAL_PASSWORD || 'mdp_1', // user password
-    host: process.env.SPINALHUB_IP || 'localhost', // can be an ip address
-    port: process.env.SPINALHUB_PORT || 8050, // port
-  },
-  api: {
-    port: process.env.REQUESTS_PORT || 8040, // internal port
-  },
-  file: {
-    // path to a digital twin in spinalhub filesystem
-    path: process.env.SPINAL_DTWIN_PATH || '/__users__/admin/Digital twin',
-  },
-};
-export default config;
+const axios = require('axios');
+export const instanceAxios = axios.create({
+  baseURL: 'http://localhost:4040/',
+  timeout: 1000,
+  headers: { 'X-Custom-Header': 'foobar' },
+});
+// instanceAxios.post('/users/login',data,{headers:{ 'X-Custom-Header': 'foobar}})

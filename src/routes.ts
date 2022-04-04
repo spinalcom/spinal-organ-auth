@@ -235,9 +235,20 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "name": {"dataType":"string","required":true},
-            "statusPlatform": {"ref":"statusPlatform","required":true},
+            "statusPlatform": {"ref":"statusPlatform"},
             "url": {"dataType":"string"},
             "TokenBosAdmin": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IRegisterKeyObject": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "name": {"dataType":"string","required":true},
+            "type": {"dataType":"string","required":true},
+            "value": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -248,7 +259,7 @@ const models: TsoaRoute.Models = {
             "name": {"dataType":"string","required":true},
             "type": {"dataType":"string"},
             "url": {"dataType":"string","required":true},
-            "statusPlatform": {"dataType":"string","required":true},
+            "statusPlatform": {"ref":"statusPlatform"},
             "TokenBosAdmin": {"dataType":"string"},
         },
         "additionalProperties": false,
@@ -851,6 +862,29 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.getOrgansFromPlatform.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/platforms/registerKey',
+            authenticateMiddleware([{"jwt":[]}]),
+
+            function PlatformsController_updateRegisterKeyNode(request: any, response: any, next: any) {
+            const args = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new PlatformsController();
+
+
+              const promise = controller.updateRegisterKeyNode.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

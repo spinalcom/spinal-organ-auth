@@ -62,7 +62,6 @@ import GoogleMaps from '@/pages/Dashboard/Maps/GoogleMaps.vue';
 import FullScreenMap from '@/pages/Dashboard/Maps/FullScreenMap.vue';
 import VectorMaps from '@/pages/Dashboard/Maps/VectorMaps.vue';
 
-// import Server from '@/pages/Dashboard/Pages/Server.vue';
 import Platforms from '@/pages/Dashboard/Pages/Platforms.vue';
 import Alarmes from '@/pages/Dashboard/Pages/Alarmes.vue';
 // import Sparkline from "@/pages/Dashboard/Pages/Sparklines.vue";
@@ -70,7 +69,7 @@ import Alarmes from '@/pages/Dashboard/Pages/Alarmes.vue';
 import Servers from '@/pages/Dashboard/Pages/Servers.vue';
 import Users from '@/pages/Dashboard/Pages/Users.vue';
 import Application from '@/pages/Dashboard/Pages/Application.vue';
-import AddServer from '@/pages/Dashboard/Pages/AddServer.vue';
+import AddOrgan from '@/pages/Dashboard/Pages/AddOrgan.vue';
 // Calendar
 import Calendar from '@/pages/Dashboard/Calendar.vue';
 // Charts
@@ -299,9 +298,9 @@ const routes = [
         components: { default: Users },
       },
       {
-        path: 'AddServer',
-        name: 'AddServer',
-        components: { default: AddServer },
+        path: 'AddOrgan',
+        name: 'AddOrgan',
+        components: { default: AddOrgan },
       },
       {
         path: 'User',

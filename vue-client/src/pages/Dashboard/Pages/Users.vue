@@ -55,49 +55,7 @@ with this file. If not, see
           </md-card-content>
         </md-card>
       </div>
-      <!-- <md-card-header class="md-card-header-icon md-card-header-primary">
-          <div class="card-icon">
-            <md-icon v-if="display === false">person</md-icon>
-            <md-icon
-              class="cursorP"
-              @click.native="cancelAdd"
-              v-if="display === true"
-              >arrow_back</md-icon
-            >
-          </div>
-          <h4 class="title" v-if="display === false">Select User</h4>
-          <h4 class="title" v-if="display === true">Add User</h4>
-          <md-button
-            class="md-primary pull-right"
-            v-if="display === false"
-            @click="displayAdd"
-            >Nouveau Utilisateur</md-button
-          >
-        </md-card-header>
-        <md-card-content v-if="display === false">
-          <div class="md-layout">
-            <div class="md-layout-item">
-              <br />
-              <multiselect
-                v-model="value"
-                :options="userList"
-                placeholder="Select one"
-                label="userName"
-                track-by="userName"
-              ></multiselect>
-              <br />
-              <md-card-actions>
-                <md-button
-                  class="md-primary pull-right"
-                  v-if="display === false"
-                  @click="displayAdd"
-                  >edit</md-button
-                >
-              </md-card-actions>
-            </div>
-          </div>
-        </md-card-content> -->
-      <!-- *********************************************************** , -->
+
       <md-card>
         <form
           novalidate

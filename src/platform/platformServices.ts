@@ -34,6 +34,10 @@ import {
   PLATFORM_TYPE,
   AUTH_SERVICE_RELATION_TYPE_PTR_LST,
   AUTH_SERVICE_ORGAN_RELATION_NAME,
+  REGISTER_KEY_TYPE,
+  INFO_ADMIN_TYPE,
+  AUTH_SERVICE_INFO_ADMIN_RELATION_NAME,
+  INFO_ADMIN,
 } from '../constant';
 import {
   SpinalGraphService,
@@ -47,6 +51,9 @@ import {
   IPlatform,
   IPlateformCreationParams,
   IPlatformUpdateParams,
+  statusPlatform,
+  IRegisterParams,
+  IRegisterKeyObject,
 } from './platform.model';
 import SpinalMiddleware from '../spinalMiddleware';
 import { platform } from 'process';
@@ -57,8 +64,7 @@ import { result } from '../utilities/jsonFileConfigBosToAdminBos';
 import bcrypt = require('bcrypt');
 import jwt = require('jsonwebtoken');
 import jwt_decode from 'jwt-decode';
-import dotenv = require('dotenv');
-dotenv.config();
+
 /**
  *
  *
@@ -254,7 +260,7 @@ export class PlatformService {
         const platformObject: IPlateformCreationParams = {
           name: 'authenticationPlatform',
           type: PLATFORM_TYPE,
-          statusPlatform: 'On',
+          statusPlatform: statusPlatform.online,
           url: 'process.env.url',
           TokenBosAdmin: '',
         };
@@ -275,8 +281,72 @@ export class PlatformService {
           name: res.getName().get(),
           statusPlatform: res.info.statusPlatform.get(),
           url: res.info.url.get(),
-          TokenBosAdmin: res.info.TokenBosAdmin.get(),
+          // TokenBosAdmin: res.info.TokenBosAdmin.get(),
         };
+      }
+    }
+  }
+
+  public async createRegisterKeyNode(): Promise<IRegisterKeyObject> {
+    const contexts = await this.graph.getChildren('hasContext');
+    for (const context of contexts) {
+      if (context.getName().get() === 'infoAdmin') {
+        // @ts-ignore
+        SpinalGraphService._addNode(context);
+        const registerKeyObject = {
+          name: 'registerKey',
+          type: REGISTER_KEY_TYPE,
+          value: this.generateRegisterKey(),
+        };
+        const regesterKeyId = SpinalGraphService.createNode(
+          registerKeyObject,
+          undefined
+        );
+        const res = await SpinalGraphService.addChildInContext(
+          context.getId().get(),
+          regesterKeyId,
+          context.getId().get(),
+          AUTH_SERVICE_INFO_ADMIN_RELATION_NAME,
+          AUTH_SERVICE_RELATION_TYPE_PTR_LST
+        );
+        return {
+          id: res.getId().get(),
+          type: res.getType().get(),
+          name: res.getName().get(),
+          value: res.info.value.get(),
+        };
+      }
+    }
+  }
+  public generateRegisterKey() {
+    const generator = require('generate-password');
+    var registerKey = generator.generate({
+      length: 20,
+      numbers: true,
+    });
+    return registerKey;
+  }
+
+  public async updateRegisterKeyNode(): Promise<IRegisterKeyObject> {
+    const contexts = await this.graph.getChildren('hasContext');
+    for (const context of contexts) {
+      if (context.getName().get() === INFO_ADMIN) {
+        // @ts-ignore
+        SpinalGraphService._addNode(context);
+        const childrens = await context.getChildren(
+          AUTH_SERVICE_INFO_ADMIN_RELATION_NAME
+        );
+        for (const child of childrens) {
+          if (child.getName().get() === 'registerKey') {
+            child.info.value.set(this.generateRegisterKey());
+            return {
+              id: child.getId().get(),
+              type: child.getType().get(),
+              name: child.getName().get(),
+              value: child.info.value.get(),
+            };
+          }
+        }
       }
     }
   }
@@ -289,14 +359,24 @@ export class PlatformService {
         expiresIn: '24h',
       }
     );
-    let decodedToken = jwt_decode(token);
+    // let decodedToken = jwt_decode(token);
     return token;
   }
 
   public async registerNewPlatform(
     object: IRegisterParams
   ): Promise<IPlatform | string> {
-    if (object.registerKey === process.env.REGISTER_KEY) {
+    const contexts = await this.graph.getChildren('hasContext');
+    var registerKey: string;
+    for (const context of contexts) {
+      if (context.getName().get() === INFO_ADMIN) {
+        const childrens = await context.getChildren(
+          AUTH_SERVICE_INFO_ADMIN_RELATION_NAME
+        );
+        registerKey = childrens[0].info.value.get();
+      }
+    }
+    if (object.registerKey === registerKey) {
       const res = await this.createPlateform(object.platformCreationParms);
       return res;
     } else {
@@ -305,23 +385,18 @@ export class PlatformService {
   }
 
   public async updateNewPlatform(updateParams) {
-    if (updateParams.TokenBosAdmin === process.env.TOKEN_BOS_ADMIN) {
-      console.log('object', updateParams);
-
-      console.log('TokenBosAdmin', updateParams.TokenBosAdmin);
-
-      const contexts = await this.graph.getChildren('hasContext');
-      for (const context of contexts) {
-        if (context.getName().get() === PLATFORM_LIST) {
-          console.log('context:OK', context.getName().get());
-
-          const platformList = await context.getChildren('HasPlatform');
-          for (const platform of platformList) {
-            // @ts-ignore
-            SpinalGraphService._addNode(platform);
-            if (platform.getId().get() === updateParams.platformId) {
-              console.log('platform:ok', platform.getName().get());
-
+    // if (updateParams.TokenBosAdmin === process.env.TOKEN_BOS_ADMIN) {
+    const contexts = await this.graph.getChildren('hasContext');
+    for (const context of contexts) {
+      if (context.getName().get() === PLATFORM_LIST) {
+        const platformList = await context.getChildren('HasPlatform');
+        for (const platform of platformList) {
+          // @ts-ignore
+          SpinalGraphService._addNode(platform);
+          if (platform.getId().get() === updateParams.platformId) {
+            if (
+              platform.info.TokenBosAdmin.get() === updateParams.TokenBosAdmin
+            ) {
               for (const organ of updateParams.jsonData.organList) {
                 const organService = new OrganService();
                 organService.createOrgan({
@@ -331,14 +406,11 @@ export class PlatformService {
                   platformId: platform.getId().get(),
                 });
               }
-            }
+            } else
+              throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
           }
         }
       }
-    } else throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+    }
   }
-}
-interface IRegisterParams {
-  platformCreationParms: IPlateformCreationParams;
-  registerKey: string;
 }

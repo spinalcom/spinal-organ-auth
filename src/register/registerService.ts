@@ -47,15 +47,15 @@ export class RegisterService {
     this.graph = this.spinalMiddleware.getGraph();
   }
 
-  public async registerPlatform(object): Promise<IPlatform> {
-    if (object.registerKey === process.env.REGISTER_KEY) {
-      const platformService = new PlatformService();
-      const res = await platformService.createPlateform(
-        object.platformCreationParms
-      );
-      return res;
-    }
-  }
+  // public async registerPlatform(object): Promise<IPlatform> {
+  //   if (object.registerKey === process.env.REGISTER_KEY) {
+  //     const platformService = new PlatformService();
+  //     const res = await platformService.createPlateform(
+  //       object.platformCreationParms
+  //     );
+  //     return res;
+  //   }
+  // }
 
   // public async updatePlatform()
 }

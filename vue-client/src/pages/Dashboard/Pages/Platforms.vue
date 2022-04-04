@@ -106,10 +106,10 @@ with this file. If not, see
               <md-table-cell md-label="Servers"
                 >{{ serverLength(item) }}
               </md-table-cell>
-              <md-table-cell md-label="Server Config">
+              <md-table-cell md-label="organ list">
                 <md-icon
                   class="text-center text-primary cursorP"
-                  @click.native="showPanelConfigServer(item)"
+                  @click.native="showPanelOrganList(item)"
                   >chevron_right</md-icon
                 >
               </md-table-cell>
@@ -259,7 +259,7 @@ with this file. If not, see
         >
           <div class="md-layout-item">
             <md-list
-              v-for="(server, index) in serverList"
+              v-for="(server, index) in organList"
               :key="index"
               class="md-double-line"
             >
@@ -290,21 +290,22 @@ with this file. If not, see
             </md-list>
           </div>
 
-          <AddServer
+          <AddOrgan
             class="md-layout-item"
             :itemSelectedId="itemSelected.id"
-          ></AddServer>
+          ></AddOrgan>
         </div>
       </md-card>
     </div>
   </div>
 </template>
 <script>
-
 // import Places from 'vue-places'
-import AddServer from "./AddServer.vue";
+import AddOrgan from "./AddOrgan.vue";
 import EventBus from "../../../EventBus";
 import axios from "axios";
+const instanceAxios = require("../../../services/axiosConfig");
+
 import Multiselect from "vue-multiselect";
 import { validationMixin } from "vuelidate";
 import {
@@ -316,7 +317,7 @@ import {
 export default {
   name: "Platform",
   mixins: [validationMixin],
-  components: { AddServer },
+  components: { AddOrgan },
   data: () => ({
     token: null,
     position: "center",
@@ -335,7 +336,7 @@ export default {
     currentSort: "name",
     currentSortOrder: "asc",
     platformList: [],
-    serverList: []
+    organList: []
   }),
   validations: {
     formPlatform: {
@@ -350,8 +351,8 @@ export default {
     generateRegisterKey() {},
     async savePlatform() {
       this.sending = true;
-      const rep = await axios.post(
-        "http://localhost:4040/platforms",
+      const rep = await instanceAxios.instanceAxios.post(
+        "/platforms",
         {
           name: this.formPlatform.platformName
         },
@@ -384,8 +385,8 @@ export default {
       }
     },
     async editPlatformItem() {
-      const rep = await axios.put(
-        `http://localhost:4040/platforms/${this.itemSelected.id}`,
+      const rep = await instanceAxios.instanceAxios.put(
+        `/platforms/${this.itemSelected.id}`,
         {
           name: this.formPlatform.platformName
         },
@@ -406,10 +407,10 @@ export default {
       }
       this.reloadData();
     },
-    showPanelConfigServer(item) {
+    showPanelOrganList(item) {
       this.displayConfigServer = true;
       this.itemSelected = item;
-      this.getServers();
+      this.getOrgans();
       const arr = [...this.platformList];
       const element = arr.find(el => {
         return el.id == item.id;
@@ -422,7 +423,7 @@ export default {
           "Are you sure you want to delete the platform, you can lost all config of this platform!"
         );
       if (r === true) {
-        await axios.delete(`http://localhost:4040/platforms/${item.id}`, {
+        await instanceAxios.instanceAxios.delete(`/platforms/${item.id}`, {
           headers: {
             "Content-Type": "application/json",
             "x-access-token": this.token
@@ -432,7 +433,7 @@ export default {
       this.reloadData();
     },
     async getPlatforms() {
-      const rep = await axios.get("http://localhost:4040/platforms", {
+      const rep = await instanceAxios.instanceAxios.get("/platforms", {
         headers: {
           "Content-Type": "application/json",
           "x-access-token": this.token
@@ -440,9 +441,9 @@ export default {
       });
       this.platformList = rep.data;
     },
-    async getServers() {
-      const rep = await axios.get(
-        `http://localhost:4040/platforms/${this.itemSelected.id}/getServers`,
+    async getOrgans() {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/organs/${this.itemSelected.id}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -450,7 +451,8 @@ export default {
           }
         }
       );
-      this.serverList = rep.data;
+      this.organList = rep.data;
+      console.log(rep.data);
     },
     customSort(value) {
       return value.sort((a, b) => {
@@ -472,7 +474,6 @@ export default {
     },
     reloadData() {
       this.getPlatforms();
-      // this.getServers();
     },
     validatePlatform() {
       this.$v.$touch();
@@ -506,11 +507,8 @@ export default {
   },
   mounted() {
     this.token = localStorage.getItem("token");
-    // this.getServers();
     this.getPlatforms();
-    EventBus.$on("reloadServerList", () => {
-      this.getServers();
-    });
+    EventBus.$on("reloadServerList", () => {});
   },
   watch: {
     /**

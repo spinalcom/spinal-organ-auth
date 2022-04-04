@@ -24,30 +24,30 @@ with this file. If not, see
 
 <template>
   <div>
-    <form novalidate class="md-layout" @submit.prevent="validateServer">
+    <form novalidate class="md-layout" @submit.prevent="validateOrgan">
       <md-card class="md-layout-item md-size-100 md-small-size-100">
         <md-card-header>
-          <div class="md-title">Ajouter un serveur</div>
+          <div class="md-title">Ajouter un Organ</div>
         </md-card-header>
         <md-card-content>
           <div class="md-layout md-gutter">
             <div class="md-layout-item md-small-size-100">
-              <md-field :class="getValidationClass('serverName')">
-                <label for="serverName">Server Name</label>
+              <md-field :class="getValidationClass('organName')">
+                <label for="organName">Organ Name</label>
                 <md-input
-                  name="serverName"
-                  id="serverName"
+                  name="organName"
+                  id="OrganName"
                   autocomplete="given-name"
-                  v-model="formServer.serverName"
+                  v-model="formOrgan.organName"
                   :disabled="sending"
                 />
-                <span class="md-error" v-if="!$v.formServer.serverName.required"
+                <span class="md-error" v-if="!$v.formOrgan.organName.required"
                   >The name is required</span
                 >
                 <span
                   class="md-error"
-                  v-else-if="!$v.formServer.serverName.minlength"
-                  >Invalid Server name</span
+                  v-else-if="!$v.formOrgan.organName.minlength"
+                  >Invalid Organ name</span
                 >
               </md-field>
 
@@ -57,15 +57,15 @@ with this file. If not, see
                   name="clientId"
                   id="clientId"
                   autocomplete="given-name"
-                  v-model="formServer.clientId"
+                  v-model="formOrgan.clientId"
                   :disabled="sending"
                 />
-                <span class="md-error" v-if="!$v.formServer.clientId.required"
+                <span class="md-error" v-if="!$v.formOrgan.clientId.required"
                   >The clientId is required</span
                 >
                 <span
                   class="md-error"
-                  v-else-if="!$v.formServer.serverName.minlength"
+                  v-else-if="!$v.formOrgan.organName.minlength"
                   >Invalid clientId</span
                 >
               </md-field>
@@ -76,17 +76,17 @@ with this file. If not, see
                   name="clientSecret"
                   id="clientSecret"
                   autocomplete="given-name"
-                  v-model="formServer.clientSecret"
+                  v-model="formOrgan.clientSecret"
                   :disabled="sending"
                 />
                 <span
                   class="md-error"
-                  v-if="!$v.formServer.clientSecret.required"
+                  v-if="!$v.formOrgan.clientSecret.required"
                   >The clientSecret is required</span
                 >
                 <span
                   class="md-error"
-                  v-else-if="!$v.formServer.clientSecret.minlength"
+                  v-else-if="!$v.formOrgan.clientSecret.minlength"
                   >Invalid clientSecret</span
                 >
               </md-field>
@@ -97,13 +97,13 @@ with this file. If not, see
                   name="uri"
                   id="uri"
                   autocomplete="given-name"
-                  v-model="formServer.uri"
+                  v-model="formOrgan.uri"
                   :disabled="sending"
                 />
-                <span class="md-error" v-if="!$v.formServer.uri.required"
+                <span class="md-error" v-if="!$v.formOrgan.uri.required"
                   >The uri is required</span
                 >
-                <span class="md-error" v-else-if="!$v.formServer.uri.minlength"
+                <span class="md-error" v-else-if="!$v.formOrgan.uri.minlength"
                   >Invalid uri</span
                 >
               </md-field>
@@ -111,7 +111,7 @@ with this file. If not, see
               <md-field>
                 <label for="userProfileValue">User Profiles</label>
                 <multiselect
-                  v-model="formServer.userProfileValue"
+                  v-model="formOrgan.userProfileValue"
                   :options="userProfileList"
                   :multiple="true"
                   :close-on-select="false"
@@ -126,11 +126,6 @@ with this file. If not, see
                     query.</span
                   >
                 </multiselect>
-                <!-- <span
-                  class="md-error"
-                  v-if="!$v.formServer.userProfileValue.required"
-                  >The user profiles is required</span
-                > -->
               </md-field>
             </div>
           </div>
@@ -143,12 +138,12 @@ with this file. If not, see
         </md-card-actions>
       </md-card>
       <md-snackbar
-        :md-active.sync="serverSaved"
+        :md-active.sync="organSaved"
         :md-position="position"
         :md-duration="isInfinity ? Infinity : duration"
         md-persistent
       >
-        <span>The server {{ lastServer }} was saved with success!</span>
+        <span>The organ {{ lastOrgan }} was saved with success!</span>
       </md-snackbar>
     </form>
   </div>
@@ -156,6 +151,7 @@ with this file. If not, see
 
 <script>
 import axios from "axios";
+const instanceAxios = require("../../../services/axiosConfig");
 import Multiselect from "vue-multiselect";
 import { validationMixin } from "vuelidate";
 import Vue from "vue";
@@ -170,7 +166,7 @@ import { data } from "../../../services/profileUserListData";
 // const profiles = require("../../../services/profileUserListData");
 
 export default {
-  name: "AddServer",
+  name: "AddOrgan",
   mixins: [validationMixin],
   components: { Multiselect },
   props: {
@@ -181,23 +177,23 @@ export default {
     position: "center",
     duration: 3000,
     isInfinity: false,
-    formServer: {
-      serverName: null,
+    formOrgan: {
+      organName: null,
       clientId: null,
       clientSecret: null,
       uri: null,
       userProfileValue: []
     },
     userProfileList: [],
-    serverList: [],
-    serverSaved: false,
+    organList: [],
+    organSaved: false,
     sending: false,
-    lastServer: null
+    lastOrgan: null
   }),
 
   validations: {
-    formServer: {
-      serverName: {
+    formOrgan: {
+      organName: {
         required,
         minLength: minLength(3)
       },
@@ -221,7 +217,7 @@ export default {
   computed: {},
   methods: {
     getValidationClass(fieldName) {
-      const field = this.$v.formServer[fieldName];
+      const field = this.$v.formOrgan[fieldName];
       if (field) {
         return {
           "md-invalid": field.$invalid && field.$dirty
@@ -230,22 +226,22 @@ export default {
     },
     clearForm() {
       this.$v.$reset();
-      this.formServer.serverName = null;
-      this.formServer.clientId = null;
-      this.formServer.clientSecret = null;
-      this.formServer.uri = null;
-      this.formServer.userProfileValue = null;
+      this.formOrgan.organName = null;
+      this.formOrgan.clientId = null;
+      this.formOrgan.clientSecret = null;
+      this.formOrgan.uri = null;
+      this.formOrgan.userProfileValue = null;
     },
-    async saveServer() {
+    async saveOrgan() {
       this.sending = true;
-      const rep = await axios.post(
-        `http://localhost:4040/servers/${this.itemSelectedId}`,
+      const rep = await instanceAxios.instanceAxios.post(
+        `/organs/${this.itemSelectedId}`,
         {
-          name: this.formServer.serverName,
-          clientId: this.formServer.clientId,
-          clientSecret: this.formServer.clientSecret,
-          uri: this.formServer.uri,
-          profileList: this.formServer.userProfileValue
+          name: this.formOrgan.organName,
+          clientId: this.formOrgan.clientId,
+          clientSecret: this.formOrgan.clientSecret,
+          uri: this.formOrgan.uri,
+          profileList: this.formOrgan.userProfileValue
         },
         {
           headers: {
@@ -255,31 +251,35 @@ export default {
         }
       );
       if (rep !== undefined) {
-        EventBus.$emit("reloadServerList");
+        EventBus.$emit("reloadOrganList");
         window.setTimeout(() => {
-          this.lastServer = `${this.formServer.serverName}`;
-          this.serverSaved = true;
+          this.lastOrgan = `${this.formOrgan.organName}`;
+          this.organSaved = true;
           this.sending = false;
           this.clearForm();
         }, 1500);
       }
       // Instead of this timeout, here you can call your API
     },
-    validateServer() {
+    validateOrgan() {
       this.$v.$touch();
 
       if (!this.$v.$invalid) {
-        this.saveServer();
+        this.saveOrgan();
       }
     },
-    async getServers() {
-      const rep = await axios.get("http://localhost:4040/servers", {
-        headers: {
-          "Content-Type": "application/json",
-          "x-access-token": this.token
+    async getOrgans() {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/organs/${this.itemSelected.id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
         }
-      });
-      this.serverList = rep.data;
+      );
+      this.organList = rep.data;
+      console.log(rep.data);
     },
     getUserProfileData() {
       const profiles = require("../../../services/profileUserListData");

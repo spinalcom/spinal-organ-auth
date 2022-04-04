@@ -26,7 +26,6 @@ import { SpinalGraphService } from 'spinal-env-viewer-graph-service';
 import { AuthGraphService } from './services/authGraphService';
 import { UserService } from './authUser/userService';
 import { PlatformService } from './platform/platformServices';
-const { SpinalServiceUser } = require('spinal-service-user');
 import Server from './server';
 import { TokensService } from './tokens/tokenService';
 import SpinalMiddleware from './spinalMiddleware';
@@ -69,12 +68,25 @@ async function main() {
   }
 
   // start organ with platform config
-  let plateformsService = new PlatformService();
-  let plateforms = await plateformsService.getPlateforms();
+  var plateformsService = new PlatformService();
+  var plateforms = await plateformsService.getPlateforms();
   if (plateforms.length === 0) {
     let res = await plateformsService.createAuthPlateform();
     if (res !== undefined) {
       console.log('Auth Plateform created ...');
+    }
+  }
+
+  // start organ with register key config
+  for (const context of contexts) {
+    if (context.getName().get() === 'infoAdmin') {
+      let nodes = await context.getChildren('HasRegisterKey');
+      if (nodes.length === 0) {
+        let res = await plateformsService.createRegisterKeyNode();
+        if (res !== undefined) {
+          console.log('register key created ...', res);
+        }
+      }
     }
   }
 

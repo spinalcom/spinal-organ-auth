@@ -40,6 +40,7 @@ import {
   IPlatform,
   IPlateformCreationParams,
   IPlatformUpdateParams,
+  IRegisterKeyObject,
 } from './platform.model';
 import { PlatformService } from './platformServices';
 
@@ -89,5 +90,12 @@ export class PlatformsController extends Controller {
     @Path() platformId: string
   ): Promise<IOrgan[]> {
     return new PlatformService().getOrgansFromPlatform(platformId);
+  }
+
+  @Security('jwt')
+  @Post('/registerKey')
+  public async updateRegisterKeyNode(): Promise<IRegisterKeyObject> {
+    this.setStatus(201); // set return status 201
+    return new PlatformService().updateRegisterKeyNode();
   }
 }
