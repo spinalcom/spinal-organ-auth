@@ -36,8 +36,13 @@ export interface IUser {
   telephone?: string;
   info?: string; // champs libre optionnel
   userType: IUserType;
-  userProfileList: string[];
-  platformList: string[];
+  platformList: {
+    platformId: string;
+    userProfileList: {
+      name: string;
+      userProfileId: string;
+    }[];
+  }[];
 }
 
 export enum IUserType {
@@ -56,8 +61,13 @@ export interface IUserCreationParams {
   telephone?: string;
   info?: string; // champs libre optionnel
   userType: IUserType;
-  userProfileList: string[];
-  platformList: string[];
+  platformList: {
+    platformId: string;
+    userProfileList: {
+      name: string;
+      userProfileId: string;
+    }[];
+  }[];
 }
 
 export interface IUserUpdateParams {
@@ -67,26 +77,16 @@ export interface IUserUpdateParams {
   telephone?: string;
   info?: string; // champs libre optionnel
   userType?: IUserType;
-  userProfileList?: string[];
-  platformList?: string[];
+  platformList: {
+    platformId: string;
+    userProfileList: {
+      name: string;
+      userProfileId: string;
+    }[];
+  }[];
 }
 
 export interface IUserLoginParams {
   userName: string;
   password: string;
-}
-export interface IUserProfile {
-  id: string;
-  name: string;
-  graphId?: string;
-  appList?: {
-    data: {
-      name: string;
-      id: string;
-    };
-    role: {
-      id: string;
-      name: string;
-    }[];
-  }[];
 }

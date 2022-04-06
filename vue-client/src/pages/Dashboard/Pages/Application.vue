@@ -244,11 +244,17 @@ export default {
       this.display = false;
       this.$refs.form.reset();
     },
+    validateUser() {
+      this.$v.$touch();
+
+      if (!this.$v.$invalid) {
+        this.editUser();
+      }
+    },
     saveConfig() {
       const checkIndex = res => res.data;
     },
-    saveUser() {
-    },
+    saveUser() {},
     changeUser() {},
     getInfoUser() {},
     async getRoles() {

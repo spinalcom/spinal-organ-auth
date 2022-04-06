@@ -437,4 +437,32 @@ export class PlatformService {
       }
     }
   }
+
+  public async getUserProfileList(id: string): Promise<any[]> {
+    const contexts = await this.graph.getChildren('hasContext');
+    const _profileList = [];
+    for (const context of contexts) {
+      if (context.getName().get() === PLATFORM_LIST) {
+        const platformList = await context.getChildren('HasPlatform');
+        for (const platform of platformList) {
+          // @ts-ignore
+          SpinalGraphService._addNode(platform);
+          if (platform.getId().get() === id) {
+            const profileList = await platform.getChildren('HasUserProfile');
+            for (const profile of profileList) {
+              let infoProfile = {
+                id: profile.getId().get(),
+                type: profile.getType().get(),
+                name: profile.getName().get(),
+                userProfileId: profile.info.userProfileId.get(),
+                platformId: profile.info.platformId.get(),
+              };
+              _profileList.push(infoProfile);
+            }
+          }
+        }
+      }
+    }
+    return _profileList;
+  }
 }

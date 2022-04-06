@@ -40,7 +40,6 @@ import {
   IUserCreationParams,
   IUserUpdateParams,
   IUserLoginParams,
-  IUserProfile,
 } from './user.model';
 import { UserService } from './userService';
 import { expressAuthentication } from './authentication';
@@ -114,11 +113,11 @@ export class UsersController extends Controller {
   // }
 
   // @Security("jwt")
-  @Get('/getInfoToken/{token}')
-  public async getInfoToken(@Path() token: string): Promise<IUserProfile> {
-    this.setStatus(201); // set return status 201
-    return new UserService().getInfoToken(token);
-  }
+  // @Get('/getInfoToken/{token}')
+  // public async getInfoToken(@Path() token: string): Promise<IUserProfile> {
+  //   this.setStatus(201); // set return status 201
+  //   return new UserService().getInfoToken(token);
+  // }
 
   // @Security("jwt")
   @Post('/getRoles')

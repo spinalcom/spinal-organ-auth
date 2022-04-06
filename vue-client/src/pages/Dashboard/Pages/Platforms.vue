@@ -36,16 +36,21 @@ with this file. If not, see
           @click="displayAdd()"
           >Add Platform</md-button
         >
-        <md-button
-          class="md-warning pull-right"
-          v-if="
-            displayAddPlatform === false &&
-            displayEditPlatform === false &&
-            displayConfigServer === false
-          "
-          @click="generateRegisterKey()"
-          >Generate Registration Key</md-button
-        >
+
+        <div>
+          <md-dialog-confirm
+            :md-active.sync="active"
+            md-title="Generate a new Register Key?"
+            md-confirm-text="Agree"
+            md-cancel-text="Disagree"
+            @md-cancel="onCancel"
+            @md-confirm="onConfirm"
+          />
+          <md-button class="md-warning pull-right" @click="active = true"
+            >Generate Registration Key</md-button
+          >
+          <span v-if="value">Value: {{ value }}</span>
+        </div>
       </div>
       <md-card>
         <md-card-header class="md-card-header-icon md-card-header-primary">
@@ -319,7 +324,10 @@ export default {
   mixins: [validationMixin],
   components: { AddOrgan },
   data: () => ({
+    active: false,
+    value: null,
     token: null,
+    registerKey: null,
     position: "center",
     duration: 3000,
     isInfinity: false,
@@ -348,7 +356,23 @@ export default {
   },
   computed: {},
   methods: {
-    generateRegisterKey() {},
+    async generateRegisterKey() {
+      console.log(this.token);
+      const rep = await instanceAxios.instanceAxios.get("/registerKey", {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": this.token
+        }
+      });
+      this.registerKey = rep.data;
+      console.log(this.registerKey);
+    },
+    onConfirm() {
+      this.generateRegisterKey();
+      this.value = this.registerKey;
+    },
+    onCancel() {},
+
     async savePlatform() {
       this.sending = true;
       const rep = await instanceAxios.instanceAxios.post(

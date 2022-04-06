@@ -70,6 +70,7 @@ import Servers from '@/pages/Dashboard/Pages/Servers.vue';
 import Users from '@/pages/Dashboard/Pages/Users.vue';
 import Application from '@/pages/Dashboard/Pages/Application.vue';
 import AddOrgan from '@/pages/Dashboard/Pages/AddOrgan.vue';
+import AddUser from '@/pages/Dashboard/Pages/AddUser.vue';
 // Calendar
 import Calendar from '@/pages/Dashboard/Calendar.vue';
 // Charts
@@ -311,6 +312,11 @@ const routes = [
         path: 'Application',
         name: 'App Page',
         components: { default: Application },
+      },
+      {
+        path: 'AddUser',
+        name: 'AddUser Page',
+        components: { default: AddUser },
       },
     ],
   },

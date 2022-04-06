@@ -90,7 +90,6 @@ export class UserService {
               telephone: userCreationParams.telephone,
               info: userCreationParams.info,
               password: hash,
-              userProfileList: userCreationParams.userProfileList,
               platformList: userCreationParams.platformList,
             };
             if (
@@ -120,7 +119,6 @@ export class UserService {
                 telephone: res.info.telephone.get(),
                 info: res.info.info.get(),
                 userType: res.info.userType.get(),
-                userProfileList: res.info.userProfileList.get(),
                 platformList: res.info.platformList.get(),
               };
             } else {
@@ -184,7 +182,7 @@ export class UserService {
                           expieredToken: decodedToken.exp,
                           userId: user.getId().get(),
                           userType: user.info.userType.get(),
-                          userProfileList: user.info.userProfileList.get(),
+                          platformList: user.info.platformList.get(),
                         },
                         undefined
                       );
@@ -205,7 +203,6 @@ export class UserService {
                         expieredToken: decodedToken.exp,
                         userId: user.getId().get(),
                         userType: user.info.userType.get(),
-                        userProfileList: user.info.userProfileList.get(),
                       };
                       return tokenObj;
                     }
@@ -237,7 +234,6 @@ export class UserService {
           telephone: user.info.telephone.get(),
           info: user.info.info.get(),
           userType: user.info.userType.get(),
-          userProfileList: user.info.userProfileList.get(),
           platformList: user.info.platformList.get(),
         };
         usersObjectList.push(userObject);
@@ -279,7 +275,6 @@ export class UserService {
               telephone: user.info.telephone.get(),
               info: user.info.info.get(),
               userType: user.info.userType.get(),
-              userProfileList: user.info.userProfileList.get(),
               platformList: user.info.platformList.get(),
             };
           }
@@ -326,7 +321,6 @@ export class UserService {
           telephone: user.info.telephone.get(),
           info: user.info.info.get(),
           userType: user.info.userType.get(),
-          userProfileList: user.info.userProfileList.get(),
           platformList: user.info.platformList.get(),
         };
       } else {
@@ -362,7 +356,6 @@ export class UserService {
       telephone: '0123321234',
       info: '',
       userType: IUserType.authAdmin,
-      userProfileList: [],
       platformList: [],
     };
     const contexts = await this.graph.getChildren('hasContext');
@@ -380,7 +373,6 @@ export class UserService {
               telephone: userCreationParams.telephone,
               info: '',
               userType: userCreationParams.userType,
-              userProfileList: userCreationParams.userProfileList,
               platformList: userCreationParams.platformList,
             };
             if (

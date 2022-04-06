@@ -93,6 +93,12 @@ export class PlatformsController extends Controller {
   }
 
   @Security('jwt')
+  @Get('{platformId}/getUserProfileList')
+  public async getUserProfileList(@Path() platformId: string): Promise<any[]> {
+    return new PlatformService().getUserProfileList(platformId);
+  }
+
+  @Security('jwt')
   @Post('/registerKey')
   public async updateRegisterKeyNode(): Promise<IRegisterKeyObject> {
     this.setStatus(201); // set return status 201

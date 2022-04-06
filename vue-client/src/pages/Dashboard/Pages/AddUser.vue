@@ -50,17 +50,69 @@ with this file. If not, see
                   >Invalid User name</span
                 >
               </md-field>
+              <md-field :class="getValidationClass('password')">
+                <label for="password">password</label>
+                <md-input
+                  name="password"
+                  id="password"
+                  autocomplete="given-name"
+                  v-model="formUser.password"
+                  type="password"
+                  :disabled="sending"
+                />
+                <span class="md-error" v-if="!$v.formUser.password.required"
+                  >The password is required</span
+                >
+                <span
+                  class="md-error"
+                  v-else-if="!$v.formUser.password.minlength"
+                  >Invalid password
+                </span>
+              </md-field>
+
+              <md-field :class="getValidationClass('email')">
+                <label for="email">Email</label>
+                <md-input
+                  name="email"
+                  id="email"
+                  autocomplete="given-name"
+                  v-model="formUser.email"
+                  :disabled="sending"
+                />
+                <span class="md-error" v-if="!$v.formUser.email.required"
+                  >The email is required</span
+                >
+                <span class="md-error" v-else-if="!$v.formUser.email.minlength"
+                  >Invalid Email</span
+                >
+              </md-field>
+
+              <md-field :class="getValidationClass('info')">
+                <label for="info">Info</label>
+                <md-input
+                  name="info"
+                  id="info"
+                  autocomplete="given-name"
+                  v-model="formUser.info"
+                  :disabled="sending"
+                />
+                <span class="md-error" v-if="!$v.formUser.info.required"
+                  >The info is required</span
+                >
+                <span class="md-error" v-else-if="!$v.formUser.info.minlength"
+                  >Invalid Email</span
+                >
+              </md-field>
 
               <md-field>
-                <label for="userProfileValue">User Profiles</label>
+                <label for="userType">User type</label>
                 <multiselect
-                  v-model="formUser.userProfileValue"
-                  :options="userProfileList"
-                  :multiple="true"
+                  v-model="formUser.userType"
+                  :options="userType"
                   :close-on-select="false"
                   :clear-on-select="false"
                   :preserve-search="true"
-                  placeholder="Select one or more profiles"
+                  placeholder="Select one user type"
                   track-by="name"
                   label="name"
                 >
@@ -70,11 +122,73 @@ with this file. If not, see
                   >
                 </multiselect>
               </md-field>
+
+              <!-- ******************************************* -->
+              <div class="platformRange">
+                <div class="md-layout-item md-size-50">
+                  <form>
+                    <md-card-content>
+                      <md-field>
+                        <label for="platformList">Platform List</label>
+                        <multiselect
+                          v-model="formPlatformObject.platform"
+                          :options="platformList"
+                          :close-on-select="false"
+                          :clear-on-select="false"
+                          :preserve-search="true"
+                          placeholder="Select one platform"
+                          track-by="name"
+                          label="name"
+                        >
+                          <span slot="noResult"
+                            >Oops! No elements found. Consider changing the
+                            search query.</span
+                          >
+                        </multiselect>
+                      </md-field>
+
+                      <md-field>
+                        <label for="userProfileValue">User Profiles</label>
+                        <multiselect
+                          v-model="formPlatformObject.userProfileValue"
+                          :options="userProfileList"
+                          :multiple="true"
+                          :close-on-select="false"
+                          :clear-on-select="false"
+                          :preserve-search="true"
+                          placeholder="Select one or more profiles"
+                          track-by="id"
+                          label="name"
+                        >
+                          <span slot="noResult"
+                            >Oops! No elements found. Consider changing the
+                            search query.</span
+                          >
+                        </multiselect>
+                      </md-field>
+                    </md-card-content>
+
+                    <md-button
+                      @click="savePlateformObject()"
+                      class="md-primary"
+                      :disabled="sending"
+                      >Add Platform</md-button
+                    >
+                  </form>
+                </div>
+                <div class="md-layout-item md-size-50">
+                  <p>heloooooooooooooo</p>
+                </div>
+              </div>
+              <!-- *********************************************** -->
             </div>
           </div>
         </md-card-content>
         <md-progress-bar md-mode="indeterminate" v-if="sending" />
         <md-card-actions>
+          <md-button @click="cancelAdd()" class="btn-next md-danger">
+            Annuler
+          </md-button>
           <md-button type="submit" class="md-primary" :disabled="sending"
             >register user</md-button
           >
@@ -103,30 +217,50 @@ import {
   minLength,
   maxLength
 } from "vuelidate/lib/validators";
-import { data } from "../../../services/profileUserListData";
-// const profiles = require("../../../services/profileUserListData");
 
 export default {
-  name: "AddUser",
   mixins: [validationMixin],
+  name: "AddUser",
   components: { Multiselect },
   props: {
     itemSelectedId: String
   },
-  data: () => ({
-    token: null,
-    position: "center",
-    duration: 3000,
-    isInfinity: false,
-    formUser: {
-      userName: null
-    },
-    userProfileList: [],
-    userList: [],
-    userSaved: false,
-    sending: false,
-    lastUser: null
-  }),
+  data() {
+    return {
+      token: null,
+      position: "center",
+      duration: 3000,
+      isInfinity: false,
+      formUser: {
+        userName: null,
+        password: null,
+        email: null,
+        info: null,
+        userType: []
+      },
+      formPlatformObject: {
+        platform: [],
+        userProfileValue: []
+      },
+      platformObjectList: [],
+      platformObject: {
+        platformId: null,
+        profileObjectList: []
+      },
+      profileObject: {
+        label: null,
+        id: null
+      },
+      itemPlatformSelected: null,
+      userType: [],
+      userProfileList: [],
+      userList: [],
+      platformList: [],
+      userSaved: false,
+      sending: false,
+      lastUser: null
+    };
+  },
 
   validations: {
     formUser: {
@@ -134,6 +268,26 @@ export default {
         required,
         minLength: minLength(3)
       },
+      password: {
+        required,
+        minLength: minLength(3)
+      },
+      email: {
+        email,
+        minLength: minLength(3)
+      },
+      info: {
+        minLength: minLength(3)
+      },
+      userType: {
+        required,
+        minLength: minLength(3)
+      },
+      platformList: {
+        required,
+        minLength: minLength(3)
+      },
+
       userProfileValue: {
         required
       }
@@ -141,6 +295,9 @@ export default {
   },
   computed: {},
   methods: {
+    savePlateformObject() {
+      console.log(this.$v.formPlatformObject.platform);
+    },
     getValidationClass(fieldName) {
       const field = this.$v.formUser[fieldName];
       if (field) {
@@ -154,10 +311,22 @@ export default {
       this.formUser.userName = null;
       this.formUser.userProfileValue = null;
     },
+    cancelAdd() {
+      console.log("cancel");
+      this.clearForm();
+      EventBus.$emit("cancelAddUser");
+    },
+    validateUser() {
+      this.$v.$touch();
+
+      if (!this.$v.$invalid) {
+        this.editUser();
+      }
+    },
     async saveOrgan() {
       this.sending = true;
       const rep = await instanceAxios.instanceAxios.post(
-        `/organs/${this.itemSelectedId}`,
+        `/users`,
         {
           name: this.formOrgan.organName,
           clientId: this.formOrgan.clientId,
@@ -190,7 +359,7 @@ export default {
         this.saveOrgan();
       }
     },
-    async getOrgans() {
+    async saveUser() {
       const rep = await instanceAxios.instanceAxios.get(
         `/organs/${this.itemSelected.id}`,
         {
@@ -201,20 +370,43 @@ export default {
         }
       );
       this.organList = rep.data;
-      console.log(rep.data);
     },
-    getUserProfileData() {
-      const profiles = require("../../../services/profileUserListData");
-      this.userProfileList = profiles.default;
+    async getUserProfileList() {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/platforms/${this.formUser}/getUserProfileList`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      this.userProfileList = rep.data;
+    },
+
+    async getplatformList() {
+      const rep = await instanceAxios.instanceAxios.get(`/platforms`, {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": this.token
+        }
+      });
+      this.platformList = rep.data;
     }
   },
   mounted() {
     this.token = localStorage.getItem("token");
-
-    this.getUserProfileData();
+    this.getUserProfileList();
+    this.getplatformList();
   },
   watch: {}
 };
 </script>
 
-<style></style>
+<style>
+.platformRange {
+  background-color: rgb(214, 214, 214);
+  display: flex;
+  flex-direction: row;
+}
+</style>
