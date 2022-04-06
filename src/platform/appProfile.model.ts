@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 SpinalCom - www.spinalcom.com
+ * Copyright 2022 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -21,32 +21,21 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-
-export interface IOrganCreationParams {
+export interface IAppProfileCreationParams {
+  appProfileId: string;
   name: string;
   type?: string;
-  organType: string;
-  statusOrgan: string;
   platformId: string;
 }
 
-export interface IOrganUpdateParams {
+export interface IAppProfileUpdateParams {
   name: string;
-  organType: string;
-  statusOrgan: statusOrgan;
-  platformId: string;
 }
 
-export interface IOrgan {
+export interface IAppProfile {
   id?: string;
+  appProfileId: string;
   name?: string;
-  statusOrgan: statusOrgan;
-  organType: string;
   type?: string; // type de noeud graph
   platformId: string;
-}
-export enum statusOrgan {
-  'online' = 'online',
-  'fail' = 'fail',
-  'stop' = 'stop',
 }

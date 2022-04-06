@@ -32,6 +32,8 @@ export const APPLICATION_TOKEN_CATEGORY_TYPE = 'AuthServiceApplicationCategory';
 
 export const PLATFORM_TYPE = 'AuthServicePlatform';
 export const ORGAN_TYPE = 'AuthServiceOrgan';
+export const USER_PROFILE_TYPE = 'AuthServiceUserProfile';
+export const APP_PROFILE_TYPE = 'AuthServiceAPPProfile';
 export const TOKEN_TYPE = 'AuthServiceToken';
 export const INFO_ADMIN_TYPE = 'AuthServiceInfoAdmin';
 export const REGISTER_KEY_TYPE = 'AuthServiceRegisterKey';
@@ -39,6 +41,8 @@ export const REGISTER_KEY_TYPE = 'AuthServiceRegisterKey';
 // RelationName
 export const AUTH_SERVICE_PLATFORM_RELATION_NAME = 'HasPlatform';
 export const AUTH_SERVICE_ORGAN_RELATION_NAME = 'HasOrgan';
+export const AUTH_SERVICE_USER_PROFILE_RELATION_NAME = 'HasUserProfile';
+export const AUTH_SERVICE_APP_PROFILE_RELATION_NAME = 'HasAppProfile';
 export const AUTH_SERVICE_USER_RELATION_NAME = 'HasUser';
 export const AUTH_SERVICE_APPLICATION_RELATION_NAME = 'HasApplication';
 export const AUTH_SERVICE_TOKEN_RELATION_NAME = 'HasToken';

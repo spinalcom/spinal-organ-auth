@@ -63,25 +63,6 @@ export class OrgansController extends Controller {
     return new OrganService().getOrgans(platformId);
   }
 
-  // @Security('jwt')
-  // @Get('{platformId}/organ/{OrganId}')
-  // public async getOrgan(
-  //   @Path() platformId: string,
-  //   @Path() organId: string
-  // ): Promise<IOrgan> {
-  //   this.setStatus(201); // set return status 201
-  //   return new OrganService().getOrgan(platformId, organId);
-  // }
-
-  // @Security('jwt')
-  // @Delete('{platformId}/{organId}')
-  // public async deleteOrgan(
-  //   @Path() platformId: string,
-  //   @Path() organId: string
-  // ): Promise<void> {
-  //   return new OrganService().deleteOrgan(platformId, organId);
-  // }
-
   @Security('jwt')
   @Put('{organId}')
   public async updatePlateform(

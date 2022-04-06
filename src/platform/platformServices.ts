@@ -23,12 +23,6 @@
  */
 
 import {
-  Model,
-  Ptr,
-  spinalCore,
-  FileSystem,
-} from 'spinal-core-connectorjs_type';
-import {
   PLATFORM_LIST,
   AUTH_SERVICE_PLATFORM_RELATION_NAME,
   PLATFORM_TYPE,
@@ -56,14 +50,12 @@ import {
   IRegisterKeyObject,
 } from './platform.model';
 import SpinalMiddleware from '../spinalMiddleware';
-import { platform } from 'process';
 import { IOrgan } from '../organ/organ.model';
-import { regenerateKey } from '../utilities/utilitiesFunctions';
+import { IUserProfile } from './userProfile.model';
+import { IAppProfile } from './appProfile.model';
+import { ProfileServices } from './profileServices';
 import { OrganService } from '../organ/organService';
-import { result } from '../utilities/jsonFileConfigBosToAdminBos';
-import bcrypt = require('bcrypt');
 import jwt = require('jsonwebtoken');
-import jwt_decode from 'jwt-decode';
 
 /**
  *
@@ -91,6 +83,8 @@ export class PlatformService {
           url: platformCreationParms.url,
           statusPlatform: platformCreationParms.statusPlatform,
           TokenBosAdmin: this.generateTokenBosAdmin(platformCreationParms.name),
+          TokenAdminBos: platformCreationParms.TokenAdminBos,
+          bosId: platformCreationParms.bosId,
         };
         const PlatformId = SpinalGraphService.createNode(
           platformObject,
@@ -113,6 +107,8 @@ export class PlatformService {
           statusPlatform: res.info.statusPlatform.get(),
           url: res.info.url.get(),
           TokenBosAdmin: res.info.TokenBosAdmin.get(),
+          TokenAdminBos: res.info.TokenAdminBos.get(),
+          bosId: res.info.bosId.get(),
         };
       }
     }
@@ -134,6 +130,8 @@ export class PlatformService {
               statusPlatform: platform.info.statusPlatform.get(),
               url: platform.info.url.get(),
               TokenBosAdmin: platform.info.TokenBosAdmin.get(),
+              TokenAdminBos: platform.info.TokenAdminBos.get(),
+              bosId: platform.info.bosId.get(),
             };
           }
         }
@@ -162,6 +160,8 @@ export class PlatformService {
               statusPlatform: platform.info.statusPlatform.get(),
               url: platform.info.url.get(),
               TokenBosAdmin: platform.info.TokenBosAdmin.get(),
+              TokenAdminBos: platform.info.TokenAdminBos.get(),
+              bosId: platform.info.bosId.get(),
             };
             platformObjectList.push(PlatformObject);
           }
@@ -195,6 +195,8 @@ export class PlatformService {
               statusPlatform: platform.info.statusPlatform.get(),
               url: platform.info.url.get(),
               TokenBosAdmin: platform.info.TokenBosAdmin.get(),
+              TokenAdminBos: platform.info.TokenAdminBos.get(),
+              bosId: platform.info.bosId.get(),
             };
           }
         }
@@ -261,8 +263,10 @@ export class PlatformService {
           name: 'authenticationPlatform',
           type: PLATFORM_TYPE,
           statusPlatform: statusPlatform.online,
-          url: 'process.env.url',
+          url: process.env.SPINALHUB_URL,
           TokenBosAdmin: '',
+          TokenAdminBos: '',
+          bosId: '',
         };
         const PlatformId = SpinalGraphService.createNode(
           platformObject,
@@ -281,7 +285,9 @@ export class PlatformService {
           name: res.getName().get(),
           statusPlatform: res.info.statusPlatform.get(),
           url: res.info.url.get(),
-          // TokenBosAdmin: res.info.TokenBosAdmin.get(),
+          TokenBosAdmin: res.info.TokenBosAdmin.get(),
+          TokenAdminBos: res.info.TokenAdminBos.get(),
+          bosId: res.info.bosId.get(),
         };
       }
     }
@@ -397,12 +403,30 @@ export class PlatformService {
             if (
               platform.info.TokenBosAdmin.get() === updateParams.TokenBosAdmin
             ) {
+              //add organ list from json data
               for (const organ of updateParams.jsonData.organList) {
                 const organService = new OrganService();
                 organService.createOrgan({
                   name: organ.label,
                   organType: organ.type,
                   statusOrgan: 'online',
+                  platformId: platform.getId().get(),
+                });
+              }
+              const profileServices = new ProfileServices();
+              //add user profile list from json data
+              for (const userProfile of updateParams.jsonData.userProfileList) {
+                profileServices.createUserProfileService({
+                  userProfileId: userProfile.userProfileId,
+                  name: userProfile.label,
+                  platformId: platform.getId().get(),
+                });
+              }
+              //add user profile list from json data
+              for (const appProfile of updateParams.jsonData.appProfileList) {
+                profileServices.createAppProfileService({
+                  appProfileId: appProfile.appProfileId,
+                  name: appProfile.label,
                   platformId: platform.getId().get(),
                 });
               }
