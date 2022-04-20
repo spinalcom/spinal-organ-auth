@@ -271,7 +271,7 @@ with this file. If not, see
   </div>
 </template>
 <script>
-import axios from "axios";
+const instanceAxios = require("../../../services/axiosConfig");
 import { validationMixin } from "vuelidate";
 import {
   required,
@@ -354,8 +354,8 @@ export default {
     },
     async editServer() {
       this.sending = true;
-      const rep = await axios.put(
-        `http://localhost:4040/servers/${this.itemSelected.id}`,
+      const rep = await instanceAxios.instanceAxios.put(
+        `/servers/${this.itemSelected.id}`,
         {
           name: this.formServer.serverName,
           clientId: this.formServer.clientId,
@@ -409,7 +409,7 @@ export default {
           "Are you sure you want to delete the Server, you can lost all config of this Server!"
         );
       if (r === true) {
-        await axios.delete(`http://localhost:4040/servers/${item.id}`, {
+        await instanceAxios.instanceAxios.delete(`/servers/${item.id}`, {
           headers: {
             "Content-Type": "application/json",
             "x-access-token": this.token
@@ -426,7 +426,7 @@ export default {
       this.displayEdit = false;
     },
     async getServers() {
-      const rep = await axios.get("http://localhost:4040/servers", {
+      const rep = await instanceAxios.instanceAxios.get("/servers", {
         headers: {
           "Content-Type": "application/json",
           "x-access-token": this.token

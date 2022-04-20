@@ -66,6 +66,5 @@ function setEnvValue(key, value) {
 }
 
 // examples
-// console.log(getEnvValue('KEY_1'));
 // setEnvValue('KEY_1', 'value 1');
 module.exports = { getEnvValue, setEnvValue };

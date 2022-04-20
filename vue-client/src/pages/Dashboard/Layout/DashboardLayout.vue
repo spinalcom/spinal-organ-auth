@@ -38,39 +38,32 @@ with this file. If not, see
     >
       <template slot="links">
         <!-- monitoring -->
-        <sidebar-item :link="{ name: 'Monitoring', icon: 'dashboard' }">
-          <sidebar-item
-            :link="{ name: 'Dashboard', icon: 'dashboard', path: '/dashboard' }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{ name: 'Alarmes', icon: 'alarmes', path: '/Alarmes' }"
-          ></sidebar-item>
-        </sidebar-item>
+        <sidebar-item
+          :link="{ name: 'State', icon: 'dashboard', path: '/dashboard' }"
+        ></sidebar-item>
         <!-- Configuration -->
-        <sidebar-item :link="{ name: 'Configuration', icon: 'settings' }">
-          <sidebar-item
-            :link="{
-              name: 'Users',
-              icon: 'person',
-              path: '/users',
-            }"
-          ></sidebar-item>
-          <sidebar-item
-            :link="{
-              name: 'Applications',
-              icon: 'apps',
-              path: '/Application',
-            }"
-          ></sidebar-item>
+        <sidebar-item
+          :link="{
+            name: 'Users',
+            icon: 'person',
+            path: '/users',
+          }"
+        ></sidebar-item>
+        <sidebar-item
+          :link="{
+            name: 'Applications',
+            icon: 'apps',
+            path: '/Application',
+          }"
+        ></sidebar-item>
 
-          <sidebar-item
-            :link="{
-              name: 'Platforms',
-              icon: 'hub',
-              path: '/platforms',
-            }"
-          ></sidebar-item>
-        </sidebar-item>
+        <sidebar-item
+          :link="{
+            name: 'Platforms',
+            icon: 'hub',
+            path: '/platforms',
+          }"
+        ></sidebar-item>
       </template>
     </side-bar>
     <div class="main-panel">

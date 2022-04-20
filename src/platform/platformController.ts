@@ -42,7 +42,10 @@ import {
   IPlatformUpdateParams,
   IRegisterKeyObject,
 } from './platform.model';
+import { IUserProfile } from './userProfile.model';
+import { IAppProfile } from './appProfile.model';
 import { PlatformService } from './platformServices';
+import { ProfileServices } from './profileServices';
 
 @Route('platforms')
 export class PlatformsController extends Controller {
@@ -85,17 +88,19 @@ export class PlatformsController extends Controller {
   }
 
   @Security('jwt')
-  @Get('{platformId}/getOrgans')
-  public async getOrgansFromPlatform(
+  @Get('{platformId}/getUserProfileList')
+  public async getUserProfileList(
     @Path() platformId: string
-  ): Promise<IOrgan[]> {
-    return new PlatformService().getOrgansFromPlatform(platformId);
+  ): Promise<IUserProfile[]> {
+    return new ProfileServices().getUserProfileService(platformId);
   }
 
   @Security('jwt')
-  @Get('{platformId}/getUserProfileList')
-  public async getUserProfileList(@Path() platformId: string): Promise<any[]> {
-    return new PlatformService().getUserProfileList(platformId);
+  @Get('{platformId}/getAppProfileList')
+  public async getAppProfileService(
+    @Path() platformId: string
+  ): Promise<IAppProfile[]> {
+    return new ProfileServices().getAppProfileService(platformId);
   }
 
   @Security('jwt')

@@ -27,7 +27,7 @@ with this file. If not, see
     <form novalidate class="md-layout" @submit.prevent="validateUser">
       <md-card class="md-layout-item md-size-100 md-small-size-100">
         <md-card-header>
-          <div class="md-title">Add User</div>
+          <div class="md-title">Edit User</div>
         </md-card-header>
         <md-card-content>
           <div class="md-layout md-gutter">
@@ -255,10 +255,10 @@ import { required, email, minLength, numeric } from "vuelidate/lib/validators";
 
 export default {
   mixins: [validationMixin],
-  name: "AddUser",
+  name: "EditUser",
   components: { Multiselect },
   props: {
-    itemSelectedId: String
+    id: String
   },
   data() {
     return {
@@ -468,9 +468,17 @@ export default {
   },
   mounted() {
     this.token = localStorage.getItem("token");
-    this.getUserProfileList();
     this.getplatformList();
-    this.getRoles();
+    EventBus.$on("EDIT_USER", function(item) {
+      console.log("**", item.userName);
+      console.log(this.formUser);
+
+      // this.formUser.userName = item.userName;
+      // this.formUser.email = item.email;
+      // this.formUser.info = item.info;
+      // this.formUser.telephone = item.telephone;
+      // this.formUser.userType = item.userType;
+    });
   },
   watch: {
     "formPlatformObject.platform": function(value) {

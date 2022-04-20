@@ -26,14 +26,9 @@ with this file. If not, see
   <div class="md-layout">
     <div class="md-layout-item md-size-95 mt-4 md-small-size-100">
       <div class="buttonAdd">
-        <md-button
-          class="md-warning"
-          v-if="display === true"
-          @click="displayAdd()"
-          >Add User</md-button
-        >
+        <md-button class="md-warning" @click="displayAdd()">Add User</md-button>
       </div>
-      <div class="md-layout-item md-size-100" v-if="display === true">
+      <div class="md-layout-item md-size-100">
         <md-card>
           <md-card-header class="md-card-header-icon md-card-header-green">
             <div class="card-icon">
@@ -45,14 +40,27 @@ with this file. If not, see
             <md-table v-model="userList">
               <md-table-row slot="md-table-row" slot-scope="{ item }">
                 <md-table-cell md-label="Name">{{ item.name }}</md-table-cell>
-                <md-table-cell md-label="State">{{
-                  item.platformList
-                }}</md-table-cell>
-                <md-table-cell md-label="Detail" :class="getAlignClasses(item)">
-                  <md-button
-                    class="md-just-icon"
-                    :class="getClass(item.icon1, item.id)"
+                <md-table-cell md-label="State">
+                  <md-list
+                    v-for="(platform, index) in item.platformList"
+                    :key="index"
+                    class="md-double-line"
+                  >
+                    <md-list-item>
+                      <span class="md-list-item-text">{{
+                        showState(platform)
+                      }}</span>
+                    </md-list-item>
+                  </md-list></md-table-cell
+                >
+                <md-table-cell md-label="Detail">
+                  <md-button class="md-just-icon" @click="displayDetail(item)"
                     ><md-icon>arrow_forward</md-icon></md-button
+                  >
+                </md-table-cell>
+                <md-table-cell md-label="Edit">
+                  <md-button class="md-just-icon" @click="displayEdit(item)"
+                    ><md-icon>edit</md-icon></md-button
                   >
                 </md-table-cell>
               </md-table-row>
@@ -60,20 +68,17 @@ with this file. If not, see
           </md-card-content>
         </md-card>
       </div>
-      <AddUser v-if="display === false"></AddUser>
     </div>
   </div>
 </template>
 <script>
-import axios from "axios";
+const instanceAxios = require("../../../services/axiosConfig");
 import { validationMixin } from "vuelidate";
 import EventBus from "../../../EventBus";
-import AddUser from "./AddUser.vue";
 export default {
   mixins: [validationMixin],
-  components: { AddUser },
+  components: {},
   data: () => ({
-    display: true,
     token: "",
     value: null,
     userList: [],
@@ -82,75 +87,41 @@ export default {
 
   computed: {},
   methods: {
-    getValidationClass(fieldName) {
-      const field = this.$v.formUser[fieldName];
-      if (field) {
-        return {
-          "md-invalid": field.$invalid && field.$dirty
-        };
-      }
+    showState(platform) {
+      //       const rep = await instanceAxios.instanceAxios.get(`/platforms/${platform.platformId}`, {
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     "x-access-token": this.token
+      //   }
+      // });
+      if (platform.userProfile) {
+        return platform.platformId + ":" + platform.userProfile.name;
+      } else return "hello";
     },
-
+    displayEdit(item) {
+      EventBus.$emit("EDIT_USER", item);
+      this.$router.push({ name: "EditUser", params: { id: item.id } });
+    },
     displayAdd() {
-      this.display = false;
-    },
-    cancelAdd() {
-      this.display = false;
-      this.$refs.form.reset();
+      this.$router.push("/AddUser");
     },
     async getUsers() {
-      const rep = await axios.get("http://localhost:4040/users", {
+      const rep = await instanceAxios.instanceAxios.get("/users", {
         headers: {
           "Content-Type": "application/json",
           "x-access-token": this.token
         }
       });
       this.userList = rep.data;
-      console.log(this.userList);
-    },
-    getClass: function(item, id) {
-      let classes = "";
-      switch (item) {
-        case "person": {
-          classes = "md-info";
-          break;
-        }
-        case "edit": {
-          classes = "md-success";
-          break;
-        }
-        case "close": {
-          classes = "md-danger";
-          break;
+      for (const user of this.userList) {
+        if (user.userName === "authAdmin") {
         }
       }
-      switch (id) {
-        case 1:
-        case 5: {
-          break;
-        }
-        case 2:
-        case 4: {
-          classes = `${classes} md-round`;
-          break;
-        }
-        case 3: {
-          classes = `${classes} md-simple`;
-          break;
-        }
-      }
-      return classes;
-    },
-    getAlignClasses: ({ id }) => ({
-      "text-right": id
-    })
+    }
   },
   mounted() {
     this.token = localStorage.getItem("token");
     this.getUsers();
-    EventBus.$on("cancelAddUser", () => {
-      this.display = true;
-    });
   },
   watch: {
     /**

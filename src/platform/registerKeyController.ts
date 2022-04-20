@@ -41,9 +41,16 @@ import { PlatformService } from './platformServices';
 @Route('registerKey')
 export class RegisterKeyController extends Controller {
   @Security('jwt')
-  @Get()
+  @Post()
   public async updateRegisterKeyNode(): Promise<IRegisterKeyObject> {
     this.setStatus(201); // set return status 201
     return new PlatformService().updateRegisterKeyNode();
+  }
+
+  @Security('jwt')
+  @Get()
+  public async getRegisterKeyNode(): Promise<IRegisterKeyObject> {
+    this.setStatus(201); // set return status 201
+    return new PlatformService().getRegisterKeyNode();
   }
 }

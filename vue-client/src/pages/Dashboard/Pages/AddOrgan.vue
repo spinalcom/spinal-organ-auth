@@ -150,7 +150,6 @@ with this file. If not, see
 </template>
 
 <script>
-import axios from "axios";
 const instanceAxios = require("../../../services/axiosConfig");
 import Multiselect from "vue-multiselect";
 import { validationMixin } from "vuelidate";
@@ -279,7 +278,6 @@ export default {
         }
       );
       this.organList = rep.data;
-      console.log(rep.data);
     },
     getUserProfileData() {
       const profiles = require("../../../services/profileUserListData");

@@ -38,17 +38,17 @@ export interface IUser {
   userType: IUserType;
   platformList: {
     platformId: string;
-    userProfileList: {
+    userProfile: {
       name: string;
       userProfileId: string;
-    }[];
+    };
   }[];
 }
 
 export enum IUserType {
   'authAdmin' = 'authAdmin',
-  'superUser' = 'superUser',
-  'simpleUser' = 'simpleUser',
+  'Super User' = 'Super User',
+  'Simple User' = 'Simple User',
 }
 /**
  * @export
@@ -63,10 +63,10 @@ export interface IUserCreationParams {
   userType: IUserType;
   platformList: {
     platformId: string;
-    userProfileList: {
+    userProfile: {
       name: string;
       userProfileId: string;
-    }[];
+    };
   }[];
 }
 
@@ -79,10 +79,10 @@ export interface IUserUpdateParams {
   userType?: IUserType;
   platformList: {
     platformId: string;
-    userProfileList: {
+    userProfile: {
       name: string;
       userProfileId: string;
-    }[];
+    };
   }[];
 }
 

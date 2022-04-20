@@ -69,8 +69,12 @@ import Alarmes from '@/pages/Dashboard/Pages/Alarmes.vue';
 import Servers from '@/pages/Dashboard/Pages/Servers.vue';
 import Users from '@/pages/Dashboard/Pages/Users.vue';
 import Application from '@/pages/Dashboard/Pages/Application.vue';
+import AddApp from '@/pages/Dashboard/Pages/AddApp.vue';
+import EditApp from '@/pages/Dashboard/Pages/EditApp.vue';
 import AddOrgan from '@/pages/Dashboard/Pages/AddOrgan.vue';
 import AddUser from '@/pages/Dashboard/Pages/AddUser.vue';
+import EditUser from '@/pages/Dashboard/Pages/EditUser.vue';
+import PlatformDetail from '@/pages/Dashboard/Pages/PlatformDetail.vue';
 // Calendar
 import Calendar from '@/pages/Dashboard/Calendar.vue';
 // Charts
@@ -263,11 +267,6 @@ const routes = [
     redirect: '/login',
     name: 'Home',
   },
-  // componentsMenu,
-  // formsMenu,
-  // tablesMenu,
-  // mapsMenu,
-  // pagesMenu,
   authPages,
   {
     path: '/',
@@ -304,19 +303,41 @@ const routes = [
         components: { default: AddOrgan },
       },
       {
+        path: 'PlatformDetail',
+        name: 'PlatformDetail',
+        components: { default: PlatformDetail },
+      },
+      {
         path: 'User',
-        name: 'User Page',
+        name: 'User',
         components: { default: User },
       },
       {
+        path: 'AddUser',
+        name: 'AddUser',
+        components: { default: AddUser },
+      },
+      {
+        path: 'EditUser',
+        name: 'EditUser',
+        components: { default: EditUser },
+        props: true,
+      },
+      {
         path: 'Application',
-        name: 'App Page',
+        name: 'App',
         components: { default: Application },
       },
       {
-        path: 'AddUser',
-        name: 'AddUser Page',
-        components: { default: AddUser },
+        path: 'AddApp',
+        name: 'AddApp',
+        components: { default: AddApp },
+      },
+      {
+        path: 'EditApp',
+        name: 'EditApp',
+        components: { default: EditApp },
+        props: true,
       },
     ],
   },

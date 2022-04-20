@@ -29,12 +29,11 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"double"}],"required":true},
             "type": {"dataType":"string","required":true},
-            "name": {"dataType":"string"},
-            "appType": {"dataType":"string"},
+            "name": {"dataType":"string","required":true},
+            "appType": {"dataType":"string","required":true},
             "clientId": {"dataType":"string","required":true},
-            "clientSecret": {"dataType":"string"},
-            "applicationProfileList": {"dataType":"array","array":{"dataType":"string"}},
-            "rights": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"serverId":{"dataType":"string"},"plateformList":{"dataType":"string"}}}},
+            "clientSecret": {"dataType":"string","required":true},
+            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfileId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}},"required":true},"platformId":{"dataType":"string","required":true}}},"required":true},
         },
         "additionalProperties": false,
     },
@@ -45,9 +44,8 @@ const models: TsoaRoute.Models = {
             "name": {"dataType":"string","required":true},
             "clientId": {"dataType":"string","required":true},
             "clientSecret": {"dataType":"string","required":true},
-            "appType": {"dataType":"string"},
-            "applicationProfileList": {"dataType":"array","array":{"dataType":"string"}},
-            "rights": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"serverId":{"dataType":"string"},"plateformList":{"dataType":"string"}}}},
+            "appType": {"dataType":"string","required":true},
+            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfileId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}},"required":true},"platformId":{"dataType":"string","required":true}}},"required":true},
         },
         "additionalProperties": false,
     },
@@ -58,6 +56,8 @@ const models: TsoaRoute.Models = {
             "name": {"dataType":"string"},
             "clientId": {"dataType":"string"},
             "clientSecret": {"dataType":"string"},
+            "appType": {"dataType":"string"},
+            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfileId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}},"required":true},"platformId":{"dataType":"string","required":true}}}},
         },
         "additionalProperties": false,
     },
@@ -79,15 +79,15 @@ const models: TsoaRoute.Models = {
     "IApplicationLoginParams": {
         "dataType": "refObject",
         "properties": {
-            "clientId": {"dataType":"string"},
-            "clientSecret": {"dataType":"string"},
+            "clientId": {"dataType":"string","required":true},
+            "clientSecret": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IUserType": {
         "dataType": "refEnum",
-        "enums": ["authAdmin","superUser","simpleUser"],
+        "enums": ["authAdmin","Super User","Simple User"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IUser": {
@@ -102,7 +102,7 @@ const models: TsoaRoute.Models = {
             "telephone": {"dataType":"string"},
             "info": {"dataType":"string"},
             "userType": {"ref":"IUserType","required":true},
-            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileList":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}}},"required":true},"platformId":{"dataType":"string","required":true}}},"required":true},
+            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}},"required":true},"platformId":{"dataType":"string","required":true}}},"required":true},
         },
         "additionalProperties": false,
     },
@@ -116,7 +116,7 @@ const models: TsoaRoute.Models = {
             "telephone": {"dataType":"string"},
             "info": {"dataType":"string"},
             "userType": {"ref":"IUserType","required":true},
-            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileList":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}}},"required":true},"platformId":{"dataType":"string","required":true}}},"required":true},
+            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}},"required":true},"platformId":{"dataType":"string","required":true}}},"required":true},
         },
         "additionalProperties": false,
     },
@@ -130,7 +130,7 @@ const models: TsoaRoute.Models = {
             "telephone": {"dataType":"string"},
             "info": {"dataType":"string"},
             "userType": {"ref":"IUserType"},
-            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileList":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}}},"required":true},"platformId":{"dataType":"string","required":true}}},"required":true},
+            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}},"required":true},"platformId":{"dataType":"string","required":true}}},"required":true},
         },
         "additionalProperties": false,
     },
@@ -232,6 +232,30 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IUserProfile": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "userProfileId": {"dataType":"string","required":true},
+            "name": {"dataType":"string","required":true},
+            "type": {"dataType":"string","required":true},
+            "platformId": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IAppProfile": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string"},
+            "appProfileId": {"dataType":"string","required":true},
+            "name": {"dataType":"string"},
+            "type": {"dataType":"string"},
+            "platformId": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IRegisterKeyObject": {
         "dataType": "refObject",
         "properties": {
@@ -292,6 +316,7 @@ export function RegisterRoutes(app: express.Router) {
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
         app.post('/applications',
+            authenticateMiddleware([{"jwt":[]}]),
 
             function ApplicationsController_createApplication(request: any, response: any, next: any) {
             const args = {
@@ -315,6 +340,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/applications',
+            authenticateMiddleware([{"jwt":[]}]),
 
             function ApplicationsController_getApplications(request: any, response: any, next: any) {
             const args = {
@@ -813,30 +839,6 @@ export function RegisterRoutes(app: express.Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/platforms/:platformId/getOrgans',
-            authenticateMiddleware([{"jwt":[]}]),
-
-            function PlatformsController_getOrgansFromPlatform(request: any, response: any, next: any) {
-            const args = {
-                    platformId: {"in":"path","name":"platformId","required":true,"dataType":"string"},
-            };
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, response);
-
-                const controller = new PlatformsController();
-
-
-              const promise = controller.getOrgansFromPlatform.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/platforms/:platformId/getUserProfileList',
             authenticateMiddleware([{"jwt":[]}]),
 
@@ -855,6 +857,30 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.getUserProfileList.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/platforms/:platformId/getAppProfileList',
+            authenticateMiddleware([{"jwt":[]}]),
+
+            function PlatformsController_getAppProfileService(request: any, response: any, next: any) {
+            const args = {
+                    platformId: {"in":"path","name":"platformId","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new PlatformsController();
+
+
+              const promise = controller.getAppProfileService.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
@@ -884,7 +910,7 @@ export function RegisterRoutes(app: express.Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/registerKey',
+        app.post('/registerKey',
             authenticateMiddleware([{"jwt":[]}]),
 
             function RegisterKeyController_updateRegisterKeyNode(request: any, response: any, next: any) {
@@ -901,6 +927,29 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.updateRegisterKeyNode.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/registerKey',
+            authenticateMiddleware([{"jwt":[]}]),
+
+            function RegisterKeyController_getRegisterKeyNode(request: any, response: any, next: any) {
+            const args = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new RegisterKeyController();
+
+
+              const promise = controller.getRegisterKeyNode.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

@@ -24,131 +24,88 @@ with this file. If not, see
 
 <template>
   <div>
-    <form novalidate class="md-layout" @submit.prevent="validateUser">
+    <form novalidate class="md-layout" @submit.prevent="validateApp">
       <md-card class="md-layout-item md-size-100 md-small-size-100">
         <md-card-header>
-          <div class="md-title">Add User</div>
+          <div class="md-title">Add App</div>
         </md-card-header>
         <md-card-content>
           <div class="md-layout md-gutter">
             <div class="md-layout-item md-small-size-100">
-              <md-field :class="getValidationClass('userName')">
-                <md-icon>person</md-icon>
-                <label for="userName">User Name</label>
+              <md-field :class="getValidationClass('name')">
+                <md-icon>book_online</md-icon>
+                <label for="name">Application Name</label>
                 <md-input
-                  name="userName"
-                  id="UserName"
+                  name="name"
+                  id="name"
                   autocomplete="given-name"
-                  v-model="formUser.userName"
+                  v-model="formApp.name"
                   :disabled="sending"
                 />
-                <span class="md-error" v-if="!$v.formUser.userName.required"
+                <span class="md-error" v-if="!$v.formApp.name.required"
                   >The name is required</span
                 >
-                <span
-                  class="md-error"
-                  v-else-if="!$v.formUser.userName.minlength"
-                  >Invalid User name</span
+                <span class="md-error" v-else-if="!$v.formApp.name.minlength"
+                  >Invalid App name</span
                 >
               </md-field>
-              <md-field :class="getValidationClass('password')">
-                <md-icon>password</md-icon>
-                <label for="password">password</label>
+              <md-field :class="getValidationClass('clientId')">
+                <md-icon>lock</md-icon>
+                <label for="clientId">clientId</label>
                 <md-input
-                  name="password"
-                  id="password"
+                  name="clientId"
+                  id="clientId"
                   autocomplete="given-name"
-                  v-model="formUser.password"
+                  v-model="formApp.clientId"
                   type="password"
                   :disabled="sending"
                 />
-                <span class="md-error" v-if="!$v.formUser.password.required"
-                  >The password is required</span
+                <span class="md-error" v-if="!$v.formApp.clientId.required"
+                  >The clientId is required</span
                 >
                 <span
                   class="md-error"
-                  v-else-if="!$v.formUser.password.minlength"
-                  >Invalid password
+                  v-else-if="!$v.formApp.clientId.minlength"
+                  >Invalid clientId
                 </span>
               </md-field>
 
-              <md-field :class="getValidationClass('email')">
-                <md-icon>email</md-icon>
-                <label for="email">Email</label>
+              <md-field :class="getValidationClass('clientSecret')">
+                <md-icon>lock</md-icon>
+                <label for="clientSecret">clientSecret</label>
                 <md-input
-                  name="email"
-                  id="email"
+                  name="clientSecret"
+                  id="clientSecret"
                   autocomplete="given-name"
-                  v-model="formUser.email"
+                  v-model="formApp.clientSecret"
+                  type="password"
                   :disabled="sending"
                 />
-                <span class="md-error" v-if="!$v.formUser.email.required"
-                  >The email is required</span
-                >
-                <span class="md-error" v-else-if="!$v.formUser.email.email"
-                  >Invalid Email</span
-                >
-              </md-field>
-
-              <md-field :class="getValidationClass('telephone')">
-                <md-icon>phone</md-icon>
-
-                <label for="telephone">Telephone</label>
-                <md-input
-                  name="telephone"
-                  id="telephone"
-                  autocomplete="given-name"
-                  v-model="formUser.telephone"
-                  :disabled="sending"
-                />
-                <span class="md-error" v-if="!$v.formUser.telephone.numeric"
-                  >Invalid Telephone, The Field Most Be a Numeric</span
+                <span class="md-error" v-if="!$v.formApp.clientSecret.required"
+                  >The clientSecret is required</span
                 >
                 <span
                   class="md-error"
-                  v-else-if="!$v.formUser.telephone.minlength"
-                  >Invalid Telephone, The Field Must Contain More Than 8
-                  Characters</span
-                >
+                  v-else-if="!$v.formApp.clientSecret.minlength"
+                  >Invalid clientSecret
+                </span>
               </md-field>
 
-              <md-field :class="getValidationClass('info')">
-                <md-icon>description</md-icon>
-                <label for="info">Info</label>
-                <md-textarea
-                  name="info"
-                  id="info"
+              <md-field :class="getValidationClass('appType')">
+                <md-icon>book_online</md-icon>
+                <label for="appType">Application Type</label>
+                <md-input
+                  name="appType"
+                  id="appType"
                   autocomplete="given-name"
-                  v-model="formUser.info"
-                  md-autogrow
+                  v-model="formApp.appType"
                   :disabled="sending"
-                ></md-textarea>
-                <span class="md-error" v-if="!$v.formUser.info.minlength"
-                  >Invalid Info, The Field Must Contain More Than 3
-                  Characters</span
+                />
+                <span class="md-error" v-if="!$v.formApp.appType.required"
+                  >The appType is required</span
                 >
-              </md-field>
-
-              <md-field :class="getValidationClass('userType')">
-                <md-icon>admin_panel_settings</md-icon>
-                <label for="userType">User type</label>
-                <multiselect
-                  v-model="formUser.userType"
-                  :options="userType"
-                  :close-on-select="true"
-                  :clear-on-select="false"
-                  :preserve-search="true"
-                  placeholder="Select one user type"
-                  track-by="name"
-                  label="name"
-                >
-                  <span slot="noResult"
-                    >Oops! No elements found. Consider changing the search
-                    query.</span
-                  >
-                </multiselect>
-                <span class="md-error" v-if="!$v.formUser.info.minlength"
-                  >Invalid User Type, The Field is required</span
+                <span class="md-error" v-else-if="!$v.formApp.appType.minlength"
+                  >Invalid App appType</span
                 >
               </md-field>
 
@@ -176,10 +133,10 @@ with this file. If not, see
 
                       <md-field>
                         <md-icon>remember_me</md-icon>
-                        <label for="userProfileValue">User Profiles</label>
+                        <label for="appProfileValue">App Profiles</label>
                         <multiselect
-                          v-model="formPlatformObject.userProfileValue"
-                          :options="userProfileList"
+                          v-model="formPlatformObject.appProfileValue"
+                          :options="appProfileList"
                           placeholder="Select one profile"
                           track-by="id"
                           label="name"
@@ -207,7 +164,7 @@ with this file. If not, see
                         item.platformName
                       }}</md-table-cell>
                       <md-table-cell md-label="Profile">
-                        {{ item.userProfile.name }}
+                        {{ item.appProfile.name }}
                       </md-table-cell>
                       <md-table-cell md-label="Profile">
                         <md-button
@@ -230,17 +187,17 @@ with this file. If not, see
             Cancel
           </md-button>
           <md-button type="submit" class="md-primary" :disabled="sending"
-            >register user</md-button
+            >register app</md-button
           >
         </md-card-actions>
       </md-card>
       <md-snackbar
-        :md-active.sync="userSaved"
+        :md-active.sync="appSaved"
         :md-position="position"
         :md-duration="isInfinity ? Infinity : duration"
         md-persistent
       >
-        <span>The user {{ lastUser }} was saved with success!</span>
+        <span>The app {{ lastApp }} was saved with success!</span>
       </md-snackbar>
     </form>
   </div>
@@ -255,7 +212,7 @@ import { required, email, minLength, numeric } from "vuelidate/lib/validators";
 
 export default {
   mixins: [validationMixin],
-  name: "AddUser",
+  name: "AddApp",
   components: { Multiselect },
   props: {
     itemSelectedId: String
@@ -266,90 +223,89 @@ export default {
       position: "center",
       duration: 3000,
       isInfinity: false,
-      formUser: {
-        userName: null,
-        password: null,
-        telephone: null,
-        email: null,
-        info: null,
-        userType: null
+      formApp: {
+        name: null,
+        clientId: this.generateRegisterKey(),
+        clientSecret: this.generateRegisterKey(),
+        appType: null
       },
       formPlatformObject: {
         platform: [],
-        userProfileValue: null
+        appProfileValue: null
       },
       platformObjectList: [],
-      itemPlatformSelected: null,
-      userType: [],
-      userProfileList: [],
-      userList: [],
+      appProfileList: [],
+      appList: [],
       platformList: [],
-      userSaved: false,
+      appSaved: false,
       sending: false,
-      lastUser: null
+      lastApp: null
     };
   },
 
   validations: {
-    formUser: {
-      userName: {
+    formApp: {
+      name: {
         required,
         minLength: minLength(3)
       },
-      password: {
+      clientId: {
         required,
         minLength: minLength(8)
       },
-      email: {
+      clientSecret: {
         required,
-        email
-      },
-      info: {
-        minLength: minLength(3)
-      },
-      telephone: {
-        numeric,
         minLength: minLength(8)
       },
-      userType: {
+      appType: {
         required
       }
     }
   },
   computed: {},
   methods: {
-    async saveUser() {
+    generateRegisterKey() {
+      const generator = require("generate-password");
+      var registerKey = generator.generate({
+        length: 30,
+        numbers: true
+      });
+      return registerKey;
+    },
+    async saveApp() {
       var objectBody = {
-        userName: this.formUser.userName,
-        password: this.formUser.password,
-        email: this.formUser.email,
-        telephone: this.formUser.telephone,
-        info: this.formUser.info,
-        userType: this.formUser.userType.name,
+        name: this.formApp.name,
+        clientId: this.formApp.clientId,
+        clientSecret: this.formApp.clientSecret,
+        appType: this.formApp.appType,
         platformList: this.platformObjectList.map(el => {
           return {
             platformId: el.platformId,
-            userProfile: {
-              name: el.userProfile.name,
-              userProfileId: el.userProfile.userProfileId
+            appProfile: {
+              name: el.appProfile.name,
+              appProfileId: el.appProfile.appProfileId
             }
           };
         })
       };
 
-      const rep = await instanceAxios.instanceAxios.post("/users", objectBody, {
-        headers: {
-          "Content-Type": "application/json",
-          "x-access-token": this.token
+      const rep = await instanceAxios.instanceAxios.post(
+        "/applications",
+        objectBody,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
         }
-      });
+      );
       if (rep) {
-        this.lastUser = `${objectBody.userName}`;
-        this.userSaved = true;
+        this.lastApp = `${objectBody.name}`;
+        this.appSaved = true;
         this.sending = false;
         this.clearForm();
         window.setTimeout(() => {
-          this.$router.push("/Users");
+          this.$router.push("/Application");
         }, 1500);
       }
     },
@@ -359,7 +315,7 @@ export default {
         if (platformObject.platformId === this.formPlatformObject.platform.id) {
           alert("you cannot select platform even twice");
           this.formPlatformObject.platform = [];
-          this.formPlatformObject.userProfileValue = null;
+          this.formPlatformObject.appProfileValue = null;
           test = false;
         }
       }
@@ -367,14 +323,13 @@ export default {
         this.platformObjectList.push({
           platformId: this.formPlatformObject.platform.id,
           platformName: this.formPlatformObject.platform.name,
-          userProfile: {
-            name: this.formPlatformObject.userProfileValue.name,
-            userProfileId: this.formPlatformObject.userProfileValue
-              .userProfileId
+          appProfile: {
+            name: this.formPlatformObject.appProfileValue.name,
+            appProfileId: this.formPlatformObject.appProfileValue.appProfileId
           }
         });
         this.formPlatformObject.platform = [];
-        this.formPlatformObject.userProfileValue = null;
+        this.formPlatformObject.appProfileValue = null;
       }
     },
     deletePlatformObjectitem(item) {
@@ -384,17 +339,8 @@ export default {
         }
       }
     },
-    async getRoles() {
-      const rep = await instanceAxios.instanceAxios.post("/users/getRoles", {
-        headers: {
-          "Content-Type": "application/json",
-          "x-access-token": this.token
-        }
-      });
-      this.userType = rep.data;
-    },
     getValidationClass(fieldName) {
-      const field = this.$v.formUser[fieldName];
+      const field = this.$v.formApp[fieldName];
       if (field) {
         return {
           "md-invalid": field.$invalid && field.$dirty
@@ -403,49 +349,25 @@ export default {
     },
     clearForm() {
       this.$v.$reset();
-      this.formUser.userName = null;
-      this.formUser.password = null;
-      this.formUser.email = null;
-      this.formUser.info = null;
-      this.formUser.telephone = null;
-      this.formUser.userType = null;
+      this.formApp.name = null;
+      this.formApp.clientId = null;
+      this.formApp.clientSecret = null;
+      this.formApp.appType = null;
     },
     cancelAdd() {
       this.clearForm();
-      this.$router.push("/Users");
+      this.$router.push("/Application");
     },
-    validateUser() {
+    validateApp() {
       this.$v.$touch();
 
       if (!this.$v.$invalid) {
-        this.saveUser();
+        this.saveApp();
       }
     },
-    async saveOrgan() {
-      this.sending = true;
-
-      if (rep !== undefined) {
-        EventBus.$emit("reloadOrganList");
-        window.setTimeout(() => {
-          this.lastOrgan = `${this.formOrgan.organName}`;
-          this.organSaved = true;
-          this.sending = false;
-          this.clearForm();
-        }, 1500);
-      }
-      // Instead of this timeout, here you can call your API
-    },
-    validateOrgan() {
-      this.$v.$touch();
-
-      if (!this.$v.$invalid) {
-        this.saveOrgan();
-      }
-    },
-
-    async getUserProfileList(id) {
+    async getAppProfileList(id) {
       const rep = await instanceAxios.instanceAxios.get(
-        `/platforms/${id}/getUserProfileList`,
+        `/platforms/${id}/getAppProfileList`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -453,7 +375,7 @@ export default {
           }
         }
       );
-      this.userProfileList = rep.data;
+      this.appProfileList = rep.data;
     },
 
     async getplatformList() {
@@ -468,13 +390,12 @@ export default {
   },
   mounted() {
     this.token = localStorage.getItem("token");
-    this.getUserProfileList();
+    this.getAppProfileList();
     this.getplatformList();
-    this.getRoles();
   },
   watch: {
     "formPlatformObject.platform": function(value) {
-      this.getUserProfileList(value.id);
+      this.getAppProfileList(value.id);
     }
   }
 };

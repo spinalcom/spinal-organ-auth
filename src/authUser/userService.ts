@@ -222,8 +222,6 @@ export class UserService {
       const context = SpinalGraphService.getContext(USER_LIST);
       const users = await context.getChildren('HasUser');
       for (const user of users) {
-        console.log(user.getName().get());
-
         var userObject: IUser = {
           id: user.getId().get(),
           type: user.getType().get(),
@@ -462,11 +460,6 @@ export class UserService {
   }
 
   public async getRoles(): Promise<{ name: string }[]> {
-    return [
-      {
-        name: 'Super User',
-      },
-      { name: 'Simple User' },
-    ];
+    return [{ name: 'Super User' }, { name: 'Simple User' }];
   }
 }

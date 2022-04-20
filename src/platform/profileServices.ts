@@ -135,4 +135,64 @@ export class ProfileServices {
       };
     }
   }
+
+  public async getUserProfileService(
+    platformId: string
+  ): Promise<IUserProfile[]> {
+    try {
+      const platformContext = SpinalGraphService.getContext('platformList');
+      var userProfileObjectList = [];
+      const platforms = await platformContext.getChildren('HasPlatform');
+      for (const platform of platforms) {
+        if (platform.getId().get() === platformId) {
+          //@ts-ignore
+          SpinalGraphService._addNode(platform);
+          var userProfileList = await platform.getChildren('HasUserProfile');
+          for (const userProfile of userProfileList) {
+            var UserProfileObject: IUserProfile = {
+              id: userProfile.getId().get(),
+              type: userProfile.getType().get(),
+              name: userProfile.getName().get(),
+              userProfileId: userProfile.info.userProfileId.get(),
+              platformId: userProfile.info.platformId.get(),
+            };
+            userProfileObjectList.push(UserProfileObject);
+          }
+        }
+      }
+      return userProfileObjectList;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  public async getAppProfileService(
+    platformId: string
+  ): Promise<IAppProfile[]> {
+    try {
+      const platformContext = SpinalGraphService.getContext('platformList');
+      var appProfileObjectList = [];
+      const platforms = await platformContext.getChildren('HasPlatform');
+      for (const platform of platforms) {
+        if (platform.getId().get() === platformId) {
+          //@ts-ignore
+          SpinalGraphService._addNode(platform);
+          var appProfileList = await platform.getChildren('HasAppProfile');
+          for (const appProfile of appProfileList) {
+            var AppProfileObject: IAppProfile = {
+              id: appProfile.getId().get(),
+              type: appProfile.getType().get(),
+              name: appProfile.getName().get(),
+              appProfileId: appProfile.info.appProfileId.get(),
+              platformId: appProfile.info.platformId.get(),
+            };
+            appProfileObjectList.push(AppProfileObject);
+          }
+        }
+      }
+      return appProfileObjectList;
+    } catch (error) {
+      return error;
+    }
+  }
 }

@@ -220,39 +220,6 @@ export class PlatformService {
     }
   }
 
-  public async getOrgansFromPlatform(platformId: string): Promise<IOrgan[]> {
-    try {
-      var organsObjectList = [];
-      const contexts = await this.graph.getChildren('hasContext');
-      for (const context of contexts) {
-        if (context.getName().get() === PLATFORM_LIST) {
-          const platforms = await context.getChildren(
-            AUTH_SERVICE_PLATFORM_RELATION_NAME
-          );
-          for (const platform of platforms) {
-            if (platform.getId().get() === platformId) {
-              var organs = await platform.getChildren('HasOrgan');
-              for (const organ of organs) {
-                var OrganObject: IOrgan = {
-                  id: organ.getId().get(),
-                  type: organ.getType().get(),
-                  name: organ.getName().get(),
-                  statusOrgan: organ.info.statusOrgan.get(),
-                  organType: organ.info.organType.get(),
-                  platformId: organ.info.platformId.get(),
-                };
-                organsObjectList.push(OrganObject);
-              }
-            }
-          }
-        }
-      }
-      return organsObjectList;
-    } catch (error) {
-      return error;
-    }
-  }
-
   public async createAuthPlateform(): Promise<IPlatform> {
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
@@ -357,6 +324,29 @@ export class PlatformService {
     }
   }
 
+  public async getRegisterKeyNode(): Promise<IRegisterKeyObject> {
+    const contexts = await this.graph.getChildren('hasContext');
+    for (const context of contexts) {
+      if (context.getName().get() === INFO_ADMIN) {
+        // @ts-ignore
+        SpinalGraphService._addNode(context);
+        const childrens = await context.getChildren(
+          AUTH_SERVICE_INFO_ADMIN_RELATION_NAME
+        );
+        for (const child of childrens) {
+          if (child.getName().get() === 'registerKey') {
+            return {
+              id: child.getId().get(),
+              type: child.getType().get(),
+              name: child.getName().get(),
+              value: child.info.value.get(),
+            };
+          }
+        }
+      }
+    }
+  }
+
   public generateTokenBosAdmin(platformName: string) {
     let token = jwt.sign(
       { platformName: platformName },
@@ -436,33 +426,5 @@ export class PlatformService {
         }
       }
     }
-  }
-
-  public async getUserProfileList(id: string): Promise<any[]> {
-    const contexts = await this.graph.getChildren('hasContext');
-    const _profileList = [];
-    for (const context of contexts) {
-      if (context.getName().get() === PLATFORM_LIST) {
-        const platformList = await context.getChildren('HasPlatform');
-        for (const platform of platformList) {
-          // @ts-ignore
-          SpinalGraphService._addNode(platform);
-          if (platform.getId().get() === id) {
-            const profileList = await platform.getChildren('HasUserProfile');
-            for (const profile of profileList) {
-              let infoProfile = {
-                id: profile.getId().get(),
-                type: profile.getType().get(),
-                name: profile.getName().get(),
-                userProfileId: profile.info.userProfileId.get(),
-                platformId: profile.info.platformId.get(),
-              };
-              _profileList.push(infoProfile);
-            }
-          }
-        }
-      }
-    }
-    return _profileList;
   }
 }

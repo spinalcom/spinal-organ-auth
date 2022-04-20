@@ -67,7 +67,7 @@ with this file. If not, see
 </template>
 <script>
 import { LoginCard } from "@/components";
-import axios from "axios";
+const instanceAxios = require("../../../services/axiosConfig");
 import VueRouter from "vue-router";
 import { tokenGen } from "@/routes/genToken.js";
 export default {
@@ -84,31 +84,13 @@ export default {
   mounted() {},
   methods: {
     async login() {
-      // let userparams = {
-      //   userName: this.userName,
-      //   password: this.password
-      // };
-      // // const response = await axios
-      // //   .post("http://localhost:4040/users/login", userparams)
-      // //   .then(response => (this.info = response));
-      // // if (this.info) {
-      // //   // router.push("dashboard");
-      // //   this.$router.push("/dashboard");
-      // // }
-      // const rep = await axios
-      //   .post("http://localhost:4040/users/login", userparams)
-      //   .then(response => (this.info = response));
-      // if (this.info) {
-      //   localStorage.setItem("token", this.info.data.token);
-      //   this.$router.push("/dashboard");
-      // }
       try {
         await tokenGen(this.userName, this.password);
         this.$router.push("/Dashboard");
       } catch (error) {}
     },
     async showusers() {
-      const rep = await axios.get("http://localhost:4040/users", {
+      const rep = await instanceAxios.instanceAxios.get("/users", {
         headers: {
           "Content-Type": "application/json",
           "x-access-token": this.info.data.token

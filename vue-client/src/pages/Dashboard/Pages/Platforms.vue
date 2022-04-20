@@ -25,18 +25,27 @@ with this file. If not, see
 <template>
   <div class="md-layout">
     <div class="md-layout-item md-size-95 mt-4 md-small-size-100">
-      <div>
-        <md-button
+      <div class="blocRegisterKey">
+        <!-- <md-button
           class="md-warning pull-right"
           v-if="
             displayAddPlatform === false &&
             displayEditPlatform === false &&
-            displayConfigServer === false
+            displayPlatformDetail === false
           "
           @click="displayAdd()"
           >Add Platform</md-button
-        >
-
+        > -->
+        <div>
+          <md-field>
+            <label>Register Key</label>
+            <md-input
+              class="registerKeyInput"
+              v-model="registerKey.value"
+              :type="secretType"
+            ></md-input>
+          </md-field>
+        </div>
         <div>
           <md-dialog-confirm
             :md-active.sync="active"
@@ -46,10 +55,12 @@ with this file. If not, see
             @md-cancel="onCancel"
             @md-confirm="onConfirm"
           />
-          <md-button class="md-warning pull-right" @click="active = true"
-            >Generate Registration Key</md-button
+          <md-button
+            class="md-icon-button md-dense md-raised generateButton"
+            @click.prevent="generateRegisterKey"
           >
-          <span v-if="value">Value: {{ value }}</span>
+            <md-icon>cached</md-icon>
+          </md-button>
         </div>
       </div>
       <md-card>
@@ -59,7 +70,7 @@ with this file. If not, see
               v-if="
                 displayAddPlatform === false &&
                 displayEditPlatform === false &&
-                displayConfigServer === false
+                displayPlatformDetail === false
               "
               >hub</md-icon
             >
@@ -69,7 +80,7 @@ with this file. If not, see
               v-if="
                 displayAddPlatform === true ||
                 displayEditPlatform === true ||
-                displayConfigServer == true
+                displayPlatformDetail == true
               "
               >arrow_back</md-icon
             >
@@ -79,10 +90,10 @@ with this file. If not, see
             v-if="
               displayAddPlatform === false &&
               displayEditPlatform === false &&
-              displayConfigServer === false
+              displayPlatformDetail === false
             "
           >
-            Liste de plateformes
+            Platform List
           </h4>
           <h4 class="title" v-if="displayAddPlatform === true">
             Add a Platefom
@@ -90,14 +101,11 @@ with this file. If not, see
           <h4 class="title" v-if="displayEditPlatform === true">
             Edit a Platefom
           </h4>
-          <h4 class="title" v-if="displayConfigServer === true">
-            Config a Server
-          </h4>
           <md-table
             v-if="
               displayAddPlatform === false &&
               displayEditPlatform === false &&
-              displayConfigServer === false
+              displayPlatformDetail === false
             "
             :value="platformList"
             :md-sort-order.sync="currentSortOrder"
@@ -108,26 +116,29 @@ with this file. If not, see
               <md-table-cell md-label="name" md-sort-by="name">{{
                 item.name
               }}</md-table-cell>
-              <md-table-cell md-label="Servers"
-                >{{ serverLength(item) }}
+              <md-table-cell md-label="Nb Organ"
+                >{{ item.organs.length }}
               </md-table-cell>
-              <md-table-cell md-label="organ list">
+              <md-table-cell md-label="Nb User Profile"
+                >{{ item.userProfiles.length }}
+              </md-table-cell>
+              <md-table-cell md-label="Nb App Profile"
+                >{{ item.appProfiles.length }}
+              </md-table-cell>
+              <md-table-cell md-label="Status"
+                >{{ item.statusPlatform }}
+              </md-table-cell>
+              <md-table-cell md-label="Detail">
                 <md-icon
                   class="text-center text-primary cursorP"
                   @click.native="showPanelOrganList(item)"
                   >chevron_right</md-icon
                 >
-              </md-table-cell>
-
-              <md-table-cell md-label="Edit">
                 <md-icon
                   class="text-center text-primary cursorP"
                   @click.native="showEditPlatformItem(item)"
                   >edit</md-icon
                 >
-              </md-table-cell>
-
-              <md-table-cell md-label="Delete">
                 <md-icon
                   class="text-center text-primary cursorP"
                   @click.native="deletePlatformItem(item)"
@@ -137,7 +148,7 @@ with this file. If not, see
             </md-table-row>
           </md-table>
         </md-card-header>
-        <md-card-content v-if="displayAddPlatform === true">
+        <!-- <md-card-content v-if="displayAddPlatform === true">
           <form novalidate class="md-layout" @submit.prevent="validatePlatform">
             <md-card class="md-layout md-size-100 md-small-size-100">
               <md-card-content>
@@ -192,7 +203,7 @@ with this file. If not, see
               </span>
             </md-snackbar>
           </form>
-        </md-card-content>
+        </md-card-content> -->
 
         <!-- ************************************************* -->
 
@@ -260,45 +271,12 @@ with this file. If not, see
 
         <div
           class="md-layout md-size-100 md-small-size-100"
-          v-if="displayConfigServer === true"
+          v-if="displayPlatformDetail === true"
         >
-          <div class="md-layout-item">
-            <md-list
-              v-for="(server, index) in organList"
-              :key="index"
-              class="md-double-line"
-            >
-              <md-subheader>
-                {{ server.name
-                }}<md-icon class="md-primary">dns</md-icon></md-subheader
-              >
-              <!-- <md-list-item>{{ server.name }}</md-list-item>
-              <md-list-item>{{ server.clientId }}</md-list-item>
-              <md-list-item>{{ server.clientSecret }}</md-list-item>
-              <md-list-item>{{ server.uri }}</md-list-item> -->
-              <!-- <md-list-item
-                v-for="(profile, index) in server.profileList"
-                :key="index"
-              >
-                <div class="md-list-item-text">
-                  <ul>
-                    {{
-                      profile.data.name
-                    }}
-                    :
-                    <li v-for="(role, index) in profile.role" :key="index">
-                      {{ profile.name }}
-                    </li>
-                  </ul>
-                </div>
-              </md-list-item> -->
-            </md-list>
-          </div>
-
-          <AddOrgan
+          <PlatformDetail
             class="md-layout-item"
-            :itemSelectedId="itemSelected.id"
-          ></AddOrgan>
+            :itemSelected="itemSelected"
+          ></PlatformDetail>
         </div>
       </md-card>
     </div>
@@ -307,8 +285,8 @@ with this file. If not, see
 <script>
 // import Places from 'vue-places'
 import AddOrgan from "./AddOrgan.vue";
+import PlatformDetail from "./PlatformDetail.vue";
 import EventBus from "../../../EventBus";
-import axios from "axios";
 const instanceAxios = require("../../../services/axiosConfig");
 
 import Multiselect from "vue-multiselect";
@@ -322,18 +300,19 @@ import {
 export default {
   name: "Platform",
   mixins: [validationMixin],
-  components: { AddOrgan },
+  components: { PlatformDetail },
   data: () => ({
+    test: null,
+    secretType: "password",
     active: false,
-    value: null,
     token: null,
-    registerKey: null,
+    registerKey: { value: null },
     position: "center",
     duration: 3000,
     isInfinity: false,
     displayAddPlatform: false,
     displayEditPlatform: false,
-    displayConfigServer: false,
+    displayPlatformDetail: false,
     itemSelected: null,
     formPlatform: {
       platformName: null
@@ -357,7 +336,19 @@ export default {
   computed: {},
   methods: {
     async generateRegisterKey() {
-      console.log(this.token);
+      const rep = await instanceAxios.instanceAxios.post(
+        "/registerKey",
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      this.registerKey = rep.data;
+    },
+    async getRegisterKey() {
       const rep = await instanceAxios.instanceAxios.get("/registerKey", {
         headers: {
           "Content-Type": "application/json",
@@ -365,11 +356,9 @@ export default {
         }
       });
       this.registerKey = rep.data;
-      console.log(this.registerKey);
     },
     onConfirm() {
       this.generateRegisterKey();
-      this.value = this.registerKey;
     },
     onCancel() {},
 
@@ -432,7 +421,7 @@ export default {
       this.reloadData();
     },
     showPanelOrganList(item) {
-      this.displayConfigServer = true;
+      this.displayPlatformDetail = true;
       this.itemSelected = item;
       this.getOrgans();
       const arr = [...this.platformList];
@@ -463,11 +452,19 @@ export default {
           "x-access-token": this.token
         }
       });
-      this.platformList = rep.data;
+      // this.platformList = rep.data;
+      const test = rep.data.map(async item => {
+        item.organs = await this.getOrgans(item.id);
+        item.userProfiles = await this.getUserProfiles(item.id);
+        item.appProfiles = await this.getAppProfiles(item.id);
+        console.log(item);
+        return item;
+      });
+      this.platformList = await Promise.all(test);
     },
-    async getOrgans() {
+    async getUserProfiles(platformId) {
       const rep = await instanceAxios.instanceAxios.get(
-        `/organs/${this.itemSelected.id}`,
+        `/platforms/${platformId}/getUserProfileList`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -475,8 +472,33 @@ export default {
           }
         }
       );
-      this.organList = rep.data;
       console.log(rep.data);
+
+      return rep.data;
+    },
+    async getAppProfiles(platformId) {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/platforms/${platformId}/getAppProfileList`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      return rep.data;
+    },
+    async getOrgans(platformId) {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/organs/${platformId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      return rep.data;
     },
     customSort(value) {
       return value.sort((a, b) => {
@@ -494,7 +516,7 @@ export default {
       this.$v.$reset();
       this.displayAddPlatform = false;
       this.displayEditPlatform = false;
-      this.displayConfigServer = false;
+      this.displayPlatformDetail = false;
     },
     reloadData() {
       this.getPlatforms();
@@ -513,15 +535,19 @@ export default {
         this.editPlatformItem();
       }
     },
-    serverLength(item) {
-      return "in progress";
-    },
     getValidationClass(fieldName) {
       const field = this.$v.formPlatform[fieldName];
       if (field) {
         return {
           "md-invalid": field.$invalid && field.$dirty
         };
+      }
+    },
+    toggleSecretVisibility() {
+      if (this.secretType == "password") {
+        this.secretType = "text";
+      } else {
+        this.secretType = "password";
       }
     },
     clearForm() {
@@ -532,16 +558,10 @@ export default {
   mounted() {
     this.token = localStorage.getItem("token");
     this.getPlatforms();
+    this.getRegisterKey();
     EventBus.$on("reloadServerList", () => {});
   },
-  watch: {
-    /**
-     * Searches through the table data by a given query.
-     * NOTE: If you have a lot of data, it's recommended to do the search on the Server Side and only display the results here.
-     * @param value of the query
-     */
-    display: function(newValue) {}
-  }
+  watch: {}
 };
 </script>
 <style lang="css" scoped>
@@ -576,5 +596,17 @@ export default {
   display: inline-block;
   vertical-align: top;
   border: 1px solid rgba(#000, 0.12);
+}
+
+.blocRegisterKey {
+  display: flex;
+  flex-direction: row;
+  float: right;
+}
+.generateButton {
+  margin: 15px;
+}
+.registerKeyInput {
+  padding: 10px;
 }
 </style>
