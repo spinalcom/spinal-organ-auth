@@ -49,6 +49,13 @@ export interface IUserToken {
   userType: string;
   userProfileList?: string[];
   serverId?: string;
+  platformList?: {
+    platformId: string;
+    userProfile: {
+      name: string;
+      userProfileId: string;
+    };
+  }[];
 }
 
 export interface IApplicationToken {

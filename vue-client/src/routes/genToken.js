@@ -30,7 +30,7 @@ async function getToken(user, pass) {
   };
   // console.error(process.env.SPINAL_HOST_API);
   const { data } = await instanceAxios.instanceAxios.post(
-    '/users/login',
+    '/users/loginAuthAdmin',
     userparams
   );
   if (data) {

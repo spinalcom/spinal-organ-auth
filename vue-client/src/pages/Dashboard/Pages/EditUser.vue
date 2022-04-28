@@ -51,6 +51,27 @@ with this file. If not, see
                   >Invalid User name</span
                 >
               </md-field>
+              <md-field :class="getValidationClass('oldPassword')">
+                <md-icon>password</md-icon>
+                <label for="oldPassword">Old Password</label>
+                <md-input
+                  name="oldPassword"
+                  id="oldPassword"
+                  autocomplete="given-name"
+                  v-model="formUser.oldPassword"
+                  type="password"
+                  :disabled="sending"
+                />
+                <span class="md-error" v-if="!$v.formUser.password.required"
+                  >The password is required</span
+                >
+                <span
+                  class="md-error"
+                  v-else-if="!$v.formUser.password.minlength"
+                  >Invalid password
+                </span>
+              </md-field>
+
               <md-field :class="getValidationClass('password')">
                 <md-icon>password</md-icon>
                 <label for="password">password</label>
@@ -204,7 +225,7 @@ with this file. If not, see
                   <md-table v-model="platformObjectList">
                     <md-table-row slot="md-table-row" slot-scope="{ item }">
                       <md-table-cell md-label="Name BOS">{{
-                        item.platformName
+                        item.platformId
                       }}</md-table-cell>
                       <md-table-cell md-label="Profile">
                         {{ item.userProfile.name }}
@@ -230,7 +251,7 @@ with this file. If not, see
             Cancel
           </md-button>
           <md-button type="submit" class="md-primary" :disabled="sending"
-            >register user</md-button
+            >edit user</md-button
           >
         </md-card-actions>
       </md-card>
@@ -240,7 +261,7 @@ with this file. If not, see
         :md-duration="isInfinity ? Infinity : duration"
         md-persistent
       >
-        <span>The user {{ lastUser }} was saved with success!</span>
+        <span>The user {{ lastUser }} was edited with success!</span>
       </md-snackbar>
     </form>
   </div>
@@ -263,12 +284,14 @@ export default {
   data() {
     return {
       token: null,
+      userSelected: null,
       position: "center",
       duration: 3000,
       isInfinity: false,
       formUser: {
         userName: null,
         password: null,
+        oldPassword: null,
         telephone: null,
         email: null,
         info: null,
@@ -296,6 +319,10 @@ export default {
         required,
         minLength: minLength(3)
       },
+      oldPassword: {
+        required,
+        minLength: minLength(8)
+      },
       password: {
         required,
         minLength: minLength(8)
@@ -318,7 +345,7 @@ export default {
   },
   computed: {},
   methods: {
-    async saveUser() {
+    async editUser() {
       var objectBody = {
         userName: this.formUser.userName,
         password: this.formUser.password,
@@ -337,12 +364,16 @@ export default {
         })
       };
 
-      const rep = await instanceAxios.instanceAxios.post("/users", objectBody, {
-        headers: {
-          "Content-Type": "application/json",
-          "x-access-token": this.token
+      const rep = await instanceAxios.instanceAxios.put(
+        `/users/${this.userSelected}`,
+        objectBody,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
         }
-      });
+      );
       if (rep) {
         this.lastUser = `${objectBody.userName}`;
         this.userSaved = true;
@@ -418,7 +449,7 @@ export default {
       this.$v.$touch();
 
       if (!this.$v.$invalid) {
-        this.saveUser();
+        this.editUser();
       }
     },
     async saveOrgan() {
@@ -468,22 +499,22 @@ export default {
   },
   mounted() {
     this.token = localStorage.getItem("token");
+    this.getUserProfileList();
     this.getplatformList();
-    EventBus.$on("EDIT_USER", function(item) {
-      console.log("**", item.userName);
-      console.log(this.formUser);
+    this.getRoles();
 
-      // this.formUser.userName = item.userName;
-      // this.formUser.email = item.email;
-      // this.formUser.info = item.info;
-      // this.formUser.telephone = item.telephone;
-      // this.formUser.userType = item.userType;
+    var aux = EventBus.$on("EDIT_USER", function(item) {
+      this.platformObjectList = item.platformList;
+      this.userSelected = item.id;
     });
+    this.platformObjectList = aux.platformObjectList;
+    this.userSelected = aux.userSelected;
   },
   watch: {
     "formPlatformObject.platform": function(value) {
       this.getUserProfileList(value.id);
-    }
+    },
+    platformObjectList: function(value) {}
   }
 };
 </script>

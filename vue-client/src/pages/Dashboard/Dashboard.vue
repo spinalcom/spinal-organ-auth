@@ -75,8 +75,17 @@ with this file. If not, see
         <md-card-content>
           <md-table v-model="platformList">
             <md-table-row slot="md-table-row" slot-scope="{ item }">
-              <md-table-cell md-label="#">{{ item.id }}</md-table-cell>
               <md-table-cell md-label="Name">{{ item.name }}</md-table-cell>
+              <md-table-cell md-label="Nb Organ"
+                >{{ item.organs.length }}
+              </md-table-cell>
+              <md-table-cell md-label="Nb User Profile"
+                >{{ item.userProfiles.length }}
+              </md-table-cell>
+              <md-table-cell md-label="Nb App Profile"
+                >{{ item.appProfiles.length }}
+              </md-table-cell>
+
               <md-table-cell md-label="State">{{
                 item.statusPlatform
               }}</md-table-cell>
@@ -88,13 +97,13 @@ with this file. If not, see
                     :styles="spLineStyles1"
                   /> </sparkline
               ></md-table-cell>
-              <md-table-cell md-label="Detail" :class="getAlignClasses(item)">
+              <!-- <md-table-cell md-label="Detail" :class="getAlignClasses(item)">
                 <md-button
                   class="md-just-icon"
                   :class="getClass(item.icon1, item.id)"
                   ><md-icon>arrow_forward</md-icon></md-button
                 >
-              </md-table-cell>
+              </md-table-cell> -->
             </md-table-row>
           </md-table>
         </md-card-content>
@@ -142,8 +151,51 @@ export default {
           "x-access-token": this.token
         }
       });
-      this.platformList = rep.data;
+      const test = rep.data.map(async item => {
+        item.organs = await this.getOrgans(item.id);
+        item.userProfiles = await this.getUserProfiles(item.id);
+        item.appProfiles = await this.getAppProfiles(item.id);
+        console.log(item);
+        return item;
+      });
+      this.platformList = await Promise.all(test);
       return this.platformList;
+    },
+    async getOrgans(platformId) {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/organs/${platformId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      return rep.data;
+    },
+    async getUserProfiles(platformId) {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/platforms/${platformId}/getUserProfileList`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      return rep.data;
+    },
+    async getAppProfiles(platformId) {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/platforms/${platformId}/getAppProfileList`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      return rep.data;
     },
     async getTokens() {
       const rep = await instanceAxios.instanceAxios.get("/tokens", {
@@ -199,6 +251,9 @@ export default {
   },
   async mounted() {
     this.token = localStorage.getItem("token");
+    // if (this.token === null) {
+    //   this.$router.push("/Login");
+    // }
     this.platformNumber = (await this.getPlatforms()).length;
     this.tokenNumber = (await this.getTokens()).length;
   },

@@ -82,23 +82,31 @@ export default {
     token: "",
     value: null,
     userList: [],
-    platformList: []
+    platformList: [],
+    platformlinkUser: []
   }),
 
   computed: {},
   methods: {
-    showState(platform) {
-      //       const rep = await instanceAxios.instanceAxios.get(`/platforms/${platform.platformId}`, {
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     "x-access-token": this.token
-      //   }
-      // });
+    async showState(platform) {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/platforms/${platform.platformId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
       if (platform.userProfile) {
         return platform.platformId + ":" + platform.userProfile.name;
       } else return "hello";
     },
     displayEdit(item) {
+      EventBus.$emit("EDIT_USER", item);
+      this.$router.push({ name: "EditUser", params: { id: item.id } });
+    },
+    displayDetail(item) {
       EventBus.$emit("EDIT_USER", item);
       this.$router.push({ name: "EditUser", params: { id: item.id } });
     },
@@ -113,10 +121,7 @@ export default {
         }
       });
       this.userList = rep.data;
-      for (const user of this.userList) {
-        if (user.userName === "authAdmin") {
-        }
-      }
+      console.log(this.userList);
     }
   },
   mounted() {

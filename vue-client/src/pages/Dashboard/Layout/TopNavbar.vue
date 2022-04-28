@@ -27,7 +27,7 @@ with this file. If not, see
     md-elevation="0"
     class="md-transparent"
     :class="{
-      'md-toolbar-absolute md-white md-fixed-top': $route.meta.navbarAbsolute
+      'md-toolbar-absolute md-white md-fixed-top': $route.meta.navbarAbsolute,
     }"
   >
     <div class="md-toolbar-row">
@@ -46,10 +46,29 @@ with this file. If not, see
         </md-button>
 
         <div class="md-collapse">
-          <md-list-item @click="logout">
+          <md-menu md-size="medium" :md-offset-x="-170" :md-offset-y="-40">
+            <md-button md-menu-trigger
+              ><i class="material-icons">person</i></md-button
+            >
+            <md-menu-content>
+              <md-menu-item @click="EditProfileAdmin">
+                <div class="itemProfile">
+                  <i class="material-icons">person</i>
+                  <p>Edit Admin Profile</p>
+                </div></md-menu-item
+              >
+              <md-menu-item @click="logout"
+                ><div class="itemProfile">
+                  <i class="material-icons">logout</i>
+                  <p>Logout</p>
+                </div></md-menu-item
+              >
+            </md-menu-content>
+          </md-menu>
+          <!-- <md-list-item @click="logout">
             <i class="material-icons">person</i>
             <p class="hidden-lg hidden-md">Profile</p>
-          </md-list-item>
+          </md-list-item> -->
         </div>
       </div>
     </div>
@@ -60,17 +79,7 @@ with this file. If not, see
 export default {
   data() {
     return {
-      selectedEmployee: "",
-      employees: [
-        "Jim Halpert",
-        "Dwight Schrute",
-        "Michael Scott",
-        "Pam Beesly",
-        "Angela Martin",
-        "Kelly Kapoor",
-        "Ryan Howard",
-        "Kevin Malone"
-      ]
+      toggleCard: false
     };
   },
   methods: {
@@ -85,7 +94,20 @@ export default {
     logout() {
       localStorage.removeItem("token");
       this.$router.push("/Login");
+    },
+    EditProfileAdmin() {
+      this.$router.push("/EditUser");
     }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.md-menu {
+  margin: 24px;
+}
+.itemProfile {
+  display: flex;
+  align-items: center;
+}
+</style>

@@ -105,10 +105,7 @@ export class ApplicationService {
             platformList: res.info.platformList.get(),
           };
         } else {
-          throw new OperationError(
-            'UNAUTHORIZED ROLE',
-            HttpStatusCode.UNAUTHORIZED
-          );
+          throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
         }
       }
     }
@@ -201,6 +198,7 @@ export class ApplicationService {
               id: app.getId().get(),
               type: app.getType().get(),
               name: app.getName().get(),
+              appType: app.info.appType.get(),
               clientId: app.info.clientId.get(),
               clientSecret: app.info.clientSecret.get(),
               platformList: app.info.platformList.get(),

@@ -29,7 +29,15 @@ with this file. If not, see
         <i class="fa fa-cog fa-2x" @click="toggleDropDown"> </i>
       </a>
       <ul class="dropdown-menu" :class="{ show: isOpen }">
+        <li class="header-title">Config Admin</li>
+        <li class="adjustments-line text-center">
+          <div class="itemProfile">
+            <i class="material-icons">person</i>
+            <p>Edit Admin Profile</p>
+          </div>
+        </li>
         <li class="header-title">Sidebar Filters</li>
+
         <li class="adjustments-line text-center">
           <span
             v-for="item in sidebarColors"
@@ -57,14 +65,14 @@ with this file. If not, see
           Sidebar Mini
           <md-switch
             :value="!sidebarMini"
-            @change="val => updateValue('sidebarMini', val)"
+            @change="(val) => updateValue('sidebarMini', val)"
           ></md-switch>
         </li>
         <li class="adjustments-line sidebar-img">
           Sidebar Image
           <md-switch
             :value="!sidebarImg"
-            @change="val => updateValueImg('sidebarImg', val)"
+            @change="(val) => updateValueImg('sidebarImg', val)"
           ></md-switch>
         </li>
 
@@ -180,5 +188,9 @@ export default {
 .centered-buttons {
   display: flex;
   justify-content: center;
+}
+.itemProfile {
+  display: flex;
+  align-items: center;
 }
 </style>

@@ -22,10 +22,6 @@ with this file. If not, see
 <http://resources.spinalcom.com/licenses.pdf>.
 -->
 
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwbGF0Zm9ybU5hbWUiOiJib3MgdGVzdCAyIiwiaWF0IjoxNjQ5MjQ1MTE4LCJleHAiOjE2NDkzMzE1MTh9.W8xlnFzXIpWXTVss6mtudjQirfBMvRx55hHo_fz2Uww
-
-
-
 <template>
   <div class="md-layout">
     <div class="md-layout-item md-size-95 mt-4 md-small-size-100">
@@ -157,11 +153,16 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwbGF0Zm9ybU5hbWUiOiJib3MgdGVzdCAyIiwiaWF
 
         <!-- *****************************users******************************************** -->
         <md-card-content v-if="displayUsers === true">
-          <md-table v-model="itemSelected.hello">
+          <md-table v-model="userListLinkPlatform">
             <md-table-row slot="md-table-row" slot-scope="{ item }">
               <md-table-cell md-label="Name">{{ item.name }}</md-table-cell>
-              <md-table-cell md-label="appProfileId">{{
-                item.appProfileId
+              <md-table-cell md-label="Email">{{ item.email }}</md-table-cell>
+              <md-table-cell md-label="Info">{{ item.info }}</md-table-cell>
+              <md-table-cell md-label="Telephone">{{
+                item.telephone
+              }}</md-table-cell>
+              <md-table-cell md-label="UserType">{{
+                item.userType
               }}</md-table-cell>
             </md-table-row>
           </md-table>
@@ -169,9 +170,18 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwbGF0Zm9ybU5hbWUiOiJib3MgdGVzdCAyIiwiaWF
 
         <!-- *****************************apps******************************************** -->
         <md-card-content v-if="displayApps === true">
-          <md-table v-model="itemSelected.hello">
+          <md-table v-model="appListLinkPlatform">
             <md-table-row slot="md-table-row" slot-scope="{ item }">
               <md-table-cell md-label="Name">{{ item.name }}</md-table-cell>
+              <md-table-cell md-label="ClientId">{{
+                item.clientId
+              }}</md-table-cell>
+              <md-table-cell md-label="ClientSecret">{{
+                item.clientSecret
+              }}</md-table-cell>
+              <md-table-cell md-label="App Type">{{
+                item.appType
+              }}</md-table-cell>
             </md-table-row>
           </md-table>
         </md-card-content>
@@ -219,7 +229,11 @@ export default {
     displayAppProfiles: false,
     displayUsers: false,
     displayApps: false,
-    displayLogs: false
+    displayLogs: false,
+    userList: [],
+    userListLinkPlatform: [],
+    appList: [],
+    appListLinkPlatform: []
   }),
 
   computed: {},
@@ -232,7 +246,6 @@ export default {
         };
       }
     },
-    showEditOrgan(item) {},
     showTable(itemTable) {
       if (itemTable === "Organs") {
         this.displayOrgans = true;
@@ -277,10 +290,59 @@ export default {
         this.displayApps = false;
         this.displayLogs = true;
       }
+    },
+    async getUsers() {
+      const rep = await instanceAxios.instanceAxios.get("/users", {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": this.token
+        }
+      });
+      this.userList = rep.data;
+      this.getUsersFromPltaform(this.userList);
+    },
+    async getApplications() {
+      const rep = await instanceAxios.instanceAxios.get("/applications", {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": this.token
+        }
+      });
+      this.appList = rep.data;
+      this.getAPPSFromPltaform(this.appList);
+    },
+    getUsersFromPltaform(tab) {
+      var users = [];
+      for (const user of tab) {
+        if (user.platformList) {
+          for (const platform of user.platformList) {
+            if (platform.platformId === this.itemSelected.id) {
+              users.push(user);
+            }
+          }
+        }
+      }
+      this.userListLinkPlatform = users;
+    },
+    getAPPSFromPltaform(tab) {
+      var apps = [];
+      for (const app of tab) {
+        if (app.platformList) {
+          for (const platform of app.platformList) {
+            if (platform.platformId === this.itemSelected.id) {
+              apps.push(app);
+            }
+          }
+        }
+      }
+      console.log(apps);
+      this.appListLinkPlatform = apps;
     }
   },
   mounted() {
     this.token = localStorage.getItem("token");
+    this.getUsers();
+    this.getApplications();
   },
   watch: {}
 };

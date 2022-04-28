@@ -78,6 +78,15 @@ export class UserService {
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
       if (context.getName().get() === USER_LIST) {
+        const users = await context.getChildren('HasUser');
+        for (const user of users) {
+          if (user.info.userName.get() === userCreationParams.userName) {
+            throw new OperationError(
+              'USERNAME_IS_ALREADY_USED',
+              HttpStatusCode.FORBIDDEN
+            );
+          }
+        }
         var userCreated = bcrypt
           .hash(userCreationParams.password, 10)
           .then(async (hash) => {
@@ -126,10 +135,7 @@ export class UserService {
             }
           });
         if (userCreated === undefined) {
-          throw new OperationError(
-            'UNAUTHORIZED ROLE',
-            HttpStatusCode.UNAUTHORIZED
-          );
+          throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
         } else return userCreated;
       }
     }
@@ -143,6 +149,91 @@ export class UserService {
         );
         for (const user of users) {
           if (userLoginParams.userName === user.info.userName.get()) {
+            return bcrypt
+              .compare(userLoginParams.password, user.info.password.get())
+              .then(async (valid) => {
+                if (!valid) {
+                  throw new OperationError(
+                    'NOT_FOUND',
+                    HttpStatusCode.NOT_FOUND
+                  );
+                } else {
+                  let token = jwt.sign(
+                    { userId: user.getId().get() },
+                    'RANDOM_TOKEN_SECRET',
+                    { expiresIn: '24h' }
+                  );
+                  let decodedToken = jwt_decode(token);
+                  const tokenContext = SpinalGraphService.getContext(
+                    TOKEN_LIST
+                  );
+                  const categoryTokenUserList = await tokenContext.getChildren(
+                    'HasCategoryToken'
+                  );
+                  for (const categoryTokenUser of categoryTokenUserList) {
+                    // @ts-ignore
+                    SpinalGraphService._addNode(categoryTokenUser);
+                    if (
+                      categoryTokenUser.getType().get() ===
+                      'AuthServiceUserCategory'
+                    ) {
+                      const TokenId = SpinalGraphService.createNode(
+                        {
+                          name: 'token_' + user.getName().get(),
+                          type: TOKEN_TYPE,
+                          token: token,
+                          // @ts-ignore
+                          createdToken: decodedToken.iat,
+                          // @ts-ignore
+                          expieredToken: decodedToken.exp,
+                          userId: user.getId().get(),
+                          userType: user.info.userType.get(),
+                          platformList: user.info.platformList.get(),
+                        },
+                        undefined
+                      );
+                      const res = await SpinalGraphService.addChildInContext(
+                        categoryTokenUser.getId().get(),
+                        TokenId,
+                        tokenContext.getId().get(),
+                        AUTH_SERVICE_TOKEN_RELATION_NAME,
+                        AUTH_SERVICE_RELATION_TYPE_PTR_LST
+                      );
+                      let tokenObj: IUserToken = {
+                        name: res.getName().get(),
+                        type: res.getType().get(),
+                        token: token,
+                        // @ts-ignore
+                        createdToken: decodedToken.iat,
+                        // @ts-ignore
+                        expieredToken: decodedToken.exp,
+                        userId: user.getId().get(),
+                        platformList: user.info.platformList.get(),
+                        userType: user.info.userType.get(),
+                      };
+                      return tokenObj;
+                    }
+                  }
+                }
+              });
+          }
+        }
+        throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+      }
+    }
+  }
+
+  public async loginAuthAdmin(
+    userLoginParams: IUserLoginParams
+  ): Promise<IUserToken> {
+    const contexts = await this.graph.getChildren('hasContext');
+    for (const context of contexts) {
+      if (context.getName().get() === USER_LIST) {
+        const users = await context.getChildren(
+          AUTH_SERVICE_USER_RELATION_NAME
+        );
+        for (const user of users) {
+          if (userLoginParams.userName === 'authAdmin') {
             return bcrypt
               .compare(userLoginParams.password, user.info.password.get())
               .then(async (valid) => {
@@ -321,11 +412,11 @@ export class UserService {
           userType: user.info.userType.get(),
           platformList: user.info.platformList.get(),
         };
-      } else {
-        throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
       }
     }
-    return userObject;
+    if (userObject != undefined) {
+      return userObject;
+    } else throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
   }
 
   public async deleteUser(userId: string): Promise<void> {
@@ -399,7 +490,6 @@ export class UserService {
                 telephone: res.info.telephone.get(),
                 info: res.info.info.get(),
                 userType: res.info.userType.get(),
-                userProfileList: res.info.userProfileList.get(),
                 platformList: res.info.platformList.get(),
               };
             } else {
@@ -407,10 +497,7 @@ export class UserService {
             }
           });
         if (userCreated === undefined) {
-          throw new OperationError(
-            'UNAUTHORIZED ROLE',
-            HttpStatusCode.UNAUTHORIZED
-          );
+          throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
         } else return userCreated;
       }
     }

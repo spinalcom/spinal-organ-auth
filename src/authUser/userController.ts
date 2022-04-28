@@ -103,6 +103,14 @@ export class UsersController extends Controller {
     return new UserService().login(requestBody);
   }
 
+  @Post('/loginAuthAdmin')
+  public async loginAuthAdmin(
+    @Body() requestBody: IUserLoginParams
+  ): Promise<IUserToken> {
+    this.setStatus(201); // set return status 201
+    return new UserService().loginAuthAdmin(requestBody);
+  }
+
   // @Security("jwt")
   // @Get("/getUserProfileByToken/{verifyToken}")
   // public async getUserProfileByToken(
