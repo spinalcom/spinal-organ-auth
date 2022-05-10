@@ -31,7 +31,8 @@ export type OperationErrorMessage =
   | 'INVALID_EMAIL'
   | 'USERNAME_IS_ALREADY_USED'
   | 'NOT_CREATED'
-  | 'UNAUTHORIZED ROLE';
+  | 'UNAUTHORIZED ROLE'
+  | 'ERROR_PASSWORD';
 
 export class OperationError extends Error {
   constructor(message: OperationErrorMessage, readonly status: HttpStatusCode) {

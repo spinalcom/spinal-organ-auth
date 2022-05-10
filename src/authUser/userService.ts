@@ -50,6 +50,7 @@ import {
   IUser,
   IUserCreationParams,
   IUserUpdateParams,
+  IAuthAdminUpdateParams,
   IUserLoginParams,
   IUserType,
 } from './user.model';
@@ -501,6 +502,57 @@ export class UserService {
         } else return userCreated;
       }
     }
+  }
+
+  public async updateAuthAdmin(
+    requestBody: IAuthAdminUpdateParams
+  ): Promise<IUser> {
+    const context = await SpinalGraphService.getContext(USER_LIST);
+    const users = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
+    var userObject: IUser;
+    for (const user of users) {
+      if (user.getName().get() === requestBody.userName) {
+        if (requestBody.oldPassword !== undefined) {
+          return bcrypt
+            .compare(requestBody.oldPassword, user.info.password.get())
+            .then(async (valid) => {
+              if (!valid) {
+                throw new OperationError(
+                  'ERROR_PASSWORD',
+                  HttpStatusCode.FORBIDDEN
+                );
+              } else {
+                bcrypt.hash(requestBody.newPassword, 10).then(async (hash) => {
+                  user.info.password.set(hash);
+                });
+                if (requestBody.email !== undefined) {
+                  user.info.email.set(requestBody.email);
+                }
+                if (requestBody.telephone !== undefined) {
+                  user.info.telephone.set(requestBody.telephone);
+                }
+                if (requestBody.info !== undefined) {
+                  user.info.info.set(requestBody.info);
+                }
+                userObject = {
+                  id: user.getId().get(),
+                  type: user.getType().get(),
+                  name: user.getName().get(),
+                  userName: user.info.userName.get(),
+                  password: user.info.password.get(),
+                  email: user.info.email.get(),
+                  telephone: user.info.telephone.get(),
+                  info: user.info.info.get(),
+                  userType: user.info.userType.get(),
+                  platformList: user.info.platformList.get(),
+                };
+                return userObject;
+              }
+            });
+        }
+      }
+    }
+    throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
   }
 
   public async getUserProfileByToken(verifyToken: string) {

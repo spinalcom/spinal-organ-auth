@@ -134,16 +134,16 @@ with this file. If not, see
                   @click.native="showPanelOrganList(item)"
                   >chevron_right</md-icon
                 >
-                <md-icon
+                <!-- <md-icon
                   class="text-center text-primary cursorP"
                   @click.native="showEditPlatformItem(item)"
                   >edit</md-icon
-                >
-                <md-icon
+                > -->
+                <!-- <md-icon
                   class="text-center text-primary cursorP"
                   @click.native="deletePlatformItem(item)"
                   >delete</md-icon
-                >
+                > -->
               </md-table-cell>
             </md-table-row>
           </md-table>
@@ -206,67 +206,6 @@ with this file. If not, see
         </md-card-content> -->
 
         <!-- ************************************************* -->
-
-        <form
-          novalidate
-          class="md-layout"
-          @submit.prevent="validateEditPlatform"
-          v-if="displayEditPlatform === true"
-        >
-          <md-card class="md-layout md-size-100 md-small-size-100">
-            <md-card-content>
-              <div class="md-layout md-gutter">
-                <div class="md-layout-item md-small-size-100">
-                  <md-field :class="getValidationClass('platformName')">
-                    <label for="platformName">Platform Name</label>
-                    <md-input
-                      name="platformName"
-                      id="platformName"
-                      autocomplete="given-name"
-                      v-model="formPlatform.platformName"
-                      :disabled="sending"
-                    >
-                    </md-input>
-                    <span
-                      class="md-error"
-                      v-if="!$v.formPlatform.platformName.required"
-                      >The name is required
-                    </span>
-                    <span
-                      class="md-error"
-                      v-else-if="!$v.formPlatform.platformName.minlength"
-                      >Invalid name
-                    </span>
-                  </md-field>
-                </div>
-              </div>
-            </md-card-content>
-            <md-progress-bar md-mode="indeterminate" v-if="sending" />
-            <md-card-actions>
-              <md-button @click="cancelAdd" class="btn-next md-danger">
-                Cancel
-              </md-button>
-              <md-button
-                type="submit"
-                class="btn-next md-primary"
-                :disabled="sending"
-              >
-                Edit
-              </md-button>
-            </md-card-actions>
-          </md-card>
-          <md-snackbar
-            :md-active.sync="platformSaved"
-            :md-position="position"
-            :md-duration="isInfinity ? Infinity : duration"
-            md-persistent
-          >
-            <span>
-              The platform {{ lastPlatform }} was updated with success!
-            </span>
-          </md-snackbar>
-        </form>
-
         <!-- ********************************************************************** -->
 
         <div
@@ -385,17 +324,6 @@ export default {
         }, 1500);
       }
       this.reloadData();
-    },
-    showEditPlatformItem(item, ask = true) {
-      let r = true;
-      if (ask)
-        r = confirm(
-          "Are you sure you want to update the platform, you can lost the old config of this platform!"
-        );
-      if (r === true) {
-        this.displayEditPlatform = true;
-        this.itemSelected = item;
-      }
     },
     async editPlatformItem() {
       const rep = await instanceAxios.instanceAxios.put(

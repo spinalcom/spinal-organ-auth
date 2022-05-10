@@ -85,6 +85,14 @@ export interface IUserUpdateParams {
     };
   }[];
 }
+export interface IAuthAdminUpdateParams {
+  userName: string;
+  oldPassword?: string;
+  newPassword?: string;
+  email?: string;
+  telephone?: string;
+  info?: string; // champs libre optionnel
+}
 
 export interface IUserLoginParams {
   userName: string;

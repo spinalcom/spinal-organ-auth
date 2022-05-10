@@ -82,9 +82,9 @@ export class PlatformService {
           name: platformCreationParms.name,
           url: platformCreationParms.url,
           statusPlatform: platformCreationParms.statusPlatform,
-          TokenBosAdmin: this.generateTokenBosAdmin(platformCreationParms.name),
-          TokenAdminBos: platformCreationParms.TokenAdminBos,
-          bosId: platformCreationParms.bosId,
+          // TokenBosAdmin: this.generateTokenBosAdmin(platformCreationParms.name),
+          // TokenAdminBos: platformCreationParms.TokenAdminBos,
+          // bosId: platformCreationParms.bosId,
         };
         const PlatformId = SpinalGraphService.createNode(
           platformObject,
@@ -159,9 +159,9 @@ export class PlatformService {
               name: platform.getName().get(),
               statusPlatform: platform.info.statusPlatform.get(),
               url: platform.info.url.get(),
-              TokenBosAdmin: platform.info.TokenBosAdmin.get(),
-              TokenAdminBos: platform.info.TokenAdminBos.get(),
-              bosId: platform.info.bosId.get(),
+              //   TokenBosAdmin: platform.info.TokenBosAdmin.get(),
+              //   TokenAdminBos: platform.info.TokenAdminBos.get(),
+              //   bosId: platform.info.bosId.get(),
             };
             platformObjectList.push(PlatformObject);
           }
@@ -231,9 +231,9 @@ export class PlatformService {
           type: PLATFORM_TYPE,
           statusPlatform: statusPlatform.online,
           url: process.env.SPINALHUB_URL,
-          TokenBosAdmin: '',
-          TokenAdminBos: '',
-          bosId: '',
+          // TokenBosAdmin: '',
+          // TokenAdminBos: '',
+          // bosId: '',
         };
         const PlatformId = SpinalGraphService.createNode(
           platformObject,

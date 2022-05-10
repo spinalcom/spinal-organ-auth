@@ -63,6 +63,8 @@ import FullScreenMap from '@/pages/Dashboard/Maps/FullScreenMap.vue';
 import VectorMaps from '@/pages/Dashboard/Maps/VectorMaps.vue';
 
 import Platforms from '@/pages/Dashboard/Pages/Platforms.vue';
+import EditPlatform from '@/pages/Dashboard/Pages/EditPlatform.vue';
+
 import Alarmes from '@/pages/Dashboard/Pages/Alarmes.vue';
 // import Sparkline from "@/pages/Dashboard/Pages/Sparklines.vue";
 
@@ -75,6 +77,7 @@ import AddOrgan from '@/pages/Dashboard/Pages/AddOrgan.vue';
 import AddUser from '@/pages/Dashboard/Pages/AddUser.vue';
 import EditUser from '@/pages/Dashboard/Pages/EditUser.vue';
 import PlatformDetail from '@/pages/Dashboard/Pages/PlatformDetail.vue';
+import EditAdminProfile from '@/pages/Dashboard/Pages/EditAdminProfile.vue';
 // Calendar
 import Calendar from '@/pages/Dashboard/Calendar.vue';
 // Charts
@@ -243,21 +246,21 @@ let authPages = {
       name: 'Login',
       component: Login,
     },
-    {
-      path: '/register',
-      name: 'Register',
-      component: Register,
-    },
-    {
-      path: '/pricing',
-      name: 'Pricing',
-      component: Pricing,
-    },
-    {
-      path: '/lock',
-      name: 'Lock',
-      component: Lock,
-    },
+    // {
+    //   path: '/register',
+    //   name: 'Register',
+    //   component: Register,
+    // },
+    // {
+    //   path: '/pricing',
+    //   name: 'Pricing',
+    //   component: Pricing,
+    // },
+    // {
+    //   path: '/lock',
+    //   name: 'Lock',
+    //   component: Lock,
+    // },
   ],
 };
 
@@ -277,45 +280,58 @@ const routes = [
         name: 'Dashboard',
         components: { default: Dashboard },
       },
-      {
-        path: 'alarmes',
-        name: 'Alarmes',
-        components: { default: Alarmes },
-      },
+      // {
+      //   path: 'alarmes',
+      //   name: 'Alarmes',
+      //   components: { default: Alarmes },
+      // },
       {
         path: 'platforms',
         name: 'Platforms',
         components: { default: Platforms },
+        props: true,
+      },
+      {
+        path: 'editPlatform',
+        name: 'EditPlatform',
+        components: { default: EditPlatform },
+        props: true,
       },
       {
         path: 'servers',
         name: 'Servers',
         components: { default: Servers },
+        props: true,
       },
       {
         path: 'users',
         name: 'Users',
         components: { default: Users },
+        props: true,
       },
       {
         path: 'AddOrgan',
         name: 'AddOrgan',
         components: { default: AddOrgan },
+        props: true,
       },
       {
         path: 'PlatformDetail',
         name: 'PlatformDetail',
         components: { default: PlatformDetail },
+        props: true,
       },
       {
         path: 'User',
         name: 'User',
         components: { default: User },
+        props: true,
       },
       {
         path: 'AddUser',
         name: 'AddUser',
         components: { default: AddUser },
+        props: true,
       },
       {
         path: 'EditUser',
@@ -324,14 +340,22 @@ const routes = [
         props: true,
       },
       {
+        path: 'EditAdminProfile',
+        name: 'EditAdminProfile',
+        components: { default: EditAdminProfile },
+        props: true,
+      },
+      {
         path: 'Application',
         name: 'App',
         components: { default: Application },
+        props: true,
       },
       {
         path: 'AddApp',
         name: 'AddApp',
         components: { default: AddApp },
+        props: true,
       },
       {
         path: 'EditApp',

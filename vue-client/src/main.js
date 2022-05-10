@@ -34,6 +34,7 @@
 // =========================================================
 //
 // * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+const TOKEN = 'token';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
@@ -64,7 +65,11 @@ const router = new VueRouter({
   },
   linkExactActiveClass: 'nav-item active',
 });
-
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem(TOKEN);
+  if (to.name !== 'Login' && token === null) next({ name: 'Login' });
+  else next();
+});
 // global library setup
 Vue.prototype.$Chartist = Chartist;
 

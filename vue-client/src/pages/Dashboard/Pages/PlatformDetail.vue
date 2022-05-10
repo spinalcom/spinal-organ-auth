@@ -25,60 +25,65 @@ with this file. If not, see
 <template>
   <div class="md-layout">
     <div class="md-layout-item md-size-95 mt-4 md-small-size-100">
-      <div>
-        <md-list>
-          <md-list-item>
-            <div class="infoBos">
-              <md-icon>location_city</md-icon>
-              <span class="md-list-item-text md-headline itemListBos">{{
-                itemSelected.name
-              }}</span>
-            </div>
-          </md-list-item>
-          <md-list-item>
-            <div class="infoBos">
-              <md-icon>link</md-icon>
-              <span class="md-list-item-text md-headline itemListBos"
-                >{{ itemSelected.url }} fsdfsdfsdf</span
-              >
-            </div>
-          </md-list-item>
-          <md-list-item>
-            <div class="infoBos">
-              <md-icon>token</md-icon>
-              <div>
-                <md-dialog :md-active.sync="showToken">
-                  <md-tab md-label="General">
-                    <p>{{ itemSelected.TokenBosAdmin }}</p>
-                  </md-tab>
-                  <md-dialog-actions>
-                    <md-button class="md-primary" @click="showToken = false"
-                      >Close</md-button
-                    >
-                  </md-dialog-actions>
-                </md-dialog>
-                <md-button class="md-raised" @click="showToken = true"
-                  >Show Token</md-button
-                >
-              </div>
-            </div>
-          </md-list-item>
-          <md-divider class="md-inset"></md-divider>
-        </md-list>
+      <!-- ************************************************************* -->
+      <div class="infoBos">
+        <div class="md-layout-item md-size-33 md-medium-size-100">
+          <tabs
+            :tab-name="['BOS Name', 'URL', 'address']"
+            flex-row
+            color-button="success"
+          >
+            <h4 class="title" slot="header-title">
+              Bos Information - <small class="description">Auth Admin</small>
+            </h4>
+
+            <!-- here you can add your content for tab-content -->
+            <template slot="tab-pane-1">
+              <p><md-icon>location_city</md-icon> {{ itemSelected.name }}</p>
+            </template>
+            <template slot="tab-pane-2">
+              <p><md-icon>link</md-icon> {{ itemSelected.url }}</p>
+            </template>
+            <template slot="tab-pane-3">
+              <p><md-icon>location_on</md-icon>{{ itemSelected.url }}</p>
+            </template>
+          </tabs>
+        </div>
+
+        <div class="md-layout-item md-size-33 md-medium-size-100">
+          <tabs :tab-name="['Status', 'Token']" flex-row color-button="success">
+            <h4 class="title" slot="header-title">Bos State</h4>
+
+            <!-- here you can add your content for tab-content -->
+            <template slot="tab-pane-1">
+              <p>
+                <md-icon>timeline</md-icon> {{ itemSelected.statusPlatform }}
+              </p>
+            </template>
+            <template slot="tab-pane-2">
+              <p class="overflow-ellipsis">
+                <md-icon>token</md-icon>
+                {{ itemSelected.TokenBosAdmin }}
+              </p>
+            </template>
+          </tabs>
+        </div>
+        <div class="md-layout-item md-size-33 md-medium-size-100">
+          <div class="buttonsPlatform">
+            <md-button class="md-warning" @click="displayEdit()"
+              >Update Token</md-button
+            >
+            <md-button class="md-warning" @click="displayEdit()"
+              >Edit Platform</md-button
+            >
+            <md-button class="md-warning" @click="deletePlatformItem()"
+              >Delete Platform</md-button
+            >
+          </div>
+        </div>
       </div>
-      <div>
-        <md-list>
-          <md-list-item>
-            <div class="infoBos">
-              <md-icon>location_city</md-icon>
-              <span class="md-list-item-text itemListBos">{{
-                itemSelected.statusPlatform
-              }}</span>
-            </div>
-          </md-list-item>
-          <md-divider class="md-inset"></md-divider>
-        </md-list>
-      </div>
+
+      <!-- ****************************************************************************** -->
       <md-card>
         <md-card-header class="md-card-header-icon md-card-header-green">
           <div class="card-icon">
@@ -202,6 +207,8 @@ with this file. If not, see
 <script>
 const instanceAxios = require("../../../services/axiosConfig");
 import Multiselect from "vue-multiselect";
+import { Tabs } from "@/components";
+
 import { validationMixin } from "vuelidate";
 import EventBus from "../../../EventBus";
 import {
@@ -214,7 +221,7 @@ import {
 export default {
   name: "PlatformDetail",
   mixins: [validationMixin],
-  components: {},
+  components: { Tabs },
   props: {
     itemSelected: null
   },
@@ -337,6 +344,38 @@ export default {
       }
       console.log(apps);
       this.appListLinkPlatform = apps;
+    },
+    displayEdit(ask = true) {
+      let r = true;
+      if (ask)
+        r = confirm(
+          "Are you sure you want to update the platform, you can lost the old config of this platform!"
+        );
+      if (r === true) {
+        EventBus.$emit("EDIT_PLATFORM", this.itemSelected);
+        this.$router.push({
+          path: "/editPlatform"
+        });
+      }
+    },
+    async deletePlatformItem(ask = true) {
+      let r = true;
+      if (ask)
+        r = confirm(
+          "Are you sure you want to delete the platform, you can lost all config of this platform!"
+        );
+      if (r === true) {
+        await instanceAxios.instanceAxios.delete(
+          `/platforms/${this.itemSelected.id}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token": this.token
+            }
+          }
+        );
+        this.$router.go();
+      }
     }
   },
   mounted() {
@@ -365,5 +404,19 @@ export default {
   display: inline-block;
   vertical-align: top;
   border: 1px solid rgba(#000, 0.12);
+}
+
+.overflow-ellipsis {
+  width: 400px;
+  padding: 2px 5px;
+  /* Les deux règles suivantes sont nécessaires pour text-overflow */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.buttonsPlatform {
+  display: flex;
+  flex-direction: column;
+  float: right;
 }
 </style>

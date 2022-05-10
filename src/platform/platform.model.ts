@@ -31,9 +31,9 @@ export interface IPlatform {
   type: string;
   statusPlatform: statusPlatform;
   url: string;
-  TokenBosAdmin: string;
-  TokenAdminBos: string;
-  bosId: string;
+  TokenBosAdmin?: string;
+  TokenAdminBos?: string;
+  bosId?: string;
 }
 
 export interface IPlateformCreationParams {
@@ -41,9 +41,9 @@ export interface IPlateformCreationParams {
   type?: string;
   url: string;
   statusPlatform?: statusPlatform;
-  TokenBosAdmin?: string;
-  TokenAdminBos: string;
-  bosId: string;
+  // TokenBosAdmin?: string;
+  // TokenAdminBos?: string;
+  // bosId?: string;
 }
 
 export interface IPlatformUpdateParams {

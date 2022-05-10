@@ -40,6 +40,7 @@ import {
   IUserCreationParams,
   IUserUpdateParams,
   IUserLoginParams,
+  IAuthAdminUpdateParams,
 } from './user.model';
 import { UserService } from './userService';
 import { expressAuthentication } from './authentication';
@@ -86,6 +87,14 @@ export class UsersController extends Controller {
     @Body() requestBody: IUserUpdateParams
   ): Promise<IUser> {
     return new UserService().updateUser(userId, requestBody);
+  }
+
+  @Security('jwt')
+  @Put()
+  public async updateAuthAdmin(
+    @Body() requestBody: IAuthAdminUpdateParams
+  ): Promise<IUser> {
+    return new UserService().updateAuthAdmin(requestBody);
   }
 
   @Security('jwt')

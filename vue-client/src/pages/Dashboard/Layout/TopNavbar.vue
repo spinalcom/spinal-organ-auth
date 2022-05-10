@@ -44,32 +44,6 @@ with this file. If not, see
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </md-button>
-
-        <div class="md-collapse">
-          <md-menu md-size="medium" :md-offset-x="-170" :md-offset-y="-40">
-            <md-button md-menu-trigger
-              ><i class="material-icons">person</i></md-button
-            >
-            <md-menu-content>
-              <md-menu-item @click="EditProfileAdmin">
-                <div class="itemProfile">
-                  <i class="material-icons">person</i>
-                  <p>Edit Admin Profile</p>
-                </div></md-menu-item
-              >
-              <md-menu-item @click="logout"
-                ><div class="itemProfile">
-                  <i class="material-icons">logout</i>
-                  <p>Logout</p>
-                </div></md-menu-item
-              >
-            </md-menu-content>
-          </md-menu>
-          <!-- <md-list-item @click="logout">
-            <i class="material-icons">person</i>
-            <p class="hidden-lg hidden-md">Profile</p>
-          </md-list-item> -->
-        </div>
       </div>
     </div>
   </md-toolbar>

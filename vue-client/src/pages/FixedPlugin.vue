@@ -30,12 +30,18 @@ with this file. If not, see
       </a>
       <ul class="dropdown-menu" :class="{ show: isOpen }">
         <li class="header-title">Config Admin</li>
-        <li class="adjustments-line text-center">
-          <div class="itemProfile">
-            <i class="material-icons">person</i>
-            <p>Edit Admin Profile</p>
-          </div>
+        <li class="adjustments-line sidebar-mini">
+          <md-button
+            class="md-fab-top-center md-fab-bottom-center md-fab-bottom-left"
+            @click="EditProfileAdmin"
+          >
+            <i class="material-icons">person</i> Edit Admin
+          </md-button>
+          <md-button class="md-fixed" @click="logout">
+            <i class="material-icons">logout</i> logout
+          </md-button>
         </li>
+
         <li class="header-title">Sidebar Filters</li>
 
         <li class="adjustments-line text-center">
@@ -99,27 +105,19 @@ export default {
   },
   data() {
     return {
-      documentationLink:
-        "https://demos.creative-tim.com/vue-material-dashboard-pro/documentation",
-      shareUrl:
-        "https://www.creative-tim.com/product/vue-material-dashboard-pro",
-      buyUrl: "",
-      proUrl: "https://www.creative-tim.com/product/vue-material-dashboard-pro",
-      freeUrl: "https://www.creative-tim.com/product/vue-material-dashboard",
       isOpen: false,
       backgroundImage: "./img/sidebar-2.jpg",
       sidebarColors: [
-        { color: "purple", active: false },
-        { color: "azure", active: false },
+        // { color: "purple", active: false },
+        // { color: "azure", active: false },
         { color: "green", active: true },
         { color: "orange", active: false },
-        { color: "rose", active: false },
+        // { color: "rose", active: false },
         { color: "danger", active: false }
       ],
       sidebarBg: [
         { colorBg: "black", active: true },
-        { colorBg: "white", active: false },
-        { colorBg: "red", active: false }
+        { colorBg: "white", active: false }
       ],
       sidebarImages: [
         { image: "./img/sidebar-1.jpg", active: false },
@@ -170,6 +168,13 @@ export default {
       }
       this.backgroundImage = item.image;
       this.toggleList(this.sidebarImages, item);
+    },
+    logout() {
+      localStorage.removeItem("token");
+      this.$router.push("/Login");
+    },
+    EditProfileAdmin() {
+      this.$router.push("/EditAdminProfile");
     }
   }
 };
@@ -189,8 +194,22 @@ export default {
   display: flex;
   justify-content: center;
 }
-.itemProfile {
+/* .itemProfile {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+} */
+.btn {
+  background-color: rgb(199, 97, 15);
+  border: none;
+  color: white;
+  padding: 12px 16px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Darker background on mouse-over */
+.btn:hover {
+  background-color: rgb(225, 161, 65);
 }
 </style>
