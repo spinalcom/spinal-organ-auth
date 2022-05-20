@@ -25,13 +25,21 @@ with this file. If not, see
   <div class="md-layout">
     <div class="md-layout-item md-size-95 mt-4 md-small-size-100">
       <!-- ********************************************************* -->
-      <div class="infoApp">
+      <div class="infoUser">
         <div class="md-layout-item md-size-80 md-medium-size-100">
           <tabs
-            :tab-name="['Application Name', 'Client Id', 'Secret Id']"
+            :tab-name="[
+              'User Name',
+              'User Id',
+              'email',
+              'type',
+              'telephone',
+              'info',
+            ]"
             color-button="success"
           >
-            <h4 class="title" slot="header-title">hhh</h4>
+            <h4 class="title" slot="header-title">User Information</h4>
+
             <!-- here you can add your content for tab-content -->
             <template slot="tab-pane-1">
               <p><md-icon>location_city</md-icon> item.name</p>
@@ -42,6 +50,15 @@ with this file. If not, see
             <template slot="tab-pane-3">
               <p><md-icon>location_city</md-icon> item.name</p>
             </template>
+            <template slot="tab-pane-4">
+              <p><md-icon>location_city</md-icon> item.name</p>
+            </template>
+            <template slot="tab-pane-5">
+              <p><md-icon>location_city</md-icon> item.name</p>
+            </template>
+            <template slot="tab-pane-6">
+              <p><md-icon>location_city</md-icon> item.name</p>
+            </template>
           </tabs>
         </div>
         <div class="md-layout-item md-size-20 md-medium-size-100">
@@ -49,11 +66,11 @@ with this file. If not, see
             <md-button class="md-warning" @click="AddPltaform()"
               >Add Platform</md-button
             >
-            <md-button class="md-warning" @click="displayEditApp()"
-              >Edit Application</md-button
+            <md-button class="md-warning" @click="displayEditUser()"
+              >Edit User</md-button
             >
-            <md-button class="md-warning" @click="deleteApp()"
-              >Delete Application</md-button
+            <md-button class="md-warning" @click="deleteUser()"
+              >Delete User</md-button
             >
           </div>
         </div>
@@ -66,7 +83,7 @@ with this file. If not, see
             <div class="card-icon">
               <md-icon>backup_table</md-icon>
             </div>
-            <h4 class="title">Backup Platform Application Table</h4>
+            <h4 class="title">Backup Platform User Table</h4>
           </md-card-header>
           <md-card-content>
             <md-table v-model="platformObjectList">
@@ -86,19 +103,20 @@ import { Tabs } from "@/components";
 
 export default {
   components: { Tabs },
-  name: "DetailApp",
+  name: "DetailUser",
   props: ["id"],
   data() {
     return {
       token: null,
       item: null,
+      user: null,
       platformObjectList: []
     };
   },
   methods: {
     AddPltaform() {},
-    displayEditApp() {},
-    deleteApp() {},
+    displayEditUser() {},
+    deleteUser() {},
     async getplatform(platformId) {
       const rep = await instanceAxios.instanceAxios.get(
         `/platforms/${platformId}`,
@@ -116,9 +134,9 @@ export default {
         const _platform = await this.getplatform(platform.id);
         let infoPlatform = {
           _platform: _platform,
-          appProfile: {
-            name: platform.appProfile.name,
-            appProfileId: platform.appProfile.appProfileId
+          userProfile: {
+            name: platform.userProfile.name,
+            userProfileId: platform.userProfile.userProfileId
           }
         };
         this.platformObjectList.push(infoPlatform);
@@ -128,7 +146,7 @@ export default {
   },
   async mounted() {
     this.token = localStorage.getItem("token");
-    console.log("*********", this.id);
+    console.log("*********", this.$route.query.id);
 
     // var aux = EventBus.$on("DETAIL_USER", function(item) {
     //   console.log(item);
@@ -146,7 +164,7 @@ export default {
 </script>
 
 <style>
-.infoApp {
+.infoUser {
   display: flex;
   flex-direction: row;
 }
@@ -164,3 +182,5 @@ export default {
   float: right;
 }
 </style>
+
+

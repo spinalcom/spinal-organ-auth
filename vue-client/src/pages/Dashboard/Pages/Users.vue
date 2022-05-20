@@ -47,12 +47,15 @@ with this file. If not, see
                     class="md-double-line"
                   >
                     <md-list-item>
-                      <span class="md-list-item-text">{{
-                        showState(platform)
-                      }}</span>
+                      <PlatformObjectUser
+                        class="md-list-item-text"
+                        :user="item"
+                        :platformId="platform.platformId"
+                        :token="token"
+                      ></PlatformObjectUser>
                     </md-list-item>
-                  </md-list></md-table-cell
-                >
+                  </md-list>
+                </md-table-cell>
                 <md-table-cell md-label="Detail">
                   <md-button class="md-just-icon" @click="displayDetail(item)"
                     ><md-icon>arrow_forward</md-icon></md-button
@@ -75,9 +78,10 @@ with this file. If not, see
 const instanceAxios = require("../../../services/axiosConfig");
 import { validationMixin } from "vuelidate";
 import EventBus from "../../../EventBus";
+import PlatformObjectUser from "./PlatformObjectUser.vue";
 export default {
   mixins: [validationMixin],
-  components: {},
+  components: { PlatformObjectUser },
   data: () => ({
     token: "",
     value: null,
@@ -88,27 +92,13 @@ export default {
 
   computed: {},
   methods: {
-    async showState(platform) {
-      const rep = await instanceAxios.instanceAxios.get(
-        `/platforms/${platform.platformId}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "x-access-token": this.token
-          }
-        }
-      );
-      if (platform.userProfile) {
-        return platform.platformId + ":" + platform.userProfile.name;
-      } else return "hello";
-    },
     displayEdit(item) {
       EventBus.$emit("EDIT_USER", item);
       this.$router.push({ name: "EditUser", params: { id: item.id } });
     },
     displayDetail(item) {
-      EventBus.$emit("EDIT_USER", item);
-      this.$router.push({ name: "EditUser", params: { id: item.id } });
+      EventBus.$emit("DETAIL_USER", item);
+      this.$router.push({ name: "DetailUser", query: { id: item.id } });
     },
     displayAdd() {
       this.$router.push("/AddUser");

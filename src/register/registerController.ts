@@ -66,3 +66,32 @@ export class RegisterController extends Controller {
     return platform;
   }
 }
+
+// {
+//   "URLBos":"https://api-dev-test-bos-etage26.spinalcom.com",//mon url bos pour verifier
+//   "TokenBosAdmin": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwbGF0Zm9ybU5hbWUiOiJib3MgMiB0ZXN0IGhnamhnamhoIiwiaWF0IjoxNjUyMzU2NjkyLCJleHAiOjE2NTI0NDMwOTJ9.KcP1fNxhZgc-8F1TdO_-jr0wn8PqAtv5Fvsuc7vhnX0",
+//   "TokenAdminBos": "admin to bos communication token provided by BOS CONFIG",
+//   "platformId": "SpinalNode-99483992-372a-c952-2ee4-9d2d8935696a-180b811be52",
+//   "idPlatformOfAdmin":"the id of a registered platform provided by the BIOS CONFIG",
+//   "jsonData": {
+//   "userProfileList": [
+//     { "userProfileId": "12368645", "label": "profile11111" },
+//     { "userProfileId": "00765001", "label": "profile22222" },
+//     { "userProfileId": "86468855", "label": "profile33333" }
+//   ],
+//   "appProfileList": [
+//     { "appProfileId": "4776565588", "label": "appProfile11111" },
+//     { "appProfileId": "087JHGJG55", "label": "appProfile22222" },
+//     { "appProfileId": "1234JJJJ57", "label": "appProfile33333" }
+//   ],
+//   "organList": [
+//     { "label": "dump manager", "type": "utilities" },
+//     { "label": "Forge connector", "type": "connector" },
+//     { "label": "bacnetIP connector", "type": "connector" },
+//     { "label": "Analytics", "type": "analytics" },
+//     { "label": "Export analytics", "type": "analytics" },
+//     { "label": "Mission", "type": "connector" },
+//     { "label": "API & APP serveur", "type": "graph api" }
+//   ]
+//   }
+// }

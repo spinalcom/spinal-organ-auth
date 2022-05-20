@@ -430,8 +430,6 @@ export class UserService {
         for (const user of users) {
           if (user.getId().get() === userId) {
             await user.removeFromGraph();
-          } else {
-            throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
           }
         }
       }

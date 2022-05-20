@@ -76,6 +76,8 @@ import EditApp from '@/pages/Dashboard/Pages/EditApp.vue';
 import AddOrgan from '@/pages/Dashboard/Pages/AddOrgan.vue';
 import AddUser from '@/pages/Dashboard/Pages/AddUser.vue';
 import EditUser from '@/pages/Dashboard/Pages/EditUser.vue';
+import DetailUser from '@/pages/Dashboard/Pages/DetailUser.vue';
+import DetailApp from '@/pages/Dashboard/Pages/DetailApp.vue';
 import PlatformDetail from '@/pages/Dashboard/Pages/PlatformDetail.vue';
 import EditAdminProfile from '@/pages/Dashboard/Pages/EditAdminProfile.vue';
 // Calendar
@@ -340,6 +342,12 @@ const routes = [
         props: true,
       },
       {
+        path: 'DetailUser',
+        name: 'DetailUser',
+        components: { default: DetailUser },
+        props: true,
+      },
+      {
         path: 'EditAdminProfile',
         name: 'EditAdminProfile',
         components: { default: EditAdminProfile },
@@ -355,6 +363,12 @@ const routes = [
         path: 'AddApp',
         name: 'AddApp',
         components: { default: AddApp },
+        props: true,
+      },
+      {
+        path: 'DetailApp',
+        name: 'DetailApp',
+        components: { default: DetailUser },
         props: true,
       },
       {

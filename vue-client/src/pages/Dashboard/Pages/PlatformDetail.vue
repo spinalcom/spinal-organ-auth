@@ -63,14 +63,14 @@ with this file. If not, see
             <template slot="tab-pane-2">
               <p class="overflow-ellipsis">
                 <md-icon>token</md-icon>
-                {{ itemSelected.TokenBosAdmin }}
+                {{ itemSelected.TokenBosAdmin }} 345GSD4UNJ09°M//m:prjfno...
               </p>
             </template>
           </tabs>
         </div>
         <div class="md-layout-item md-size-33 md-medium-size-100">
           <div class="buttonsPlatform">
-            <md-button class="md-warning" @click="displayEdit()"
+            <md-button class="md-warning" @click="displayEditToken()"
               >Update Token</md-button
             >
             <md-button class="md-warning" @click="displayEdit()"
@@ -358,6 +358,14 @@ export default {
         });
       }
     },
+    displayEditToken(ask = true) {
+      let r = true;
+      if (ask) r = confirm("Are you sure you want to update the Token,");
+      if (r === true) {
+        console.log("hello token");
+      }
+    },
+
     async deletePlatformItem(ask = true) {
       let r = true;
       if (ask)

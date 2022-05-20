@@ -77,7 +77,7 @@ export default {
     setBgImage() {
       let images = {
         Pricing: "./img/bg-pricing.jpg",
-        Login: "./img/login.jpg",
+        Login: "./img/spinalcom.jpg",
         Register: "./img/register.jpg",
         Lock: "./img/lock.jpg"
       };

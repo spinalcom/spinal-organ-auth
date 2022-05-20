@@ -131,7 +131,7 @@ export default {
     },
     logo: {
       type: String,
-      default: "./img/logo2.png"
+      default: "./img/apple-icon.png"
     },
     sidebarLinks: {
       type: Array,
