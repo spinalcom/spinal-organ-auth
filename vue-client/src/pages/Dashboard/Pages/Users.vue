@@ -61,11 +61,6 @@ with this file. If not, see
                     ><md-icon>arrow_forward</md-icon></md-button
                   >
                 </md-table-cell>
-                <md-table-cell md-label="Edit">
-                  <md-button class="md-just-icon" @click="displayEdit(item)"
-                    ><md-icon>edit</md-icon></md-button
-                  >
-                </md-table-cell>
               </md-table-row>
             </md-table>
           </md-card-content>
@@ -82,6 +77,7 @@ import PlatformObjectUser from "./PlatformObjectUser.vue";
 export default {
   mixins: [validationMixin],
   components: { PlatformObjectUser },
+  name: "Users",
   data: () => ({
     token: "",
     value: null,
@@ -92,12 +88,7 @@ export default {
 
   computed: {},
   methods: {
-    displayEdit(item) {
-      EventBus.$emit("EDIT_USER", item);
-      this.$router.push({ name: "EditUser", params: { id: item.id } });
-    },
     displayDetail(item) {
-      EventBus.$emit("DETAIL_USER", item);
       this.$router.push({ name: "DetailUser", query: { id: item.id } });
     },
     displayAdd() {

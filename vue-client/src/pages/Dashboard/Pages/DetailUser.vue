@@ -42,22 +42,24 @@ with this file. If not, see
 
             <!-- here you can add your content for tab-content -->
             <template slot="tab-pane-1">
-              <p><md-icon>location_city</md-icon> item.name</p>
+              <p><md-icon>person</md-icon> {{ user.name }}</p>
             </template>
             <template slot="tab-pane-2">
-              <p><md-icon>link</md-icon> item.url</p>
+              <p><md-icon>link</md-icon> {{ user.id }}</p>
             </template>
             <template slot="tab-pane-3">
-              <p><md-icon>location_city</md-icon> item.name</p>
+              <p><md-icon>alternate_email</md-icon> {{ user.email }}</p>
             </template>
             <template slot="tab-pane-4">
-              <p><md-icon>location_city</md-icon> item.name</p>
+              <p>
+                <md-icon>supervised_user_circle</md-icon> {{ user.userType }}
+              </p>
             </template>
             <template slot="tab-pane-5">
-              <p><md-icon>location_city</md-icon> item.name</p>
+              <p><md-icon>call</md-icon>{{ user.telephone }}</p>
             </template>
             <template slot="tab-pane-6">
-              <p><md-icon>location_city</md-icon> item.name</p>
+              <p><md-icon>info</md-icon> {{ user.info }}</p>
             </template>
           </tabs>
         </div>
@@ -88,7 +90,15 @@ with this file. If not, see
           <md-card-content>
             <md-table v-model="platformObjectList">
               <md-table-row slot="md-table-row" slot-scope="{ item }">
-                <md-table-cell md-label="Name">{{ item.name }}</md-table-cell>
+                <md-table-cell md-label="Platform Name">{{
+                  item._platform.name
+                }}</md-table-cell>
+                <md-table-cell md-label="Access">{{
+                  item._platform.statusPlatform
+                }}</md-table-cell>
+                <md-table-cell md-label="Access">{{
+                  item.userProfile.name
+                }}</md-table-cell>
               </md-table-row>
             </md-table>
           </md-card-content>
@@ -98,7 +108,7 @@ with this file. If not, see
   </div>
 </template>
 <script>
-import EventBus from "../../../EventBus";
+const instanceAxios = require("../../../services/axiosConfig");
 import { Tabs } from "@/components";
 
 export default {
@@ -108,15 +118,42 @@ export default {
   data() {
     return {
       token: null,
-      item: null,
       user: null,
       platformObjectList: []
     };
   },
   methods: {
-    AddPltaform() {},
-    displayEditUser() {},
-    deleteUser() {},
+    AddPltaform() {
+      var CronJob = require("cron").CronJob;
+      var job = new CronJob(
+        "* * * * * *",
+        function() {
+          console.log("You will see this message every second");
+        },
+        null,
+        true,
+        "America/Los_Angeles"
+      );
+    },
+    displayEditUser() {
+      this.$router.push({ name: "EditUser", query: { id: this.user.id } });
+    },
+    async deleteUser(ask = true) {
+      let r = true;
+      if (ask)
+        r = confirm(
+          "Are you sure you want to delete the User, you can lost all config of this user!"
+        );
+      if (r === true) {
+        await instanceAxios.instanceAxios.delete(`/users/${this.user.id}`, {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        });
+        this.$router.push({ name: "Users", params: { id: this.user.id } });
+      }
+    },
     async getplatform(platformId) {
       const rep = await instanceAxios.instanceAxios.get(
         `/platforms/${platformId}`,
@@ -129,9 +166,9 @@ export default {
       );
       return rep.data;
     },
-    async getplatforms() {
-      for (const platform of this.item.platformList) {
-        const _platform = await this.getplatform(platform.id);
+    async getplatforms(_user) {
+      for (const platform of _user.platformList) {
+        const _platform = await this.getplatform(platform.platformId);
         let infoPlatform = {
           _platform: _platform,
           userProfile: {
@@ -141,24 +178,24 @@ export default {
         };
         this.platformObjectList.push(infoPlatform);
       }
+      console.log("hihihihihihih", this.platformObjectList);
       return this.platformObjectList;
+    },
+    async getUser(userId) {
+      const rep = await instanceAxios.instanceAxios.get(`/users/${userId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": this.token
+        }
+      });
+      this.user = rep.data;
+      return rep.data;
     }
   },
   async mounted() {
     this.token = localStorage.getItem("token");
-    console.log("*********", this.$route.query.id);
-
-    // var aux = EventBus.$on("DETAIL_USER", function(item) {
-    //   console.log(item);
-    //   this.item = item;
-    //   return item;
-    // });
-    // console.log(aux.item);
-    // this.item.aux.item;
-    // console.log(this.item);
-
-    // await this.getplatforms();
-    // console.log("ggg", this.platformObjectList);
+    var rep = await this.getUser(this.$route.query.id);
+    await this.getplatforms(rep);
   }
 };
 </script>

@@ -24,36 +24,66 @@ with this file. If not, see
 <template>
   <div class="md-layout">
     <div class="md-layout-item md-size-95 mt-4 md-small-size-100">
-      <div class="buttonAdd">
-        <md-button class="md-warning" @click="AddPltaform()"
-          >Add Platform</md-button
-        >
-        <md-button class="md-warning" @click="displayEditUser()"
-          >Edit User</md-button
-        >
+      <div class="infoApp">
+        <div class="md-layout-item md-size-80 md-medium-size-100">
+          <tabs
+            :tab-name="['App Name', 'App Id', 'Client Id', 'Secret Id', 'type']"
+            color-button="success"
+          >
+            <h4 class="title" slot="header-title">Application Information</h4>
+
+            <template slot="tab-pane-1">
+              <p><md-icon>app_settings_alt</md-icon> {{ app.name }}</p>
+            </template>
+            <template slot="tab-pane-2">
+              <p><md-icon>link</md-icon> {{ app.id }}</p>
+            </template>
+            <template slot="tab-pane-3">
+              <p><md-icon>vpn_key_off</md-icon> {{ app.clientId }}</p>
+            </template>
+            <template slot="tab-pane-4">
+              <p><md-icon>vpn_key_off</md-icon> {{ app.clientSecret }}</p>
+            </template>
+            <template slot="tab-pane-5">
+              <p><md-icon>inventory</md-icon>{{ app.appType }}</p>
+            </template>
+          </tabs>
+        </div>
+        <div class="md-layout-item md-size-20 md-medium-size-100">
+          <div class="buttonsPlatform">
+            <md-button class="md-warning" @click="AddPltaform()"
+              >Add Platform</md-button
+            >
+            <md-button class="md-warning" @click="displayEditApp()"
+              >Edit Application</md-button
+            >
+            <md-button class="md-warning" @click="deleteApp()"
+              >Delete Application</md-button
+            >
+          </div>
+        </div>
       </div>
+
       <div class="md-layout-item md-size-100">
         <md-card>
           <md-card-header class="md-card-header-icon md-card-header-green">
             <div class="card-icon">
               <md-icon>backup_table</md-icon>
             </div>
-            <h4 class="title">Backup Platform User Table</h4>
+            <h4 class="title">Backup Platform Application Table</h4>
           </md-card-header>
           <md-card-content>
-            <md-table v-model="user.platformList">
+            <md-table v-model="platformObjectList">
               <md-table-row slot="md-table-row" slot-scope="{ item }">
-                <md-table-cell md-label="Name">{{ item.name }}</md-table-cell>
-                <md-table-cell md-label="Detail">
-                  <md-button class="md-just-icon" @click="displayDetail(item)"
-                    ><md-icon>arrow_forward</md-icon></md-button
-                  >
-                </md-table-cell>
-                <md-table-cell md-label="Edit">
-                  <md-button class="md-just-icon" @click="displayEdit(item)"
-                    ><md-icon>edit</md-icon></md-button
-                  >
-                </md-table-cell>
+                <md-table-cell md-label="Platform Name">{{
+                  item._platform.name
+                }}</md-table-cell>
+                <md-table-cell md-label="Access">{{
+                  item._platform.statusPlatform
+                }}</md-table-cell>
+                <md-table-cell md-label="Access">{{
+                  item.appProfile.name
+                }}</md-table-cell>
               </md-table-row>
             </md-table>
           </md-card-content>
@@ -64,19 +94,46 @@ with this file. If not, see
 </template>
 
 <script>
-import EventBus from "../../../EventBus";
+const instanceAxios = require("../../../services/axiosConfig");
+import { Tabs } from "@/components";
 
 export default {
+  components: { Tabs },
+  name: "DetailApp",
   data() {
     return {
       token: null,
-      item: null,
+      app: null,
       platformObjectList: []
     };
   },
   methods: {
     AddPltaform() {},
-    displayEditUser() {},
+    displayEditApp() {
+      this.$router.push({ name: "EditApp", query: { id: this.app.id } });
+    },
+    async deleteApp(ask = true) {
+      let r = true;
+      if (ask)
+        r = confirm(
+          "Are you sure you want to delete the Application, you can lost all config of this Application!"
+        );
+      if (r === true) {
+        await instanceAxios.instanceAxios.delete(
+          `/applications/${this.app.id}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token": this.token
+            }
+          }
+        );
+        this.$router.push({
+          name: "Application",
+          params: { id: this.app.id }
+        });
+      }
+    },
     async getplatform(platformId) {
       const rep = await instanceAxios.instanceAxios.get(
         `/platforms/${platformId}`,
@@ -89,30 +146,59 @@ export default {
       );
       return rep.data;
     },
-    async getplatforms() {
-      for (const platform of this.user.platformList) {
-        const _platform = await this.getplatform(platform.id);
+    async getplatforms(_app) {
+      for (const platform of _app.platformList) {
+        const _platform = await this.getplatform(platform.platformId);
         let infoPlatform = {
           _platform: _platform,
-          userProfile: {
-            name: platform.userProfile.name,
-            userProfileId: platform.userProfile.userProfileId
+          appProfile: {
+            name: platform.appProfile.name,
+            appProfileId: platform.appProfile.appProfileId
           }
         };
-        this.platformObjectList.push();
+        this.platformObjectList.push(infoPlatform);
       }
       return this.platformObjectList;
+    },
+    async getApp(appId) {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/applications/${appId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      this.app = rep.data;
+      return rep.data;
     }
   },
-  mounted() {
+  async mounted() {
     this.token = localStorage.getItem("token");
-    var aux = EventBus.$on("DETAIL_APP", function(item) {
-      this.item = item;
-    });
-    this.user = aux.item;
+    var rep = await this.getApp(this.$route.query.id);
+    console.log("kikikkikik", rep);
+    await this.getplatforms(rep);
   }
 };
 </script>
 
 <style>
+.infoApp {
+  display: flex;
+  flex-direction: row;
+}
+.overflow-ellipsis {
+  width: 400px;
+  padding: 2px 5px;
+  /* Les deux règles suivantes sont nécessaires pour text-overflow */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.buttonsPlatform {
+  display: flex;
+  flex-direction: column;
+  float: right;
+}
 </style>

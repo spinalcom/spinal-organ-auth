@@ -306,7 +306,7 @@ const routes = [
         props: true,
       },
       {
-        path: 'users',
+        path: 'Users',
         name: 'Users',
         components: { default: Users },
         props: true,
@@ -323,12 +323,12 @@ const routes = [
         components: { default: PlatformDetail },
         props: true,
       },
-      {
-        path: 'User',
-        name: 'User',
-        components: { default: User },
-        props: true,
-      },
+      // {
+      //   path: 'User',
+      //   name: 'User',
+      //   components: { default: User },
+      //   props: true,
+      // },
       {
         path: 'AddUser',
         name: 'AddUser',
@@ -355,7 +355,7 @@ const routes = [
       },
       {
         path: 'Application',
-        name: 'App',
+        name: 'Application',
         components: { default: Application },
         props: true,
       },
@@ -368,7 +368,7 @@ const routes = [
       {
         path: 'DetailApp',
         name: 'DetailApp',
-        components: { default: DetailUser },
+        components: { default: DetailApp },
         props: true,
       },
       {

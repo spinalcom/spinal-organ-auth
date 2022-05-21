@@ -452,20 +452,7 @@ export default {
         this.editUser();
       }
     },
-    async saveOrgan() {
-      this.sending = true;
 
-      if (rep !== undefined) {
-        EventBus.$emit("reloadOrganList");
-        window.setTimeout(() => {
-          this.lastOrgan = `${this.formOrgan.organName}`;
-          this.organSaved = true;
-          this.sending = false;
-          this.clearForm();
-        }, 1500);
-      }
-      // Instead of this timeout, here you can call your API
-    },
     validateOrgan() {
       this.$v.$touch();
 
@@ -495,20 +482,26 @@ export default {
         }
       });
       this.platformList = rep.data;
+    },
+    async getUser(userId) {
+      const rep = await instanceAxios.instanceAxios.get(`/users/${userId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": this.token
+        }
+      });
+      this.user = rep.data;
+      return rep.data;
     }
   },
-  mounted() {
+  async mounted() {
     this.token = localStorage.getItem("token");
-    this.getUserProfileList();
-    this.getplatformList();
-    this.getRoles();
-
-    var aux = EventBus.$on("EDIT_USER", function(item) {
-      this.platformObjectList = item.platformList;
-      this.userSelected = item.id;
-    });
-    this.platformObjectList = aux.platformObjectList;
-    this.userSelected = aux.userSelected;
+    this.userSelected = this.$route.query.id;
+    var user = await this.getUser(this.$route.query.id);
+    this.platformObjectList = user.platformList;
+    await this.getUserProfileList(user.id);
+    await this.getplatformList();
+    await this.getRoles();
   },
   watch: {
     "formPlatformObject.platform": function(value) {
