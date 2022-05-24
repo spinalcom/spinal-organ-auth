@@ -60,4 +60,14 @@ export class TokensController extends Controller {
     this.setStatus(201); // set return status 201
     return new TokensService().getApplicationTokens();
   }
+
+  @Security('jwt')
+  @Post('/getUserProfileByToken')
+  public async getUserProfileByToken(@Body() requestBody: any): Promise<any> {
+    this.setStatus(201); // set return status 201
+    return new TokensService().getUserProfileByToken(
+      requestBody.token,
+      requestBody.platformId
+    );
+  }
 }

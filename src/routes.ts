@@ -158,7 +158,7 @@ const models: TsoaRoute.Models = {
             "expieredToken": {"dataType":"double"},
             "userId": {"dataType":"string"},
             "userType": {"dataType":"string","required":true},
-            "userProfileList": {"dataType":"array","array":{"dataType":"string"}},
+            "userProfile": {"dataType":"string"},
             "serverId": {"dataType":"string"},
             "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}},"required":true},"platformId":{"dataType":"string","required":true}}}},
         },
@@ -1129,6 +1129,30 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.getApplicationTokens.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/tokens/getUserProfileByToken',
+            authenticateMiddleware([{"jwt":[]}]),
+
+            function TokensController_getUserProfileByToken(request: any, response: any, next: any) {
+            const args = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new TokensController();
+
+
+              const promise = controller.getUserProfileByToken.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

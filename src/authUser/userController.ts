@@ -121,15 +121,6 @@ export class UsersController extends Controller {
   }
 
   // @Security("jwt")
-  // @Get("/getUserProfileByToken/{verifyToken}")
-  // public async getUserProfileByToken(
-  //   @Path() verifyToken: string
-  // ): Promise<IUserProfile> {
-  //   this.setStatus(201); // set return status 201
-  //   return new UserService().getUserProfileByToken(verifyToken);
-  // }
-
-  // @Security("jwt")
   // @Get('/getInfoToken/{token}')
   // public async getInfoToken(@Path() token: string): Promise<IUserProfile> {
   //   this.setStatus(201); // set return status 201

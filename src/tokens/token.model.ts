@@ -47,7 +47,7 @@ export interface IUserToken {
   expieredToken?: number;
   userId?: string;
   userType: string;
-  userProfileList?: string[];
+  userProfile?: string;
   serverId?: string;
   platformList?: {
     platformId: string;

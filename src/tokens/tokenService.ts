@@ -185,4 +185,32 @@ export class TokensService {
     }
     return tokenList;
   }
+
+  public async getUserProfileByToken(Token: string, platformId: string) {
+    const contexts = await this.graph.getChildren('hasContext');
+    for (const context of contexts) {
+      if (context.getName().get() === TOKEN_LIST) {
+        const categoriesToken = await context.getChildren('HasCategoryToken');
+        for (const category of categoriesToken) {
+          const tokens = await category.getChildren('HasToken');
+          for (const token of tokens) {
+            if (token.info.token.get() === Token) {
+              if (token.info.platformList.get()) {
+                for (const platform of token.info.platformList.get()) {
+                  if (platform.platformId === platformId) {
+                    return {
+                      token: Token,
+                      platformId: platformId,
+                      name: platform.userProfile.name,
+                      userProfileId: platform.userProfile.userProfileId,
+                    };
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

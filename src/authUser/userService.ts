@@ -553,23 +553,6 @@ export class UserService {
     throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
   }
 
-  public async getUserProfileByToken(verifyToken: string) {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === TOKEN_LIST) {
-        let tokens = await context.getChildren(
-          AUTH_SERVICE_TOKEN_RELATION_NAME
-        );
-        for (const token of tokens) {
-          if (token.info.token.get() === verifyToken) {
-            return {
-              userProfileId: token.info.userProfileId.get(),
-            };
-          }
-        }
-      }
-    }
-  }
   public async getInfoToken(tokenParam: string) {
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
