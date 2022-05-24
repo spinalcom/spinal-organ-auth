@@ -38,14 +38,14 @@ async function main() {
   await authGraphService.init();
   const contexts = await spinalMiddleware.getGraph().getChildren('hasContext');
 
-  //config token context tree
+  //config token context
+  var tokensService = new TokensService();
   for (const context of contexts) {
     if (context.getName().get() === 'tokenList') {
       // @ts-ignore
       SpinalGraphService._addNode(context);
       const childsContext = await context.getChildren('HasCategoryToken');
       if (childsContext.length === 0) {
-        var tokensService = new TokensService();
         await tokensService.createTokenTree();
       }
     }
@@ -90,12 +90,12 @@ async function main() {
     }
   }
 
-  // start organ with token config
-  let TimerToken: number;
-  TimerToken = (setTimeout(async function() {
-    let tokensService = new TokensService();
+  // start organ with token cron
+  var cron = require('node-cron');
+  cron.schedule('0-9 1 1 * * *', async function() {
+    console.log('You will see this message every minute');
     await tokensService.verify();
-  }, 86400) as unknown) as number;
+  });
 }
 main();
 Server();

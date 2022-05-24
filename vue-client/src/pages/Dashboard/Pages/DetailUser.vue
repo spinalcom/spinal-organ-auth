@@ -123,18 +123,7 @@ export default {
     };
   },
   methods: {
-    AddPltaform() {
-      var CronJob = require("cron").CronJob;
-      var job = new CronJob(
-        "* * * * * *",
-        function() {
-          console.log("You will see this message every second");
-        },
-        null,
-        true,
-        "America/Los_Angeles"
-      );
-    },
+    AddPltaform() {},
     displayEditUser() {
       this.$router.push({ name: "EditUser", query: { id: this.user.id } });
     },

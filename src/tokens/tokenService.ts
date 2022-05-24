@@ -98,16 +98,17 @@ export class TokensService {
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
       if (context.getName().get() === TOKEN_LIST) {
-        let tokens = await context.getChildren(
-          AUTH_SERVICE_TOKEN_RELATION_NAME
-        );
-        for (const token of tokens) {
-          if (token.info.expieredToken.get() > new Date().getTime()) {
-            console.log('date exp plus grand');
-            await token.removeFromGraph();
-          } else {
-            console.log('date exp plus petit');
-            console.log(new Date(token.info.expieredToken.get()));
+        const categoriesToken = await context.getChildren('HasCategoryToken');
+        for (const category of categoriesToken) {
+          const tokens = await category.getChildren('HasToken');
+          for (const token of tokens) {
+            if (
+              Math.floor(Date.now() / 1000) > token.info.expieredToken.get()
+            ) {
+              console.log('removed');
+
+              await token.removeFromGraph();
+            }
           }
         }
       }
