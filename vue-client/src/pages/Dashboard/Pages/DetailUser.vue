@@ -42,7 +42,7 @@ with this file. If not, see
 
             <!-- here you can add your content for tab-content -->
             <template slot="tab-pane-1">
-              <p><md-icon>person</md-icon> {{ user.name }}</p>
+              <p><md-icon>person</md-icon> {{ user.userName }}</p>
             </template>
             <template slot="tab-pane-2">
               <p><md-icon>link</md-icon> {{ user.id }}</p>

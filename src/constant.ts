@@ -29,7 +29,6 @@ export const USER_TYPE = 'AuthServiceUser';
 export const USER_TOKEN_CATEGORY_TYPE = 'AuthServiceUserCategory';
 export const APPLICATION_TYPE = 'AuthServiceApplication';
 export const APPLICATION_TOKEN_CATEGORY_TYPE = 'AuthServiceApplicationCategory';
-
 export const PLATFORM_TYPE = 'AuthServicePlatform';
 export const ORGAN_TYPE = 'AuthServiceOrgan';
 export const USER_PROFILE_TYPE = 'AuthServiceUserProfile';
@@ -37,6 +36,10 @@ export const APP_PROFILE_TYPE = 'AuthServiceAPPProfile';
 export const TOKEN_TYPE = 'AuthServiceToken';
 export const INFO_ADMIN_TYPE = 'AuthServiceInfoAdmin';
 export const REGISTER_KEY_TYPE = 'AuthServiceRegisterKey';
+export const LOG_TYPE = 'AuthServiceLogs'
+export const USER_LOG_CATEGORY_TYPE = 'AuthServiceUserLogCategory'
+export const APPLICATION_LOG_CATEGORY_TYPE = 'AuthServiceApplicationLogCategory'
+export const PLATFORM_LOG_CATEGORY_TYPE = 'AuthServicePlatformLogCategory'
 
 // RelationName
 export const AUTH_SERVICE_PLATFORM_RELATION_NAME = 'HasPlatform';
@@ -49,9 +52,13 @@ export const AUTH_SERVICE_TOKEN_RELATION_NAME = 'HasToken';
 export const AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME = 'HasCategoryToken';
 export const AUTH_SERVICE_INFO_ADMIN_RELATION_NAME = 'HasRegisterKey';
 
+export const AUTH_SERVICE_LOG_RELATION_NAME = 'HasLog';
+export const AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME = 'HasCategoryLog';
+
 //ContextName
 export const PLATFORM_LIST = 'platformList';
 export const USER_LIST = 'userList';
 export const APPLICATION_LIST = 'applicationList';
 export const TOKEN_LIST = 'tokenList';
 export const INFO_ADMIN = 'infoAdmin';
+export const LOG_LIST = 'logList'

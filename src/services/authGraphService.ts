@@ -22,30 +22,15 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 import {
-  Model,
-  Ptr,
-  spinalCore,
-  FileSystem,
-} from 'spinal-core-connectorjs_type';
-import {
-  SpinalGraphService,
   SpinalGraph,
   SpinalContext,
-  SpinalNode,
 } from 'spinal-env-viewer-graph-service';
 import {
   PLATFORM_LIST,
   USER_LIST,
   APPLICATION_LIST,
   TOKEN_LIST,
-  USER_TYPE,
-  USER_TOKEN_CATEGORY_TYPE,
-  APPLICATION_TYPE,
-  APPLICATION_TOKEN_CATEGORY_TYPE,
-  AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME,
-  AUTH_SERVICE_RELATION_TYPE_PTR_LST,
-  INFO_ADMIN_TYPE,
-  AUTH_SERVICE_INFO_ADMIN_RELATION_NAME,
+  LOG_LIST,
   INFO_ADMIN,
 } from '../constant';
 
@@ -61,6 +46,7 @@ export class AuthGraphService {
     var platformList: SpinalContext<spinal.Model>;
     var tokenList: SpinalContext<spinal.Model>;
     var infoAdmin: SpinalContext<spinal.Model>;
+    var logs: SpinalContext<spinal.Model>;
 
     if ((await this.graph.getContext(USER_LIST)) === undefined) {
       userList = new SpinalContext(USER_LIST);
@@ -84,6 +70,12 @@ export class AuthGraphService {
     if ((await this.graph.getContext(INFO_ADMIN)) === undefined) {
       infoAdmin = new SpinalContext(INFO_ADMIN);
       promises.push(this.graph.addContext(infoAdmin));
+    }
+
+
+    if ((await this.graph.getContext(LOG_LIST)) === undefined) {
+      logs = new SpinalContext(LOG_LIST);
+      promises.push(this.graph.addContext(logs));
     }
 
     return Promise.all(promises).then(() => {
