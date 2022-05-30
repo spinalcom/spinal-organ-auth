@@ -55,6 +55,7 @@ Vue.use(Sparkline);
 
 // configure router
 const router = new VueRouter({
+  mode: 'history',
   routes, // short for routes: routes
   scrollBehavior: (to) => {
     if (to.hash) {

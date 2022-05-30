@@ -269,7 +269,7 @@ let authPages = {
 const routes = [
   {
     path: '/',
-    redirect: '/login',
+    redirect: '/dashboard',
     name: 'Home',
   },
   authPages,
@@ -380,5 +380,4 @@ const routes = [
     ],
   },
 ];
-Application;
 export default routes;

@@ -34,7 +34,7 @@ import { RegisterRoutes } from './routes';
 import { Response as ExResponse, Request as ExRequest } from 'express';
 import * as swaggerUi from 'swagger-ui-express';
 const jsonFile = require('../build/swagger.json');
-
+var history = require('connect-history-api-fallback');
 /**
  *
  *
@@ -59,8 +59,9 @@ function Server(): express.Express {
     })
   );
   app.use(methodOverride());
+  app.use(history())
+
   // app.use('/static', express.static(path.join(__dirname, 'public')));
-  app.use(express.static('../vue-client/dist'));
 
   //app.use('/docs', express.static(__dirname + '/swagger-ui'));
 
@@ -70,12 +71,16 @@ function Server(): express.Express {
   //app.use('/swagger.json', (req, res) => {
   //    res.sendFile(__dirname + '/swagger.json');
   //});
+  RegisterRoutes(app);
+  app.use(express.static(path.resolve(__dirname, '../vue-client/dist')));
+  app.get('/', function (req, res) {
+    res.sendFile(path.resolve(__dirname, '../vue-client/dist', "index.html"));
+  });
 
   app.listen(config.api.port, () =>
     console.log(`app listening at http://localhost:${config.api.port} ....`)
   );
 
-  RegisterRoutes(app);
 
   return;
 }
