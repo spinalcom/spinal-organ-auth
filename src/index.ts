@@ -98,15 +98,17 @@ async function main() {
     if (context.getName().get() === LOG_LIST) {
       // @ts-ignore
       SpinalGraphService._addNode(context);
-
       // await context.removeFromGraph();
       const childsContext = await context.getChildren(AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME);
       if (childsContext.length === 0) {
         await logsService.createLogTree();
+        await logsService.createSubGraph(context)
       }
     }
   }
-  await logsService.createLog('User Log', 0, "1234567", "user1")
+  // await logsService.createLog('User Log', 0, "SpinalNode - 27c81a1c - 3303 - ebbd - 488e-96e52f39bb86 - 180480dff47", "user1")
+  // await logsService.createLog('Application Log', 3, "SpinalNode - 27c81a1c - 3303 - ebbd - 488e-96e52f39bb86 - 180480dff47", "Application 2")
+  // await logsService.createLog('Platform Log', 2, "SpinalNode - 27c81a1c - 3303 - ebbd - 488e-96e52f39bb86 - 180480dff47", "Platform 2")
 
 
   // start organ with token cron
