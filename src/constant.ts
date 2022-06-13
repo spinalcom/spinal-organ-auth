@@ -45,6 +45,7 @@ export const USER_LOG_EVENT_TYPE = 'AuthServiceUserEvent'
 export const APPLICATION_LOG_EVENT_TYPE = 'AuthServiceApplicationEvent'
 export const PLATFORM_LOG_EVENT_TYPE = 'AuthServicePlatformEvent'
 export const ADMIN_LOG_EVENT_TYPE = 'AuthServiceAdminEvent'
+export const USER_REQUEST_EVENT_LOG = 'AuthServiceUserRequestEventLog'
 
 // RelationName
 export const AUTH_SERVICE_PLATFORM_RELATION_NAME = 'HasPlatform';
@@ -56,13 +57,13 @@ export const AUTH_SERVICE_APPLICATION_RELATION_NAME = 'HasApplication';
 export const AUTH_SERVICE_TOKEN_RELATION_NAME = 'HasToken';
 export const AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME = 'HasCategoryToken';
 export const AUTH_SERVICE_INFO_ADMIN_RELATION_NAME = 'HasRegisterKey';
-
 export const AUTH_SERVICE_LOG_RELATION_NAME = 'HasLog';
 export const AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME = 'HasCategoryLog';
 export const AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME = 'HasUserEventLog';
 export const AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME = 'HasApplicationEventLog';
 export const AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME = 'HasPlatformEventLog';
 export const AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME = 'HasAdminEventLog';
+export const AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME = 'HasRequestEventLog'
 
 
 

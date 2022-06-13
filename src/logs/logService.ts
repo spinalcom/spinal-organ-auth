@@ -36,10 +36,12 @@ import {
   APPLICATION_LOG_EVENT_TYPE,
   PLATFORM_LOG_EVENT_TYPE,
   ADMIN_LOG_EVENT_TYPE,
+  USER_REQUEST_EVENT_LOG,
   AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME,
   AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME,
   AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME,
   AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME,
+  AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME,
   AUTH_SERVICE_RELATION_TYPE_PTR_LST,
 } from '../constant';
 import { SPINAL_RELATION_PTR_LST_TYPE } from 'spinal-env-viewer-graph-service';
@@ -136,11 +138,8 @@ export class LogsService {
       AUTH_SERVICE_RELATION_TYPE_PTR_LST
     );
   }
-
   public async createSubGraph(context: SpinalContext<any>) {
     const categoriesLogs = await context.getChildren(AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME)
-    console.log(categoriesLogs);
-
     for (const category of categoriesLogs) {
       if (category.getName().get() === 'UserLogs') {
         await this.createEventUserLogs(context, category)
@@ -154,280 +153,116 @@ export class LogsService {
       }
     }
   }
-
   public async createEventUserLogs(context: SpinalContext<any>, category: SpinalNode<any>) {
     // connection node
-    const userEventConnectionObject = {
-      type: USER_LOG_EVENT_TYPE,
-      name: 'Connection',
-    };
-
-    const userEventConnectionId = SpinalGraphService.createNode(
-      userEventConnectionObject,
-      undefined
-    );
-    await SpinalGraphService.addChildInContext(
-      category.getId().get(),
-      userEventConnectionId,
-      context.getId().get(),
-      AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
-
-
+    await this.createNode(context, category, USER_LOG_EVENT_TYPE, 'Connection', category, AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
     // edit/update node 
-    const userEventEditObject = {
-      type: USER_LOG_EVENT_TYPE,
-      name: 'Edit',
-    };
-    const userEventEditId = SpinalGraphService.createNode(
-      userEventEditObject,
-      undefined
-    );
-    await SpinalGraphService.addChildInContext(
-      category.getId().get(),
-      userEventEditId,
-      context.getId().get(),
-      AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
-
+    await this.createNode(context, category, USER_LOG_EVENT_TYPE, 'Edit', category, AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
     // create node 
-    const userEventCreateObject = {
-      type: USER_LOG_EVENT_TYPE,
-      name: 'Create',
-    };
-    const userEventCreateId = SpinalGraphService.createNode(
-      userEventCreateObject,
-      undefined
-    );
-    await SpinalGraphService.addChildInContext(
-      category.getId().get(),
-      userEventCreateId,
-      context.getId().get(),
-      AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
-
+    await this.createNode(context, category, USER_LOG_EVENT_TYPE, 'Create', category, AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
     // delete node 
-    const userEventDeleteObject = {
-      type: USER_LOG_EVENT_TYPE,
-      name: 'Delete',
-    };
-    const userEventDeleteId = SpinalGraphService.createNode(
-      userEventDeleteObject,
-      undefined
-    );
-    await SpinalGraphService.addChildInContext(
-      category.getId().get(),
-      userEventDeleteId,
-      context.getId().get(),
-      AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
+    await this.createNode(context, category, USER_LOG_EVENT_TYPE, 'Delete', category, AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
   }
-
   public async createEventApplicationLogs(context: SpinalContext<any>, category: SpinalNode<any>) {
 
     // connection node
-    const applicationEventConnectionObject = {
-      type: APPLICATION_LOG_EVENT_TYPE,
-      name: 'Connection',
-    };
-
-    const applicationEventConnectionId = SpinalGraphService.createNode(
-      applicationEventConnectionObject,
-      undefined
-    );
-    await SpinalGraphService.addChildInContext(
-      category.getId().get(),
-      applicationEventConnectionId,
-      context.getId().get(),
-      AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
+    await this.createNode(context, category, APPLICATION_LOG_EVENT_TYPE, 'Connection', category, AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
 
     // edit/update node 
-    const applicationEventEditObject = {
-      type: APPLICATION_LOG_EVENT_TYPE,
-      name: 'Edit',
-    };
-    const applicationEventEditId = SpinalGraphService.createNode(
-      applicationEventEditObject,
-      undefined
-    );
-    await SpinalGraphService.addChildInContext(
-      category.getId().get(),
-      applicationEventEditId,
-      context.getId().get(),
-      AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
+    await this.createNode(context, category, APPLICATION_LOG_EVENT_TYPE, 'Edit', category, AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
 
     // create node 
-    const applicationEventCreateObject = {
-      type: APPLICATION_LOG_EVENT_TYPE,
-      name: 'Create',
-    };
-    const applicationEventCreateId = SpinalGraphService.createNode(
-      applicationEventCreateObject,
-      undefined
-    );
-    await SpinalGraphService.addChildInContext(
-      category.getId().get(),
-      applicationEventCreateId,
-      context.getId().get(),
-      AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
+    await this.createNode(context, category, APPLICATION_LOG_EVENT_TYPE, 'Create', category, AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
 
     // delete node 
-    const applicationEventDeleteObject = {
-      type: APPLICATION_LOG_EVENT_TYPE,
-      name: 'Delete',
-    };
-    const applicationEventDeleteId = SpinalGraphService.createNode(
-      applicationEventDeleteObject,
-      undefined
-    );
-    await SpinalGraphService.addChildInContext(
-      category.getId().get(),
-      applicationEventDeleteId,
-      context.getId().get(),
-      AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
+    await this.createNode(context, category, APPLICATION_LOG_EVENT_TYPE, 'Delete', category, AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+
   }
-
   public async createEventPlatformLogs(context: SpinalContext<any>, category: SpinalNode<any>) {
-    // connection node
-    const platformEventRegisterObject = {
-      type: PLATFORM_LOG_EVENT_TYPE,
-      name: 'Register',
-    };
-
-    const platformEventRegisterId = SpinalGraphService.createNode(
-      platformEventRegisterObject,
-      undefined
-    );
-    await SpinalGraphService.addChildInContext(
-      category.getId().get(),
-      platformEventRegisterId,
-      context.getId().get(),
-      AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
+    // register node
+    await this.createNode(context, category, PLATFORM_LOG_EVENT_TYPE, 'Register', category, AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
 
     // edit/update node 
-    const platformEventPushDataObject = {
-      type: PLATFORM_LOG_EVENT_TYPE,
-      name: 'PushData',
-    };
-    const platformEventPushDataId = SpinalGraphService.createNode(
-      platformEventPushDataObject,
-      undefined
-    );
-    await SpinalGraphService.addChildInContext(
-      category.getId().get(),
-      platformEventPushDataId,
-      context.getId().get(),
-      AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
+    await this.createNode(context, category, PLATFORM_LOG_EVENT_TYPE, 'PushData', category, AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
 
-    // create node 
-    const platformEventUpdateTokenObject = {
-      type: PLATFORM_LOG_EVENT_TYPE,
-      name: 'UpdateToken',
-    };
-    const platformEventUpdateTokenId = SpinalGraphService.createNode(
-      platformEventUpdateTokenObject,
-      undefined
-    );
-    await SpinalGraphService.addChildInContext(
-      category.getId().get(),
-      platformEventUpdateTokenId,
-      context.getId().get(),
-      AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
+    // update Token node 
+    await this.createNode(context, category, PLATFORM_LOG_EVENT_TYPE, 'UpdateToken', category, AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
 
     // delete node 
-    const platformEventDeleteObject = {
-      type: PLATFORM_LOG_EVENT_TYPE,
-      name: 'Delete',
+    await this.createNode(context, category, PLATFORM_LOG_EVENT_TYPE, 'Delete', category, AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+
+  }
+  public async createNode(context: SpinalContext<any>, category: SpinalNode<any>, nodeType: string, nodeName: string, parent: SpinalNode<any>, relationName: string, relationType: string) {
+    const nodeObject = {
+      type: nodeType,
+      name: nodeName,
     };
-    const platformEventDeleteId = SpinalGraphService.createNode(
-      platformEventDeleteObject,
+    const nodeId = SpinalGraphService.createNode(
+      nodeObject,
       undefined
     );
     await SpinalGraphService.addChildInContext(
-      category.getId().get(),
-      platformEventDeleteId,
+      parent.getId().get(),
+      nodeId,
       context.getId().get(),
-      AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
+      relationName,
+      relationType
     );
   }
   public async createEventAdminLogs(context: SpinalContext<any>, category: SpinalNode<any>) {
-    // connection node
-    const adminEventConnectionObject = {
-      type: ADMIN_LOG_EVENT_TYPE,
-      name: 'Connection',
-    };
-
-    const adminEventConnectionId = SpinalGraphService.createNode(
-      adminEventConnectionObject,
-      undefined
-    );
-    await SpinalGraphService.addChildInContext(
-      category.getId().get(),
-      adminEventConnectionId,
-      context.getId().get(),
-      AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
-
-
-    const adminEventCreateObject = {
-      type: ADMIN_LOG_EVENT_TYPE,
-      name: 'create',
-    };
-
-    const adminEventCreateId = SpinalGraphService.createNode(
-      adminEventCreateObject,
-      undefined
-    );
-    await SpinalGraphService.addChildInContext(
-      category.getId().get(),
-      adminEventCreateId,
-      context.getId().get(),
-      AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
-
-
-    const adminEventEditObject = {
-      type: ADMIN_LOG_EVENT_TYPE,
-      name: 'edit',
-    };
-
-    const adminEventEditId = SpinalGraphService.createNode(
-      adminEventEditObject,
-      undefined
-    );
-    await SpinalGraphService.addChildInContext(
-      category.getId().get(),
-      adminEventEditId,
-      context.getId().get(),
-      AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
-
-
+    // connection Admin
+    await this.createNode(context, category, ADMIN_LOG_EVENT_TYPE, 'Connection', category, AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+    //  create Admin
+    await this.createNode(context, category, ADMIN_LOG_EVENT_TYPE, 'Create', category, AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+    //  edit Admin
+    await this.createNode(context, category, ADMIN_LOG_EVENT_TYPE, 'Edit', category, AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
 
   }
+  public async createEventRequestsUserLogs(context: SpinalContext<any>, category: SpinalNode<any>) {
+    const eventsLogs = await category.getChildren(AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME);
+    for (const eventLog of eventsLogs) {
+      if (eventLog.getName().get() === 'Connection') {
+        await this.createNode(context, category, USER_REQUEST_EVENT_LOG, 'Login Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, USER_REQUEST_EVENT_LOG, 'User Valid Unknown Password', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, USER_REQUEST_EVENT_LOG, 'User Not Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+      } else if (eventLog.getName().get() === 'Create') {
+        await this.createNode(context, category, USER_REQUEST_EVENT_LOG, 'Create Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, USER_REQUEST_EVENT_LOG, 'Create Not Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+      }
+      else if (eventLog.getName().get() === 'Edit') {
+        await this.createNode(context, category, USER_REQUEST_EVENT_LOG, 'Edit Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, USER_REQUEST_EVENT_LOG, 'Edit Not Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
 
+      } else if (eventLog.getName().get() === 'Delete') {
+        await this.createNode(context, category, USER_REQUEST_EVENT_LOG, 'Delete Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, USER_REQUEST_EVENT_LOG, 'Delete Not Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+
+      }
+    }
+
+  }
+  public async createEventRequestsApplicationLogs(context: SpinalContext<any>, category: SpinalNode<any>) {
+  }
+  public async createEventRequestsPlatformLogs(context: SpinalContext<any>, category: SpinalNode<any>) {
+  }
+  public async createEventRequestsAdminLogs(context: SpinalContext<any>, category: SpinalNode<any>) {
+  }
+  public async createEventTypeGraph(context: SpinalContext<any>) {
+
+    const categoriesLogs = await context.getChildren(AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME)
+    for (const category of categoriesLogs) {
+      if (category.getName().get() === 'UserLogs') {
+        await this.createEventRequestsUserLogs(context, category);
+      }
+      else if (category.getName().get() === 'ApplicationLogs') {
+        await this.createEventRequestsApplicationLogs(context, category)
+      } else if (category.getName().get() === 'PlatformLogs') {
+        await this.createEventRequestsPlatformLogs(context, category)
+      } else if (category.getName().get() === 'AdminLogs') {
+        await this.createEventRequestsAdminLogs(context, category)
+      }
+    }
+  }
   public async createLog(eventFrom: string, eventEnum: number, targetId: string, targetName: string) {
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {

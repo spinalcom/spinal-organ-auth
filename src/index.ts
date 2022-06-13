@@ -102,7 +102,8 @@ async function main() {
       const childsContext = await context.getChildren(AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME);
       if (childsContext.length === 0) {
         await logsService.createLogTree();
-        await logsService.createSubGraph(context)
+        await logsService.createSubGraph(context);
+        await logsService.createEventTypeGraph(context);
       }
     }
   }
