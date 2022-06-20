@@ -115,7 +115,6 @@ async function main() {
   // start organ with token cron
   var cron = require('node-cron');
   cron.schedule('0-9 1 1 * * *', async function () {
-    console.log('You will see this message every minute');
     await tokensService.verify();
   });
 }

@@ -342,7 +342,6 @@ export default {
           }
         }
       }
-      console.log(apps);
       this.appListLinkPlatform = apps;
     },
     displayEdit(ask = true) {
@@ -352,17 +351,21 @@ export default {
           "Are you sure you want to update the platform, you can lost the old config of this platform!"
         );
       if (r === true) {
-        EventBus.$emit("EDIT_PLATFORM", this.itemSelected);
-        this.$router.push({
-          path: "/editPlatform"
-        });
+        if (this.itemSelected.name === "authenticationPlatform") {
+          alert("you cannot Edit this item");
+        } else {
+          EventBus.$emit("EDIT_PLATFORM", this.itemSelected);
+          this.$router.push({
+            path: "/editPlatform"
+          });
+        }
       }
     },
     displayEditToken(ask = true) {
       let r = true;
       if (ask) r = confirm("Are you sure you want to update the Token,");
       if (r === true) {
-        console.log("hello token");
+        alert("Token updated");
       }
     },
 
@@ -373,16 +376,20 @@ export default {
           "Are you sure you want to delete the platform, you can lost all config of this platform!"
         );
       if (r === true) {
-        await instanceAxios.instanceAxios.delete(
-          `/platforms/${this.itemSelected.id}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "x-access-token": this.token
+        if (this.itemSelected.name === "authenticationPlatform") {
+          alert("you cannot delete this item");
+        } else {
+          await instanceAxios.instanceAxios.delete(
+            `/platforms/${this.itemSelected.id}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                "x-access-token": this.token
+              }
             }
-          }
-        );
-        this.$router.go();
+          );
+          this.$router.go();
+        }
       }
     }
   },

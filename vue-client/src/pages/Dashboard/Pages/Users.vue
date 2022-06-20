@@ -102,7 +102,6 @@ export default {
         }
       });
       this.userList = rep.data;
-      console.log(this.userList);
     }
   },
   mounted() {

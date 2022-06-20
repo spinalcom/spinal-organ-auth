@@ -42,7 +42,7 @@ with this file. If not, see
 
             <!-- here you can add your content for tab-content -->
             <template slot="tab-pane-1">
-              <p><md-icon>person</md-icon> {{ user.userName }}</p>
+              <p><md-icon>person</md-icon> {{ user.name }}</p>
             </template>
             <template slot="tab-pane-2">
               <p><md-icon>link</md-icon> {{ user.id }}</p>
@@ -65,9 +65,9 @@ with this file. If not, see
         </div>
         <div class="md-layout-item md-size-20 md-medium-size-100">
           <div class="buttonsPlatform">
-            <md-button class="md-warning" @click="AddPltaform()"
+            <!-- <md-button class="md-warning" @click="AddPltaform()"
               >Add Platform</md-button
-            >
+            > -->
             <md-button class="md-warning" @click="displayEditUser()"
               >Edit User</md-button
             >
@@ -134,13 +134,17 @@ export default {
           "Are you sure you want to delete the User, you can lost all config of this user!"
         );
       if (r === true) {
-        await instanceAxios.instanceAxios.delete(`/users/${this.user.id}`, {
-          headers: {
-            "Content-Type": "application/json",
-            "x-access-token": this.token
-          }
-        });
-        this.$router.push({ name: "Users", params: { id: this.user.id } });
+        if (this.user.name === "authAdmin") {
+          alert("you cannot delete this item");
+        } else {
+          await instanceAxios.instanceAxios.delete(`/users/${this.user.id}`, {
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token": this.token
+            }
+          });
+          this.$router.push({ name: "Users", params: { id: this.user.id } });
+        }
       }
     },
     async getplatform(platformId) {
@@ -167,7 +171,6 @@ export default {
         };
         this.platformObjectList.push(infoPlatform);
       }
-      console.log("hihihihihihih", this.platformObjectList);
       return this.platformObjectList;
     },
     async getUser(userId) {

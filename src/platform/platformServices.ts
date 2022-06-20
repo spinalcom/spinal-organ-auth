@@ -391,8 +391,6 @@ export class PlatformService {
           // @ts-ignore
           SpinalGraphService._addNode(platform);
           if (platform.getId().get() === updateParams.platformId) {
-            console.log(platform.info.TokenBosAdmin.get());
-            console.log(updateParams.TokenBosAdmin);
             if (
               platform.info.TokenBosAdmin.get() === updateParams.TokenBosAdmin
             ) {

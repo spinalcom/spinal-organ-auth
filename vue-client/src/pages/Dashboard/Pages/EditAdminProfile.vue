@@ -250,7 +250,7 @@ export default {
     },
     cancelAdd() {
       this.clearForm();
-      this.$router.push("/Users");
+      this.$router.push("/dashboard");
     },
     validateUser() {
       this.$v.$touch();

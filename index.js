@@ -30,8 +30,4 @@ var password = generator.generate({
 });
 setEnvValue('AUTH_ADMIN_PASSWORD', password);
 dotenv.config();
-if (process.env.AUTH_ADMIN_PASSWORD) {
-}
-console.log('2', process.env.AUTH_ADMIN_PASSWORD);
-
 require('./dist/index.js');

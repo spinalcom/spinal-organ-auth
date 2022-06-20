@@ -105,8 +105,6 @@ export class TokensService {
             if (
               Math.floor(Date.now() / 1000) > token.info.expieredToken.get()
             ) {
-              console.log('removed');
-
               await token.removeFromGraph();
             }
           }

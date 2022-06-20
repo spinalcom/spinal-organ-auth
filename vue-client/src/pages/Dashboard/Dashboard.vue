@@ -155,7 +155,6 @@ export default {
         item.organs = await this.getOrgans(item.id);
         item.userProfiles = await this.getUserProfiles(item.id);
         item.appProfiles = await this.getAppProfiles(item.id);
-        console.log(item);
         return item;
       });
       this.platformList = await Promise.all(test);

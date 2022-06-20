@@ -51,9 +51,9 @@ with this file. If not, see
         </div>
         <div class="md-layout-item md-size-20 md-medium-size-100">
           <div class="buttonsPlatform">
-            <md-button class="md-warning" @click="AddPltaform()"
+            <!-- <md-button class="md-warning" @click="AddPltaform()"
               >Add Platform</md-button
-            >
+            > -->
             <md-button class="md-warning" @click="displayEditApp()"
               >Edit Application</md-button
             >
@@ -177,7 +177,6 @@ export default {
   async mounted() {
     this.token = localStorage.getItem("token");
     var rep = await this.getApp(this.$route.query.id);
-    console.log("kikikkikik", rep);
     await this.getplatforms(rep);
   }
 };
