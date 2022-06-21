@@ -61,7 +61,6 @@ export class PlatformsController extends Controller {
   @Security('jwt')
   @Get()
   public async getPlatforms(): Promise<IPlatform[]> {
-    this.setStatus(201); // set return status 201
     return new PlatformService().getPlateforms();
   }
 

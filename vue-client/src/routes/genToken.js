@@ -22,6 +22,7 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 const TOKEN = 'token';
+const router = require('../router');
 const instanceAxios = require('../services/axiosConfig');
 async function getToken(user, pass) {
   let userparams = {
@@ -53,7 +54,6 @@ async function* genToken(user, pass) {
   } else token = localStorage.getItem(TOKEN);
   isLogedin = true;
   while (true) {
-    if (token.limit > Date.now()) token = await refreshToken(token);
     yield token;
   }
 }
@@ -70,4 +70,8 @@ export async function tokenGen(user = null, pass = null) {
     _tokenGen = null;
     throw error;
   }
+}
+
+
+async function redirectLogin() {
 }

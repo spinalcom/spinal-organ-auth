@@ -115,6 +115,7 @@ export class PlatformService {
   }
 
   public async getPlateform(id): Promise<IPlatform> {
+
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
       if (context.getName().get() === PLATFORM_LIST) {
@@ -138,6 +139,7 @@ export class PlatformService {
         }
       }
     }
+
     if (PlatformObject) {
       return PlatformObject;
     } else {
@@ -145,6 +147,7 @@ export class PlatformService {
     }
   }
   public async getPlateforms(): Promise<IPlatform[]> {
+
     try {
       var platformObjectList = [];
       const contexts = await this.graph.getChildren('hasContext');
@@ -153,13 +156,14 @@ export class PlatformService {
           const platforms = await context.getChildren(
             AUTH_SERVICE_PLATFORM_RELATION_NAME
           );
+
           for (const platform of platforms) {
             var PlatformObject: IPlatform = {
               id: platform.getId().get(),
               type: platform.getType().get(),
               name: platform.getName().get(),
-              statusPlatform: platform.info.statusPlatform.get(),
-              url: platform.info.url.get(),
+              statusPlatform: platform.info.statusPlatform?.get(),
+              url: platform.info.url?.get(),
               address: platform.info.address?.get(),
               TokenBosAdmin: platform.info.TokenBosAdmin?.get(),
               TokenAdminBos: platform.info.TokenAdminBos?.get(),
@@ -394,37 +398,56 @@ export class PlatformService {
             if (
               platform.info.TokenBosAdmin.get() === updateParams.TokenBosAdmin
             ) {
-              //add organ list from json data
-              for (const organ of updateParams.jsonData.organList) {
-                const organService = new OrganService();
-                organService.createOrgan({
-                  name: organ.label,
-                  organType: organ.type,
-                  statusOrgan: 'online',
-                  platformId: platform.getId().get(),
-                });
+              if (updateParams.jsonData) {
+                //delete the old Organ List
+                const oldOrgans = await platform.getChildren('HasOrgan');
+                for (const organ of oldOrgans) {
+                  await organ.removeFromGraph();
+                }
+                //add organ list from json data
+                for (const organ of updateParams.jsonData.organList) {
+                  const organService = new OrganService();
+                  organService.createOrgan({
+                    name: organ.label,
+                    organType: organ.type,
+                    statusOrgan: 'online',
+                    platformId: platform.getId().get(),
+                  });
+                }
+
+                const profileServices = new ProfileServices();
+                //delete the old user profile List
+                const oldUserProfiles = await platform.getChildren('HasUserProfile');
+                for (const userProfile of oldUserProfiles) {
+                  await userProfile.removeFromGraph();
+                }
+                //add user profile list from json data
+                for (const userProfile of updateParams.jsonData.userProfileList) {
+                  profileServices.createUserProfileService({
+                    userProfileId: userProfile.userProfileId,
+                    name: userProfile.label,
+                    platformId: platform.getId().get(),
+                  });
+                }
+
+                //delete the old app profile List
+                const oldAppProfiles = await platform.getChildren('HasAppProfile');
+                for (const appProfile of oldAppProfiles) {
+                  await appProfile.removeFromGraph();
+                }
+                //add user profile list from json data
+                for (const appProfile of updateParams.jsonData.appProfileList) {
+                  profileServices.createAppProfileService({
+                    appProfileId: appProfile.appProfileId,
+                    name: appProfile.label,
+                    platformId: platform.getId().get(),
+                  });
+                }
+                platform.info.idPlatformOfAdmin.set(
+                  updateParams.idPlatformOfAdmin
+                );
+                platform.info.TokenAdminBos.set(updateParams.TokenAdminBos);
               }
-              const profileServices = new ProfileServices();
-              //add user profile list from json data
-              for (const userProfile of updateParams.jsonData.userProfileList) {
-                profileServices.createUserProfileService({
-                  userProfileId: userProfile.userProfileId,
-                  name: userProfile.label,
-                  platformId: platform.getId().get(),
-                });
-              }
-              //add user profile list from json data
-              for (const appProfile of updateParams.jsonData.appProfileList) {
-                profileServices.createAppProfileService({
-                  appProfileId: appProfile.appProfileId,
-                  name: appProfile.label,
-                  platformId: platform.getId().get(),
-                });
-              }
-              platform.info.idPlatformOfAdmin.set(
-                updateParams.idPlatformOfAdmin
-              );
-              platform.info.TokenAdminBos.set(updateParams.TokenAdminBos);
             } else
               throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
           }
