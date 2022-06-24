@@ -97,6 +97,12 @@ export class UsersController extends Controller {
     return new UserService().updateAuthAdmin(requestBody);
   }
 
+  // @Security('jwt')
+  @Post('/getAuthAdmin')
+  public async getAuthAdmin(): Promise<IUser> {
+    return new UserService().getAuthAdmin();
+  }
+
   @Security('jwt')
   @Post('/userProfilesList')
   public async userProfilesList(): Promise<any[]> {

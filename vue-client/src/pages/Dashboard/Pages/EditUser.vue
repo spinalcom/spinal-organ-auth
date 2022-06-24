@@ -51,26 +51,6 @@ with this file. If not, see
                   >Invalid User name</span
                 >
               </md-field>
-              <md-field :class="getValidationClass('oldPassword')">
-                <md-icon>password</md-icon>
-                <label for="oldPassword">Old Password</label>
-                <md-input
-                  name="oldPassword"
-                  id="oldPassword"
-                  autocomplete="given-name"
-                  v-model="formUser.oldPassword"
-                  type="password"
-                  :disabled="sending"
-                />
-                <span class="md-error" v-if="!$v.formUser.password.required"
-                  >The password is required</span
-                >
-                <span
-                  class="md-error"
-                  v-else-if="!$v.formUser.password.minlength"
-                  >Invalid password
-                </span>
-              </md-field>
 
               <md-field :class="getValidationClass('password')">
                 <md-icon>password</md-icon>
@@ -284,6 +264,7 @@ export default {
   data() {
     return {
       token: null,
+      userSelectedId: null,
       userSelected: null,
       position: "center",
       duration: 3000,
@@ -291,7 +272,6 @@ export default {
       formUser: {
         userName: null,
         password: null,
-        oldPassword: null,
         telephone: null,
         email: null,
         info: null,
@@ -318,10 +298,6 @@ export default {
       userName: {
         required,
         minLength: minLength(3)
-      },
-      oldPassword: {
-        required,
-        minLength: minLength(8)
       },
       password: {
         required,
@@ -365,7 +341,7 @@ export default {
       };
 
       const rep = await instanceAxios.instanceAxios.put(
-        `/users/${this.userSelected}`,
+        `/users/${this.userSelectedId}`,
         objectBody,
         {
           headers: {
@@ -490,14 +466,19 @@ export default {
           "x-access-token": this.token
         }
       });
-      this.user = rep.data;
+      this.userSelected = rep.data;
       return rep.data;
     }
   },
+
   async mounted() {
     this.token = localStorage.getItem("token");
-    this.userSelected = this.$route.query.id;
+    this.userSelectedId = this.$route.query.id;
     var user = await this.getUser(this.$route.query.id);
+    this.formUser.userName = user.userName;
+    this.formUser.email = user.email;
+    this.formUser.telephone = user.telephone;
+    this.formUser.info = user.info;
     this.platformObjectList = user.platformList;
     await this.getUserProfileList(user.id);
     await this.getplatformList();

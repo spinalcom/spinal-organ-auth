@@ -466,6 +466,7 @@ export default {
       this.platformList = rep.data;
     }
   },
+
   mounted() {
     this.token = localStorage.getItem("token");
     this.getUserProfileList();

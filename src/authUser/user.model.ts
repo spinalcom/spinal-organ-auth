@@ -36,7 +36,7 @@ export interface IUser {
   telephone?: string;
   info?: string; // champs libre optionnel
   userType: IUserType;
-  platformList: {
+  platformList?: {
     platformId: string;
     userProfile: {
       name: string;
@@ -61,7 +61,7 @@ export interface IUserCreationParams {
   telephone?: string;
   info?: string; // champs libre optionnel
   userType: IUserType;
-  platformList: {
+  platformList?: {
     platformId: string;
     userProfile: {
       name: string;
@@ -77,7 +77,7 @@ export interface IUserUpdateParams {
   telephone?: string;
   info?: string; // champs libre optionnel
   userType?: IUserType;
-  platformList: {
+  platformList?: {
     platformId: string;
     userProfile: {
       name: string;

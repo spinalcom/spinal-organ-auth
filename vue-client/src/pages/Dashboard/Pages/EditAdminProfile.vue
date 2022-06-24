@@ -169,6 +169,7 @@ export default {
       position: "center",
       duration: 3000,
       isInfinity: false,
+      authAdmin: null,
       formUser: {
         oldPassword: null,
         password: null,
@@ -206,6 +207,19 @@ export default {
   },
   computed: {},
   methods: {
+    async getAuthAdmin() {
+      const rep = await instanceAxios.instanceAxios.post(
+        "/users/getAuthAdmin/",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      this.authAdmin = rep.data;
+      return rep.data;
+    },
     async editUser() {
       var objectBody = {
         userName: "authAdmin",
@@ -232,6 +246,7 @@ export default {
         }, 1500);
       }
     },
+
     getValidationClass(fieldName) {
       const field = this.$v.formUser[fieldName];
       if (field) {
@@ -259,6 +274,13 @@ export default {
         this.editUser();
       }
     }
+  },
+  async created() {
+    this.token = localStorage.getItem("token");
+    this.authAdmin = await this.getAuthAdmin();
+    this.formUser.telephone = this.authAdmin.telephone;
+    this.formUser.email = this.authAdmin.email;
+    this.formUser.info = this.authAdmin.info;
   },
   mounted() {
     this.token = localStorage.getItem("token");
