@@ -329,16 +329,28 @@ export default {
         telephone: this.formUser.telephone,
         info: this.formUser.info,
         userType: this.formUser.userType.name,
-        platformList: this.platformObjectList.map(el => {
-          return {
-            platformId: el.platformId,
+        platformList: [
+          {
+            platformId:
+              "SpinalNode-d3d3719b-45b1-86db-fcb2-a624dbb1bd6d-181868239e9",
             userProfile: {
-              name: el.userProfile.name,
-              userProfileId: el.userProfile.userProfileId
+              name: " el.userProfile.name",
+              userProfileId: "el.userProfile.userProfileId"
             }
-          };
-        })
+          }
+        ]
+        // platformList: this.platformObjectList.map(el => {
+        //   return {
+        //     platformId: el.platformId,
+        //     userProfile: {
+        //       name: el.userProfile.name,
+        //       userProfileId: el.userProfile.userProfileId
+        //     }
+        //   };
+        // })
       };
+
+      console.log("************", objectBody);
 
       const rep = await instanceAxios.instanceAxios.put(
         `/users/${this.userSelectedId}`,

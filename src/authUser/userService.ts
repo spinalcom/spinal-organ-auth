@@ -85,17 +85,11 @@ export class UserService {
               if (profile.info.userProfileId.get() === profileIdBosConfig) {
                 return profile;
               }
-
             }
-
           }
-
         }
-
       }
     }
-
-
   }
 
   public async createUser(
@@ -125,13 +119,11 @@ export class UserService {
               telephone: userCreationParams.telephone,
               info: userCreationParams.info,
               password: hash,
-              platformList: userCreationParams.platformList,
             };
             if (
               userObject.userType !== 'authAdmin' &&
               userObject.userName !== 'authAdmin'
             ) {
-
 
               const UserId = SpinalGraphService.createNode(
                 userObject,
@@ -147,14 +139,11 @@ export class UserService {
               );
 
               for (const platform of userCreationParams.platformList) {
-                await SpinalGraphService.addChild(res.getId().get(), platform.platformId, 'HasPlatform', AUTH_SERVICE_RELATION_TYPE_PTR_LST)
                 const pro = await this.getProfile(platform.platformId, platform.userProfile.userProfileId);
                 // @ts-ignore
                 SpinalGraphService._addNode(pro)
                 await SpinalGraphService.addChild(res.getId().get(), pro.getId().get(), 'HasUserProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST)
               }
-
-
 
               return {
                 id: res.getId().get(),
@@ -166,7 +155,7 @@ export class UserService {
                 telephone: res.info.telephone.get(),
                 info: res.info.info.get(),
                 userType: res.info.userType.get(),
-                platformList: res.info.platformList.get(),
+                // platformList: res.info.platformList.get(),
               };
             } else {
               return undefined;
@@ -178,6 +167,7 @@ export class UserService {
       }
     }
   }
+
   public async login(userLoginParams: IUserLoginParams): Promise<IUserToken> {
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
@@ -215,6 +205,28 @@ export class UserService {
                       categoryTokenUser.getType().get() ===
                       'AuthServiceUserCategory'
                     ) {
+
+                      var platformList = [];
+                      const userProfiles = await user.getChildren('HasUserProfile');
+                      for (const userProfile of userProfiles) {
+                        const platformParents = await userProfile.getParents('HasUserProfile')
+                        for (const platformParent of platformParents) {
+                          if (platformParent.getType().get() === "AuthServicePlatform") {
+                            platformList.push({
+                              platformId: platformParent.getId().get(),
+                              platformName: platformParent.getName().get(),
+                              idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                              userProfile: {
+                                userProfileAdminId: userProfile.getId().get(),
+                                userProfileBosConfigId: userProfile.info.userProfileId.get(),
+                                userProfileName: userProfile.getName().get()
+                              }
+                            })
+                          }
+                        }
+                      }
+
+
                       const TokenId = SpinalGraphService.createNode(
                         {
                           name: 'token_' + user.getName().get(),
@@ -225,8 +237,7 @@ export class UserService {
                           // @ts-ignore
                           expieredToken: decodedToken.exp,
                           userId: user.getId().get(),
-                          userType: user.info.userType.get(),
-                          platformList: user.info.platformList.get(),
+                          platformList: platformList,
                         },
                         undefined
                       );
@@ -239,15 +250,13 @@ export class UserService {
                       );
                       let tokenObj: IUserToken = {
                         name: res.getName().get(),
-                        type: res.getType().get(),
                         token: token,
                         // @ts-ignore
                         createdToken: decodedToken.iat,
                         // @ts-ignore
                         expieredToken: decodedToken.exp,
                         userId: user.getId().get(),
-                        platformList: user.info.platformList.get(),
-                        userType: user.info.userType.get(),
+                        platformList: platformList,
                       };
                       return tokenObj;
                     }
@@ -311,7 +320,7 @@ export class UserService {
                           expieredToken: decodedToken.exp,
                           userId: user.getId().get(),
                           userType: user.info.userType.get(),
-                          platformList: user.info.platformList.get(),
+                          // platformList: user.info.platformList.get(),
                         },
                         undefined
                       );
@@ -351,6 +360,28 @@ export class UserService {
       const context = SpinalGraphService.getContext(USER_LIST);
       const users = await context.getChildren('HasUser');
       for (const user of users) {
+        var platformList = [];
+        const userProfiles = await user.getChildren('HasUserProfile');
+        for (const userProfile of userProfiles) {
+          const platformParents = await userProfile.getParents('HasUserProfile')
+          for (const platformParent of platformParents) {
+            if (platformParent !== undefined) {
+              if (platformParent.getType().get() === "AuthServicePlatform") {
+                platformList.push({
+                  platformId: platformParent.getId().get(),
+                  platformName: platformParent.getName().get(),
+                  idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                  userProfile: {
+                    userProfileAdminId: userProfile.getId().get(),
+                    userProfileBosConfigId: userProfile.info.userProfileId.get(),
+                    userProfileName: userProfile.getName().get()
+                  }
+                })
+              }
+            }
+          }
+        }
+
         var userObject: IUser = {
           id: user.getId().get(),
           type: user.getType().get(),
@@ -361,7 +392,7 @@ export class UserService {
           telephone: user.info.telephone.get(),
           info: user.info.info.get(),
           userType: user.info.userType.get(),
-          platformList: user.info.platformList.get(),
+          platformList: platformList,
         };
         usersObjectList.push(userObject);
       }
@@ -375,13 +406,7 @@ export class UserService {
     }
   }
 
-  public async userProfilesList(): Promise<any[]> {
-    try {
-      return data;
-    } catch (error) {
-      return error;
-    }
-  }
+
 
   public async getUser(id: string): Promise<IUser> {
     const contexts = await this.graph.getChildren('hasContext');
@@ -392,6 +417,28 @@ export class UserService {
         );
         for (const user of users) {
           if (user.getId().get() === id) {
+            var platformList = [];
+            const userProfiles = await user.getChildren('HasUserProfile');
+            for (const userProfile of userProfiles) {
+              const platformParents = await userProfile.getParents('HasUserProfile')
+              for (const platformParent of platformParents) {
+                if (platformParent !== undefined) {
+                  if (platformParent.getType().get() === "AuthServicePlatform") {
+                    platformList.push({
+                      platformId: platformParent.getId().get(),
+                      platformName: platformParent.getName().get(),
+                      idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                      userProfile: {
+                        userProfileAdminId: userProfile.getId().get(),
+                        userProfileBosConfigId: userProfile.info.userProfileId.get(),
+                        userProfileName: userProfile.getName().get()
+                      }
+                    })
+                  }
+                }
+
+              }
+            }
             var userObject: IUser = {
               id: user.getId().get(),
               type: user.getType().get(),
@@ -402,7 +449,7 @@ export class UserService {
               telephone: user.info.telephone.get(),
               info: user.info.info.get(),
               userType: user.info.userType.get(),
-              platformList: user.info.platformList.get(),
+              platformList: platformList,
             };
           }
         }
@@ -433,7 +480,6 @@ export class UserService {
             .hash(requestBody.password, 10)
             .then(async (hash) => {
               user.info.password.set(hash);
-
             })
         }
         if (
@@ -441,6 +487,42 @@ export class UserService {
           user.info.userType !== 'authAdmin'
         ) {
           user.info.userType.set(requestBody.userType);
+        }
+
+        const oldUserProfiles = await user.getChildren('HasUserProfile');
+        for (const oldUserProfile of oldUserProfiles) {
+          if (oldUserProfile !== undefined) {
+            await oldUserProfile.removeFromGraph();
+          }
+        }
+
+        for (const platform of requestBody.platformList) {
+          const pro = await this.getProfile(platform.platformId, platform.userProfile.userProfileId);
+          // @ts-ignore
+          SpinalGraphService._addNode(pro)
+          await SpinalGraphService.addChild(user.getId().get(), pro.getId().get(), 'HasUserProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        }
+
+        var platformList = [];
+        const userProfiles = await user.getChildren('HasUserProfile');
+        for (const userProfile of userProfiles) {
+          const platformParents = await userProfile.getParents('HasUserProfile')
+          for (const platformParent of platformParents) {
+            if (platformParent !== undefined) {
+              if (platformParent.getType().get() === "AuthServicePlatform") {
+                platformList.push({
+                  platformId: platformParent.getId().get(),
+                  platformName: platformParent.getName().get(),
+                  idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                  userProfile: {
+                    userProfileAdminId: userProfile.getId().get(),
+                    userProfileBosConfigId: userProfile.info.userProfileId.get(),
+                    userProfileName: userProfile.getName().get()
+                  }
+                })
+              }
+            }
+          }
         }
 
         userObject = {
@@ -453,7 +535,7 @@ export class UserService {
           telephone: user.info.telephone.get(),
           info: user.info.info.get(),
           userType: user.info.userType.get(),
-          platformList: user.info.platformList.get(),
+          platformList: platformList,
         };
       }
     }
@@ -469,10 +551,16 @@ export class UserService {
         const users = await context.getChildren(
           AUTH_SERVICE_USER_RELATION_NAME
         );
+        var userFound: SpinalNode<any>;
         for (const user of users) {
           if (user.getId().get() === userId) {
-            await user.removeFromGraph();
+            userFound = user;
           }
+        }
+        if (userFound !== undefined) {
+          await userFound.removeFromGraph();
+        } else {
+          throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
         }
       }
     }
@@ -503,7 +591,6 @@ export class UserService {
               telephone: userCreationParams.telephone,
               info: '',
               userType: userCreationParams.userType,
-              platformList: userCreationParams.platformList,
             };
             if (
               userObject.userType === 'authAdmin' &&
@@ -531,7 +618,6 @@ export class UserService {
                 telephone: res.info.telephone.get(),
                 info: res.info.info.get(),
                 userType: res.info.userType.get(),
-                platformList: res.info.platformList.get(),
               };
             } else {
               return undefined;
@@ -584,7 +670,6 @@ export class UserService {
                   telephone: user.info.telephone.get(),
                   info: user.info.info.get(),
                   userType: user.info.userType.get(),
-                  platformList: user.info.platformList.get(),
                 };
                 return userObject;
               }
@@ -645,7 +730,6 @@ export class UserService {
               createdToken: token.info.createdToken.get(),
               expieredToken: token.info.expieredToken.get(),
               userId: token.info.userId.get(),
-              userType: token.info.userType.get(),
               serverId: token.info.serverId.get(),
               id: token.info.id.get(),
             };
@@ -653,6 +737,11 @@ export class UserService {
         }
       }
     }
+  }
+
+
+  public async userProfilesList() {
+    return []
   }
 
   public async getRoles(): Promise<{ name: string }[]> {

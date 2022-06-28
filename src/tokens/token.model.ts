@@ -46,14 +46,17 @@ export interface IUserToken {
   createdToken?: number;
   expieredToken?: number;
   userId?: string;
-  userType: string;
+  userType?: string;
   userProfile?: string;
   serverId?: string;
   platformList?: {
     platformId: string;
+    platformName: string;
+    idPlatformOfAdmin: string;
     userProfile: {
-      name: string;
-      userProfileId: string;
+      userProfileAdminId: string;
+      userProfileBosConfigId: string;
+      userProfileName: string;
     };
   }[];
 }

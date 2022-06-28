@@ -57,7 +57,7 @@ export default {
     showProfileUser() {
       for (const platform of this.user.platformList) {
         if (this.platformId === platform.platformId) {
-          return platform.userProfile.name;
+          return platform.userProfile.userProfileName;
         }
       }
     }

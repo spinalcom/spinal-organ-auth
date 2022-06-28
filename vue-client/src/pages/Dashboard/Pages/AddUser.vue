@@ -421,27 +421,6 @@ export default {
         this.saveUser();
       }
     },
-    async saveOrgan() {
-      this.sending = true;
-
-      if (rep !== undefined) {
-        EventBus.$emit("reloadOrganList");
-        window.setTimeout(() => {
-          this.lastOrgan = `${this.formOrgan.organName}`;
-          this.organSaved = true;
-          this.sending = false;
-          this.clearForm();
-        }, 1500);
-      }
-      // Instead of this timeout, here you can call your API
-    },
-    validateOrgan() {
-      this.$v.$touch();
-
-      if (!this.$v.$invalid) {
-        this.saveOrgan();
-      }
-    },
 
     async getUserProfileList(id) {
       const rep = await instanceAxios.instanceAxios.get(

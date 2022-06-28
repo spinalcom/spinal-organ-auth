@@ -56,6 +56,7 @@ import { IAppProfile } from './appProfile.model';
 import { ProfileServices } from './profileServices';
 import { OrganService } from '../organ/organService';
 import jwt = require('jsonwebtoken');
+import { isTemplateExpression } from 'typescript';
 
 /**
  *
@@ -399,50 +400,17 @@ export class PlatformService {
               platform.info.TokenBosAdmin.get() === updateParams.TokenBosAdmin
             ) {
               if (updateParams.jsonData) {
-                //delete the old Organ List
+                //update the old Organ List
                 const oldOrgans = await platform.getChildren('HasOrgan');
-                for (const organ of oldOrgans) {
-                  await organ.removeFromGraph();
-                }
-                //add organ list from json data
-                for (const organ of updateParams.jsonData.organList) {
-                  const organService = new OrganService();
-                  organService.createOrgan({
-                    name: organ.label,
-                    organType: organ.type,
-                    statusOrgan: 'online',
-                    platformId: platform.getId().get(),
-                  });
-                }
+                await updateOrganProfile(oldOrgans, platform, updateParams.jsonData.organList);
+                // update th old user Profiles
+                const oldUserProfileList = await platform.getChildren('HasUserProfile');
+                await updateAppUserProfile(oldUserProfileList, platform, updateParams.jsonData.userProfileList, "userProfile")
 
-                const profileServices = new ProfileServices();
-                //delete the old user profile List
-                const oldUserProfiles = await platform.getChildren('HasUserProfile');
-                for (const userProfile of oldUserProfiles) {
-                  await userProfile.removeFromGraph();
-                }
-                //add user profile list from json data
-                for (const userProfile of updateParams.jsonData.userProfileList) {
-                  profileServices.createUserProfileService({
-                    userProfileId: userProfile.userProfileId,
-                    name: userProfile.label,
-                    platformId: platform.getId().get(),
-                  });
-                }
+                // update the old app profiles
+                const oldAppProfileList = await platform.getChildren('HasAppProfile');
+                await updateAppUserProfile(oldAppProfileList, platform, updateParams.jsonData.appProfileList, "appProfile")
 
-                //delete the old app profile List
-                const oldAppProfiles = await platform.getChildren('HasAppProfile');
-                for (const appProfile of oldAppProfiles) {
-                  await appProfile.removeFromGraph();
-                }
-                //add user profile list from json data
-                for (const appProfile of updateParams.jsonData.appProfileList) {
-                  profileServices.createAppProfileService({
-                    appProfileId: appProfile.appProfileId,
-                    name: appProfile.label,
-                    platformId: platform.getId().get(),
-                  });
-                }
                 platform.info.idPlatformOfAdmin.set(
                   updateParams.idPlatformOfAdmin
                 );
@@ -456,3 +424,106 @@ export class PlatformService {
     }
   }
 }
+async function updateOrganProfile(oldOrgans: SpinalNode<any>[], platform: SpinalNode<any>, newList: any[]) {
+  var arrayDelete = [];
+  var arrayCreate = [];
+  for (const oldOrgan of oldOrgans) {
+    const resSome = newList.some(it => {
+      return it.label === oldOrgan.getName().get();
+    });
+    if (resSome === false) {
+      arrayDelete.push(oldOrgan);
+    }
+  }
+  for (const newOrgan of newList) {
+    const resSome = oldOrgans.some(it => {
+      return it.getName().get() === newOrgan.label;
+    });
+
+    if (resSome === false) {
+      arrayCreate.push(newOrgan);
+    }
+  }
+  for (const organ of arrayDelete) {
+    await organ.removeFromGraph();
+  }
+  const organService = new OrganService();
+  for (const organ of arrayCreate) {
+    organService.createOrgan({
+      name: organ.label,
+      organType: organ.type,
+      statusOrgan: 'online',
+      platformId: platform.getId().get(),
+    });
+  }
+}
+
+async function updateAppUserProfile(oldList: SpinalNode<any>[], platform: SpinalNode<any>, newList: any[], type: string) {
+  const profileServices = new ProfileServices();
+
+  var arrayDelete = [];
+  var arrayCreate = [];
+  if (type === "userProfile") {
+    for (const olditem of oldList) {
+      const resSome = newList.some(it => {
+        return it.userProfileId === olditem.info.userProfileId.get();
+      });
+      if (resSome === false) {
+        arrayDelete.push(olditem);
+      }
+    }
+    for (const newItem of newList) {
+      const resSome = oldList.some(it => {
+        return it.info.userProfileId.get() === newItem.userProfileId;
+      });
+
+      if (resSome === false) {
+        arrayCreate.push(newItem);
+      }
+    }
+    for (const item of arrayDelete) {
+      await item.removeFromGraph();
+    }
+
+    for (const item of arrayCreate) {
+      profileServices.createUserProfileService({
+        userProfileId: item.userProfileId,
+        name: item.label,
+        platformId: platform.getId().get(),
+      })
+    }
+
+
+
+  } else if (type === "appProfile") {
+
+    for (const olditem of oldList) {
+      const resSome = newList.some(it => {
+        return it.appProfileId === olditem.info.appProfileId.get();
+      });
+      if (resSome === false) {
+        arrayDelete.push(olditem);
+      }
+    }
+    for (const newItem of newList) {
+      const resSome = oldList.some(it => {
+        return it.info.appProfileId.get() === newItem.appProfileId;
+      });
+
+      if (resSome === false) {
+        arrayCreate.push(newItem);
+      }
+    }
+    for (const item of arrayDelete) {
+      await item.removeFromGraph();
+    }
+    for (const item of arrayCreate) {
+      profileServices.createAppProfileService({
+        appProfileId: item.appProfileId,
+        name: item.label,
+        platformId: platform.getId().get(),
+      });
+    }
+  }
+}
+

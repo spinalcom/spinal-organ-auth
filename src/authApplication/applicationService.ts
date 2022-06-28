@@ -69,6 +69,27 @@ export class ApplicationService {
     this.graph = this.spinalMiddleware.getGraph();
   }
 
+
+  public async getProfile(platformId: string, profileIdBosConfig: string) {
+    const contexts = await this.graph.getChildren('hasContext');
+    for (const context of contexts) {
+      if (context.getName().get() === 'platformList') {
+        const platforms = await context.getChildren('HasPlatform')
+        for (const platform of platforms) {
+          if (platform.getId().get() === platformId) {
+            const appProfiles = await platform.getChildren('HasAppProfile');
+            for (const profile of appProfiles) {
+              if (profile.info.appProfileId.get() === profileIdBosConfig) {
+                return profile;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+
   public async createApplication(
     applicationCreationParams: IApplicationCreationParams
   ): Promise<IApplication> {

@@ -193,11 +193,11 @@ with this file. If not, see
 
         <!-- *****************************logs******************************************** -->
         <md-card-content v-if="displayLogs === true">
-          <md-table v-model="itemSelected.hello">
+          <!-- <md-table v-model="itemSelected.hello">
             <md-table-row slot="md-table-row" slot-scope="{ item }">
               <md-table-cell md-label="Name">{{ item.name }}</md-table-cell>
             </md-table-row>
-          </md-table>
+          </md-table> -->
         </md-card-content>
       </md-card>
     </div>
@@ -253,6 +253,7 @@ export default {
         };
       }
     },
+    showEditOrgan(item) {},
     showTable(itemTable) {
       if (itemTable === "Organs") {
         this.displayOrgans = true;
@@ -289,7 +290,7 @@ export default {
         this.displayUsers = false;
         this.displayApps = true;
         this.displayLogs = false;
-      } else {
+      } else if (itemTable === "Logs") {
         this.displayOrgans = false;
         this.displayUserProfiles = false;
         this.displayAppProfiles = false;

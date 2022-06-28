@@ -99,6 +99,9 @@ with this file. If not, see
                 <md-table-cell md-label="Access">{{
                   item.userProfile.name
                 }}</md-table-cell>
+                <md-table-cell md-label="Access">{{
+                  item.userProfile.userProfileId
+                }}</md-table-cell>
               </md-table-row>
             </md-table>
           </md-card-content>
@@ -118,7 +121,7 @@ export default {
   data() {
     return {
       token: null,
-      user: null,
+      user: {},
       platformObjectList: []
     };
   },
@@ -165,8 +168,8 @@ export default {
         let infoPlatform = {
           _platform: _platform,
           userProfile: {
-            name: platform.userProfile.name,
-            userProfileId: platform.userProfile.userProfileId
+            name: platform.userProfile.userProfileName,
+            userProfileId: platform.userProfile.userProfileBosConfigId
           }
         };
         this.platformObjectList.push(infoPlatform);
