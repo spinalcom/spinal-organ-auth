@@ -355,9 +355,9 @@ export default {
         if (this.itemSelected.name === "authenticationPlatform") {
           alert("you cannot Edit this item");
         } else {
-          EventBus.$emit("EDIT_PLATFORM", this.itemSelected);
           this.$router.push({
-            path: "/editPlatform"
+            name: "EditPlatform",
+            query: { id: this.itemSelected.id }
           });
         }
       }

@@ -102,7 +102,6 @@ export class ApplicationService {
           appType: applicationCreationParams.appType,
           clientId: applicationCreationParams.clientId,
           clientSecret: applicationCreationParams.clientSecret,
-          platformList: applicationCreationParams.platformList,
         };
         const ApplicationId = SpinalGraphService.createNode(
           applicationObject,
@@ -115,6 +114,14 @@ export class ApplicationService {
           AUTH_SERVICE_APPLICATION_RELATION_NAME,
           AUTH_SERVICE_RELATION_TYPE_PTR_LST
         );
+
+        for (const platform of applicationCreationParams.platformList) {
+          const pro = await this.getProfile(platform.platformId, platform.appProfile.appProfileId);
+          // @ts-ignore
+          SpinalGraphService._addNode(pro)
+          await SpinalGraphService.addChild(res.getId().get(), pro.getId().get(), 'HasAppProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        }
+
         if (res !== undefined) {
           return {
             id: res.getId().get(),
@@ -123,7 +130,7 @@ export class ApplicationService {
             appType: res.info.appType.get(),
             clientId: res.info.clientId.get(),
             clientSecret: res.info.clientSecret.get(),
-            platformList: res.info.platformList.get(),
+            // platformList: res.info.platformList.get(),
           };
         } else {
           throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
@@ -163,6 +170,27 @@ export class ApplicationService {
                 categoryTokenApplication.getType().get() ===
                 'AuthServiceApplicationCategory'
               ) {
+
+                var platformList = [];
+                const appProfiles = await app.getChildren('HasAppProfile');
+                for (const appProfile of appProfiles) {
+                  const platformParents = await appProfile.getParents('HasAppProfile')
+                  for (const platformParent of platformParents) {
+                    if (platformParent.getType().get() === "AuthServicePlatform") {
+                      platformList.push({
+                        platformId: platformParent.getId().get(),
+                        platformName: platformParent.getName().get(),
+                        idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                        appProfile: {
+                          appProfileAdminId: appProfile.getId().get(),
+                          appProfileBosConfigId: appProfile.info.appProfileId.get(),
+                          appProfileName: appProfile.getName().get()
+                        }
+                      })
+                    }
+                  }
+                }
+
                 const TokenId = SpinalGraphService.createNode(
                   {
                     name: 'token_' + app.getName().get(),
@@ -173,7 +201,7 @@ export class ApplicationService {
                     // @ts-ignore
                     expieredToken: decodedToken.exp,
                     applicationId: app.getId().get(),
-                    // applicationProfileList: app.info.applicationProfileList.get(),
+                    platformList: platformList,
                   },
                   undefined
                 );
@@ -192,7 +220,7 @@ export class ApplicationService {
                   createdToken: decodedToken.iat,
                   // @ts-ignore
                   expieredToken: decodedToken.exp,
-                  // applicationProfileList: app.info.applicationProfileList.get(),
+                  platformList: platformList,
                 };
                 return tokenObj;
               }
@@ -215,6 +243,27 @@ export class ApplicationService {
             AUTH_SERVICE_APPLICATION_RELATION_NAME
           );
           for (const app of applications) {
+
+            var platformList = [];
+            const appProfiles = await app.getChildren('HasAppProfile');
+            for (const appProfile of appProfiles) {
+              const platformParents = await appProfile.getParents('HasAppProfile')
+              for (const platformParent of platformParents) {
+                if (platformParent.getType().get() === "AuthServicePlatform") {
+                  platformList.push({
+                    platformId: platformParent.getId().get(),
+                    platformName: platformParent.getName().get(),
+                    idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                    appProfile: {
+                      appProfileAdminId: appProfile.getId().get(),
+                      appProfileBosConfigId: appProfile.info.appProfileId.get(),
+                      appProfileName: appProfile.getName().get()
+                    }
+                  })
+                }
+              }
+            }
+
             var appObject = {
               id: app.getId().get(),
               type: app.getType().get(),
@@ -222,7 +271,7 @@ export class ApplicationService {
               appType: app.info.appType.get(),
               clientId: app.info.clientId.get(),
               clientSecret: app.info.clientSecret.get(),
-              platformList: app.info.platformList.get(),
+              platformList: platformList,
             };
             applicationObjectList.push(appObject);
           }
@@ -244,6 +293,28 @@ export class ApplicationService {
         );
         for (const app of applications) {
           if (app.getId().get() === id) {
+
+            var platformList = [];
+            const appProfiles = await app.getChildren('HasAppProfile');
+            for (const appProfile of appProfiles) {
+              const platformParents = await appProfile.getParents('HasAppProfile')
+              for (const platformParent of platformParents) {
+                if (platformParent.getType().get() === "AuthServicePlatform") {
+                  platformList.push({
+                    platformId: platformParent.getId().get(),
+                    platformName: platformParent.getName().get(),
+                    idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                    appProfile: {
+                      appProfileAdminId: appProfile.getId().get(),
+                      appProfileBosConfigId: appProfile.info.appProfileId.get(),
+                      appProfileName: appProfile.getName().get()
+                    }
+                  })
+                }
+              }
+            }
+
+
             var appObject: IApplication = {
               id: app.getId().get(),
               type: app.getType().get(),
@@ -251,7 +322,7 @@ export class ApplicationService {
               appType: app.info.appType.get(),
               clientId: app.info.clientId.get(),
               clientSecret: app.info.clientSecret.get(),
-              platformList: app.info.platformList.get(),
+              platformList: platformList,
             };
           }
         }
@@ -284,6 +355,10 @@ export class ApplicationService {
         if (app.info.clientSecret !== undefined) {
           app.info.clientSecret.set(requestBody.clientSecret);
         }
+        if (app.info.appType !== undefined) {
+          app.info.appType.set(requestBody.appType);
+        }
+
 
         appObject = {
           id: app.getId().get(),
@@ -292,7 +367,6 @@ export class ApplicationService {
           appType: app.info.appType.get(),
           clientId: app.info.clientId.get(),
           clientSecret: app.info.clientSecret.get(),
-          platformList: app.info.platformList.get(),
         };
       } else {
         throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
@@ -309,16 +383,48 @@ export class ApplicationService {
         const applications = await context.getChildren(
           AUTH_SERVICE_APPLICATION_RELATION_NAME
         );
+        var appFound: SpinalNode<any>;
         for (const app of applications) {
           if (app.getId().get() === applicationId) {
-            valid = true;
-            await app.removeFromGraph();
+            appFound = app;
+          }
+        }
+        if (appFound !== undefined) {
+          await appFound.removeFromGraph();
+        } else {
+          throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+        }
+      }
+    }
+  }
+
+
+  public async getInfoToken(tokenParam: string) {
+    const contexts = await this.graph.getChildren('hasContext');
+    for (const context of contexts) {
+      if (context.getName().get() === TOKEN_LIST) {
+        let tokens = await context.getChildren(
+          AUTH_SERVICE_TOKEN_RELATION_NAME
+        );
+        for (const token of tokens) {
+          if (token.info.token.get() === tokenParam) {
+            return {
+              name: token.info.name.get(),
+              userProfileId: token.info.userProfileId.get(),
+              token: token.info.token.get(),
+              createdToken: token.info.createdToken.get(),
+              expieredToken: token.info.expieredToken.get(),
+              userId: token.info.userId.get(),
+              serverId: token.info.serverId.get(),
+              id: token.info.id.get(),
+            };
           }
         }
       }
     }
-    if (valid === false) {
-      throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
-    }
   }
+
+
+
+
 }

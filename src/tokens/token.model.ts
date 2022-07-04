@@ -69,4 +69,15 @@ export interface IApplicationToken {
   expieredToken?: number;
   applicationId?: string;
   applicationProfileList?: string[];
+  platformList?: {
+    platformId: string;
+    platformName: string;
+    idPlatformOfAdmin: string;
+    appProfile: {
+      appProfileAdminId: string;
+      appProfileBosConfigId: string;
+      appProfileName: string;
+    };
+  }[];
+
 }

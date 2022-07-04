@@ -190,18 +190,20 @@ export class TokensService {
       if (context.getName().get() === TOKEN_LIST) {
         const categoriesToken = await context.getChildren('HasCategoryToken');
         for (const category of categoriesToken) {
-          const tokens = await category.getChildren('HasToken');
-          for (const token of tokens) {
-            if (token.info.token.get() === Token) {
-              if (token.info.platformList.get()) {
-                for (const platform of token.info.platformList.get()) {
-                  if (platform.platformId === platformId) {
-                    return {
-                      token: Token,
-                      platformId: platformId,
-                      name: platform.userProfile.name,
-                      userProfileId: platform.userProfile.userProfileId,
-                    };
+          if (category.getName().get() === "User Token") {
+            const tokens = await category.getChildren('HasToken');
+            for (const token of tokens) {
+              if (token.info.token.get() === Token) {
+                if (token.info.platformList.get()) {
+                  for (const platform of token.info.platformList.get()) {
+                    if (platform.platformId === platformId) {
+                      return {
+                        token: Token,
+                        platformId: platformId,
+                        name: platform.userProfile.userProfileName,
+                        userProfileId: platform.userProfile.userProfileBosConfigId,
+                      };
+                    }
                   }
                 }
               }

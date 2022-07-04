@@ -360,6 +360,9 @@ export class UserService {
       const context = SpinalGraphService.getContext(USER_LIST);
       const users = await context.getChildren('HasUser');
       for (const user of users) {
+
+
+
         var platformList = [];
         const userProfiles = await user.getChildren('HasUserProfile');
         for (const userProfile of userProfiles) {
@@ -469,13 +472,22 @@ export class UserService {
     const context = await SpinalGraphService.getContext(USER_LIST);
     const users = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
     var userObject: IUser;
+    if (requestBody.userName === "authAdmin") {
+      throw new OperationError('UNAUTHORIZED ROLE', HttpStatusCode.FORBIDDEN);
+    }
+    for (const user of users) {
+      if (userId !== user.getId().get())
+        if (requestBody.userName === user.info.userName.get()) {
+          throw new OperationError('USERNAME_IS_ALREADY_USED', HttpStatusCode.FORBIDDEN);
+        }
+    }
     for (const user of users) {
       if (user.getId().get() === userId) {
         if (requestBody.userName !== undefined) {
           user.info.userName.set(requestBody.userName);
           user.info.name.set(requestBody.userName);
         }
-        if (user.info.password !== undefined) {
+        if (user.info.password !== undefined || user.info.password !== "") {
           bcrypt
             .hash(requestBody.password, 10)
             .then(async (hash) => {
@@ -489,19 +501,10 @@ export class UserService {
           user.info.userType.set(requestBody.userType);
         }
 
-        const oldUserProfiles = await user.getChildren('HasUserProfile');
-        for (const oldUserProfile of oldUserProfiles) {
-          if (oldUserProfile !== undefined) {
-            await oldUserProfile.removeFromGraph();
-          }
-        }
+        const oldUserProfileList = await user.getChildren('HasUserProfile');
+        const newUserPlatformList = requestBody.platformList;
+        await updateUserProfileList(oldUserProfileList, newUserPlatformList, user);
 
-        for (const platform of requestBody.platformList) {
-          const pro = await this.getProfile(platform.platformId, platform.userProfile.userProfileId);
-          // @ts-ignore
-          SpinalGraphService._addNode(pro)
-          await SpinalGraphService.addChild(user.getId().get(), pro.getId().get(), 'HasUserProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST)
-        }
 
         var platformList = [];
         const userProfiles = await user.getChildren('HasUserProfile');
@@ -543,6 +546,7 @@ export class UserService {
       return userObject;
     } else throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
   }
+
 
   public async deleteUser(userId: string): Promise<void> {
     const contexts = await this.graph.getChildren('hasContext');
@@ -747,4 +751,40 @@ export class UserService {
   public async getRoles(): Promise<{ name: string }[]> {
     return [{ name: 'Super User' }, { name: 'Simple User' }];
   }
+}
+
+async function updateUserProfileList(oldUserProfileList: SpinalNode<any>[], newUserPlatformList: any[], user: SpinalNode<any>) {
+  var arrayDelete = [];
+  var arrayCreate = [];
+
+  for (const olditem of oldUserProfileList) {
+    const resSome = newUserPlatformList.some(it => {
+      console.log(it.userProfile.userProfileAdminId);
+
+      return it.userProfile.userProfileAdminId === olditem.getId().get();
+    });
+    if (resSome === false) {
+      arrayDelete.push(olditem);
+    }
+  }
+
+  for (const newItem of newUserPlatformList) {
+    const resSome = oldUserProfileList.some(it => {
+      return it.getId().get() === newItem.userProfile.userProfileAdminId;
+    });
+    if (resSome === false) {
+      arrayCreate.push(newItem);
+    }
+  }
+
+  for (const arrdlt of arrayDelete) {
+    await user.removeChild(arrdlt.getId().get(), 'HasUserProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+  }
+
+  for (const arrcrt of arrayCreate) {
+    await user.addChild(arrcrt.userProfile.userProfileAdminId, 'HasUserProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+  }
+
+
+
 }

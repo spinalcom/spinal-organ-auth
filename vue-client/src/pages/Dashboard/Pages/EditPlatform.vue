@@ -89,6 +89,7 @@ export default {
   mixins: [validationMixin],
   components: {},
   data: () => ({
+    platformSelectedId: null,
     platformSelected: null,
     token: null,
     position: "center",
@@ -113,7 +114,7 @@ export default {
   methods: {
     async editPlatformItem() {
       const rep = await instanceAxios.instanceAxios.put(
-        `/platforms/${this.platformSelected.id}`,
+        `/platforms/${this.platformSelectedId}`,
         {
           name: this.formPlatform.platformName
         },
@@ -157,14 +158,23 @@ export default {
     clearForm() {
       this.$v.$reset();
       this.formPlatform.platformName = null;
+    },
+    async getPlatform(id) {
+      const rep = await instanceAxios.instanceAxios.get(`/platforms/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": this.token
+        }
+      });
+      this.platformSelected = rep.data;
+      return rep.data;
     }
   },
-  mounted() {
+  async mounted() {
     this.token = localStorage.getItem("token");
-    const aux = EventBus.$on("EDIT_PLATFORM", function(item) {
-      this.platformSelected = item;
-    });
-    this.platformSelected = aux.platformSelected;
+    this.platformSelectedId = this.$route.query.id;
+    var platform = await this.getPlatform(this.$route.query.id);
+    this.formPlatform.platformName = platform.name;
   },
   watch: {}
 };

@@ -79,9 +79,11 @@ export interface IUserUpdateParams {
   userType?: IUserType;
   platformList?: {
     platformId: string;
+    platformName: string;
     userProfile: {
-      name: string;
-      userProfileId: string;
+      userProfileAdminId: string;
+      userProfileBosConfigId: string;
+      userProfileName: string;
     };
   }[];
 }

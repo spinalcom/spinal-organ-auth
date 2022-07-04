@@ -93,13 +93,13 @@ with this file. If not, see
                 <md-table-cell md-label="Platform Name">{{
                   item._platform.name
                 }}</md-table-cell>
-                <md-table-cell md-label="Access">{{
+                <md-table-cell md-label="Status">{{
                   item._platform.statusPlatform
                 }}</md-table-cell>
-                <md-table-cell md-label="Access">{{
+                <md-table-cell md-label="Profile Name">{{
                   item.userProfile.name
                 }}</md-table-cell>
-                <md-table-cell md-label="Access">{{
+                <md-table-cell md-label="Profile Id">{{
                   item.userProfile.userProfileId
                 }}</md-table-cell>
               </md-table-row>

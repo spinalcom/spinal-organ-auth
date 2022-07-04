@@ -103,7 +103,7 @@ export default {
   data() {
     return {
       token: null,
-      app: null,
+      app: {},
       platformObjectList: []
     };
   },

@@ -205,10 +205,10 @@ with this file. If not, see
                   <md-table v-model="platformObjectList">
                     <md-table-row slot="md-table-row" slot-scope="{ item }">
                       <md-table-cell md-label="Name BOS">{{
-                        item.platformId
+                        item.platformName
                       }}</md-table-cell>
                       <md-table-cell md-label="Profile">
-                        {{ item.userProfile.name }}
+                        {{ item.userProfile.userProfileName }}
                       </md-table-cell>
                       <md-table-cell md-label="Profile">
                         <md-button
@@ -300,7 +300,6 @@ export default {
         minLength: minLength(3)
       },
       password: {
-        required,
         minLength: minLength(8)
       },
       email: {
@@ -322,6 +321,8 @@ export default {
   computed: {},
   methods: {
     async editUser() {
+      if (this.formUser.userName === "authAdmin") {
+      }
       var objectBody = {
         userName: this.formUser.userName,
         password: this.formUser.password,
@@ -329,28 +330,18 @@ export default {
         telephone: this.formUser.telephone,
         info: this.formUser.info,
         userType: this.formUser.userType.name,
-        platformList: [
-          {
-            platformId:
-              "SpinalNode-d3d3719b-45b1-86db-fcb2-a624dbb1bd6d-181868239e9",
+        platformList: this.platformObjectList.map(el => {
+          return {
+            platformId: el.platformId,
+            platformName: el.platformName,
             userProfile: {
-              name: " el.userProfile.name",
-              userProfileId: "el.userProfile.userProfileId"
+              userProfileAdminId: el.userProfile.userProfileAdminId,
+              userProfileBosConfigId: el.userProfile.userProfileBosConfigId,
+              userProfileName: el.userProfile.userProfileName
             }
-          }
-        ]
-        // platformList: this.platformObjectList.map(el => {
-        //   return {
-        //     platformId: el.platformId,
-        //     userProfile: {
-        //       name: el.userProfile.name,
-        //       userProfileId: el.userProfile.userProfileId
-        //     }
-        //   };
-        // })
+          };
+        })
       };
-
-      console.log("************", objectBody);
 
       const rep = await instanceAxios.instanceAxios.put(
         `/users/${this.userSelectedId}`,
@@ -362,15 +353,15 @@ export default {
           }
         }
       );
-      if (rep) {
-        this.lastUser = `${objectBody.userName}`;
-        this.userSaved = true;
-        this.sending = false;
-        this.clearForm();
-        window.setTimeout(() => {
-          this.$router.push("/Users");
-        }, 1500);
-      }
+      // if (rep) {
+      //   this.lastUser = `${objectBody.userName}`;
+      //   this.userSaved = true;
+      //   this.sending = false;
+      //   this.clearForm();
+      //   window.setTimeout(() => {
+      //     this.$router.push("/Users");
+      //   }, 1500);
+      // }
     },
     savePlateformObject() {
       var test = true;
@@ -387,8 +378,9 @@ export default {
           platformId: this.formPlatformObject.platform.id,
           platformName: this.formPlatformObject.platform.name,
           userProfile: {
-            name: this.formPlatformObject.userProfileValue.name,
-            userProfileId: this.formPlatformObject.userProfileValue
+            userProfileName: this.formPlatformObject.userProfileValue.name,
+            userProfileAdminId: this.formPlatformObject.userProfileValue.id,
+            userProfileBosConfigId: this.formPlatformObject.userProfileValue
               .userProfileId
           }
         });
@@ -492,6 +484,8 @@ export default {
     this.formUser.telephone = user.telephone;
     this.formUser.info = user.info;
     this.platformObjectList = user.platformList;
+    console.log("wwwiiiiwwww", this.platformObjectList);
+
     await this.getUserProfileList(user.id);
     await this.getplatformList();
     await this.getRoles();
@@ -499,8 +493,7 @@ export default {
   watch: {
     "formPlatformObject.platform": function(value) {
       this.getUserProfileList(value.id);
-    },
-    platformObjectList: function(value) {}
+    }
   }
 };
 </script>

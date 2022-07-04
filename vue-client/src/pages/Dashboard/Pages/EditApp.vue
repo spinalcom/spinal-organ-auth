@@ -220,6 +220,8 @@ export default {
   data() {
     return {
       token: null,
+      appSelectedId: null,
+      appSelected: null,
       position: "center",
       duration: 3000,
       isInfinity: false,
@@ -386,10 +388,28 @@ export default {
         }
       });
       this.platformList = rep.data;
+    },
+    async getApp(appId) {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/applications/${appId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      this.appSelected = rep.data;
+      return rep.data;
     }
   },
-  mounted() {
+  async mounted() {
     this.token = localStorage.getItem("token");
+    this.appSelectedId = this.$route.query.id;
+    var app = await this.getApp(this.$route.query.id);
+    console.log(app);
+    this.formApp.name = app.name;
+    this.formApp.appType = app.appType;
     this.getAppProfileList();
     this.getplatformList();
   },

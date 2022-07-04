@@ -35,7 +35,7 @@ export interface IApplication {
   appType: string;
   clientId: string;
   clientSecret: string;
-  platformList: {
+  platformList?: {
     platformId: string;
     appProfile: {
       name: string;
@@ -55,7 +55,7 @@ export interface IApplicationCreationParams {
   clientId: string;
   clientSecret: string;
   appType: string;
-  platformList: {
+  platformList?: {
     platformId: string;
     appProfile: {
       name: string;

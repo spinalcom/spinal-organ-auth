@@ -191,10 +191,22 @@ export class PlatformService {
         );
         for (const platform of platforms) {
           if (platform.getId().get() === id) {
-            platform.info.name.set(requestBody.name);
-            platform.info.statusPlatform.set(requestBody.statusPlatform);
-            platform.info.url.set(requestBody.url);
-            platform.info.address?.set(requestBody.address);
+
+            if (requestBody.name !== undefined) {
+              platform.info.name.set(requestBody.name);
+            }
+            if (requestBody.statusPlatform !== undefined) {
+              platform.info.statusPlatform.set(requestBody.statusPlatform);
+            }
+            if (requestBody.url !== undefined) {
+              platform.info.url.set(requestBody.url);
+            }
+            if (requestBody.address !== undefined) {
+              platform.info.address?.set(requestBody.address);
+            }
+            if (requestBody.TokenBosAdmin !== undefined) {
+              platform.info.TokenBosAdmin?.set(requestBody.TokenBosAdmin);
+            }
 
             return {
               id: platform.getId().get(),
