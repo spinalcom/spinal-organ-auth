@@ -353,15 +353,15 @@ export default {
           }
         }
       );
-      // if (rep) {
-      //   this.lastUser = `${objectBody.userName}`;
-      //   this.userSaved = true;
-      //   this.sending = false;
-      //   this.clearForm();
-      //   window.setTimeout(() => {
-      //     this.$router.push("/Users");
-      //   }, 1500);
-      // }
+      if (rep) {
+        this.lastUser = `${objectBody.userName}`;
+        this.userSaved = true;
+        this.sending = false;
+        this.clearForm();
+        window.setTimeout(() => {
+          this.$router.push("/Users");
+        }, 1500);
+      }
     },
     savePlateformObject() {
       var test = true;
@@ -484,8 +484,6 @@ export default {
     this.formUser.telephone = user.telephone;
     this.formUser.info = user.info;
     this.platformObjectList = user.platformList;
-    console.log("wwwiiiiwwww", this.platformObjectList);
-
     await this.getUserProfileList(user.id);
     await this.getplatformList();
     await this.getRoles();

@@ -151,7 +151,6 @@ export default {
           "x-access-token": this.token
         }
       });
-      console.log(rep);
       const test = rep.data.map(async item => {
         item.organs = await this.getOrgans(item.id);
         item.userProfiles = await this.getUserProfiles(item.id);

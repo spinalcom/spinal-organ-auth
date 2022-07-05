@@ -103,6 +103,7 @@ export default {
         }
       });
       this.appList = rep.data;
+      console.log(rep);
     }
   },
   mounted() {

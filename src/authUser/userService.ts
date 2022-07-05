@@ -211,17 +211,19 @@ export class UserService {
                       for (const userProfile of userProfiles) {
                         const platformParents = await userProfile.getParents('HasUserProfile')
                         for (const platformParent of platformParents) {
-                          if (platformParent.getType().get() === "AuthServicePlatform") {
-                            platformList.push({
-                              platformId: platformParent.getId().get(),
-                              platformName: platformParent.getName().get(),
-                              idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
-                              userProfile: {
-                                userProfileAdminId: userProfile.getId().get(),
-                                userProfileBosConfigId: userProfile.info.userProfileId.get(),
-                                userProfileName: userProfile.getName().get()
-                              }
-                            })
+                          if (platformParent !== undefined) {
+                            if (platformParent.getType().get() === "AuthServicePlatform") {
+                              platformList.push({
+                                platformId: platformParent.getId().get(),
+                                platformName: platformParent.getName().get(),
+                                idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                                userProfile: {
+                                  userProfileAdminId: userProfile.getId().get(),
+                                  userProfileBosConfigId: userProfile.info.userProfileId.get(),
+                                  userProfileName: userProfile.getName().get()
+                                }
+                              })
+                            }
                           }
                         }
                       }
@@ -360,9 +362,6 @@ export class UserService {
       const context = SpinalGraphService.getContext(USER_LIST);
       const users = await context.getChildren('HasUser');
       for (const user of users) {
-
-
-
         var platformList = [];
         const userProfiles = await user.getChildren('HasUserProfile');
         for (const userProfile of userProfiles) {
@@ -503,7 +502,7 @@ export class UserService {
 
         const oldUserProfileList = await user.getChildren('HasUserProfile');
         const newUserPlatformList = requestBody.platformList;
-        await updateUserProfileList(oldUserProfileList, newUserPlatformList, user);
+        await updateUserProfileList(oldUserProfileList, newUserPlatformList, user, this.graph);
 
 
         var platformList = [];
@@ -753,14 +752,12 @@ export class UserService {
   }
 }
 
-async function updateUserProfileList(oldUserProfileList: SpinalNode<any>[], newUserPlatformList: any[], user: SpinalNode<any>) {
+async function updateUserProfileList(oldUserProfileList: SpinalNode<any>[], newUserPlatformList: any[], user: SpinalNode<any>, graph: SpinalGraph<any>) {
   var arrayDelete = [];
   var arrayCreate = [];
 
   for (const olditem of oldUserProfileList) {
     const resSome = newUserPlatformList.some(it => {
-      console.log(it.userProfile.userProfileAdminId);
-
       return it.userProfile.userProfileAdminId === olditem.getId().get();
     });
     if (resSome === false) {
@@ -778,13 +775,30 @@ async function updateUserProfileList(oldUserProfileList: SpinalNode<any>[], newU
   }
 
   for (const arrdlt of arrayDelete) {
-    await user.removeChild(arrdlt.getId().get(), 'HasUserProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+    await user.removeChild(arrdlt, 'HasUserProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST)
   }
 
   for (const arrcrt of arrayCreate) {
-    await user.addChild(arrcrt.userProfile.userProfileAdminId, 'HasUserProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+    const realNode = await getrealNodeProfile(arrcrt.userProfile.userProfileAdminId, arrcrt.platformId, graph)
+    await user.addChild(realNode, 'HasUserProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST);
   }
 
+}
 
+async function getrealNodeProfile(profileId: string, platformId: string, graph: SpinalGraph<any>) {
+  const contexts: SpinalNode<any>[] = await graph.getChildren('hasContext');
+  for (const context of contexts) {
+    const platforms = await context.getChildren('HasPlatform');
+    for (const platform of platforms) {
+      if (platform.getId().get() === platformId) {
+        const profiles = await platform.getChildren('HasUserProfile');
+        for (const profile of profiles) {
+          if (profile.getId().get() === profileId) {
+            return profile;
+          }
+        }
+      }
+    }
+  }
 
 }

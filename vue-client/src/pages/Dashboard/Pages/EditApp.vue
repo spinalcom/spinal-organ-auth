@@ -164,7 +164,7 @@ with this file. If not, see
                         item.platformName
                       }}</md-table-cell>
                       <md-table-cell md-label="Profile">
-                        {{ item.appProfile.name }}
+                        {{ item.appProfile.appProfileName }}
                       </md-table-cell>
                       <md-table-cell md-label="Profile">
                         <md-button
@@ -274,7 +274,7 @@ export default {
       });
       return registerKey;
     },
-    async saveApp() {
+    async editApp() {
       var objectBody = {
         name: this.formApp.name,
         clientId: this.formApp.clientId,
@@ -283,16 +283,18 @@ export default {
         platformList: this.platformObjectList.map(el => {
           return {
             platformId: el.platformId,
+            platformName: el.platformName,
             appProfile: {
-              name: el.appProfile.name,
-              appProfileId: el.appProfile.appProfileId
+              appProfileAdminId: el.appProfile.appProfileAdminId,
+              appProfileBosConfigId: el.appProfile.appProfileBosConfigId,
+              appProfileName: el.appProfile.appProfileName
             }
           };
         })
       };
 
-      const rep = await instanceAxios.instanceAxios.post(
-        "/applications",
+      const rep = await instanceAxios.instanceAxios.put(
+        `/applications/${this.appSelectedId}`,
         objectBody,
         {
           headers: {
@@ -326,8 +328,10 @@ export default {
           platformId: this.formPlatformObject.platform.id,
           platformName: this.formPlatformObject.platform.name,
           appProfile: {
-            name: this.formPlatformObject.appProfileValue.name,
-            appProfileId: this.formPlatformObject.appProfileValue.appProfileId
+            appProfileName: this.formPlatformObject.appProfileValue.name,
+            appProfileAdminId: this.formPlatformObject.appProfileValue.id,
+            appProfileBosConfigId: this.formPlatformObject.appProfileValue
+              .appProfileId
           }
         });
         this.formPlatformObject.platform = [];
@@ -364,7 +368,7 @@ export default {
       this.$v.$touch();
 
       if (!this.$v.$invalid) {
-        this.saveApp();
+        this.editApp();
       }
     },
     async getAppProfileList(id) {
@@ -407,9 +411,9 @@ export default {
     this.token = localStorage.getItem("token");
     this.appSelectedId = this.$route.query.id;
     var app = await this.getApp(this.$route.query.id);
-    console.log(app);
     this.formApp.name = app.name;
     this.formApp.appType = app.appType;
+    this.platformObjectList = app.platformList;
     this.getAppProfileList();
     this.getplatformList();
   },

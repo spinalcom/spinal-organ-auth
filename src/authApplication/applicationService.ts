@@ -170,23 +170,24 @@ export class ApplicationService {
                 categoryTokenApplication.getType().get() ===
                 'AuthServiceApplicationCategory'
               ) {
-
                 var platformList = [];
                 const appProfiles = await app.getChildren('HasAppProfile');
                 for (const appProfile of appProfiles) {
                   const platformParents = await appProfile.getParents('HasAppProfile')
                   for (const platformParent of platformParents) {
-                    if (platformParent.getType().get() === "AuthServicePlatform") {
-                      platformList.push({
-                        platformId: platformParent.getId().get(),
-                        platformName: platformParent.getName().get(),
-                        idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
-                        appProfile: {
-                          appProfileAdminId: appProfile.getId().get(),
-                          appProfileBosConfigId: appProfile.info.appProfileId.get(),
-                          appProfileName: appProfile.getName().get()
-                        }
-                      })
+                    if (platformParent !== undefined) {
+                      if (platformParent.getType().get() === "AuthServicePlatform") {
+                        platformList.push({
+                          platformId: platformParent.getId().get(),
+                          platformName: platformParent.getName().get(),
+                          idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                          appProfile: {
+                            appProfileAdminId: appProfile.getId().get(),
+                            appProfileBosConfigId: appProfile.info.appProfileId.get(),
+                            appProfileName: appProfile.getName().get()
+                          }
+                        })
+                      }
                     }
                   }
                 }
@@ -249,17 +250,19 @@ export class ApplicationService {
             for (const appProfile of appProfiles) {
               const platformParents = await appProfile.getParents('HasAppProfile')
               for (const platformParent of platformParents) {
-                if (platformParent.getType().get() === "AuthServicePlatform") {
-                  platformList.push({
-                    platformId: platformParent.getId().get(),
-                    platformName: platformParent.getName().get(),
-                    idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
-                    appProfile: {
-                      appProfileAdminId: appProfile.getId().get(),
-                      appProfileBosConfigId: appProfile.info.appProfileId.get(),
-                      appProfileName: appProfile.getName().get()
-                    }
-                  })
+                if (platformParent !== undefined) {
+                  if (platformParent.getType().get() === "AuthServicePlatform") {
+                    platformList.push({
+                      platformId: platformParent.getId().get(),
+                      platformName: platformParent.getName().get(),
+                      idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                      appProfile: {
+                        appProfileAdminId: appProfile.getId().get(),
+                        appProfileBosConfigId: appProfile.info.appProfileId.get(),
+                        appProfileName: appProfile.getName().get()
+                      }
+                    })
+                  }
                 }
               }
             }
@@ -293,27 +296,27 @@ export class ApplicationService {
         );
         for (const app of applications) {
           if (app.getId().get() === id) {
-
             var platformList = [];
             const appProfiles = await app.getChildren('HasAppProfile');
             for (const appProfile of appProfiles) {
               const platformParents = await appProfile.getParents('HasAppProfile')
               for (const platformParent of platformParents) {
-                if (platformParent.getType().get() === "AuthServicePlatform") {
-                  platformList.push({
-                    platformId: platformParent.getId().get(),
-                    platformName: platformParent.getName().get(),
-                    idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
-                    appProfile: {
-                      appProfileAdminId: appProfile.getId().get(),
-                      appProfileBosConfigId: appProfile.info.appProfileId.get(),
-                      appProfileName: appProfile.getName().get()
-                    }
-                  })
+                if (platformParent !== undefined) {
+                  if (platformParent.getType().get() === "AuthServicePlatform") {
+                    platformList.push({
+                      platformId: platformParent.getId().get(),
+                      platformName: platformParent.getName().get(),
+                      idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                      appProfile: {
+                        appProfileAdminId: appProfile.getId().get(),
+                        appProfileBosConfigId: appProfile.info.appProfileId.get(),
+                        appProfileName: appProfile.getName().get()
+                      }
+                    })
+                  }
                 }
               }
             }
-
 
             var appObject: IApplication = {
               id: app.getId().get(),
@@ -359,6 +362,32 @@ export class ApplicationService {
           app.info.appType.set(requestBody.appType);
         }
 
+        const oldAppProfileList = await app.getChildren('HasAppProfile');
+        const newAppPlatformList = requestBody.platformList;
+        await updateAppProfileList(oldAppProfileList, newAppPlatformList, app, this.graph);
+
+        var platformList = [];
+        const appProfiles = await app.getChildren('HasAppProfile');
+        for (const appProfile of appProfiles) {
+          const platformParents = await appProfile.getParents('HasAppProfile')
+          for (const platformParent of platformParents) {
+            if (platformParent !== undefined) {
+              if (platformParent.getType().get() === "AuthServicePlatform") {
+                platformList.push({
+                  platformId: platformParent.getId().get(),
+                  platformName: platformParent.getName().get(),
+                  idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                  appProfile: {
+                    appProfileAdminId: appProfile.getId().get(),
+                    appProfileBosConfigId: appProfile.info.appProfileId.get(),
+                    appProfileName: appProfile.getName().get()
+                  }
+                })
+              }
+            }
+          }
+        }
+
 
         appObject = {
           id: app.getId().get(),
@@ -367,6 +396,8 @@ export class ApplicationService {
           appType: app.info.appType.get(),
           clientId: app.info.clientId.get(),
           clientSecret: app.info.clientSecret.get(),
+          platformList: platformList,
+
         };
       } else {
         throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
@@ -423,8 +454,51 @@ export class ApplicationService {
       }
     }
   }
+}
 
 
+async function updateAppProfileList(oldAppProfileList: SpinalNode<any>[], newAppPlatformList: any[], app: SpinalNode<any>, graph: SpinalGraph<any>) {
+  var arrayDelete = [];
+  var arrayCreate = [];
+  for (const olditem of oldAppProfileList) {
+    const resSome = newAppPlatformList.some(it => {
+      return it.appProfile.appProfileAdminId === olditem.getId().get();
+    });
+    if (resSome === false) {
+      arrayDelete.push(olditem);
+    }
+  }
+  for (const newItem of newAppPlatformList) {
+    const resSome = oldAppProfileList.some(it => {
+      return it.getId().get() === newItem.appProfile.appProfileAdminId;
+    });
+    if (resSome === false) {
+      arrayCreate.push(newItem);
+    }
+  }
+  for (const arrdlt of arrayDelete) {
+    await app.removeChild(arrdlt, 'HasAppProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+  }
+  for (const arrcrt of arrayCreate) {
+    const realNode = await getrealNodeProfile(arrcrt.appProfile.appProfileAdminId, arrcrt.platformId, graph)
+    await app.addChild(realNode, 'HasAppProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+  }
+}
 
+async function getrealNodeProfile(profileId: string, platformId: string, graph: SpinalGraph<any>) {
+  const contexts: SpinalNode<any>[] = await graph.getChildren('hasContext');
+  for (const context of contexts) {
+    const platforms = await context.getChildren('HasPlatform');
+    for (const platform of platforms) {
+      if (platform.getId().get() === platformId) {
+        const profiles = await platform.getChildren('HasAppProfile');
+        for (const profile of profiles) {
+          if (profile.getId().get() === profileId) {
+            return profile;
+          }
+        }
+      }
+    }
+  }
 
 }

@@ -77,9 +77,11 @@ export interface IApplicationUpdateParams {
   appType?: string;
   platformList?: {
     platformId: string;
+    platformName: string;
     appProfile: {
-      name: string;
-      appProfileId: string;
+      appProfileAdminId: string;
+      appProfileBosConfigId: string;
+      appProfileName: string;
     };
   }[];
 }

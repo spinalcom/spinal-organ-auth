@@ -59,7 +59,7 @@ const models: TsoaRoute.Models = {
             "clientId": {"dataType":"string"},
             "clientSecret": {"dataType":"string"},
             "appType": {"dataType":"string"},
-            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfileId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}},"required":true},"platformId":{"dataType":"string","required":true}}}},
+            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfileName":{"dataType":"string","required":true},"appProfileBosConfigId":{"dataType":"string","required":true},"appProfileAdminId":{"dataType":"string","required":true}},"required":true},"platformName":{"dataType":"string","required":true},"platformId":{"dataType":"string","required":true}}}},
         },
         "additionalProperties": false,
     },
