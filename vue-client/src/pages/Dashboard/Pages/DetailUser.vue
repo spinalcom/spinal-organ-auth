@@ -128,7 +128,11 @@ export default {
   methods: {
     AddPltaform() {},
     displayEditUser() {
-      this.$router.push({ name: "EditUser", query: { id: this.user.id } });
+      if (this.user.name === "authAdmin") {
+        this.$router.push({ name: "EditAdminProfile" });
+      } else {
+        this.$router.push({ name: "EditUser", query: { id: this.user.id } });
+      }
     },
     async deleteUser(ask = true) {
       let r = true;

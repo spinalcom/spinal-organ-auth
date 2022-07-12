@@ -45,7 +45,8 @@ export const USER_LOG_EVENT_TYPE = 'AuthServiceUserEvent'
 export const APPLICATION_LOG_EVENT_TYPE = 'AuthServiceApplicationEvent'
 export const PLATFORM_LOG_EVENT_TYPE = 'AuthServicePlatformEvent'
 export const ADMIN_LOG_EVENT_TYPE = 'AuthServiceAdminEvent'
-export const USER_REQUEST_EVENT_LOG = 'AuthServiceUserRequestEventLog'
+export const USER_REQUEST_EVENT_LOG_TYPE = 'AuthServiceUserRequestEventLog'
+export const USER_LOG_TYPE = 'AuthServiceUserLog'
 
 // RelationName
 export const AUTH_SERVICE_PLATFORM_RELATION_NAME = 'HasPlatform';

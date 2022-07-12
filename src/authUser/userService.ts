@@ -57,6 +57,7 @@ import {
 import { IUserToken } from '../tokens/token.model';
 import config from '../config';
 import SpinalMiddleware from '../spinalMiddleware';
+import { LogsService } from '../logs/logService';
 import data from './profileUserListData';
 import bcrypt = require('bcrypt');
 import jwt = require('jsonwebtoken');
@@ -95,19 +96,21 @@ export class UserService {
   public async createUser(
     userCreationParams: IUserCreationParams
   ): Promise<IUser> {
+    const logService = new LogsService();
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
       if (context.getName().get() === USER_LIST) {
         const users = await context.getChildren('HasUser');
         for (const user of users) {
           if (user.info.userName.get() === userCreationParams.userName) {
+            await logService.createLog(user, 'UserLogs', 'Create', 'Create Not Valid');
             throw new OperationError(
               'USERNAME_IS_ALREADY_USED',
               HttpStatusCode.FORBIDDEN
             );
           }
         }
-        var userCreated = bcrypt
+        var userNode: SpinalNode<any> = bcrypt
           .hash(userCreationParams.password, 10)
           .then(async (hash) => {
             const userObject = {
@@ -144,31 +147,37 @@ export class UserService {
                 SpinalGraphService._addNode(pro)
                 await SpinalGraphService.addChild(res.getId().get(), pro.getId().get(), 'HasUserProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST)
               }
-
-              return {
-                id: res.getId().get(),
-                type: res.getType().get(),
-                name: res.getName().get(),
-                userName: res.info.userName.get(),
-                password: res.info.password.get(),
-                email: res.info.email.get(),
-                telephone: res.info.telephone.get(),
-                info: res.info.info.get(),
-                userType: res.info.userType.get(),
-                // platformList: res.info.platformList.get(),
-              };
+              return res
             } else {
               return undefined;
             }
           });
+
+        const userCreated = await userNode;
         if (userCreated === undefined) {
+          await logService.createLog(userCreated, 'UserLogs', 'Create', 'Create Not Valid');
           throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
-        } else return userCreated;
+        } else {
+          await logService.createLog(userCreated, 'UserLogs', 'Create', 'Create Valid');
+          return {
+            id: userCreated.getId().get(),
+            type: userCreated.getType().get(),
+            name: userCreated.getName().get(),
+            userName: userCreated.info.userName.get(),
+            password: userCreated.info.password.get(),
+            email: userCreated.info.email.get(),
+            telephone: userCreated.info.telephone.get(),
+            info: userCreated.info.info.get(),
+            userType: userCreated.info.userType.get(),
+            // platformList: res.info.platformList.get(),
+          };;
+        }
       }
     }
   }
 
   public async login(userLoginParams: IUserLoginParams): Promise<IUserToken> {
+    const logService = new LogsService();
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
       if (context.getName().get() === USER_LIST) {
@@ -260,6 +269,9 @@ export class UserService {
                         userId: user.getId().get(),
                         platformList: platformList,
                       };
+                      if (tokenObj !== undefined) {
+                        await logService.createLog(user, 'UserLogs', 'Create', 'Login Valid');
+                      }
                       return tokenObj;
                     }
                   }

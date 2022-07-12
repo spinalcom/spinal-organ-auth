@@ -321,11 +321,23 @@ export default {
   computed: {},
   methods: {
     async editUser() {
-      if (this.formUser.userName === "authAdmin") {
+      console.log("**************", this.formUser.password);
+      console.log("=================", this.userSelected.password);
+      var password = "";
+      if (
+        this.formUser.password === undefined ||
+        this.formUser.password === null ||
+        this.formUser.password === ""
+      ) {
+        password = this.userSelected.password;
+      } else {
+        password = this.formUser.password;
       }
+      console.log("==============eddeded===", password);
+
       var objectBody = {
         userName: this.formUser.userName,
-        password: this.formUser.password,
+        password: password,
         email: this.formUser.email,
         telephone: this.formUser.telephone,
         info: this.formUser.info,
