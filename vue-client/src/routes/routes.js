@@ -80,6 +80,7 @@ import DetailUser from '@/pages/Dashboard/Pages/DetailUser.vue';
 import DetailApp from '@/pages/Dashboard/Pages/DetailApp.vue';
 import PlatformDetail from '@/pages/Dashboard/Pages/PlatformDetail.vue';
 import EditAdminProfile from '@/pages/Dashboard/Pages/EditAdminProfile.vue';
+import Logs from '@/pages/Dashboard/Pages/Logs.vue';
 // Calendar
 import Calendar from '@/pages/Dashboard/Calendar.vue';
 // Charts
@@ -375,6 +376,12 @@ const routes = [
         path: 'EditApp',
         name: 'EditApp',
         components: { default: EditApp },
+        props: true,
+      },
+      {
+        path: 'Logs',
+        name: 'Logs',
+        components: { default: Logs },
         props: true,
       },
     ],

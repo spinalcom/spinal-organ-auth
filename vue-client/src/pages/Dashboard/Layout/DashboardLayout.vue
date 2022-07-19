@@ -64,6 +64,14 @@ with this file. If not, see
             path: '/platforms',
           }"
         ></sidebar-item>
+
+        <sidebar-item
+          :link="{
+            name: 'Logs',
+            icon: 'insights',
+            path: '/Logs',
+          }"
+        ></sidebar-item>
       </template>
     </side-bar>
     <div class="main-panel">
