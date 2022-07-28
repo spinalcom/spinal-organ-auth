@@ -200,8 +200,38 @@ export class TokensService {
                       return {
                         token: Token,
                         platformId: platformId,
-                        name: platform.userProfile.userProfileName,
-                        userProfileId: platform.userProfile.userProfileBosConfigId,
+                        userProfileName: platform.userProfile.userProfileName,
+                        userProfileBosConfigId: platform.userProfile.userProfileBosConfigId,
+                      };
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  public async getAppProfileByToken(Token: string, platformId: string) {
+    const contexts = await this.graph.getChildren('hasContext');
+    for (const context of contexts) {
+      if (context.getName().get() === TOKEN_LIST) {
+        const categoriesToken = await context.getChildren('HasCategoryToken');
+        for (const category of categoriesToken) {
+          if (category.getName().get() === "Application Token") {
+            const tokens = await category.getChildren('HasToken');
+            for (const token of tokens) {
+              if (token.info.token.get() === Token) {
+                if (token.info.platformList.get()) {
+                  for (const platform of token.info.platformList.get()) {
+                    if (platform.platformId === platformId) {
+                      return {
+                        token: Token,
+                        platformId: platformId,
+                        appProfileName: platform.appProfile.appProfileName,
+                        appProfileBosConfigId: platform.appProfile.appProfileBosConfigId,
                       };
                     }
                   }
