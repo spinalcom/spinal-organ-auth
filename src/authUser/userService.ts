@@ -69,9 +69,12 @@ import jwt_decode from 'jwt-decode';
 export class UserService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
   public graph: SpinalGraph<any>;
+  public logService: LogsService;
   constructor() {
     this.spinalMiddleware.init();
     this.graph = this.spinalMiddleware.getGraph();
+    this.logService = new LogsService();
+
   }
 
   public async getProfile(platformId: string, profileIdBosConfig: string) {
@@ -96,14 +99,13 @@ export class UserService {
   public async createUser(
     userCreationParams: IUserCreationParams
   ): Promise<IUser> {
-    const logService = new LogsService();
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
       if (context.getName().get() === USER_LIST) {
         const users = await context.getChildren('HasUser');
         for (const user of users) {
           if (user.info.userName.get() === userCreationParams.userName) {
-            await logService.createLog(user, 'UserLogs', 'Create', 'Create Not Valid');
+            await this.logService.createLog(user, 'UserLogs', 'Create', 'Create Not Valid', "create a new user with this userName");
             throw new OperationError(
               'USERNAME_IS_ALREADY_USED',
               HttpStatusCode.FORBIDDEN
@@ -155,10 +157,10 @@ export class UserService {
 
         const userCreated = await userNode;
         if (userCreated === undefined) {
-          await logService.createLog(userCreated, 'UserLogs', 'Create', 'Create Not Valid');
+          await this.logService.createLog(userCreated, 'UserLogs', 'Create', 'Create Not Valid', "Create Not Valid");
           throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
         } else {
-          await logService.createLog(userCreated, 'UserLogs', 'Create', 'Create Valid');
+          await this.logService.createLog(userCreated, 'UserLogs', 'Create', 'Create Valid', "Create Valid");
           return {
             id: userCreated.getId().get(),
             type: userCreated.getType().get(),
@@ -177,7 +179,7 @@ export class UserService {
   }
 
   public async login(userLoginParams: IUserLoginParams): Promise<IUserToken> {
-    const logService = new LogsService();
+    // const logService = new LogsService();
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
       if (context.getName().get() === USER_LIST) {
@@ -190,6 +192,7 @@ export class UserService {
               .compare(userLoginParams.password, user.info.password.get())
               .then(async (valid) => {
                 if (!valid) {
+                  await this.logService.createLog(user, 'UserLogs', 'Connection', 'User Valid Unknown Password', "User Valid Unknown Password");
                   throw new OperationError(
                     'NOT_FOUND',
                     HttpStatusCode.NOT_FOUND
@@ -270,7 +273,7 @@ export class UserService {
                         platformList: platformList,
                       };
                       if (tokenObj !== undefined) {
-                        await logService.createLog(user, 'UserLogs', 'Create', 'Login Valid');
+                        await this.logService.createLog(user, 'UserLogs', 'Connection', 'User Valid', "User Valid");
                       }
                       return tokenObj;
                     }
@@ -279,6 +282,7 @@ export class UserService {
               });
           }
         }
+        await this.logService.createLog(undefined, 'UserLogs', 'Connection', 'User Not Valid', "User Not Valid");
         throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
       }
     }
@@ -299,6 +303,7 @@ export class UserService {
               .compare(userLoginParams.password, user.info.password.get())
               .then(async (valid) => {
                 if (!valid) {
+                  await this.logService.createLog(user, 'AdminLogs', 'Connection', 'Connection Not Valid', " Unknown AuthAdmin Password");
                   throw new OperationError(
                     'NOT_FOUND',
                     HttpStatusCode.NOT_FOUND
@@ -356,7 +361,10 @@ export class UserService {
                         userId: user.getId().get(),
                         userType: user.info.userType.get(),
                       };
-                      return tokenObj;
+                      if (tokenObj) {
+                        await this.logService.createLog(user, 'AdminLogs', 'Connection', 'Connection Valid', " Connection Valid");
+                        return tokenObj;
+                      }
                     }
                   }
                 }
@@ -483,17 +491,20 @@ export class UserService {
     const context = await SpinalGraphService.getContext(USER_LIST);
     const users = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
     var userObject: IUser;
-    if (requestBody.userName === "authAdmin") {
-      throw new OperationError('UNAUTHORIZED ROLE', HttpStatusCode.FORBIDDEN);
-    }
+
     for (const user of users) {
       if (userId !== user.getId().get())
         if (requestBody.userName === user.info.userName.get()) {
+          await this.logService.createLog(user, 'UserLogs', 'Edit', 'Edit Not Valid', "modify this user with a username that already exists");
           throw new OperationError('USERNAME_IS_ALREADY_USED', HttpStatusCode.FORBIDDEN);
         }
     }
     for (const user of users) {
       if (user.getId().get() === userId) {
+        if (requestBody.userName === "authAdmin") {
+          await this.logService.createLog(user, 'UserLogs', 'Edit', 'Edit Not Valid', "modify this user with a username that is not authorized");
+          throw new OperationError('UNAUTHORIZED ROLE', HttpStatusCode.FORBIDDEN);
+        }
         if (requestBody.userName !== undefined) {
           user.info.userName.set(requestBody.userName);
           user.info.name.set(requestBody.userName);
@@ -551,11 +562,16 @@ export class UserService {
           userType: user.info.userType.get(),
           platformList: platformList,
         };
+
+        if (userObject === undefined) {
+          await this.logService.createLog(user, 'UserLogs', 'Edit', 'Edit Not Valid', "Edit Not Valid");
+          throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+        } else {
+          await this.logService.createLog(user, 'UserLogs', 'Edit', 'Edit Valid', "Edit Valid");
+          return userObject;
+        }
       }
     }
-    if (userObject != undefined) {
-      return userObject;
-    } else throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
   }
 
 
@@ -573,8 +589,10 @@ export class UserService {
           }
         }
         if (userFound !== undefined) {
+          await this.logService.createLog(userFound, 'UserLogs', 'Delete', 'Delete Valid', 'Delete Valid');
           await userFound.removeFromGraph();
         } else {
+          await this.logService.createLog(userFound, 'UserLogs', 'Delete', 'Delete Not Valid', 'Delete Not Valid, User Not Found');
           throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
         }
       }
@@ -585,8 +603,8 @@ export class UserService {
     let userCreationParams: IUserCreationParams = {
       userName: 'authAdmin',
       password: process.env.AUTH_ADMIN_PASSWORD,
-      email: 'spinalcom@spinalcom.com',
-      telephone: '0123321234',
+      email: '',
+      telephone: '',
       info: '',
       userType: IUserType.authAdmin,
       platformList: [],
@@ -622,25 +640,28 @@ export class UserService {
                 AUTH_SERVICE_USER_RELATION_NAME,
                 AUTH_SERVICE_RELATION_TYPE_PTR_LST
               );
-
-              return {
-                id: res.getId().get(),
-                type: res.getType().get(),
-                name: res.getName().get(),
-                userName: res.info.userName.get(),
-                password: res.info.password.get(),
-                email: res.info.email.get(),
-                telephone: res.info.telephone.get(),
-                info: res.info.info.get(),
-                userType: res.info.userType.get(),
-              };
+              return res;
             } else {
               return undefined;
             }
           });
         if (userCreated === undefined) {
+          await this.logService.createLog(undefined, 'AdminLogs', 'Create', 'Create Not Valid', "create Not Valid");
           throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
-        } else return userCreated;
+        } else {
+          var infoObject = {
+            id: userCreated.getId().get(),
+            type: userCreated.getType().get(),
+            name: userCreated.getName().get(),
+            userName: userCreated.info.userName.get(),
+            password: userCreated.info.password.get(),
+            telephone: userCreated.info.telephone.get(),
+            info: userCreated.info.info.get(),
+            userType: userCreated.info.userType.get(),
+          }
+          await this.logService.createLog(userCreated, 'AdminLogs', 'Create', 'Create Valid', "create Valid");
+          return infoObject;
+        }
       }
     }
   }
@@ -658,6 +679,7 @@ export class UserService {
             .compare(requestBody.oldPassword, user.info.password.get())
             .then(async (valid) => {
               if (!valid) {
+                await this.logService.createLog(user, 'AdminLogs', 'Edit', 'Edit Not Valid', "invalid old password");
                 throw new OperationError(
                   'ERROR_PASSWORD',
                   HttpStatusCode.FORBIDDEN
@@ -686,7 +708,13 @@ export class UserService {
                   info: user.info.info.get(),
                   userType: user.info.userType.get(),
                 };
-                return userObject;
+                if (userObject === undefined) {
+                  await this.logService.createLog(user, 'AdminLogs', 'Edit', 'Edit Not Valid', "Edit Not Valid");
+                  throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+                } else {
+                  await this.logService.createLog(user, 'AdminLogs', 'Edit', 'Edit Valid', "Edit Valid");
+                  return userObject;
+                }
               }
             });
         }

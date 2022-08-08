@@ -56,6 +56,7 @@ import {
 } from './application.model';
 import { IApplicationToken } from '../tokens/token.model';
 import SpinalMiddleware from '../spinalMiddleware';
+import { LogsService } from '../logs/logService';
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -64,9 +65,12 @@ import jwt_decode from 'jwt-decode';
 export class ApplicationService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
   public graph: SpinalGraph<any>;
+  public logService: LogsService;
   constructor() {
     this.spinalMiddleware.init();
     this.graph = this.spinalMiddleware.getGraph();
+    this.logService = new LogsService();
+
   }
 
 
@@ -421,8 +425,10 @@ export class ApplicationService {
           }
         }
         if (appFound !== undefined) {
+          await this.logService.createLog(appFound, 'ApplicationLogs', 'Delete', 'Delete Valid', 'Delete Valid');
           await appFound.removeFromGraph();
         } else {
+          await this.logService.createLog(appFound, 'ApplicationLogs', 'Delete', 'Delete Not Valid', 'Delete Not Valid, User Not Found');
           throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
         }
       }

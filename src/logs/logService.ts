@@ -37,6 +37,9 @@ import {
   PLATFORM_LOG_EVENT_TYPE,
   ADMIN_LOG_EVENT_TYPE,
   USER_REQUEST_EVENT_LOG_TYPE,
+  APPLICATION_REQUEST_EVENT_LOG_TYPE,
+  PLATFORM_REQUEST_EVENT_LOG_TYPE,
+  ADMIN_REQUEST_EVENT_LOG_TYPE,
   AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME,
   AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME,
   AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME,
@@ -243,13 +246,71 @@ export class LogsService {
 
   }
   public async createEventRequestsApplicationLogs(context: SpinalContext<any>, category: SpinalNode<any>) {
+    const eventsLogs = await category.getChildren(AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME);
+    for (const eventLog of eventsLogs) {
+      if (eventLog.getName().get() === 'Connection') {
+        await this.createNode(context, category, APPLICATION_REQUEST_EVENT_LOG_TYPE, 'Login Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, APPLICATION_REQUEST_EVENT_LOG_TYPE, 'Login Not Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+      } else if (eventLog.getName().get() === 'Create') {
+        await this.createNode(context, category, APPLICATION_REQUEST_EVENT_LOG_TYPE, 'Create Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, APPLICATION_REQUEST_EVENT_LOG_TYPE, 'Create Not Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+      }
+      else if (eventLog.getName().get() === 'Edit') {
+        await this.createNode(context, category, APPLICATION_REQUEST_EVENT_LOG_TYPE, 'Edit Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, APPLICATION_REQUEST_EVENT_LOG_TYPE, 'Edit Not Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+
+      } else if (eventLog.getName().get() === 'Delete') {
+        await this.createNode(context, category, APPLICATION_REQUEST_EVENT_LOG_TYPE, 'Delete Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, APPLICATION_REQUEST_EVENT_LOG_TYPE, 'Delete Not Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+
+      }
+    }
+
+
   }
   public async createEventRequestsPlatformLogs(context: SpinalContext<any>, category: SpinalNode<any>) {
+    const eventsLogs = await category.getChildren(AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME);
+    for (const eventLog of eventsLogs) {
+      if (eventLog.getName().get() === 'Register') {
+        await this.createNode(context, category, PLATFORM_REQUEST_EVENT_LOG_TYPE, 'Register Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, PLATFORM_REQUEST_EVENT_LOG_TYPE, 'Register Not Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+      }
+      else if (eventLog.getName().get() === 'PushData') {
+        await this.createNode(context, category, PLATFORM_REQUEST_EVENT_LOG_TYPE, 'Push Data', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, PLATFORM_REQUEST_EVENT_LOG_TYPE, 'Push Data Not Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+
+      }
+      else if (eventLog.getName().get() === 'Delete') {
+        await this.createNode(context, category, PLATFORM_REQUEST_EVENT_LOG_TYPE, 'Delete Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, PLATFORM_REQUEST_EVENT_LOG_TYPE, 'Delete Not Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+      } else if (eventLog.getName().get() === 'UpdateToken') {
+        await this.createNode(context, category, PLATFORM_REQUEST_EVENT_LOG_TYPE, 'Update Token Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, PLATFORM_REQUEST_EVENT_LOG_TYPE, 'Update Token Not Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+
+      }
+    }
+
   }
   public async createEventRequestsAdminLogs(context: SpinalContext<any>, category: SpinalNode<any>) {
+    const eventsLogs = await category.getChildren(AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME);
+    for (const eventLog of eventsLogs) {
+      if (eventLog.getName().get() === 'Create') {
+        await this.createNode(context, category, ADMIN_REQUEST_EVENT_LOG_TYPE, 'Create Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, ADMIN_REQUEST_EVENT_LOG_TYPE, 'Create Not Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+      }
+      else if (eventLog.getName().get() === 'Connection') {
+        await this.createNode(context, category, ADMIN_REQUEST_EVENT_LOG_TYPE, 'Connection Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, ADMIN_REQUEST_EVENT_LOG_TYPE, 'Connection Not Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+      }
+      else if (eventLog.getName().get() === 'Edit') {
+        await this.createNode(context, category, ADMIN_REQUEST_EVENT_LOG_TYPE, 'Edit Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+        await this.createNode(context, category, ADMIN_REQUEST_EVENT_LOG_TYPE, 'Edit Not Valid', eventLog, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+
+      }
+    }
+
   }
   public async createEventTypeGraph(context: SpinalContext<any>) {
-
     const categoriesLogs = await context.getChildren(AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME)
     for (const category of categoriesLogs) {
       if (category.getName().get() === 'UserLogs') {
@@ -266,12 +327,7 @@ export class LogsService {
   }
 
 
-  // public async createLog(_actor: SpinalNode<any>, _category: string, _eventLog: string, _eventrequest: string): Promise<void>;
-  // public async createLog(_actor: SpinalNode<any>, _category: string, _eventLog: string, _eventrequest: string): Promise<void>;
-  // public async createLog(_actor: SpinalNode<any>, _category: string, _eventLog: string, _eventrequest: string): Promise<void>;
-  // public async createLog(_actor: SpinalNode<any>, _category: string, _eventLog: string, _eventrequest: string): Promise<void>;
-  // public async createLog(_actor: SpinalNode<any>, _category: "toto", _eventLog: "tata" | "ppop", _eventrequest: string): Promise<void> 
-  public async createLog(_actor: SpinalNode<any>, _category: string, _eventLog: string, _eventrequest: string): Promise<void> {
+  public async createLog(_actor: SpinalNode<any>, _category: string, _eventLog: string, _eventrequest: string, message: string): Promise<void> {
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
       if (context.getName().get() === LOG_LIST) {
@@ -282,7 +338,7 @@ export class LogsService {
           if (category.getName().get() === _category) {
             // @ts-ignore
             SpinalGraphService._addNode(category);
-            const eventsLog = await category.getChildren('HasUserEventLog');
+            const eventsLog = await category.getChildren('HasEventLog');
             for (const eventLog of eventsLog) {
               if (eventLog.getName().get() === _eventLog) {
                 // @ts-ignore
@@ -295,6 +351,11 @@ export class LogsService {
                     const userLogObject = {
                       type: USER_LOG_TYPE,
                       name: 'Log',
+                      actor: {
+                        actorId: _actor.getId().get(),
+                        actorName: _actor.getName().get()
+                      },
+                      message: message,
                       date: Date.now(),
                     };
                     // create Spinal Node
@@ -303,8 +364,10 @@ export class LogsService {
                       undefined
                     );
                     await SpinalGraphService.addChildInContext(eventRequetsLog.getId().get(), userLogId, context.getId().get(),
-                      AUTH_SERVICE_LOG_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
-                    await SpinalGraphService.addChild(_actor.getId().get(), userLogId, AUTH_SERVICE_LOG_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+                      AUTH_SERVICE_LOG_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+                    // @ts-ignore
+                    SpinalGraphService._addNode(_actor);
+                    await SpinalGraphService.addChildInContext(_actor.getId().get(), userLogId, context.getId().get(), AUTH_SERVICE_LOG_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
                   }
                 }
               }

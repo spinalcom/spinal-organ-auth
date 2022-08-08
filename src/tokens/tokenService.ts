@@ -118,20 +118,37 @@ export class TokensService {
     const categoriesToken = await context.getChildren('HasCategoryToken');
     var tokenList = [];
     for (const category of categoriesToken) {
-      const categoryTokens = await category.getChildren('HasToken');
-      for (const token of categoryTokens) {
-        let info = {
-          id: token.getId().get(),
-          type: token.getType().get(),
-          name: token.getName().get(),
-          token: token.info.token.get(),
-          createdToken: token.info.createdToken.get(),
-          expieredToken: token.info.expieredToken.get(),
-          userId: token.info.userId.get(),
-          userType: token.info.userType.get(),
-        };
-        tokenList.push(info);
+      if (category.getName().get() === "User Token") {
+        const categoryTokens = await category.getChildren('HasToken');
+        for (const token of categoryTokens) {
+          let info = {
+            id: token.getId().get(),
+            type: token.getType().get(),
+            name: token.getName().get(),
+            token: token.info.token.get(),
+            createdToken: token.info.createdToken.get(),
+            expieredToken: token.info.expieredToken.get(),
+            userId: token.info.userId.get(),
+            userType: token.info.userType.get(),
+          };
+          tokenList.push(info);
+        }
+      } else if (category.getName().get() === "Application Token") {
+        const categoryTokens = await category.getChildren('HasToken');
+        for (const token of categoryTokens) {
+          let info = {
+            id: token.getId().get(),
+            type: token.getType().get(),
+            name: token.getName().get(),
+            token: token.info.token.get(),
+            createdToken: token.info.createdToken.get(),
+            expieredToken: token.info.expieredToken.get(),
+            applicationId: token.info.applicationId.get(),
+          };
+          tokenList.push(info);
+        }
       }
+
     }
     return tokenList;
   }

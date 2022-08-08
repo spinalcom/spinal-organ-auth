@@ -96,6 +96,7 @@ async function main() {
   var logsService = new LogsService();
   for (const context of contexts) {
     if (context.getName().get() === LOG_LIST) {
+      // SpinalGraphService.removeFromGraph(context.getId().get())
       // @ts-ignore
       SpinalGraphService._addNode(context);
       // await context.removeFromGraph();
@@ -107,10 +108,6 @@ async function main() {
       }
     }
   }
-  // await logsService.createLog('User Log', 0, "SpinalNode - 27c81a1c - 3303 - ebbd - 488e-96e52f39bb86 - 180480dff47", "user1")
-  // await logsService.createLog('Application Log', 3, "SpinalNode - 27c81a1c - 3303 - ebbd - 488e-96e52f39bb86 - 180480dff47", "Application 2")
-  // await logsService.createLog('Platform Log', 2, "SpinalNode - 27c81a1c - 3303 - ebbd - 488e-96e52f39bb86 - 180480dff47", "Platform 2")
-
 
   // start organ with token cron
   var cron = require('node-cron');
