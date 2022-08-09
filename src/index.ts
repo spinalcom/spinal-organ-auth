@@ -53,6 +53,23 @@ async function main() {
     }
   }
 
+  //config logs context
+  var logsService = new LogsService();
+  for (const context of contexts) {
+    if (context.getName().get() === LOG_LIST) {
+      // SpinalGraphService.removeFromGraph(context.getId().get())
+      // @ts-ignore
+      SpinalGraphService._addNode(context);
+      // await context.removeFromGraph();
+      const childsContext = await context.getChildren(AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME);
+      if (childsContext.length === 0) {
+        await logsService.createLogTree();
+        await logsService.createSubGraph(context);
+        await logsService.createEventTypeGraph(context);
+      }
+    }
+  }
+
   //verification user
   for (const context of contexts) {
     if (context.getName().get() === 'userList') {
@@ -92,22 +109,6 @@ async function main() {
     }
   }
 
-  //config logs context
-  var logsService = new LogsService();
-  for (const context of contexts) {
-    if (context.getName().get() === LOG_LIST) {
-      // SpinalGraphService.removeFromGraph(context.getId().get())
-      // @ts-ignore
-      SpinalGraphService._addNode(context);
-      // await context.removeFromGraph();
-      const childsContext = await context.getChildren(AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME);
-      if (childsContext.length === 0) {
-        await logsService.createLogTree();
-        await logsService.createSubGraph(context);
-        await logsService.createEventTypeGraph(context);
-      }
-    }
-  }
 
   // start organ with token cron
   var cron = require('node-cron');

@@ -127,6 +127,7 @@ export class ApplicationService {
         }
 
         if (res !== undefined) {
+          await this.logService.createLog(res, 'ApplicationLogs', 'Create', 'Create Valid', "Create Valid");
           return {
             id: res.getId().get(),
             type: res.getType().get(),
@@ -137,6 +138,7 @@ export class ApplicationService {
             // platformList: res.info.platformList.get(),
           };
         } else {
+          await this.logService.createLog(res, 'ApplicationLogs', 'Create', 'Create Not Valid', "Create Not Valid");
           throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
         }
       }
@@ -154,86 +156,93 @@ export class ApplicationService {
         );
         for (const app of applications) {
           if (
-            applicationLoginParams.clientId === app.info.clientId.get() &&
-            applicationLoginParams.clientSecret === app.info.clientSecret.get()
+            applicationLoginParams.clientId === app.info.clientId.get()
           ) {
-            let token = jwt.sign(
-              { applicationId: app.getId().get() },
-              'RANDOM_TOKEN_SECRET',
-              { expiresIn: '24h' }
-            );
-            let decodedToken = jwt_decode(token);
-            const tokenContext = SpinalGraphService.getContext(TOKEN_LIST);
-            const categoryTokenApplicationList = await tokenContext.getChildren(
-              'HasCategoryToken'
-            );
-            for (const categoryTokenApplication of categoryTokenApplicationList) {
-              // @ts-ignore
-              SpinalGraphService._addNode(categoryTokenApplication);
-              if (
-                categoryTokenApplication.getType().get() ===
-                'AuthServiceApplicationCategory'
-              ) {
-                var platformList = [];
-                const appProfiles = await app.getChildren('HasAppProfile');
-                for (const appProfile of appProfiles) {
-                  const platformParents = await appProfile.getParents('HasAppProfile')
-                  for (const platformParent of platformParents) {
-                    if (platformParent !== undefined) {
-                      if (platformParent.getType().get() === "AuthServicePlatform") {
-                        platformList.push({
-                          platformId: platformParent.getId().get(),
-                          platformName: platformParent.getName().get(),
-                          idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
-                          appProfile: {
-                            appProfileAdminId: appProfile.getId().get(),
-                            appProfileBosConfigId: appProfile.info.appProfileId.get(),
-                            appProfileName: appProfile.getName().get()
-                          }
-                        })
+            if (applicationLoginParams.clientSecret === app.info.clientSecret.get()
+            ) {
+              let token = jwt.sign(
+                { applicationId: app.getId().get() },
+                'RANDOM_TOKEN_SECRET',
+                { expiresIn: '24h' }
+              );
+              let decodedToken = jwt_decode(token);
+              const tokenContext = SpinalGraphService.getContext(TOKEN_LIST);
+              const categoryTokenApplicationList = await tokenContext.getChildren(
+                'HasCategoryToken'
+              );
+              for (const categoryTokenApplication of categoryTokenApplicationList) {
+                // @ts-ignore
+                SpinalGraphService._addNode(categoryTokenApplication);
+                if (
+                  categoryTokenApplication.getType().get() ===
+                  'AuthServiceApplicationCategory'
+                ) {
+                  var platformList = [];
+                  const appProfiles = await app.getChildren('HasAppProfile');
+                  for (const appProfile of appProfiles) {
+                    const platformParents = await appProfile.getParents('HasAppProfile')
+                    for (const platformParent of platformParents) {
+                      if (platformParent !== undefined) {
+                        if (platformParent.getType().get() === "AuthServicePlatform") {
+                          platformList.push({
+                            platformId: platformParent.getId().get(),
+                            platformName: platformParent.getName().get(),
+                            idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                            appProfile: {
+                              appProfileAdminId: appProfile.getId().get(),
+                              appProfileBosConfigId: appProfile.info.appProfileId.get(),
+                              appProfileName: appProfile.getName().get()
+                            }
+                          })
+                        }
                       }
                     }
                   }
-                }
 
-                const TokenId = SpinalGraphService.createNode(
-                  {
-                    name: 'token_' + app.getName().get(),
-                    type: TOKEN_TYPE,
+                  const TokenId = SpinalGraphService.createNode(
+                    {
+                      name: 'token_' + app.getName().get(),
+                      type: TOKEN_TYPE,
+                      token: token,
+                      // @ts-ignore
+                      createdToken: decodedToken.iat,
+                      // @ts-ignore
+                      expieredToken: decodedToken.exp,
+                      applicationId: app.getId().get(),
+                      platformList: platformList,
+                    },
+                    undefined
+                  );
+                  const res = await SpinalGraphService.addChildInContext(
+                    categoryTokenApplication.getId().get(),
+                    TokenId,
+                    tokenContext.getId().get(),
+                    AUTH_SERVICE_TOKEN_RELATION_NAME,
+                    AUTH_SERVICE_RELATION_TYPE_PTR_LST
+                  );
+                  let tokenObj: IApplicationToken = {
+                    name: res.getName().get(),
+                    type: res.getType().get(),
                     token: token,
                     // @ts-ignore
                     createdToken: decodedToken.iat,
                     // @ts-ignore
                     expieredToken: decodedToken.exp,
-                    applicationId: app.getId().get(),
                     platformList: platformList,
-                  },
-                  undefined
-                );
-                const res = await SpinalGraphService.addChildInContext(
-                  categoryTokenApplication.getId().get(),
-                  TokenId,
-                  tokenContext.getId().get(),
-                  AUTH_SERVICE_TOKEN_RELATION_NAME,
-                  AUTH_SERVICE_RELATION_TYPE_PTR_LST
-                );
-                let tokenObj: IApplicationToken = {
-                  name: res.getName().get(),
-                  type: res.getType().get(),
-                  token: token,
-                  // @ts-ignore
-                  createdToken: decodedToken.iat,
-                  // @ts-ignore
-                  expieredToken: decodedToken.exp,
-                  platformList: platformList,
-                };
-                return tokenObj;
+                  };
+                  await this.logService.createLog(app, 'ApplicationLogs', 'Connection', 'Login Valid', "Login Valid");
+                  return tokenObj;
+                }
               }
+            } else {
+              await this.logService.createLog(app, 'ApplicationLogs', 'Connection', 'Login Not Valid', "Login Not Valid Unknown Client Secret ");
+              throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
             }
           }
         }
       }
     }
+    await this.logService.createLog(undefined, 'ApplicationLogs', 'Connection', 'Login Not Valid', "Login Not Valid Unknown Client Id && Client Secret ");
     throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
   }
 
@@ -391,8 +400,6 @@ export class ApplicationService {
             }
           }
         }
-
-
         appObject = {
           id: app.getId().get(),
           type: app.getType().get(),
@@ -401,13 +408,17 @@ export class ApplicationService {
           clientId: app.info.clientId.get(),
           clientSecret: app.info.clientSecret.get(),
           platformList: platformList,
-
         };
-      } else {
-        throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+        if (appObject === undefined) {
+          await this.logService.createLog(app, 'ApplicationLogs', 'Edit', 'Edit Not Valid', 'Edit Not Valid');
+          throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+        } else {
+          await this.logService.createLog(app, 'ApplicationLogs', 'Edit', 'Edit Valid', 'Edit Valid');
+          return appObject;
+        }
       }
     }
-    return appObject;
+
   }
 
   public async deleteApplication(applicationId: string): Promise<void> {

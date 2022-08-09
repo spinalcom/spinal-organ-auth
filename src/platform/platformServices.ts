@@ -57,6 +57,7 @@ import { ProfileServices } from './profileServices';
 import { OrganService } from '../organ/organService';
 import jwt = require('jsonwebtoken');
 import { isTemplateExpression } from 'typescript';
+import { LogsService } from '../logs/logService';
 
 /**
  *
@@ -67,9 +68,12 @@ import { isTemplateExpression } from 'typescript';
 export class PlatformService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
   public graph: SpinalGraph<any>;
+  public logService: LogsService;
+
   constructor() {
     this.spinalMiddleware.init();
     this.graph = this.spinalMiddleware.getGraph();
+    this.logService = new LogsService();
   }
 
   public async createPlateform(
@@ -101,16 +105,22 @@ export class PlatformService {
         );
         // @ts-ignore
         SpinalGraphService._addNode(res);
+        if (res === undefined) {
+          await this.logService.createLog(undefined, 'PlatformLogs', 'Register', 'Register Not Valid', "Register Not Valid");
+          throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
 
-        return {
-          id: res.getId().get(),
-          type: res.getType().get(),
-          name: res.getName().get(),
-          statusPlatform: res.info.statusPlatform.get(),
-          url: res.info.url.get(),
-          address: res.info.address.get(),
-          TokenBosAdmin: res.info.TokenBosAdmin.get(),
-        };
+        } else {
+          await this.logService.createLog(res, 'PlatformLogs', 'Register', 'Register Valid', "Register Valid");
+          return {
+            id: res.getId().get(),
+            type: res.getType().get(),
+            name: res.getName().get(),
+            statusPlatform: res.info.statusPlatform.get(),
+            url: res.info.url.get(),
+            address: res.info.address.get(),
+            TokenBosAdmin: res.info.TokenBosAdmin.get(),
+          };
+        }
       }
     }
   }
@@ -207,7 +217,7 @@ export class PlatformService {
             if (requestBody.TokenBosAdmin !== undefined) {
               platform.info.TokenBosAdmin?.set(requestBody.TokenBosAdmin);
             }
-
+            await this.logService.createLog(platform, 'PlatformLogs', 'Edit', 'Edit Valid', "Edit Valid");
             return {
               id: platform.getId().get(),
               type: platform.getType().get(),
@@ -234,11 +244,15 @@ export class PlatformService {
         );
         for (const platform of platforms) {
           if (platform.getId().get() === id) {
+            await this.logService.createLog(platform, 'PlatformLogs', 'Delete', 'Delete Valid', "Delete Valid");
             await platform.removeFromGraph();
           }
         }
       }
     }
+    await this.logService.createLog(undefined, 'PlatformLogs', 'Delete', 'Delete Not Valid', "Delete Not Valid");
+    throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+
   }
 
   public async createAuthPlateform(): Promise<IPlatform> {
@@ -268,13 +282,21 @@ export class PlatformService {
           AUTH_SERVICE_PLATFORM_RELATION_NAME,
           AUTH_SERVICE_RELATION_TYPE_PTR_LST
         );
-        return {
-          id: res.getId().get(),
-          type: res.getType().get(),
-          name: res.getName().get(),
-          statusPlatform: res.info.statusPlatform.get(),
-          url: res.info.url.get(),
-        };
+        if (res === undefined) {
+          await this.logService.createLog(undefined, 'PlatformLogs', 'Register', 'Register Not Valid', "Register Not Valid");
+          throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
+
+        } else {
+          await this.logService.createLog(res, 'PlatformLogs', 'Register', 'Register Valid', "Register Valid AuthPlatform created");
+          return {
+            id: res.getId().get(),
+            type: res.getType().get(),
+            name: res.getName().get(),
+            statusPlatform: res.info.statusPlatform.get(),
+            url: res.info.url.get(),
+          };
+        }
+
       }
     }
   }
@@ -395,6 +417,7 @@ export class PlatformService {
       const res = await this.createPlateform(object.platformCreationParms);
       return res;
     } else {
+      await this.logService.createLog(undefined, 'PlatformLogs', 'Register', 'Register Not Valid', "registerKey Not Valid");
       throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
     }
   }
@@ -427,9 +450,13 @@ export class PlatformService {
                   updateParams.idPlatformOfAdmin
                 );
                 platform.info.TokenAdminBos.set(updateParams.TokenAdminBos);
+                await this.logService.createLog(platform, 'PlatformLogs', 'PushData', 'Push Data', "Push Data Valid ");
               }
-            } else
+            } else {
+              await this.logService.createLog(platform, 'PlatformLogs', 'PushData', 'Push Data Not Valid', "Push Data Not Valid Empty Json Data");
               throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+            }
+
           }
         }
       }

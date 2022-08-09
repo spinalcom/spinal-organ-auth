@@ -612,7 +612,7 @@ export class UserService {
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
       if (context.getName().get() === USER_LIST) {
-        var userCreated = bcrypt
+        var userCreated = await bcrypt
           .hash(userCreationParams.password, 10)
           .then(async (hash) => {
             const userObject = {
@@ -744,7 +744,6 @@ export class UserService {
               telephone: user.info.telephone.get(),
               info: user.info.info.get(),
               userType: user.info.userType.get(),
-              platformList: user.info.platformList.get(),
             };
           }
         }
