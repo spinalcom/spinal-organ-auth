@@ -352,8 +352,8 @@ export class LogsService {
                       type: USER_LOG_TYPE,
                       name: 'Log',
                       actor: {
-                        actorId: _actor.getId().get(),
-                        actorName: _actor.getName().get()
+                        actorId: _actor?.getId().get(),
+                        actorName: _actor?.getName().get()
                       },
                       message: message,
                       date: Date.now(),
@@ -377,6 +377,33 @@ export class LogsService {
         }
 
 
+      }
+    }
+  }
+
+
+
+  public async getLogs(): Promise<void> {
+    const contexts = await this.graph.getChildren('hasContext');
+    for (const context of contexts) {
+      if (context.getName().get() === LOG_LIST) {
+        // @ts-ignore
+        SpinalGraphService._addNode(context);
+        const categories = await context.getChildren('HasCategoryLog');
+        for (const category of categories) {
+          // @ts-ignore
+          SpinalGraphService._addNode(category);
+          const eventsLog = await category.getChildren('HasEventLog');
+          for (const eventLog of eventsLog) {
+            // @ts-ignore
+            SpinalGraphService._addNode(eventLog);
+            const eventRequestsLog = await eventLog.getChildren('HasRequestEventLog');
+            for (const eventRequetsLog of eventRequestsLog) {
+              // @ts-ignore
+              SpinalGraphService._addNode(eventRequetsLog);
+            }
+          }
+        }
       }
     }
   }

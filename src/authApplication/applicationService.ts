@@ -53,6 +53,7 @@ import {
   IApplicationCreationParams,
   IApplicationUpdateParams,
   IApplicationLoginParams,
+  IApplicationLogs
 } from './application.model';
 import { IApplicationToken } from '../tokens/token.model';
 import SpinalMiddleware from '../spinalMiddleware';
@@ -469,6 +470,46 @@ export class ApplicationService {
           }
         }
       }
+    }
+  }
+
+  public async getApplicationLogs(id: string): Promise<IApplicationLogs[]> {
+    var logArrayList: IApplicationLogs[] = [];
+    var found: boolean = false;
+    const contexts = await this.graph.getChildren('hasContext');
+    for (const context of contexts) {
+      if (context.getName().get() === APPLICATION_LIST) {
+        const platforms = await context.getChildren(
+          AUTH_SERVICE_APPLICATION_RELATION_NAME
+        );
+        for (const platform of platforms) {
+          if (platform.getId().get() === id) {
+            found = true;
+            const logs = await platform.getChildren('HasLog');
+            for (const log of logs) {
+              var PlatformObjectLog: IApplicationLogs = {
+                id: log.getId().get(),
+                type: log.getType().get(),
+                name: log.getName().get(),
+                date: log.info.date.get(),
+                message: log.info.message.get(),
+                actor: {
+                  actorId: log.info.actor.actorId.get(),
+                  actorName: log.info.actor.actorName.get()
+                }
+              }
+              logArrayList.push(PlatformObjectLog)
+            }
+
+          }
+        }
+      }
+    }
+
+    if (found === true) {
+      return logArrayList;
+    } else {
+      throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
     }
   }
 }

@@ -100,3 +100,14 @@ export interface IUserLoginParams {
   userName: string;
   password: string;
 }
+export interface IUserLogs {
+  id: string;
+  name: string;
+  type: string;
+  date: string;
+  message: string;
+  actor: {
+    actorId: string;
+    actorName: string;
+  }
+}

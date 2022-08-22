@@ -96,3 +96,14 @@ export interface IApplicationLoginParams {
   clientId: string;
   clientSecret: string;
 }
+export interface IApplicationLogs {
+  id: string;
+  name: string;
+  type: string;
+  date: string;
+  message: string;
+  actor: {
+    actorId: string;
+    actorName: string;
+  }
+}

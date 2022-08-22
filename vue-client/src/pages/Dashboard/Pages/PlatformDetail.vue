@@ -193,11 +193,23 @@ with this file. If not, see
 
         <!-- *****************************logs******************************************** -->
         <md-card-content v-if="displayLogs === true">
-          <!-- <md-table v-model="itemSelected.hello">
+          <md-table v-model="logList">
             <md-table-row slot="md-table-row" slot-scope="{ item }">
               <md-table-cell md-label="Name">{{ item.name }}</md-table-cell>
+              <md-table-cell md-label="Date">{{
+                getDate(item.date)
+              }}</md-table-cell>
+              <md-table-cell md-label="Message">{{
+                item.message
+              }}</md-table-cell>
+              <md-table-cell md-label="Actor Id">{{
+                item.actor.actorId
+              }}</md-table-cell>
+              <md-table-cell md-label="Actor Name">{{
+                item.actor.actorName
+              }}</md-table-cell>
             </md-table-row>
-          </md-table> -->
+          </md-table>
         </md-card-content>
       </md-card>
     </div>
@@ -240,11 +252,16 @@ export default {
     userList: [],
     userListLinkPlatform: [],
     appList: [],
-    appListLinkPlatform: []
+    appListLinkPlatform: [],
+    logList: []
   }),
 
   computed: {},
   methods: {
+    getDate(date) {
+      var acDate = new Date(date);
+      return acDate;
+    },
     getValidationClass(fieldName) {
       const field = this.$v.formOrgan[fieldName];
       if (field) {
@@ -308,6 +325,18 @@ export default {
       });
       this.userList = rep.data;
       this.getUsersFromPltaform(this.userList);
+    },
+    async getPlatformLogs() {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/platforms/${this.itemSelected.id}/platformLogs`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      this.logList = rep.data;
     },
     async getApplications() {
       const rep = await instanceAxios.instanceAxios.get("/applications", {
@@ -398,6 +427,7 @@ export default {
     this.token = localStorage.getItem("token");
     this.getUsers();
     this.getApplications();
+    this.getPlatformLogs();
   },
   watch: {}
 };

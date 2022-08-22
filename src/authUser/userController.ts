@@ -41,6 +41,7 @@ import {
   IUserUpdateParams,
   IUserLoginParams,
   IAuthAdminUpdateParams,
+  IUserLogs
 } from './user.model';
 import { UserService } from './userService';
 import { expressAuthentication } from './authentication';
@@ -138,5 +139,12 @@ export class UsersController extends Controller {
   public async getRoles(): Promise<{ name: string }[]> {
     this.setStatus(201); // set return status 201
     return new UserService().getRoles();
+  }
+  @Security('jwt')
+  @Get('{userId}/userLogs')
+  public async getUserLogs(
+    @Path() userId: string
+  ): Promise<IUserLogs[]> {
+    return new UserService().getUserLogs(userId);
   }
 }

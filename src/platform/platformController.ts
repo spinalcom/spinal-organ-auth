@@ -41,6 +41,7 @@ import {
   IPlateformCreationParams,
   IPlatformUpdateParams,
   IRegisterKeyObject,
+  IPlatformLogs
 } from './platform.model';
 import { IUserProfile } from './userProfile.model';
 import { IAppProfile } from './appProfile.model';
@@ -100,6 +101,14 @@ export class PlatformsController extends Controller {
     @Path() platformId: string
   ): Promise<IAppProfile[]> {
     return new ProfileServices().getAppProfileService(platformId);
+  }
+
+  @Security('jwt')
+  @Get('{platformId}/platformLogs')
+  public async getPlatformLogs(
+    @Path() platformId: string
+  ): Promise<IPlatformLogs[]> {
+    return new PlatformService().getPlateformLogs(platformId);
   }
 
   @Security('jwt')

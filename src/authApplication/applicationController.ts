@@ -41,6 +41,7 @@ import {
   IApplicationCreationParams,
   IApplicationUpdateParams,
   IApplicationLoginParams,
+  IApplicationLogs
 } from './application.model';
 import { ApplicationService } from './applicationService';
 import { IApplicationToken } from '../tokens/token.model';
@@ -98,5 +99,13 @@ export class ApplicationsController extends Controller {
   ): Promise<IApplicationToken> {
     this.setStatus(201); // set return status 201
     return new ApplicationService().login(requestBody);
+  }
+
+  @Security('jwt')
+  @Get('{applicationId}/applicationLogs')
+  public async getApplicationLogs(
+    @Path() applicationId: string
+  ): Promise<IApplicationLogs[]> {
+    return new ApplicationService().getApplicationLogs(applicationId);
   }
 }

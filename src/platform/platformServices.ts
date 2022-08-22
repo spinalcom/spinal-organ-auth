@@ -48,15 +48,12 @@ import {
   statusPlatform,
   IRegisterParams,
   IRegisterKeyObject,
+  IPlatformLogs
 } from './platform.model';
 import SpinalMiddleware from '../spinalMiddleware';
-import { IOrgan } from '../organ/organ.model';
-import { IUserProfile } from './userProfile.model';
-import { IAppProfile } from './appProfile.model';
 import { ProfileServices } from './profileServices';
 import { OrganService } from '../organ/organService';
 import jwt = require('jsonwebtoken');
-import { isTemplateExpression } from 'typescript';
 import { LogsService } from '../logs/logService';
 
 /**
@@ -460,6 +457,46 @@ export class PlatformService {
           }
         }
       }
+    }
+  }
+
+  public async getPlateformLogs(id: string): Promise<IPlatformLogs[]> {
+    var logArrayList: IPlatformLogs[] = [];
+    var found: boolean = false;
+    const contexts = await this.graph.getChildren('hasContext');
+    for (const context of contexts) {
+      if (context.getName().get() === PLATFORM_LIST) {
+        const platforms = await context.getChildren(
+          AUTH_SERVICE_PLATFORM_RELATION_NAME
+        );
+        for (const platform of platforms) {
+          if (platform.getId().get() === id) {
+            found = true;
+            const logs = await platform.getChildren('HasLog');
+            for (const log of logs) {
+              var PlatformObjectLog: IPlatformLogs = {
+                id: log.getId().get(),
+                type: log.getType().get(),
+                name: log.getName().get(),
+                date: log.info.date.get(),
+                message: log.info.message.get(),
+                actor: {
+                  actorId: log.info.actor.actorId.get(),
+                  actorName: log.info.actor.actorName.get()
+                }
+              }
+              logArrayList.push(PlatformObjectLog)
+            }
+
+          }
+        }
+      }
+    }
+
+    if (found === true) {
+      return logArrayList;
+    } else {
+      throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
     }
   }
 }

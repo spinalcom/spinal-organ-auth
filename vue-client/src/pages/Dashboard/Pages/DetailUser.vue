@@ -86,8 +86,17 @@ with this file. If not, see
               <md-icon>backup_table</md-icon>
             </div>
             <h4 class="title">Backup Platform User Table</h4>
+            <div class="button">
+              <md-button @click.native="showTable((itemTable = 'Platforms'))"
+                >Platforms</md-button
+              >
+              <md-button @click.native="showTable((itemTable = 'Logs'))"
+                >Logs</md-button
+              >
+            </div>
           </md-card-header>
-          <md-card-content>
+
+          <md-card-content v-if="displayPlatforms === true">
             <md-table v-model="platformObjectList">
               <md-table-row slot="md-table-row" slot-scope="{ item }">
                 <md-table-cell md-label="Platform Name">{{
@@ -101,6 +110,28 @@ with this file. If not, see
                 }}</md-table-cell>
                 <md-table-cell md-label="Profile Id">{{
                   item.userProfile.userProfileId
+                }}</md-table-cell>
+              </md-table-row>
+            </md-table>
+          </md-card-content>
+
+          <!-- ******************************* LOGS ************************* -->
+
+          <md-card-content v-if="displayLogs === true">
+            <md-table v-model="logList">
+              <md-table-row slot="md-table-row" slot-scope="{ item }">
+                <md-table-cell md-label="Name">{{ item.name }}</md-table-cell>
+                <md-table-cell md-label="Date">{{
+                  getDate(item.date)
+                }}</md-table-cell>
+                <md-table-cell md-label="Message">{{
+                  item.message
+                }}</md-table-cell>
+                <md-table-cell md-label="Actor Id">{{
+                  item.actor.actorId
+                }}</md-table-cell>
+                <md-table-cell md-label="Actor Name">{{
+                  item.actor.actorName
                 }}</md-table-cell>
               </md-table-row>
             </md-table>
@@ -122,10 +153,38 @@ export default {
     return {
       token: null,
       user: {},
-      platformObjectList: []
+      platformObjectList: [],
+      displayPlatforms: true,
+      displayLogs: false,
+      logList: []
     };
   },
   methods: {
+    getDate(date) {
+      var acDate = new Date(date);
+      return acDate;
+    },
+    showTable(itemTable) {
+      if (itemTable === "Platforms") {
+        this.displayPlatforms = true;
+        this.displayLogs = false;
+      } else if (itemTable === "Logs") {
+        this.displayPlatforms = false;
+        this.displayLogs = true;
+      }
+    },
+    async getUserLogs() {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/users/${this.user.id}/userLogs`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      this.logList = rep.data;
+    },
     AddPltaform() {},
     displayEditUser() {
       if (this.user.name === "authAdmin") {
@@ -195,11 +254,29 @@ export default {
     this.token = localStorage.getItem("token");
     var rep = await this.getUser(this.$route.query.id);
     await this.getplatforms(rep);
+    this.getUserLogs();
   }
 };
 </script>
 
 <style>
+.button {
+  margin-top: 10px;
+}
+.infoBos {
+  display: flex;
+  flex-direction: row;
+}
+.itemListBos {
+  margin-left: 10px;
+}
+.md-list {
+  width: 320px;
+  max-width: 100%;
+  display: inline-block;
+  vertical-align: top;
+  border: 1px solid rgba(#000, 0.12);
+}
 .infoUser {
   display: flex;
   flex-direction: row;

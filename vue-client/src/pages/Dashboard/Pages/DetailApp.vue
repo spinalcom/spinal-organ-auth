@@ -64,15 +64,24 @@ with this file. If not, see
         </div>
       </div>
 
-      <div class="md-layout-item md-size-100">
+      <div>
         <md-card>
           <md-card-header class="md-card-header-icon md-card-header-green">
             <div class="card-icon">
               <md-icon>backup_table</md-icon>
             </div>
             <h4 class="title">Backup Platform Application Table</h4>
+            <div class="button">
+              <md-button @click.native="showTable((itemTable = 'Platforms'))"
+                >Platforms</md-button
+              >
+              <md-button @click.native="showTable((itemTable = 'Logs'))"
+                >Logs</md-button
+              >
+            </div>
           </md-card-header>
-          <md-card-content>
+          <!-- *************************** Platforms *************************** -->
+          <md-card-content v-if="displayPlatforms === true">
             <md-table v-model="platformObjectList">
               <md-table-row slot="md-table-row" slot-scope="{ item }">
                 <md-table-cell md-label="Platform Name">{{
@@ -83,6 +92,28 @@ with this file. If not, see
                 }}</md-table-cell>
                 <md-table-cell md-label="Access">{{
                   item.appProfile.name
+                }}</md-table-cell>
+              </md-table-row>
+            </md-table>
+          </md-card-content>
+
+          <!-- ******************************* LOGS ************************* -->
+
+          <md-card-content v-if="displayLogs === true">
+            <md-table v-model="logList">
+              <md-table-row slot="md-table-row" slot-scope="{ item }">
+                <md-table-cell md-label="Name">{{ item.name }}</md-table-cell>
+                <md-table-cell md-label="Date">{{
+                  getDate(item.date)
+                }}</md-table-cell>
+                <md-table-cell md-label="Message">{{
+                  item.message
+                }}</md-table-cell>
+                <md-table-cell md-label="Actor Id">{{
+                  item.actor.actorId
+                }}</md-table-cell>
+                <md-table-cell md-label="Actor Name">{{
+                  item.actor.actorName
                 }}</md-table-cell>
               </md-table-row>
             </md-table>
@@ -104,10 +135,38 @@ export default {
     return {
       token: null,
       app: {},
-      platformObjectList: []
+      platformObjectList: [],
+      displayPlatforms: true,
+      displayLogs: false,
+      logList: []
     };
   },
   methods: {
+    getDate(date) {
+      var acDate = new Date(date);
+      return acDate;
+    },
+    showTable(itemTable) {
+      if (itemTable === "Platforms") {
+        this.displayPlatforms = true;
+        this.displayLogs = false;
+      } else if (itemTable === "Logs") {
+        this.displayPlatforms = false;
+        this.displayLogs = true;
+      }
+    },
+    async getApplicationLogs() {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/applications/${this.app.id}/applicationLogs`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      this.logList = rep.data;
+    },
     AddPltaform() {},
     displayEditApp() {
       this.$router.push({ name: "EditApp", query: { id: this.app.id } });
@@ -178,11 +237,29 @@ export default {
     this.token = localStorage.getItem("token");
     var rep = await this.getApp(this.$route.query.id);
     await this.getplatforms(rep);
+    this.getApplicationLogs();
   }
 };
 </script>
 
 <style>
+.button {
+  margin-top: 10px;
+}
+.infoBos {
+  display: flex;
+  flex-direction: row;
+}
+.itemListBos {
+  margin-left: 10px;
+}
+.md-list {
+  width: 320px;
+  max-width: 100%;
+  display: inline-block;
+  vertical-align: top;
+  border: 1px solid rgba(#000, 0.12);
+}
 .infoApp {
   display: flex;
   flex-direction: row;

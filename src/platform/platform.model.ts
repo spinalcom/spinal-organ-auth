@@ -71,3 +71,15 @@ export enum statusPlatform {
   'fail' = 'fail',
   'stop' = 'stop',
 }
+
+export interface IPlatformLogs {
+  id: string;
+  name: string;
+  type: string;
+  date: string;
+  message: string;
+  actor: {
+    actorId: string;
+    actorName: string;
+  }
+}

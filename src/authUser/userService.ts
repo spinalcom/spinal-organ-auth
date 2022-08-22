@@ -53,6 +53,7 @@ import {
   IAuthAdminUpdateParams,
   IUserLoginParams,
   IUserType,
+  IUserLogs
 } from './user.model';
 import { IUserToken } from '../tokens/token.model';
 import config from '../config';
@@ -272,9 +273,7 @@ export class UserService {
                         userId: user.getId().get(),
                         platformList: platformList,
                       };
-                      if (tokenObj !== undefined) {
-                        await this.logService.createLog(user, 'UserLogs', 'Connection', 'User Valid', "User Valid");
-                      }
+                      await this.logService.createLog(user, 'UserLogs', 'Connection', 'Login Valid', "Login Valid");
                       return tokenObj;
                     }
                   }
@@ -788,6 +787,46 @@ export class UserService {
 
   public async getRoles(): Promise<{ name: string }[]> {
     return [{ name: 'Super User' }, { name: 'Simple User' }];
+  }
+
+  public async getUserLogs(id: string): Promise<IUserLogs[]> {
+    var logArrayList: IUserLogs[] = [];
+    var found: boolean = false;
+    const contexts = await this.graph.getChildren('hasContext');
+    for (const context of contexts) {
+      if (context.getName().get() === USER_LIST) {
+        const platforms = await context.getChildren(
+          AUTH_SERVICE_USER_RELATION_NAME
+        );
+        for (const platform of platforms) {
+          if (platform.getId().get() === id) {
+            found = true;
+            const logs = await platform.getChildren('HasLog');
+            for (const log of logs) {
+              var PlatformObjectLog: IUserLogs = {
+                id: log.getId().get(),
+                type: log.getType().get(),
+                name: log.getName().get(),
+                date: log.info.date.get(),
+                message: log.info.message.get(),
+                actor: {
+                  actorId: log.info.actor.actorId.get(),
+                  actorName: log.info.actor.actorName.get()
+                }
+              }
+              logArrayList.push(PlatformObjectLog)
+            }
+
+          }
+        }
+      }
+    }
+
+    if (found === true) {
+      return logArrayList;
+    } else {
+      throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+    }
   }
 }
 
