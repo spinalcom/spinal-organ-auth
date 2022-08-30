@@ -47,8 +47,9 @@ import {
   AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME,
   AUTH_SERVICE_RELATION_TYPE_PTR_LST,
   USER_LOG_TYPE,
+  PLATFORM_LIST,
+  AUTH_SERVICE_PLATFORM_RELATION_NAME
 } from '../constant';
-import { SPINAL_RELATION_PTR_LST_TYPE } from 'spinal-env-viewer-graph-service';
 import {
   SpinalGraphService,
   SpinalGraph,
@@ -59,8 +60,7 @@ import { OperationError } from '../utilities/operation-error';
 import { HttpStatusCode } from '../utilities/http-status-code';
 import config from '../config';
 import SpinalMiddleware from '../spinalMiddleware';
-import { Lst } from 'spinal-core-connectorjs_type';
-
+import { ILog } from './log.model'
 export class LogsService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
   public graph: SpinalGraph<any>;
@@ -383,7 +383,8 @@ export class LogsService {
 
 
 
-  public async getLogs(): Promise<void> {
+  public async getLogs(): Promise<any[]> {
+    var logList: ILog[] = [];
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
       if (context.getName().get() === LOG_LIST) {
@@ -397,14 +398,98 @@ export class LogsService {
           for (const eventLog of eventsLog) {
             // @ts-ignore
             SpinalGraphService._addNode(eventLog);
-            const eventRequestsLog = await eventLog.getChildren('HasRequestEventLog');
-            for (const eventRequetsLog of eventRequestsLog) {
+            const requestsEventLog = await eventLog.getChildren('HasRequestEventLog');
+            for (const requestEventLog of requestsEventLog) {
               // @ts-ignore
-              SpinalGraphService._addNode(eventRequetsLog);
+              SpinalGraphService._addNode(requestEventLog);
+              const logs = await requestEventLog.getChildren('HasLog');
+              for (const log of logs) {
+                var objetLog: ILog = {
+                  id: log.getId().get(),
+                  type: log.getType().get(),
+                  name: log.getName().get(),
+                  date: log.info.date?.get(),
+                  message: log.info.message?.get(),
+                  actor: {
+                    actorId: log.info.actor?.actorId.get(), actorName: log.info.actor?.actorName.get(),
+                  },
+                  parentsInfo: await getParents(log)
+                }
+                logList.push(objetLog)
+              }
             }
           }
         }
       }
     }
+    return logList
+
   }
+
+  public async getPlatformsLogs(): Promise<any[]> {
+    var logList: ILog[] = [];
+    try {
+      var platformObjectList = [];
+      const contexts = await this.graph.getChildren('hasContext');
+      for (const context of contexts) {
+        if (context.getName().get() === PLATFORM_LIST) {
+          const platforms = await context.getChildren(
+            AUTH_SERVICE_PLATFORM_RELATION_NAME
+          );
+          for (const platform of platforms) {
+            const logs = await platform.getChildren('HasLog');
+            for (const log of logs) {
+              var objetLog: ILog = {
+                id: log.getId().get(),
+                type: log.getType().get(),
+                name: log.getName().get(),
+                date: log.info.date?.get(),
+                message: log.info.message?.get(),
+                actor: {
+                  actorId: log.info.actor?.actorId.get(), actorName: log.info.actor?.actorName.get(),
+                },
+                parentsInfo: await getParents(log)
+              }
+              logList.push(objetLog);
+            }
+
+          }
+        }
+      }
+      return platformObjectList;
+    } catch (error) {
+      return error;
+    }
+
+  }
+
 }
+async function getParents(realNode: SpinalNode<any>) {
+  var parentsInfo = {
+    parent: { id: "", type: "", name: "" },
+    Gparent: { id: "", type: "", name: "" }
+  }
+
+  const parentsLog = await realNode.getParents('HasLog');
+  for (const parentLog of parentsLog) {
+
+    if (parentLog.getType().get() === 'AuthServiceUserRequestEventLog' || parentLog.getType().get() === 'AuthServiceAdminRequestEventLog' || parentLog.getType().get() === 'AuthServiceApplicationRequestEventLog' || parentLog.getType().get() === 'AuthServicePlatformRequestEventLog') {
+      parentsInfo.parent = {
+        id: parentLog.getId().get(),
+        type: parentLog.getType().get(),
+        name: parentLog.getName().get(),
+      }
+      const GparentsLog = await parentLog.getParents('HasRequestEventLog');
+      parentsInfo.Gparent = {
+        id: GparentsLog[0].getId().get(),
+        type: GparentsLog[0].getType().get(),
+        name: GparentsLog[0].getName().get(),
+      }
+    }
+  }
+
+  return parentsInfo
+}
+
+
+

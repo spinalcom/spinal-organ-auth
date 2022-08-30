@@ -22,3 +22,33 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
+/**
+ *
+ *
+ * @export
+ * @interface ILog
+ */
+export interface ILog {
+  id: string;
+  type: string;
+  name: string;
+  date: string;
+  message: string;
+  actor?: {
+    actorId: string;
+    actorName: string;
+  };
+  parentsInfo: {
+    parent: {
+      id: string;
+      type: string;
+      name: string;
+    };
+    Gparent: {
+      id: string;
+      type: string;
+      name: string;
+    }
+  }
+}
+

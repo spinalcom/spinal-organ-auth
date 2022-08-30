@@ -36,8 +36,23 @@ import {
   SuccessResponse,
 } from 'tsoa';
 import { LogsService } from './logService';
-@Route('tokens')
+@Route('logs')
 export class LogsController extends Controller {
+  @Security('jwt')
+  @Get()
+  public async getLogs(): Promise<any[]> {
+    this.setStatus(201); // set return status 201
+    return new LogsService().getLogs();
+  }
+
+
+
+  @Security('jwt')
+  @Get('/getPlatformsLogs')
+  public async getPlatformsLogs(): Promise<any[]> {
+    this.setStatus(201); // set return status 201
+    return new LogsService().getPlatformsLogs();
+  }
 
 }
 
