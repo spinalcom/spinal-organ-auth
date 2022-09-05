@@ -23,7 +23,7 @@
  */
 import { spinalCore, FileSystem, Model } from 'spinal-core-connectorjs_type';
 
-export function store(fs: any, model: spinal.Model, path: string, callback_success, callback_error) {
+export function store(fs: FileSystem, model: spinal.Model, path: string, callback_success, callback_error) {
   if (typeof callback_error === "undefined")
     callback_error = () => {
       console.log("Model could not be stored. You can pass a callback to handle this error.")
@@ -35,8 +35,10 @@ export function store(fs: any, model: spinal.Model, path: string, callback_succe
     lst.splice(0, 1);
   }
   path = lst.join("/");
+  const home_dir = fs._home_dir;
+
   // @ts-ignore
-  fs.load_or_make_dir(FileSystem._home_dir + path, (dir, err) => {
+  fs.load_or_make_dir(home_dir + path, (dir, err) => {
     if (err)
       callback_error(err);
     else {

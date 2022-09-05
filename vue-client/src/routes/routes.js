@@ -245,7 +245,7 @@ let authPages = {
   name: 'Authentication',
   children: [
     {
-      path: '/login',
+      path: '/Login',
       name: 'Login',
       component: Login,
     },

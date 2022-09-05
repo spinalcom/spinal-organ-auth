@@ -59,7 +59,7 @@ function Server(): express.Express {
     })
   );
   // app.use(methodOverride());
-  // app.use(history())
+  app.use(history())
 
   // app.use('/static', express.static(path.join(__dirname, 'public')));
 
