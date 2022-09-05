@@ -239,16 +239,22 @@ export class PlatformService {
         const platforms = await context.getChildren(
           AUTH_SERVICE_PLATFORM_RELATION_NAME
         );
+        var platformFound: SpinalNode<any>
         for (const platform of platforms) {
           if (platform.getId().get() === id) {
-            await this.logService.createLog(platform, 'PlatformLogs', 'Delete', 'Delete Valid', "Delete Valid");
-            await platform.removeFromGraph();
+            platformFound = platform;
           }
+        }
+
+        if (platformFound !== undefined) {
+          await this.logService.createLog(platformFound, 'PlatformLogs', 'Delete', 'Delete Valid', "Delete Valid");
+          await platformFound.removeFromGraph();
+        } else {
+          await this.logService.createLog(undefined, 'PlatformLogs', 'Delete', 'Delete Not Valid', "Delete Not Valid");
+          throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
         }
       }
     }
-    await this.logService.createLog(undefined, 'PlatformLogs', 'Delete', 'Delete Not Valid', "Delete Not Valid");
-    throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
 
   }
 
