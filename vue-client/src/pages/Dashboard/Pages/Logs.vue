@@ -26,9 +26,9 @@ with this file. If not, see
     <div class="md-layout-item md-size-95 mt-4 md-small-size-100">
       <div class="md-layout-item md-size-100">
         <md-card>
-          <div>
+          <!-- <div>
             <div :ref="chart.uuid"></div>
-          </div>
+          </div> -->
           <md-card-header class="md-card-header-icon md-card-header-green">
             <div class="card-icon">
               <md-icon>backup_table</md-icon>

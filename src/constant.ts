@@ -26,6 +26,7 @@
 export const AUTH_SERVICE_RELATION_TYPE_PTR_LST = 'PtrLst';
 export const AUTH_SERVICE_RELATION_TYPE_LST_PTR = 'LstPtr';
 export const USER_TYPE = 'AuthServiceUser';
+export const NOTIFICATION_TYPE = 'AuthServiceNotification';
 export const USER_TOKEN_CATEGORY_TYPE = 'AuthServiceUserCategory';
 export const APPLICATION_TYPE = 'AuthServiceApplication';
 export const APPLICATION_TOKEN_CATEGORY_TYPE = 'AuthServiceApplicationCategory';
@@ -54,6 +55,7 @@ export const USER_LOG_TYPE = 'AuthServiceUserLog'
 
 // RelationName
 export const AUTH_SERVICE_PLATFORM_RELATION_NAME = 'HasPlatform';
+export const AUTH_SERVICE_NOTIFICATION_RELATION_NAME = 'HasNotification';
 export const AUTH_SERVICE_ORGAN_RELATION_NAME = 'HasOrgan';
 export const AUTH_SERVICE_USER_PROFILE_RELATION_NAME = 'HasUserProfile';
 export const AUTH_SERVICE_APP_PROFILE_RELATION_NAME = 'HasAppProfile';
@@ -72,10 +74,12 @@ export const AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME = 'HasRequestEventLog'
 
 
 
+
 //ContextName
 export const PLATFORM_LIST = 'platformList';
 export const USER_LIST = 'userList';
 export const APPLICATION_LIST = 'applicationList';
 export const TOKEN_LIST = 'tokenList';
 export const INFO_ADMIN = 'infoAdmin';
-export const LOG_LIST = 'logList'
+export const LOG_LIST = 'logList';
+export const NOTIFICATION_LIST = 'notificationList'

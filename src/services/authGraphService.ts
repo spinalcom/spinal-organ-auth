@@ -32,6 +32,7 @@ import {
   TOKEN_LIST,
   LOG_LIST,
   INFO_ADMIN,
+  NOTIFICATION_LIST
 } from '../constant';
 
 export class AuthGraphService {
@@ -47,6 +48,7 @@ export class AuthGraphService {
     var tokenList: SpinalContext<spinal.Model>;
     var infoAdmin: SpinalContext<spinal.Model>;
     var logs: SpinalContext<spinal.Model>;
+    var notifications: SpinalContext<spinal.Model>;
 
     if ((await this.graph.getContext(USER_LIST)) === undefined) {
       userList = new SpinalContext(USER_LIST);
@@ -76,6 +78,11 @@ export class AuthGraphService {
     if ((await this.graph.getContext(LOG_LIST)) === undefined) {
       logs = new SpinalContext(LOG_LIST);
       promises.push(this.graph.addContext(logs));
+    }
+
+    if ((await this.graph.getContext(NOTIFICATION_LIST)) === undefined) {
+      notifications = new SpinalContext(NOTIFICATION_LIST);
+      promises.push(this.graph.addContext(notifications));
     }
 
     return Promise.all(promises).then(() => {
