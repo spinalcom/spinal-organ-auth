@@ -392,6 +392,8 @@ export class PlatformService {
   }
 
   public generateTokenBosAdmin(platformName: string) {
+    const dotenv = require('dotenv');
+    dotenv.config();
     let token = jwt.sign(
       { platformName: platformName },
       process.env.TOKEN_SECRET,
