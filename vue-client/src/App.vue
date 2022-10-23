@@ -29,3 +29,11 @@ with this file. If not, see
 <script>
 export default {};
 </script>
+
+<style>
+@font-face {
+  font-family: "Charlevoix Pro";
+  src: local("Charlevoix Pro"),
+   url(./assets/font/CharlevoixPro-Regular.ttf) format("truetype");
+}
+</style>

@@ -70,7 +70,22 @@ import Alarmes from '@/pages/Dashboard/Pages/Alarmes.vue';
 import Servers from '@/pages/Dashboard/Pages/Servers.vue';
 import Users from '@/pages/Dashboard/Pages/Users.vue';
 import Application from '@/pages/Dashboard/Pages/Application.vue';
+<<<<<<< Updated upstream
 import AddServer from '@/pages/Dashboard/Pages/AddServer.vue';
+=======
+import AddApp from '@/pages/Dashboard/Pages/AddApp.vue';
+import EditApp from '@/pages/Dashboard/Pages/EditApp.vue';
+import AddOrgan from '@/pages/Dashboard/Pages/AddOrgan.vue';
+import AddUser from '@/pages/Dashboard/Pages/AddUser.vue';
+import EditUser from '@/pages/Dashboard/Pages/EditUser.vue';
+import DetailUser from '@/pages/Dashboard/Pages/DetailUser.vue';
+import DetailPlatform from '@/pages/Dashboard/Pages/DetailPlatform.vue';
+import DetailApp from '@/pages/Dashboard/Pages/DetailApp.vue';
+import PlatformDetail from '@/pages/Dashboard/Pages/PlatformDetail.vue';
+import EditAdminProfile from '@/pages/Dashboard/Pages/EditAdminProfile.vue';
+import test from '@/pages/Dashboard/Pages/test.vue';
+import Logs from '@/pages/Dashboard/Pages/Logs.vue';
+>>>>>>> Stashed changes
 // Calendar
 import Calendar from '@/pages/Dashboard/Calendar.vue';
 // Charts
@@ -312,6 +327,18 @@ const routes = [
         path: 'Application',
         name: 'App Page',
         components: { default: Application },
+      },
+      {
+        path: 'test',
+        name: 'test',
+        components: { default: test },
+        props: true,
+      },
+      {
+        path: 'DetailPlatform',
+        name: 'DetailPlatform',
+        components: { default: DetailPlatform },
+        props: true,
       },
     ],
   },

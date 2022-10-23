@@ -1,28 +1,5 @@
-<!--
-Copyright 2021 SpinalCom - www.spinalcom.com
-
-This file is part of SpinalCore.
-
-Please read all of the following terms and conditions
-of the Free Software license Agreement ("Agreement")
-carefully.
-
-This Agreement is a legally binding contract between
-the Licensee (as defined below) and SpinalCom that
-sets forth the terms and conditions that govern your
-use of the Program. By installing and/or using the
-Program, you agree to abide by all the terms and
-conditions stated or referenced herein.
-
-If you do not agree to abide by these terms and
-conditions, do not demonstrate your acceptance and do
-not install or use the Program.
-You should have received a copy of the license along
-with this file. If not, see
-<http://resources.spinalcom.com/licenses.pdf>.
--->
-
 <template>
+<<<<<<< Updated upstream
   <div class="md-layout">
     <div class="md-layout-item md-size-95 mt-4 md-small-size-100">
       <div>
@@ -294,12 +271,70 @@ with this file. If not, see
             class="md-layout-item"
             :itemSelectedId="itemSelected.id"
           ></AddServer>
+=======
+    <v-app class="app">
+
+        <div style="width: 100%; display:flex; justify-content: end;">
+            <v-card class="d-flex flex-column ml-2 pt-2 pb-2 bar-bloc-right justify-center rounded-lg" elevation="2">
+                <BlueButton @click.native="generateRegisterKey()" :icon="'mdi-sync'" title="GÉNERER UN CLÉ"
+                    :val="'blue'"/>
+            </v-card>
         </div>
-      </md-card>
-    </div>
-  </div>
+
+        <BachupInformation :subtitle1="`NOM DE PLATFORME`" :subtitle2="'ÉTAT'" title="PLATFORM LIST">
+            <div v-for="item in platformList" :key="item.id">
+                <div class="d-flex mb-2">
+                    <div style="width: 25%" class="d-flex flex-column">
+                        <div class="btn-valider-user rounded-l-lg">{{item.name}}</div>
+                    </div>
+                    <div style="width: 15%" class="d-flex flex-column ">
+                        <div class="btn-valider-user">
+                            <button>{{item.organs.length}}</button>
+                        </div>
+                    </div>
+                    <div style="width: 15%" class="d-flex flex-column ">
+                        <div class="btn-valider-user">
+                            <button>{{ item.userProfiles.length }}</button>
+                        </div>
+                    </div>
+                    <div style="width: 15%" class="d-flex flex-column ">
+                        <div class="btn-valider-user">
+                            <button>{{item.appProfiles.length }}</button>
+                        </div>
+                    </div>
+                    <div style="width: 35%" class="d-flex flex-column ">
+                        <div class="btn-valider-user">
+                            <StatutButton :val="item.statusPlatform" title="ONLINE"></StatutButton>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column ">
+                        <div class="btn-valider-user rounded-r-lg">
+                            <button @click="displayDetail(item)">
+                                <v-icon>mdi-arrow-right</v-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </BachupInformation>
+
+        <div v-if="show" class="popup-back">
+            <v-card class="popup">
+                <p style="margin-bottom: 50px;">NOUVELLE CLÉ</p>
+                <InputUser class="mb-12 mt-6" title="REGISTERED" :value="this.registerKey.value"></InputUser>
+                <div class="mt-6" style="padding-left:60%">
+                    <BlueButton @click.native="show = false" title="FERMER" :val="'blue'" />
+                </div>
+            </v-card>
+
+>>>>>>> Stashed changes
+        </div>
+
+    </v-app>
 </template>
+  
 <script>
+<<<<<<< Updated upstream
 import {
   SpinalGraph,
   SpinalGraphService
@@ -476,17 +511,111 @@ export default {
     reloadData() {
       this.getPlatforms();
       // this.getServers();
-    },
-    validatePlatform() {
-      this.$v.$touch();
+=======
+const instanceAxios = require("../../../services/axiosConfig");
+import BlueButton from "../Components/BlueButton.vue"
+import StatutButton from "../Components/StatutButton.vue"
+import InputUser from "../Components/InputUser.vue"
+import BachupInformation from "../Components/BackupInformation.vue"
 
-      if (!this.$v.$invalid) {
-        this.savePlatform();
-      }
-    },
-    validateEditPlatform() {
-      this.$v.$touch();
 
+export default {
+    name: "App",
+    components: {
+        BlueButton,
+        BachupInformation,
+        StatutButton,
+        InputUser
+    },
+    data: () => ({
+        token: "",
+        platformList: [],
+        registerKey: { value: null },
+        show: false,
+
+    }),
+
+    methods: {
+        async generateRegisterKey() {
+            const rep = await instanceAxios.instanceAxios.post(
+                "/registerKey",
+                {},
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-access-token": this.token
+                    }
+                }
+            );
+            this.show = true;
+            this.registerKey = rep.data;
+        },
+
+        displayDetail(item) {
+            this.$router.push({ name: "DetailPlatform", query: { id: item.id } });
+        },
+        async getOrgans(platformId) {
+            const rep = await instanceAxios.instanceAxios.get(
+                `/organs/${platformId}`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-access-token": this.token
+                    }
+                }
+            );
+            return rep.data;
+        },
+        async getUserProfiles(platformId) {
+            const rep = await instanceAxios.instanceAxios.get(
+                `/platforms/${platformId}/getUserProfileList`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-access-token": this.token
+                    }
+                }
+            );
+            return rep.data;
+        },
+        async getAppProfiles(platformId) {
+            const rep = await instanceAxios.instanceAxios.get(
+                `/platforms/${platformId}/getAppProfileList`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-access-token": this.token
+                    }
+                }
+            );
+            return rep.data;
+        },
+        async getPlatforms() {
+            const rep = await instanceAxios.instanceAxios.get("/platforms", {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-access-token": this.token
+                }
+            });
+            // this.platformList = rep.data;
+            const test = rep.data.map(async item => {
+                item.organs = await this.getOrgans(item.id);
+                item.userProfiles = await this.getUserProfiles(item.id);
+                item.appProfiles = await this.getAppProfiles(item.id);
+                return item;
+            });
+            this.platformList = await Promise.all(test);
+        },
+>>>>>>> Stashed changes
+    },
+
+    mounted() {
+        this.token = localStorage.getItem("token");
+        this.getPlatforms();
+    },
+}
+
+<<<<<<< Updated upstream
       if (!this.$v.$invalid) {
         this.editPlatformItem();
       }
@@ -524,38 +653,53 @@ export default {
     display: function(newValue) {}
   }
 };
+=======
+>>>>>>> Stashed changes
 </script>
-<style lang="css" scoped>
-.md-card .md-card-actions {
-  border: 0;
-  margin-left: 20px;
-  margin-right: 20px;
-}
-.md-progress-bar {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
+  
+<style scoped lang="scss">
+
+
+.app {
+    font: normal normal normal 10px/12px Charlevoix Pro;
+    letter-spacing: 1px;
+    background: #eeeeee00;
 }
 
-.platform-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+.popup-back {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99;
+    // transform: translate(-50%);
+    // background-color: blue;
+    backdrop-filter: blur(5px);
 }
+<<<<<<< Updated upstream
+</style>
+=======
 
-.list-item {
-  width: 90%;
+.popup {
+    width: 25%;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    transform: translate(-50%, -100%);
+    left: 50%;
+    top: 50%;
+    border-radius: 10px;
 }
-
-.cursorP {
-  cursor: pointer;
-}
-.md-list {
-  width: 320px;
-  max-width: 100%;
-  display: inline-block;
-  vertical-align: top;
-  border: 1px solid rgba(#000, 0.12);
+.btn-valider-user {
+    background-color: #ffffff;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    min-height: 50px;
+    padding-left: 10px;
+    font: normal normal normal 12px/14px Charlevoix Pro;
+    letter-spacing: 1.2px;
 }
 </style>
+>>>>>>> Stashed changes

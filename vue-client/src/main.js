@@ -38,6 +38,9 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import DashboardPlugin from './material-dashboard';
+import vuetify from '@/plugins/vuetify' // path to vuetify export
+import 'material-design-icons-iconfont';
+
 
 import Sparkline from 'vue-sparklines';
 // Plugins
@@ -73,4 +76,5 @@ new Vue({
   el: '#app',
   render: (h) => h(App),
   router,
+  vuetify,
 });

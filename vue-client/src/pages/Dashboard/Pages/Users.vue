@@ -1,27 +1,14 @@
-<!--
-Copyright 2021 SpinalCom - www.spinalcom.com
+<template>
+  <v-app class="app">
 
-This file is part of SpinalCore.
+    <div style="width: 100%; display:flex; justify-content: end;">
+      <v-card class="d-flex flex-column ml-2 pt-2 pb-2 bar-bloc-right justify-center rounded-lg" elevation="2">
+        <BlueButton @click.native="displayAdd()" :icon="'mdi-plus'" title="AJOUTER UN UTILISATEUR" :val="'blue'"/>
+      </v-card>
+    </div>
 
-Please read all of the following terms and conditions
-of the Free Software license Agreement ("Agreement")
-carefully.
 
-This Agreement is a legally binding contract between
-the Licensee (as defined below) and SpinalCom that
-sets forth the terms and conditions that govern your
-use of the Program. By installing and/or using the
-Program, you agree to abide by all the terms and
-conditions stated or referenced herein.
-
-If you do not agree to abide by these terms and
-conditions, do not demonstrate your acceptance and do
-not install or use the Program.
-You should have received a copy of the license along
-with this file. If not, see
-<http://resources.spinalcom.com/licenses.pdf>.
--->
-
+<<<<<<< Updated upstream
 <template>
   <div class="md-layout">
     <div class="md-layout-item md-size-95 mt-4 md-small-size-100">
@@ -240,8 +227,35 @@ with this file. If not, see
       </md-card>
     </div>
   </div>
+=======
+    <BachupInformation :subtitle1="`NOM D'UTILISATEUR`" :subtitle2="'ÉTAT'" title="BACKUP USER TABLE" >
+      <div v-for="item in userList" :key="item.id">
+        <div class="d-flex mb-2">
+          <div style="width: 25%" class="d-flex flex-column">
+            <div class="btn-valider-user rounded-l-lg">{{item.userName}}</div>
+          </div>
+          <div style="width: 75%" class="d-flex flex-column ">
+            <div class="btn-valider-user">
+              <button>OFFLINE</button>
+            </div>
+          </div>
+          <div class="d-flex flex-column ">
+            <div class="btn-valider-user rounded-r-lg">
+              <button style="height: 100%;" @click="displayDetail(item)">
+                <v-icon>mdi-arrow-right</v-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div> 
+    </BachupInformation>
+
+  </v-app>
+>>>>>>> Stashed changes
 </template>
+
 <script>
+<<<<<<< Updated upstream
 import Multiselect from "vue-multiselect";
 import {
   SpinalGraph,
@@ -258,9 +272,22 @@ import {
 export default {
   mixins: [validationMixin],
   components: { Multiselect },
+=======
+const instanceAxios = require("../../../services/axiosConfig");
+import BlueButton from "../Components/BlueButton.vue"
+import BachupInformation from "../Components/BackupInformation.vue"
+
+export default {
+  name: "App",
+  components: {
+    BlueButton,
+    BachupInformation
+  },
+>>>>>>> Stashed changes
   data: () => ({
     display: false,
     token: "",
+<<<<<<< Updated upstream
     value: null,
     secretType: "password",
     position: "center",
@@ -316,6 +343,12 @@ export default {
       this.formUser.role = null;
       this.formUser.rightsList = null;
     },
+=======
+    userList: [],
+  }),
+
+  methods: {
+>>>>>>> Stashed changes
     displayAdd() {
       this.display = true;
     },
@@ -354,6 +387,9 @@ export default {
         }
       );
       this.userProfile = rep.data;
+    },
+    displayDetail(item) {
+      this.$router.push({ name: "DetailUser", query: { id: item.id } });
     },
     async getUsers() {
       const rep = await axios.get("http://localhost:4040/users", {
@@ -401,37 +437,32 @@ export default {
       "text-right": id
     })
   },
+
   mounted() {
     this.token = localStorage.getItem("token");
     this.getUsers();
     this.getUserProfile();
     this.getRoles();
   },
-  watch: {
-    /**
-     * Searches through the table data by a given query.
-     * NOTE: If you have a lot of data, it's recommended to do the search on the Server Side and only display the results here.
-     * @param value of the query
-     */
-  }
-};
+}
+
 </script>
-<style lang="css" scoped>
-.buttonAdd {
-  float: right;
-  margin-right: 20px;
-  margin-bottom: 50px;
+
+<style scoped lang="scss">
+.app {
+  font: normal normal normal 10px/12px Charlevoix Pro;
+  letter-spacing: 1px;
+  background: #eeeeee00;
 }
-.backupUser {
-  margin-top: 50px;
-}
-.md-card .md-card-actions {
-  border: 0;
-  margin-left: 20px;
-  margin-right: 20px;
-}
-.cursorP {
-  cursor: pointer;
+
+.btn-valider-user {
+  background-color: #ffffff;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  min-height: 50px;
+  padding-left: 10px;
+  font: normal normal normal 12px/14px Charlevoix Pro;
+  letter-spacing: 1.2px;
 }
 </style>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>

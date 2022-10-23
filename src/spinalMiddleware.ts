@@ -49,6 +49,7 @@ class SpinalMiddleware {
 
     // initialize the connection
     this.conn = spinalCore.connect(connect_opt);
+    
   }
 
   async init() {

@@ -158,24 +158,20 @@ with this file. If not, see
 import axios from "axios";
 import Multiselect from "vue-multiselect";
 import { validationMixin } from "vuelidate";
-import Vue from "vue";
 import EventBus from "../../../EventBus";
-import {
-  required,
-  email,
-  minLength,
-  maxLength
-} from "vuelidate/lib/validators";
-import { data } from "../../../services/profileUserListData";
-// const profiles = require("../../../services/profileUserListData");
-
+import { required, email, minLength, numeric } from "vuelidate/lib/validators";
 export default {
+<<<<<<< Updated upstream:vue-client/src/pages/Dashboard/Pages/AddServer.vue
   name: "AddServer",
+=======
+>>>>>>> Stashed changes:vue-client/src/pages/Dashboard/Pages/AddOrgan.vue
   mixins: [validationMixin],
+  name: "AddUser",
   components: { Multiselect },
   props: {
     itemSelectedId: String
   },
+<<<<<<< Updated upstream:vue-client/src/pages/Dashboard/Pages/AddServer.vue
   data: () => ({
     token: null,
     position: "center",
@@ -198,30 +194,145 @@ export default {
   validations: {
     formServer: {
       serverName: {
+=======
+  data() {
+    return {
+      token: null,
+      position: "center",
+      duration: 3000,
+      isInfinity: false,
+      formUser: {
+        userName: null,
+        password: null,
+        telephone: null,
+        email: null,
+        info: null,
+        userType: null
+      },
+      formPlatformObject: {
+        platform: [],
+        userProfileValue: null
+      },
+      platformObjectList: [],
+      itemPlatformSelected: null,
+      userType: [],
+      userProfileList: [],
+      userList: [],
+      platformList: [],
+      userSaved: false,
+      sending: false,
+      lastUser: null
+    };
+  },
+  validations: {
+    formUser: {
+      userName: {
+>>>>>>> Stashed changes:vue-client/src/pages/Dashboard/Pages/AddOrgan.vue
         required,
         minLength: minLength(3)
       },
-      clientId: {
+      password: {
         required,
+        minLength: minLength(8)
+      },
+      email: {
+        required,
+        email
+      },
+      info: {
         minLength: minLength(3)
       },
-      clientSecret: {
-        required,
-        minLength: minLength(3)
+      telephone: {
+        numeric,
+        minLength: minLength(8)
       },
-      uri: {
-        required,
-        minLength: minLength(3)
-      },
-      userProfileValue: {
+      userType: {
         required
       }
     }
   },
   computed: {},
   methods: {
+    async saveUser() {
+      var objectBody = {
+        userName: this.formUser.userName,
+        password: this.formUser.password,
+        email: this.formUser.email,
+        telephone: this.formUser.telephone,
+        info: this.formUser.info,
+        userType: this.formUser.userType.name,
+        platformList: this.platformObjectList.map(el => {
+          return {
+            platformId: el.platformId,
+            userProfile: {
+              name: el.userProfile.name,
+              userProfileId: el.userProfile.userProfileId
+            }
+          };
+        })
+      };
+      const rep = await instanceAxios.instanceAxios.post("/users", objectBody, {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": this.token
+        }
+      });
+      if (rep) {
+        this.lastUser = `${objectBody.userName}`;
+        this.userSaved = true;
+        this.sending = false;
+        this.clearForm();
+        window.setTimeout(() => {
+          this.$router.push("/Users");
+        }, 1500);
+      }
+    },
+    savePlateformObject() {
+      var test = true;
+      for (const platformObject of this.platformObjectList) {
+        if (platformObject.platformId === this.formPlatformObject.platform.id) {
+          alert("you cannot select platform even twice");
+          this.formPlatformObject.platform = [];
+          this.formPlatformObject.userProfileValue = null;
+          test = false;
+        }
+      }
+      if (test === true) {
+        this.platformObjectList.push({
+          platformId: this.formPlatformObject.platform.id,
+          platformName: this.formPlatformObject.platform.name,
+          userProfile: {
+            name: this.formPlatformObject.userProfileValue.name,
+            userProfileId: this.formPlatformObject.userProfileValue
+              .userProfileId
+          }
+        });
+        this.formPlatformObject.platform = [];
+        this.formPlatformObject.userProfileValue = null;
+      }
+    },
+    deletePlatformObjectitem(item) {
+      for (let index = 0; index < this.platformObjectList.length; index++) {
+        if (this.platformObjectList[index].platformId === item.platformId) {
+          this.platformObjectList.splice(index, 1);
+        }
+      }
+    },
+    async getRoles() {
+      const rep = await instanceAxios.instanceAxios.post("/users/getRoles", {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": this.token
+        }
+      });
+      this.userType = rep.data;
+    },
     getValidationClass(fieldName) {
+<<<<<<< Updated upstream:vue-client/src/pages/Dashboard/Pages/AddServer.vue
       const field = this.$v.formServer[fieldName];
+=======
+      const field = this.$v.formUser[fieldName];
+>>>>>>> Stashed changes:vue-client/src/pages/Dashboard/Pages/AddOrgan.vue
       if (field) {
         return {
           "md-invalid": field.$invalid && field.$dirty
@@ -230,6 +341,7 @@ export default {
     },
     clearForm() {
       this.$v.$reset();
+<<<<<<< Updated upstream:vue-client/src/pages/Dashboard/Pages/AddServer.vue
       this.formServer.serverName = null;
       this.formServer.clientId = null;
       this.formServer.clientSecret = null;
@@ -266,9 +378,23 @@ export default {
       // Instead of this timeout, here you can call your API
     },
     validateServer() {
+=======
+      this.formUser.userName = null;
+      this.formUser.password = null;
+      this.formUser.email = null;
+      this.formUser.info = null;
+      this.formUser.telephone = null;
+      this.formUser.userType = null;
+    },
+    cancelAdd() {
+      this.clearForm();
+      this.$router.push("/Users");
+    },
+    validateUser() {
+>>>>>>> Stashed changes:vue-client/src/pages/Dashboard/Pages/AddOrgan.vue
       this.$v.$touch();
-
       if (!this.$v.$invalid) {
+<<<<<<< Updated upstream:vue-client/src/pages/Dashboard/Pages/AddServer.vue
         this.saveServer();
       }
     },
@@ -280,19 +406,50 @@ export default {
         }
       });
       this.serverList = rep.data;
+=======
+        this.saveUser();
+      }
     },
-    getUserProfileData() {
-      const profiles = require("../../../services/profileUserListData");
-      this.userProfileList = profiles.default;
+    async getUserProfileList(id) {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/platforms/${id}/getUserProfileList`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": this.token
+          }
+        }
+      );
+      this.userProfileList = rep.data;
+>>>>>>> Stashed changes:vue-client/src/pages/Dashboard/Pages/AddOrgan.vue
+    },
+    async getplatformList() {
+      const rep = await instanceAxios.instanceAxios.get(`/platforms`, {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": this.token
+        }
+      });
+      this.platformList = rep.data;
     }
   },
   mounted() {
     this.token = localStorage.getItem("token");
-
-    this.getUserProfileData();
+    this.getUserProfileList();
+    this.getplatformList();
+    this.getRoles();
   },
-  watch: {}
+  watch: {
+    "formPlatformObject.platform": function(value) {
+      this.getUserProfileList(value.id);
+    }
+  }
 };
 </script>
 
-<style></style>
+<style>
+.platformRange {
+  display: flex;
+  flex-direction: row;
+}
+</style>
