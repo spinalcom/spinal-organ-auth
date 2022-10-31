@@ -229,6 +229,7 @@ export class ApplicationService {
                     createdToken: decodedToken.iat,
                     // @ts-ignore
                     expieredToken: decodedToken.exp,
+                    applicationId: app.getId().get(),
                     platformList: platformList,
                   };
                   await this.logService.createLog(app, 'ApplicationLogs', 'Connection', 'Login Valid', "Login Valid");
