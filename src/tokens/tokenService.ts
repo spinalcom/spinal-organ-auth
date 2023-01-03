@@ -260,4 +260,58 @@ export class TokensService {
       }
     }
   }
+  public async verifyToken(tokenParam: string, actor: string) {
+    let foundUser: boolean, foundeApplication: boolean = false
+    const context = await this.graph.getContext(TOKEN_LIST);
+    const categoriesToken = await context.getChildren('HasCategoryToken');
+    for (const category of categoriesToken) {
+      if (actor === "user" && category.getName().get() === "User Token") {
+        const categoryTokens = await category.getChildren('HasToken');
+        for (const token of categoryTokens) {
+          if (token.info.token.get() === tokenParam) {
+            foundUser = true;
+            if (Math.floor(Date.now() / 1000) < token.info.expieredToken.get()) {
+              let info = {
+                token: token.info.token.get(),
+                createdToken: token.info.createdToken.get(),
+                expieredToken: token.info.expieredToken.get(),
+                status: 'token valid'
+              };
+              return info
+            } else {
+              return 'token expired'
+            }
+          }
+        }
+        if (foundUser === false) {
+          return 'unknown token'
+        }
+
+      }
+      else if (actor === "application" && category.getName().get() === "Application Token") {
+        const categoryTokens = await category.getChildren('HasToken');
+        for (const token of categoryTokens) {
+          if (token.info.token.get() === tokenParam) {
+            foundeApplication = true;
+            if (Math.floor(Date.now() / 1000) < token.info.expieredToken.get()) {
+              let info = {
+                token: token.info.token.get(),
+                createdToken: token.info.createdToken.get(),
+                expieredToken: token.info.expieredToken.get(),
+                status: 'token valid'
+              };
+              return info
+            } else {
+              return 'token expired'
+            }
+          }
+        }
+        if (foundeApplication === false) {
+          return 'unknown token'
+        }
+
+      }
+    }
+  }
 }
+
