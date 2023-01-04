@@ -32,7 +32,9 @@ export type OperationErrorMessage =
   | 'USERNAME_IS_ALREADY_USED'
   | 'NOT_CREATED'
   | 'UNAUTHORIZED ROLE'
-  | 'ERROR_PASSWORD';
+  | 'ERROR_PASSWORD'
+  | 'UNKNOWN_TOKEN'
+  | 'TOKEN_EXPIRED';
 
 export class OperationError extends Error {
   constructor(message: OperationErrorMessage, readonly status: HttpStatusCode) {

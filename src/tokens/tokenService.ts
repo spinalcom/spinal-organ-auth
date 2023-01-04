@@ -261,7 +261,7 @@ export class TokensService {
     }
   }
   public async verifyToken(tokenParam: string, actor: string) {
-    let foundUser: boolean, foundeApplication: boolean = false
+    let foundUser: boolean = false, foundeApplication: boolean = false
     const context = await this.graph.getContext(TOKEN_LIST);
     const categoriesToken = await context.getChildren('HasCategoryToken');
     for (const category of categoriesToken) {
@@ -279,14 +279,19 @@ export class TokensService {
               };
               return info
             } else {
-              return 'token expired'
+              throw new OperationError(
+                'TOKEN_EXPIRED',
+                HttpStatusCode.UNAUTHORIZED
+              );
             }
           }
         }
         if (foundUser === false) {
-          return 'unknown token'
+          throw new OperationError(
+            'UNKNOWN_TOKEN',
+            HttpStatusCode.UNAUTHORIZED
+          );
         }
-
       }
       else if (actor === "application" && category.getName().get() === "Application Token") {
         const categoryTokens = await category.getChildren('HasToken');
@@ -302,12 +307,18 @@ export class TokensService {
               };
               return info
             } else {
-              return 'token expired'
+              throw new OperationError(
+                'TOKEN_EXPIRED',
+                HttpStatusCode.UNAUTHORIZED
+              );
             }
           }
         }
         if (foundeApplication === false) {
-          return 'unknown token'
+          throw new OperationError(
+            'UNKNOWN_TOKEN',
+            HttpStatusCode.UNAUTHORIZED
+          );
         }
 
       }
@@ -315,3 +326,5 @@ export class TokensService {
   }
 }
 
+  // 'UNKNOWN_TOKEN'
+  // 'TOKEN_EXPIRED'

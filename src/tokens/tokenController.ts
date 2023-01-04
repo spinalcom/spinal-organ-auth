@@ -81,10 +81,8 @@ export class TokensController extends Controller {
     );
   }
 
-  @Security('jwt')
   @Post('/verifyToken')
   public async verifyToken(@Body() requestBody: any): Promise<any> {
-    this.setStatus(201); // set return status 201
     return new TokensService().verifyToken(
       requestBody.tokenParam,
       requestBody.actor
