@@ -24,7 +24,8 @@
 // const axios = require('axios');
 import axios from "axios";
 export const instanceAxios = axios.create({
-  baseURL: 'http://localhost:4040/',
+  baseURL: 'http://localhost:9060/',
+  // baseURL: '/',
   timeout: 1000,
   headers: { 'X-Custom-Header': 'foobar' },
 });
@@ -34,6 +35,7 @@ import router from "../router";
 instanceAxios.interceptors.response.use((response) => {
   return response;
 }, (error) => {
+  
   if (error.response.status === 401) {
     localStorage.removeItem('token');
     router.push("/Login");
