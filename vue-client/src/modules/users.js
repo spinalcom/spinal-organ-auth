@@ -108,7 +108,6 @@ export default {
 
     async getUserProfileList({ commit }, id) {
       // console.log(id);
-      // console.log('toto');
       const rep = await instanceAxios.instanceAxios.get(
         `/platforms/${id}/getUserProfileList`,
         {

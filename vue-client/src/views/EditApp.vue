@@ -17,7 +17,7 @@
                     <InputUser title="TYPE D'APPLICATION" id="type" v-model="formApp.appType" />
                     <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formApp.appType.required">Le Type
                         d'appication est nécessaire</span>
-                    <div @click="toto()" v-for="(platform, index) in newappplatform" class="mt-5 platform-valid">
+                    <div v-for="(platform, index) in newappplatform" class="mt-5 platform-valid">
                         <div class="selector">
                             <InputUser :readonly="true" title="PLATEFORME" id="telephone" :value="platform.platformName" />
                             <InputUser :readonly="true" title="PROFIL D'UTILISATEUR" id="telephone"

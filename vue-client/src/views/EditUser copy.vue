@@ -169,7 +169,6 @@ export default {
         async validateUser() {
             await this.$refs.refplatform.maFonction();
             this.$v.$touch();
-            console.log("toto");
             if (!this.$v.$invalid) {
 
                 console.log('valid form');
