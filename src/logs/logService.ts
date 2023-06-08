@@ -352,8 +352,8 @@ export class LogsService {
                       type: USER_LOG_TYPE,
                       name: 'Log',
                       actor: {
-                        actorId: _actor?.getId().get(),
-                        actorName: _actor?.getName().get()
+                        actorId: _actor !== undefined ? _actor.getId().get() : "",
+                        actorName: _actor !== undefined ? _actor?.getName().get() : ""
                       },
                       message: message,
                       date: Date.now(),
@@ -365,18 +365,17 @@ export class LogsService {
                     );
                     await SpinalGraphService.addChildInContext(eventRequetsLog.getId().get(), userLogId, context.getId().get(),
                       AUTH_SERVICE_LOG_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
-                    // @ts-ignore
-                    SpinalGraphService._addNode(_actor);
-                    await SpinalGraphService.addChildInContext(_actor.getId().get(), userLogId, context.getId().get(), AUTH_SERVICE_LOG_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+                    if (_actor !== undefined) {
+                      // @ts-ignore
+                      SpinalGraphService._addNode(_actor);
+                      await SpinalGraphService.addChildInContext(_actor.getId().get(), userLogId, context.getId().get(), AUTH_SERVICE_LOG_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
+                    }
                   }
                 }
               }
             }
           }
-
         }
-
-
       }
     }
   }
@@ -404,6 +403,8 @@ export class LogsService {
               SpinalGraphService._addNode(requestEventLog);
               const logs = await requestEventLog.getChildren('HasLog');
               for (const log of logs) {
+                // @ts-ignore
+                SpinalGraphService._addNode(log);
                 var objetLog: ILog = {
                   id: log.getId().get(),
                   type: log.getType().get(),
@@ -422,8 +423,8 @@ export class LogsService {
         }
       }
     }
-    return logList
-
+    const newLogList = filterLogs(logList);
+    return
   }
 
   public async getPlatformsLogs(): Promise<any[]> {
@@ -491,5 +492,23 @@ async function getParents(realNode: SpinalNode<any>) {
   return parentsInfo
 }
 
+// Fonction de comparaison pour trier par date
+function comparerParDate(log1: ILog, log2: ILog) {
+  let dateLog1 = parseInt(log1.date)
+  let dateLog2 = parseInt(log2.date)
+  return dateLog1 - dateLog2;
+}
 
+function filterLogs(logList: ILog[]) {
 
+  const newLogList = logList.sort(comparerParDate);
+  const limiLog = process.env.LIMIT_LOG
+  for (const log of newLogList) {
+    const logRealNode: SpinalNode<any> = SpinalGraphService.getRealNode(log.id)
+    console.log(logRealNode);
+
+  }
+  // Trier le tableau par date
+  return logList
+
+}
