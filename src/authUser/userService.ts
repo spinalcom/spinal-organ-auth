@@ -181,198 +181,220 @@ export class UserService {
 
   public async login(userLoginParams: IUserLoginParams): Promise<IUserToken> {
     // const logService = new LogsService();
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === USER_LIST) {
-        const users = await context.getChildren(
-          AUTH_SERVICE_USER_RELATION_NAME
-        );
-        for (const user of users) {
-          if (userLoginParams.userName === user.info.userName.get()) {
-            return bcrypt
-              .compare(userLoginParams.password, user.info.password.get())
-              .then(async (valid) => {
-                if (!valid) {
-                  await this.logService.createLog(user, 'UserLogs', 'Connection', 'User Valid Unknown Password', "User Valid Unknown Password");
-                  throw new OperationError(
-                    'NOT_FOUND',
-                    HttpStatusCode.NOT_FOUND
-                  );
-                } else {
-                  let token = jwt.sign(
-                    { userId: user.getId().get() },
-                    'RANDOM_TOKEN_SECRET',
-                    { expiresIn: '24h' }
-                  );
-                  let decodedToken = jwt_decode(token);
-                  const tokenContext = SpinalGraphService.getContext(
-                    TOKEN_LIST
-                  );
-                  const categoryTokenUserList = await tokenContext.getChildren(
-                    'HasCategoryToken'
-                  );
-                  for (const categoryTokenUser of categoryTokenUserList) {
-                    // @ts-ignore
-                    SpinalGraphService._addNode(categoryTokenUser);
-                    if (
-                      categoryTokenUser.getType().get() ===
-                      'AuthServiceUserCategory'
-                    ) {
+    const userListContext = SpinalGraphService.getContext(USER_LIST);
+    const tokenListContext = SpinalGraphService.getContext(TOKEN_LIST);
 
-                      var platformList = [];
-                      const userProfiles = await user.getChildren('HasUserProfile');
-                      for (const userProfile of userProfiles) {
-                        const platformParents = await userProfile.getParents('HasUserProfile')
-                        for (const platformParent of platformParents) {
-                          if (platformParent !== undefined) {
-                            if (platformParent.getType().get() === "AuthServicePlatform") {
-                              platformList.push({
-                                platformId: platformParent.getId().get(),
-                                platformName: platformParent.getName().get(),
-                                idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
-                                userProfile: {
-                                  userProfileAdminId: userProfile.getId().get(),
-                                  userProfileBosConfigId: userProfile.info.userProfileId.get(),
-                                  userProfileName: userProfile.getName().get()
-                                }
-                              })
-                            }
-                          }
+    const users = await userListContext.getChildren(
+      AUTH_SERVICE_USER_RELATION_NAME
+    );
+    for (const user of users) {
+      if (userLoginParams.userName === user.info.userName.get()) {
+        return bcrypt
+          .compare(userLoginParams.password, user.info.password.get())
+          .then(async (valid) => {
+            if (!valid) {
+              await this.logService.createLog(user, 'UserLogs', 'Connection', 'User Valid Unknown Password', "User Valid Unknown Password");
+              throw new OperationError(
+                'NOT_FOUND',
+                HttpStatusCode.NOT_FOUND
+              );
+            }
+            else {
+              var tokenNode: SpinalNode;
+              var platformList = [];
+              const userProfiles = await user.getChildren('HasUserProfile');
+              for (const userProfile of userProfiles) {
+                const platformParents = await userProfile.getParents('HasUserProfile')
+                for (const platformParent of platformParents) {
+                  if (platformParent !== undefined) {
+                    if (platformParent.getType().get() === "AuthServicePlatform") {
+                      platformList.push({
+                        platformId: platformParent.getId().get(),
+                        platformName: platformParent.getName().get(),
+                        idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
+                        userProfile: {
+                          userProfileAdminId: userProfile.getId().get(),
+                          userProfileBosConfigId: userProfile.info.userProfileId.get(),
+                          userProfileName: userProfile.getName().get()
                         }
-                      }
-
-
-                      const TokenId = SpinalGraphService.createNode(
-                        {
-                          name: 'token_' + user.getName().get(),
-                          type: TOKEN_TYPE,
-                          token: token,
-                          // @ts-ignore
-                          createdToken: decodedToken.iat,
-                          // @ts-ignore
-                          expieredToken: decodedToken.exp,
-                          userId: user.getId().get(),
-                          platformList: platformList,
-                        },
-                        undefined
-                      );
-                      const res = await SpinalGraphService.addChildInContext(
-                        categoryTokenUser.getId().get(),
-                        TokenId,
-                        tokenContext.getId().get(),
-                        AUTH_SERVICE_TOKEN_RELATION_NAME,
-                        AUTH_SERVICE_RELATION_TYPE_PTR_LST
-                      );
-                      let tokenObj: IUserToken = {
-                        name: res.getName().get(),
-                        token: token,
-                        // @ts-ignore
-                        createdToken: decodedToken.iat,
-                        // @ts-ignore
-                        expieredToken: decodedToken.exp,
-                        userId: user.getId().get(),
-                        platformList: platformList,
-                      };
-                      await this.logService.createLog(user, 'UserLogs', 'Connection', 'Login Valid', "Login Valid");
-                      return tokenObj;
+                      })
                     }
                   }
                 }
-              });
-          }
-        }
-        await this.logService.createLog(undefined, 'UserLogs', 'Connection', 'User Not Valid', "User Not Valid");
-        throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+              }
+              const categoryTokenUserList = await tokenListContext.getChildren(
+                'HasCategoryToken'
+              );
+              for (const categoryTokenUser of categoryTokenUserList) {
+                // @ts-ignore
+                SpinalGraphService._addNode(categoryTokenUser);
+                if (categoryTokenUser.getType().get() === 'AuthServiceUserCategory') {
+
+                  const tokens = await categoryTokenUser.getChildren('HasToken')
+                  if (tokens.length !== 0) {
+                    for (const _token of tokens) {
+                      // await _token.removeFromGraph()
+                      if (_token.info.userId.get() === user.getId().get()) {
+                        const date = new Date();
+                        date.setHours(date.getHours() - 24);
+                        const _date = Math.trunc(date.getTime() / 1000);;
+                        if (_token.info.expieredToken.get() > _date) {
+                          tokenNode = _token
+                        } else if (_token.info.expieredToken.get() < _date) {
+                          await _token.removeFromGraph()
+                        }
+                      }
+                    }
+                  } else {
+                    let token = jwt.sign(
+                      { userId: user.getId().get() },
+                      'RANDOM_TOKEN_SECRET',
+                      { expiresIn: '24h' }
+                    );
+                    let decodedToken = jwt_decode(token);
+                    for (const categoryTokenUser of categoryTokenUserList) {
+                      // @ts-ignore
+                      SpinalGraphService._addNode(categoryTokenUser);
+                      if (
+                        categoryTokenUser.getType().get() ===
+                        'AuthServiceUserCategory'
+                      ) {
+
+                        const TokenId = SpinalGraphService.createNode(
+                          {
+                            name: 'token_' + user.getName().get(),
+                            type: TOKEN_TYPE,
+                            token: token,
+                            // @ts-ignore
+                            createdToken: decodedToken.iat,
+                            // @ts-ignore
+                            expieredToken: decodedToken.exp,
+                            userId: user.getId().get(),
+                            platformList: platformList,
+                          },
+                          undefined
+                        );
+                        tokenNode = await SpinalGraphService.addChildInContext(
+                          categoryTokenUser.getId().get(),
+                          TokenId,
+                          tokenListContext.getId().get(),
+                          AUTH_SERVICE_TOKEN_RELATION_NAME,
+                          AUTH_SERVICE_RELATION_TYPE_PTR_LST
+                        );
+                      }
+                    }
+                  }
+                }
+              }
+
+              // const categoryTokenUserList = await tokenListContext.getChildren(
+              //   'HasCategoryToken'
+              // );
+              let tokenObj: IUserToken = {
+                name: tokenNode.getName().get(),
+                token: tokenNode.info.token.get(),
+                createdToken: tokenNode.info.createdToken.get(),
+                expieredToken: tokenNode.info.expieredToken.get(),
+                userId: user.getId().get(),
+                platformList: platformList,
+              };
+              await this.logService.createLog(user, 'UserLogs', 'Connection', 'Login Valid', "Login Valid");
+              return tokenObj;
+
+            }
+          });
       }
     }
+    await this.logService.createLog(undefined, 'UserLogs', 'Connection', 'User Not Valid', "User Not Valid");
+    throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
   }
 
   public async loginAuthAdmin(
     userLoginParams: IUserLoginParams
   ): Promise<IUserToken> {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === USER_LIST) {
-        const users = await context.getChildren(
-          AUTH_SERVICE_USER_RELATION_NAME
-        );
-        for (const user of users) {
-          if (userLoginParams.userName === 'authAdmin') {
-            return bcrypt
-              .compare(userLoginParams.password, user.info.password.get())
-              .then(async (valid) => {
-                if (!valid) {
-                  await this.logService.createLog(user, 'AdminLogs', 'Connection', 'Connection Not Valid', " Unknown AuthAdmin Password");
-                  throw new OperationError(
-                    'NOT_FOUND',
-                    HttpStatusCode.NOT_FOUND
+    const userListContext = SpinalGraphService.getContext(USER_LIST);
+    const tokenListContext = SpinalGraphService.getContext(TOKEN_LIST);
+
+    const users = await userListContext.getChildren(
+      AUTH_SERVICE_USER_RELATION_NAME
+    );
+    for (const user of users) {
+      if (userLoginParams.userName === 'authAdmin') {
+        return bcrypt
+          .compare(userLoginParams.password, user.info.password.get())
+          .then(async (valid) => {
+            if (!valid) {
+              await this.logService.createLog(user, 'AdminLogs', 'Connection', 'Connection Not Valid', " Unknown AuthAdmin Password");
+              throw new OperationError(
+                'NOT_FOUND',
+                HttpStatusCode.NOT_FOUND
+              );
+            } else {
+              let token = jwt.sign(
+                { userId: user.getId().get() },
+                'RANDOM_TOKEN_SECRET',
+                { expiresIn: '24h' }
+              );
+              let decodedToken = jwt_decode(token);
+              const tokenContext = SpinalGraphService.getContext(
+                TOKEN_LIST
+              );
+              const categoryTokenUserList = await tokenContext.getChildren(
+                'HasCategoryToken'
+              );
+              for (const categoryTokenUser of categoryTokenUserList) {
+                // @ts-ignore
+                SpinalGraphService._addNode(categoryTokenUser);
+                if (
+                  categoryTokenUser.getType().get() ===
+                  'AuthServiceUserCategory'
+                ) {
+                  const TokenId = SpinalGraphService.createNode(
+                    {
+                      name: 'token_' + user.getName().get(),
+                      type: TOKEN_TYPE,
+                      token: token,
+                      // @ts-ignore
+                      createdToken: decodedToken.iat,
+                      // @ts-ignore
+                      expieredToken: decodedToken.exp,
+                      userId: user.getId().get(),
+                      userType: user.info.userType.get(),
+                      // platformList: user.info.platformList.get(),
+                    },
+                    undefined
                   );
-                } else {
-                  let token = jwt.sign(
-                    { userId: user.getId().get() },
-                    'RANDOM_TOKEN_SECRET',
-                    { expiresIn: '24h' }
+                  const res = await SpinalGraphService.addChildInContext(
+                    categoryTokenUser.getId().get(),
+                    TokenId,
+                    tokenContext.getId().get(),
+                    AUTH_SERVICE_TOKEN_RELATION_NAME,
+                    AUTH_SERVICE_RELATION_TYPE_PTR_LST
                   );
-                  let decodedToken = jwt_decode(token);
-                  const tokenContext = SpinalGraphService.getContext(
-                    TOKEN_LIST
-                  );
-                  const categoryTokenUserList = await tokenContext.getChildren(
-                    'HasCategoryToken'
-                  );
-                  for (const categoryTokenUser of categoryTokenUserList) {
+                  let tokenObj: IUserToken = {
+                    name: res.getName().get(),
+                    type: res.getType().get(),
+                    token: token,
                     // @ts-ignore
-                    SpinalGraphService._addNode(categoryTokenUser);
-                    if (
-                      categoryTokenUser.getType().get() ===
-                      'AuthServiceUserCategory'
-                    ) {
-                      const TokenId = SpinalGraphService.createNode(
-                        {
-                          name: 'token_' + user.getName().get(),
-                          type: TOKEN_TYPE,
-                          token: token,
-                          // @ts-ignore
-                          createdToken: decodedToken.iat,
-                          // @ts-ignore
-                          expieredToken: decodedToken.exp,
-                          userId: user.getId().get(),
-                          userType: user.info.userType.get(),
-                          // platformList: user.info.platformList.get(),
-                        },
-                        undefined
-                      );
-                      const res = await SpinalGraphService.addChildInContext(
-                        categoryTokenUser.getId().get(),
-                        TokenId,
-                        tokenContext.getId().get(),
-                        AUTH_SERVICE_TOKEN_RELATION_NAME,
-                        AUTH_SERVICE_RELATION_TYPE_PTR_LST
-                      );
-                      let tokenObj: IUserToken = {
-                        name: res.getName().get(),
-                        type: res.getType().get(),
-                        token: token,
-                        // @ts-ignore
-                        createdToken: decodedToken.iat,
-                        // @ts-ignore
-                        expieredToken: decodedToken.exp,
-                        userId: user.getId().get(),
-                        userType: user.info.userType.get(),
-                      };
-                      if (tokenObj) {
-                        await this.logService.createLog(user, 'AdminLogs', 'Connection', 'Connection Valid', " Connection Valid");
-                        return tokenObj;
-                      }
-                    }
+                    createdToken: decodedToken.iat,
+                    // @ts-ignore
+                    expieredToken: decodedToken.exp,
+                    userId: user.getId().get(),
+                    userType: user.info.userType.get(),
+                  };
+                  if (tokenObj) {
+                    await this.logService.createLog(user, 'AdminLogs', 'Connection', 'Connection Valid', " Connection Valid");
+                    return tokenObj;
                   }
                 }
-              });
-          }
-        }
-        throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+              }
+            }
+          });
       }
     }
+    throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+
+
   }
 
   public async getUsers(): Promise<IUser[]> {

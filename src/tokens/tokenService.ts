@@ -261,7 +261,7 @@ export class TokensService {
     }
   }
   public async verifyToken(tokenParam: string, actor: string) {
-    let foundUser: boolean = false, foundeApplication: boolean = false
+    let foundUser: boolean = false, foundApplication: boolean = false
     const context = await this.graph.getContext(TOKEN_LIST);
     const categoriesToken = await context.getChildren('HasCategoryToken');
     for (const category of categoriesToken) {
@@ -297,7 +297,7 @@ export class TokensService {
         const categoryTokens = await category.getChildren('HasToken');
         for (const token of categoryTokens) {
           if (token.info.token.get() === tokenParam) {
-            foundeApplication = true;
+            foundApplication = true;
             if (Math.floor(Date.now() / 1000) < token.info.expieredToken.get()) {
               let info = {
                 token: token.info.token.get(),
@@ -314,7 +314,7 @@ export class TokensService {
             }
           }
         }
-        if (foundeApplication === false) {
+        if (foundApplication === false) {
           throw new OperationError(
             'UNKNOWN_TOKEN',
             HttpStatusCode.UNAUTHORIZED
@@ -326,5 +326,5 @@ export class TokensService {
   }
 }
 
-  // 'UNKNOWN_TOKEN'
-  // 'TOKEN_EXPIRED'
+// 'UNKNOWN_TOKEN'
+// 'TOKEN_EXPIRED'

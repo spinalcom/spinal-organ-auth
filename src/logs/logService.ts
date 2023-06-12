@@ -328,6 +328,7 @@ export class LogsService {
 
 
   public async createLog(_actor: SpinalNode<any>, _category: string, _eventLog: string, _eventrequest: string, message: string): Promise<void> {
+
     const contexts = await this.graph.getChildren('hasContext');
     for (const context of contexts) {
       if (context.getName().get() === LOG_LIST) {
@@ -370,12 +371,25 @@ export class LogsService {
                       SpinalGraphService._addNode(_actor);
                       await SpinalGraphService.addChildInContext(_actor.getId().get(), userLogId, context.getId().get(), AUTH_SERVICE_LOG_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)
                     }
+                    await this.garbageCollectorLogs(eventRequetsLog)
                   }
                 }
               }
             }
           }
         }
+      }
+    }
+  }
+
+  public async garbageCollectorLogs(eventRequetsLog: SpinalNode) {
+    const logs = await eventRequetsLog.getChildren('HasLog');
+    const limitdelete = logs.length - parseInt(process.env.LIMIT_LOG);
+    const promise = []
+    if (limitdelete > 0) {
+      for (let index = 0; index < limitdelete; index++) {
+        promise.push((logs[index]).removeFromGraph());
+        await Promise.all(promise);
       }
     }
   }
@@ -423,7 +437,6 @@ export class LogsService {
         }
       }
     }
-    const newLogList = filterLogs(logList);
     return
   }
 
@@ -499,16 +512,3 @@ function comparerParDate(log1: ILog, log2: ILog) {
   return dateLog1 - dateLog2;
 }
 
-function filterLogs(logList: ILog[]) {
-
-  const newLogList = logList.sort(comparerParDate);
-  const limiLog = process.env.LIMIT_LOG
-  for (const log of newLogList) {
-    const logRealNode: SpinalNode<any> = SpinalGraphService.getRealNode(log.id)
-    console.log(logRealNode);
-
-  }
-  // Trier le tableau par date
-  return logList
-
-}
