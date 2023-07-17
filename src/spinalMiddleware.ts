@@ -43,7 +43,7 @@ class SpinalMiddleware {
   constructor() {
     // connection string to connect to spinalhub
     const connect_opt = `http://${config.spinalConnector.user}:${config.spinalConnector.password}@${config.spinalConnector.host}:${config.spinalConnector.port}/`;
-
+    // FileSystem._disp = true;
     // initialize the connection
     this.conn = spinalCore.connect(connect_opt);
   }

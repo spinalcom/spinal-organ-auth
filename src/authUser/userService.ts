@@ -56,7 +56,6 @@ import {
   IUserLogs
 } from './user.model';
 import { IUserToken } from '../tokens/token.model';
-import config from '../config';
 import SpinalMiddleware from '../spinalMiddleware';
 import { LogsService } from '../logs/logService';
 import data from './profileUserListData';
