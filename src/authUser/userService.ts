@@ -613,7 +613,6 @@ export class UserService {
           await userFound.removeFromGraph();
         } else {
           // send a undefined for a deleted user
-          await this.logService.createLog(userFound, 'UserLogs', 'Delete', 'Delete Not Valid', 'Delete Not Valid, User Not Found');
           throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
         }
       }
