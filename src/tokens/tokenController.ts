@@ -41,7 +41,7 @@ import { TokensService } from './tokenService';
 @Route('tokens')
 export class TokensController extends Controller {
   @Security('jwt')
-  @Get()
+  @Get("")
   public async getTokens(): Promise<IToken[]> {
     this.setStatus(201); // set return status 201
     return new TokensService().getTokens();
