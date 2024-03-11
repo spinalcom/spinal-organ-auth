@@ -29,6 +29,7 @@ import { AuthGraphService } from './services/authGraphService';
 import { store } from './utilities/utilitiesFunctions';
 
 import config from './config';
+import ConfigFile from "spinal-lib-organ-monitoring";
 
 class SpinalMiddleware {
   static instance: SpinalMiddleware = null;
@@ -75,8 +76,9 @@ class SpinalMiddleware {
       }
     );
   }
-  onLoadSuccess(resolve: () => void, graph: SpinalGraph<any>) {
-    SpinalGraphService.setGraph(graph);
+  async onLoadSuccess(resolve: () => void, graph: SpinalGraph<any>) {
+    await SpinalGraphService.setGraph(graph);
+    await ConfigFile.init(this.conn, config.spinalConnector.organName, "Spinal-organ-auth", config.spinalConnector.host, parseInt(config.spinalConnector.port as string));
     resolve();
   }
 

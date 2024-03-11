@@ -24,6 +24,7 @@
 
 const config = {
   spinalConnector: {
+    organName : "Spinal-organ-auth",
     user: process.env.SPINAL_USER_ID || 168, // user id
     password: process.env.SPINAL_PASSWORD || 'ApgL69i7', // user password
     host: process.env.SPINALHUB_IP || 'localhost', // can be an ip address
