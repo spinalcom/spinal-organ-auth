@@ -30,6 +30,8 @@ const { SpinalServiceUser } = require('spinal-service-user');
 import { store } from './utilities/utilitiesFunctions'
 
 import config from './config'
+import ConfigFile from "spinal-lib-organ-monitoring";
+
 
 class SpinalMiddleware {
   static instance: SpinalMiddleware = null;
@@ -70,8 +72,9 @@ class SpinalMiddleware {
       reject("IS NOT ABLE TO CONNECT TO HUB")
     })
   }
-  onLoadSuccess(resolve: () => void, graph: SpinalGraph<any>) {
-    SpinalGraphService.setGraph(graph);
+  async onLoadSuccess(resolve: () => void, graph: SpinalGraph<any>) {
+    await SpinalGraphService.setGraph(graph);
+    await ConfigFile.init(this.conn, config.spinalConnector.organName, "Spinal-organ-auth", config.spinalConnector.host, parseInt(config.spinalConnector.port as string));
     resolve();
   }
 
