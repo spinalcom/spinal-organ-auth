@@ -76,6 +76,7 @@ class SpinalMiddleware {
     );
   }
   onLoadSuccess(resolve: () => void, graph: SpinalGraph<any>) {
+    // console.log(graph)
     SpinalGraphService.setGraph(graph);
     resolve();
   }

@@ -55,7 +55,7 @@ export class TokensService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
   public graph: SpinalGraph<any>;
   constructor() {
-    this.spinalMiddleware.init();
+    //this.spinalMiddleware.init();
     this.graph = this.spinalMiddleware.getGraph();
   }
 
@@ -103,7 +103,7 @@ export class TokensService {
           const tokens = await category.getChildren('HasToken');
           for (const token of tokens) {
             if (
-              Math.floor(Date.now() / 1000) > token.info.expieredToken.get()
+              Math.floor(Date.now() / 1000) > token.info?.expieredToken.get()
             ) {
               await token.removeFromGraph();
             }
@@ -125,11 +125,11 @@ export class TokensService {
             id: token.getId().get(),
             type: token.getType().get(),
             name: token.getName().get(),
-            token: token.info.token.get(),
-            createdToken: token.info.createdToken.get(),
-            expieredToken: token.info.expieredToken.get(),
-            userId: token.info.userId.get(),
-            userType: token.info.userType?.get(),
+            token: token.info?.token.get(),
+            createdToken: token.info?.createdToken.get(),
+            expieredToken: token.info?.expieredToken.get(),
+            userId: token.info?.userId.get(),
+            userType: token.info?.userType?.get(),
           };
           tokenList.push(info);
         }
@@ -140,10 +140,10 @@ export class TokensService {
             id: token.getId().get(),
             type: token.getType().get(),
             name: token.getName().get(),
-            token: token.info.token.get(),
-            createdToken: token.info.createdToken.get(),
-            expieredToken: token.info.expieredToken.get(),
-            applicationId: token.info.applicationId.get(),
+            token: token.info?.token.get(),
+            createdToken: token.info?.createdToken.get(),
+            expieredToken: token.info?.expieredToken.get(),
+            applicationId: token.info?.applicationId.get(),
           };
           tokenList.push(info);
         }
@@ -164,11 +164,11 @@ export class TokensService {
             id: token.getId().get(),
             type: token.getType().get(),
             name: token.getName().get(),
-            token: token.info.token.get(),
-            createdToken: token.info.createdToken.get(),
-            expieredToken: token.info.expieredToken.get(),
-            userId: token.info.userId.get(),
-            userType: token.info.userType.get(),
+            token: token.info?.token.get(),
+            createdToken: token.info?.createdToken.get(),
+            expieredToken: token.info?.expieredToken.get(),
+            userId: token.info?.userId.get(),
+            userType: token.info?.userType.get(),
           };
           tokenList.push(info);
         }
@@ -188,11 +188,11 @@ export class TokensService {
             id: token.getId().get(),
             type: token.getType().get(),
             name: token.getName().get(),
-            token: token.info.token.get(),
-            createdToken: token.info.createdToken.get(),
-            expieredToken: token.info.expieredToken.get(),
-            userId: token.info.userId.get(),
-            userType: token.info.userType.get(),
+            token: token.info?.token.get(),
+            createdToken: token.info?.createdToken.get(),
+            expieredToken: token.info?.expieredToken.get(),
+            userId: token.info?.userId.get(),
+            userType: token.info?.userType.get(),
           };
           tokenList.push(info);
         }
@@ -210,9 +210,9 @@ export class TokensService {
           if (category.getName().get() === "User Token") {
             const tokens = await category.getChildren('HasToken');
             for (const token of tokens) {
-              if (token.info.token.get() === Token) {
-                if (token.info.platformList.get()) {
-                  for (const platform of token.info.platformList.get()) {
+              if (token.info?.token.get() === Token) {
+                if (token.info?.platformList.get()) {
+                  for (const platform of token.info?.platformList.get()) {
                     if (platform.platformId === platformId) {
                       return {
                         token: Token,
@@ -240,9 +240,9 @@ export class TokensService {
           if (category.getName().get() === "Application Token") {
             const tokens = await category.getChildren('HasToken');
             for (const token of tokens) {
-              if (token.info.token.get() === Token) {
-                if (token.info.platformList.get()) {
-                  for (const platform of token.info.platformList.get()) {
+              if (token.info?.token.get() === Token) {
+                if (token.info?.platformList.get()) {
+                  for (const platform of token.info?.platformList.get()) {
                     if (platform.platformId === platformId) {
                       return {
                         token: Token,

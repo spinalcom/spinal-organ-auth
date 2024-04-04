@@ -67,11 +67,19 @@ export class ApplicationService {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
   public graph: SpinalGraph<any>;
   public logService: LogsService;
+  public isInitialised: boolean;
+
   constructor() {
-    this.spinalMiddleware.init();
+    this.isInitialised = false;
+  }
+
+  public async init(){
+    if(this.isInitialised) return ;
+
+    //await this.spinalMiddleware.init();
     this.graph = this.spinalMiddleware.getGraph();
     this.logService = new LogsService();
-
+    this.isInitialised = true;
   }
 
 

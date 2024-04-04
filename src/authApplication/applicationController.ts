@@ -46,6 +46,8 @@ import {
 import { ApplicationService } from './applicationService';
 import { IApplicationToken } from '../tokens/token.model';
 
+let applicationService = new ApplicationService()
+
 @Route('applications')
 export class ApplicationsController extends Controller {
   @Security('jwt')
@@ -54,7 +56,8 @@ export class ApplicationsController extends Controller {
   public async createApplication(
     @Body() requestBody: IApplicationCreationParams
   ): Promise<IApplication> {
-    let application = new ApplicationService().createApplication(requestBody);
+    await applicationService.init()
+    let application = applicationService.createApplication(requestBody);
     this.setStatus(201); // set return status 201rt
     return application;
   }
@@ -63,7 +66,8 @@ export class ApplicationsController extends Controller {
   @Get()
   public async getApplications(): Promise<any[]> {
     this.setStatus(201); // set return status 201
-    return new ApplicationService().getApplications();
+    await applicationService.init()
+    return applicationService.getApplications();
   }
 
   @Security('jwt')
@@ -72,13 +76,15 @@ export class ApplicationsController extends Controller {
     @Path() applicationId: string
   ): Promise<IApplication> {
     this.setStatus(201); // set return status 201
-    return new ApplicationService().getApplication(applicationId);
+    await applicationService.init()
+    return applicationService.getApplication(applicationId);
   }
 
   @Security('jwt')
   @Delete('{applicationId}')
   public async deleteApplication(@Path() applicationId: string): Promise<void> {
-    return new ApplicationService().deleteApplication(applicationId);
+    await applicationService.init()
+    return applicationService.deleteApplication(applicationId);
   }
 
   @Security('jwt')
@@ -87,7 +93,8 @@ export class ApplicationsController extends Controller {
     @Path() applicationId: string,
     @Body() requestBody: IApplicationUpdateParams
   ): Promise<IApplication> {
-    return new ApplicationService().updateApplication(
+    await applicationService.init()
+    return applicationService.updateApplication(
       applicationId,
       requestBody
     );
@@ -98,7 +105,8 @@ export class ApplicationsController extends Controller {
     @Body() requestBody: IApplicationLoginParams
   ): Promise<IApplicationToken> {
     this.setStatus(201); // set return status 201
-    return new ApplicationService().login(requestBody);
+    await applicationService.init()
+    return applicationService.login(requestBody);
   }
 
   @Security('jwt')
@@ -106,6 +114,7 @@ export class ApplicationsController extends Controller {
   public async getApplicationLogs(
     @Path() applicationId: string
   ): Promise<IApplicationLogs[]> {
-    return new ApplicationService().getApplicationLogs(applicationId);
+    await applicationService.init()
+    return applicationService.getApplicationLogs(applicationId);
   }
 }

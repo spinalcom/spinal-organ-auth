@@ -25,12 +25,12 @@
 const config = {
   spinalConnector: {
     user: process.env.SPINAL_USER_ID || 168, // user id
-    password: process.env.SPINAL_PASSWORD || 'mdp_1', // user password
+    password: process.env.SPINAL_PASSWORD || '6UsiQRQ7f27m', // user password
     host: process.env.SPINALHUB_IP || 'localhost', // can be an ip address
-    port: process.env.SPINALHUB_PORT || 8050, // port
+    port: process.env.SPINALHUB_PORT || 9060, // port
   },
   api: {
-    port: process.env.REQUESTS_PORT || 8040, // internal port
+    port: process.env.REQUESTS_PORT || 9066, // internal port
   },
   file: {
     // path to a digital twin in spinalhub filesystem
