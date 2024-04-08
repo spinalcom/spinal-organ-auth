@@ -42,50 +42,89 @@ import { TokensService } from './tokenService';
 export class TokensController extends Controller {
   @Security('jwt')
   @Get("")
-  public async getTokens(): Promise<IToken[]> {
-    this.setStatus(201); // set return status 201
-    return new TokensService().getTokens();
+  public async getTokens(): Promise<IToken[] | {error: string}> {
+    try{
+      const tokens = await new TokensService().getTokens();
+      this.setStatus(200); // set return status 201
+      return tokens;
+    } catch(error) {
+      this.setStatus(error.status || 500);
+      return {error: error.message};
+    }
   }
 
   @Security('jwt')
   @Get('/UserToken')
-  public async getUserTokens(): Promise<IToken[]> {
-    this.setStatus(201); // set return status 201
-    return new TokensService().getUserTokens();
+  public async getUserTokens(): Promise<IToken[]| {error: string}> {
+    try{
+      const userTokens = await new TokensService().getUserTokens();
+      this.setStatus(200); // set return status 201
+      return userTokens;
+    } catch(error) {
+      this.setStatus(error.status || 500);
+      return {error: error.message};
+    }
   }
 
   @Security('jwt')
   @Get('/ApplicationToken')
-  public async getApplicationTokens(): Promise<IToken[]> {
-    this.setStatus(201); // set return status 201
-    return new TokensService().getApplicationTokens();
+  public async getApplicationTokens(): Promise<IToken[]| {error: string}> {
+    try{
+      const applicationTokens = await new TokensService().getApplicationTokens();
+      this.setStatus(200); // set return status 201
+      return applicationTokens;
+    } catch(error) {
+      this.setStatus(error.status || 500);
+      return {error: error.message};
+    }
   }
 
   @Security('jwt')
   @Post('/getUserProfileByToken')
   public async getUserProfileByToken(@Body() requestBody: any): Promise<any> {
-    this.setStatus(201); // set return status 201
-    return new TokensService().getUserProfileByToken(
-      requestBody.token,
-      requestBody.platformId
-    );
+    try{
+      const profile = await new TokensService().getUserProfileByToken(
+        requestBody.token,
+        requestBody.platformId
+        );
+        this.setStatus(200); // set return status 201
+        return profile;
+    } catch(error) {
+      this.setStatus(error.status || 500);
+      return {error: error.message};
+    }
+    
   }
 
   @Security('jwt')
   @Post('/getAppProfileByToken')
   public async getAppProfileByToken(@Body() requestBody: any): Promise<any> {
-    this.setStatus(201); // set return status 201
-    return new TokensService().getAppProfileByToken(
-      requestBody.token,
-      requestBody.platformId
-    );
+    try{
+      const profile = await new TokensService().getAppProfileByToken(
+        requestBody.token,
+        requestBody.platformId
+        );
+      this.setStatus(200); // set return status 201
+    } catch(error) {
+      this.setStatus(error.status || 500);
+      return {error: error.message};
+    }
+   
   }
 
   @Post('/verifyToken')
   public async verifyToken(@Body() requestBody: any): Promise<any> {
-    return new TokensService().verifyToken(
-      requestBody.tokenParam,
-      requestBody.actor
-    );
+    try{
+      const verifiedToken = await new TokensService().verifyToken(
+        requestBody.tokenParam,
+        requestBody.actor
+      );
+      this.setStatus(200); // set return status 201
+      return verifiedToken;
+    } catch(error) {
+      this.setStatus(error.status || 500);
+      return {error: error.message};
+    }
+    
   }
 }

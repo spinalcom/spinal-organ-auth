@@ -1,6 +1,6 @@
 {
   "name": "spinal-organ-auth",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "",
   "main": "dist/index.js",
   "directories": {
@@ -12,8 +12,8 @@
     "test": "rm -rf dist && tsc && nyc mocha --require ts-node/register test/**/*.ts",
     "docs": "jsdoc2md --no-cache --files 'src/**/*.ts' --configure jsdoc2md.json --template 'Markdown Templates/README.hbs' > README.md && doctoc README.md",
     "clean": "rimraf dist",
-    "swagger-gen": "tsoa swagger --swaggerDir=./dist --entryFile=./src/server.ts",
-    "routes-gen": "tsoa routes --entryFile=./src/server.ts --routesDir=./src",
+    "swagger-gen": "tsoa swagger",
+    "routes-gen": "tsoa routes",
     "copy-swagger-ui": "cp -r ./src/swagger-ui ./dist/swagger-ui && cp ./build/swagger.json ./dist/swagger.json",
     "tsoa": "tsoa"
   },
@@ -74,7 +74,7 @@
     "spinal-lib-organ-monitoring": "git+https://github.com/spinalcom/spinal-lib-organ-monitoring.git",
     "spinal-model-graph": "git+https://github.com/spinalcom/spinal-model-graph.git",
     "swagger-ui-express": "^4.1.6",
-    "tsoa": "^3.14.0",
+    "tsoa": "^4.1.3",
     "vue-router": "^3.5.3"
   }
 }

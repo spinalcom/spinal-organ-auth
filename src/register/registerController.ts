@@ -53,17 +53,29 @@ export class RegisterController extends Controller {
   @SuccessResponse('201', 'Created') // Custom success response
   @Post()
   public async registerPlatform(@Body() object: IRegisterParams): Promise<any> {
-    let platform = new PlatformService().registerNewPlatform(object);
-    this.setStatus(201); // set return status 201rt
-    return platform;
+    try {
+      let platform = await new PlatformService().registerNewPlatform(object);
+      this.setStatus(200); // set return status 201rt
+      return platform;
+      
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return {error: error.message};
+    }
   }
 
   @SuccessResponse('201', 'Updated') // Custom success response
   @Put()
   public async updatePlatform(@Body() object): Promise<any> {
-    let platform = new PlatformService().updateNewPlatform(object);
-    this.setStatus(201); // set return status 201rt
-    return platform;
+    try {
+      let platform = await new PlatformService().updateNewPlatform(object);
+      this.setStatus(200); // set return status 201rt
+      return platform;
+      
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return {error: error.message};
+    }
   }
 }
 

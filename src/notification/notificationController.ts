@@ -44,10 +44,15 @@ import { NotificationService } from './notificationServices';
 export class NotificationController extends Controller {
   @SuccessResponse('201', 'Created') // Custom success response
   @Post()
-  public async createNotification(@Body() object: INotificationCreationParams): Promise<INotification> {
-    // let platform = new PlatformService().registerNewPlatform(object);
-    this.setStatus(201); // set return status 201rt
-    return;
+  public async createNotification(@Body() object: INotificationCreationParams): Promise<INotification|{error: string}> {
+    try {
+      // let platform = new PlatformService().registerNewPlatform(object);
+      this.setStatus(200); // set return status 201rt
+      return;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 }
 

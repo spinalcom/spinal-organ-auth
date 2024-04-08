@@ -68,7 +68,7 @@ export class PlatformService {
   public logService: LogsService;
 
   constructor() {
-    this.spinalMiddleware.init();
+    //this.spinalMiddleware.init();
     this.graph = this.spinalMiddleware.getGraph();
     this.logService = new LogsService();
   }

@@ -54,31 +54,54 @@ export class UsersController extends Controller {
   @Post()
   public async createUser(
     @Body() requestBody: IUserCreationParams
-  ): Promise<IUser> {
-    //return Promise.resolve();
-    let user = new UserService().createUser(requestBody);
-    this.setStatus(201); // set return status 201rt
-    return user;
+  ): Promise<IUser|{error: string}> {
+    try {
+      let user = new UserService().createUser(requestBody);
+      this.setStatus(201); // set return status 201rt
+      return user;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   @Security('jwt')
   @Get()
-  public async getUsers(): Promise<IUser[]> {
-    this.setStatus(201); // set return status 201
-    return new UserService().getUsers();
+  public async getUsers(): Promise<IUser[]|{error: string}> {
+    try {
+      const users = await new UserService().getUsers();
+      this.setStatus(200); // set return status 201
+      return users;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   @Security('jwt')
   @Get('{userId}')
-  public async getUser(@Path() userId: string): Promise<IUser> {
-    this.setStatus(201); // set return status 201
-    return new UserService().getUser(userId);
+  public async getUser(@Path() userId: string): Promise<IUser|{error: string}> {
+    try {
+      const user = await new UserService().getUser(userId);
+      this.setStatus(200); // set return status 201
+      return user;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   @Security('jwt')
   @Delete('{userId}')
-  public async deleteUser(@Path() userId: string): Promise<void> {
-    return new UserService().deleteUser(userId);
+  public async deleteUser(@Path() userId: string): Promise<void|{error?: string; message?: string}> {
+    try {
+      await new UserService().deleteUser(userId);
+      this.setStatus(200); // set return status 201
+      return {message: 'User deleted'};
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   @Security('jwt')
@@ -86,45 +109,84 @@ export class UsersController extends Controller {
   public async updateUser(
     @Path() userId: string,
     @Body() requestBody: IUserUpdateParams
-  ): Promise<IUser> {
-    return new UserService().updateUser(userId, requestBody);
+  ): Promise<IUser|{error: string}> {
+    try {
+      const userUpdated = await new UserService().updateUser(userId, requestBody);
+      this.setStatus(200); // set return status 201
+      return userUpdated;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   @Security('jwt')
   @Put()
   public async updateAuthAdmin(
     @Body() requestBody: IAuthAdminUpdateParams
-  ): Promise<IUser> {
-    return new UserService().updateAuthAdmin(requestBody);
+  ): Promise<IUser|{error: string}> {
+    try {
+      const adminUpdated = await new UserService().updateAuthAdmin(requestBody);
+      this.setStatus(200); // set return status 201
+      return adminUpdated;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   // @Security('jwt')
   @Post('/getAuthAdmin')
-  public async getAuthAdmin(): Promise<IUser> {
-    return new UserService().getAuthAdmin();
+  public async getAuthAdmin(): Promise<IUser|{error: string}> {
+    try {
+      const authAdmin = await new UserService().getAuthAdmin();
+      this.setStatus(200); // set return status 201
+      return authAdmin;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   @Security('jwt')
   @Post('/userProfilesList')
-  public async userProfilesList(): Promise<any[]> {
-    this.setStatus(201); // set return status 201
-    return new UserService().userProfilesList();
+  public async userProfilesList(): Promise<any[]|{error: string}> {
+    try {
+      const profileList = await new UserService().userProfilesList();
+      this.setStatus(200); // set return status 201
+      return profileList;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   @Post('/login')
   public async login(
     @Body() requestBody: IUserLoginParams
-  ): Promise<IUserToken> {
-    this.setStatus(201); // set return status 201
-    return new UserService().login(requestBody);
+  ): Promise<IUserToken|{error: string}> {
+    try {
+      const userToken = await new UserService().login(requestBody);
+      this.setStatus(200); // set return status 201
+      return userToken;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   @Post('/loginAuthAdmin')
   public async loginAuthAdmin(
     @Body() requestBody: IUserLoginParams
-  ): Promise<IUserToken> {
-    this.setStatus(201); // set return status 201
-    return new UserService().loginAuthAdmin(requestBody);
+  ): Promise<IUserToken|{error: string}> {
+    try {
+      const userToken = await new UserService().loginAuthAdmin(requestBody);
+      this.setStatus(200); // set return status 201
+      return userToken;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   // @Security("jwt")
@@ -136,15 +198,28 @@ export class UsersController extends Controller {
 
   // @Security("jwt")
   @Post('/getRoles')
-  public async getRoles(): Promise<{ name: string }[]> {
-    this.setStatus(201); // set return status 201
-    return new UserService().getRoles();
+  public async getRoles(): Promise<{ name: string }[]|{error: string}> {
+    try {
+      const roles = await new UserService().getRoles();
+      this.setStatus(200); // set return status 201
+      return roles;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
   @Security('jwt')
   @Get('{userId}/userLogs')
   public async getUserLogs(
     @Path() userId: string
-  ): Promise<IUserLogs[]> {
-    return new UserService().getUserLogs(userId);
+  ): Promise<IUserLogs[]|{error: string}> {
+    try {
+      const logs = await new UserService().getUserLogs(userId);
+      this.setStatus(200); // set return status 201
+      return logs;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 }

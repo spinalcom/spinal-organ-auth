@@ -46,6 +46,8 @@ import {
 import { ApplicationService } from './applicationService';
 import { IApplicationToken } from '../tokens/token.model';
 
+let applicationService = new ApplicationService()
+
 @Route('applications')
 export class ApplicationsController extends Controller {
   @Security('jwt')
@@ -53,32 +55,62 @@ export class ApplicationsController extends Controller {
   @Post()
   public async createApplication(
     @Body() requestBody: IApplicationCreationParams
-  ): Promise<IApplication> {
-    let application = new ApplicationService().createApplication(requestBody);
-    this.setStatus(201); // set return status 201rt
-    return application;
+  ): Promise<IApplication | {error : string}> {
+    try {
+      await applicationService.init()
+      let application = await applicationService.createApplication(requestBody);
+      this.setStatus(201); // set return status 201rt
+      return application;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
+    
   }
 
   @Security('jwt')
   @Get()
-  public async getApplications(): Promise<any[]> {
-    this.setStatus(201); // set return status 201
-    return new ApplicationService().getApplications();
+  public async getApplications(): Promise<any[] | {error : string}> {
+    try {
+      await applicationService.init()
+      const applications = await applicationService.getApplications();
+      this.setStatus(200); // set return status 201
+      return applications;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
+    
   }
 
   @Security('jwt')
   @Get('{applicationId}')
   public async getApplication(
     @Path() applicationId: string
-  ): Promise<IApplication> {
-    this.setStatus(201); // set return status 201
-    return new ApplicationService().getApplication(applicationId);
+  ): Promise<IApplication| {error : string}> {
+    try {
+      await applicationService.init()
+      const application = await applicationService.getApplication(applicationId);
+      this.setStatus(200); // set return status 201
+      return application;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   @Security('jwt')
   @Delete('{applicationId}')
-  public async deleteApplication(@Path() applicationId: string): Promise<void> {
-    return new ApplicationService().deleteApplication(applicationId);
+  public async deleteApplication(@Path() applicationId: string): Promise<void| {message?: string; error? : string}> {
+    try {
+      await applicationService.init()
+      const app = applicationService.deleteApplication(applicationId);
+      this.setStatus(200); // set return status 201
+      return { message: 'Application deleted'}
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   @Security('jwt')
@@ -86,26 +118,52 @@ export class ApplicationsController extends Controller {
   public async updateApplication(
     @Path() applicationId: string,
     @Body() requestBody: IApplicationUpdateParams
-  ): Promise<IApplication> {
-    return new ApplicationService().updateApplication(
-      applicationId,
-      requestBody
-    );
+  ): Promise<IApplication| {error : string}> {
+    try {
+      await applicationService.init()
+      const updated = applicationService.updateApplication(
+        applicationId,
+        requestBody
+      );
+
+      this.setStatus(200); // set return status 201
+      return updated;
+      
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   @Post('/login')
   public async login(
     @Body() requestBody: IApplicationLoginParams
-  ): Promise<IApplicationToken> {
-    this.setStatus(201); // set return status 201
-    return new ApplicationService().login(requestBody);
+  ): Promise<IApplicationToken| {error : string}> {
+    try {
+      await applicationService.init()
+      const appToken = await applicationService.login(requestBody);
+      this.setStatus(200); // set return status 201
+      return appToken;
+      
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   @Security('jwt')
   @Get('{applicationId}/applicationLogs')
   public async getApplicationLogs(
     @Path() applicationId: string
-  ): Promise<IApplicationLogs[]> {
-    return new ApplicationService().getApplicationLogs(applicationId);
+  ): Promise<IApplicationLogs[]| {error : string}> {
+    try {
+      await applicationService.init()
+      const application = await  applicationService.getApplicationLogs(applicationId);
+      this.setStatus(200); 
+      return application;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 }

@@ -36,6 +36,7 @@ async function main() {
   const spinalMiddleware = SpinalMiddleware.getInstance();
   await spinalMiddleware.init();
   console.log('connection to hub initialize ...');
+
   const authGraphService = new AuthGraphService(spinalMiddleware.getGraph());
   await authGraphService.init();
   const contexts = await spinalMiddleware.getGraph().getChildren('hasContext');

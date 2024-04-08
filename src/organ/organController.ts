@@ -50,17 +50,29 @@ export class OrgansController extends Controller {
   @Post('{platformId}')
   public async createOrgan(
     @Body() requestBody: IOrganCreationParams
-  ): Promise<IOrgan> {
-    let organ = new OrganService().createOrgan(requestBody);
-    this.setStatus(201); // set return status 201rt
-    return organ;
+  ): Promise<IOrgan|{error: string}> {
+    
+    try {   
+      let organ = new OrganService().createOrgan(requestBody);
+      this.setStatus(201); // set return status 201rt
+      return organ;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   @Security('jwt')
   @Get('{platformId}')
-  public async getOrgans(@Path() platformId: string): Promise<IOrgan[]> {
-    this.setStatus(201); // set return status 201
-    return new OrganService().getOrgans(platformId);
+  public async getOrgans(@Path() platformId: string): Promise<IOrgan[]|{error: string}> {
+    try {
+      const organs = await new OrganService().getOrgans(platformId);
+      this.setStatus(200); // set return status 201
+      return organs;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 
   @Security('jwt')
@@ -68,7 +80,15 @@ export class OrgansController extends Controller {
   public async updatePlateform(
     @Path() organId: string,
     @Body() requestBody: IOrganUpdateParams
-  ): Promise<IOrgan> {
-    return new OrganService().updateOrgan(organId, requestBody);
+  ): Promise<IOrgan|{error: string}> {
+    
+    try {
+      const updated = await new OrganService().updateOrgan(organId, requestBody);
+      this.setStatus(200); // set return status 201
+      return updated;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return { error: error.message };
+    }
   }
 }

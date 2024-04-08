@@ -52,7 +52,7 @@ export class ProfileServices {
   public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
   public graph: SpinalGraph<any>;
   constructor() {
-    this.spinalMiddleware.init();
+    //this.spinalMiddleware.init();
     this.graph = this.spinalMiddleware.getGraph();
   }
 

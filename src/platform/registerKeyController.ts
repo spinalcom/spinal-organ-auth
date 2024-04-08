@@ -42,15 +42,27 @@ import { PlatformService } from './platformServices';
 export class RegisterKeyController extends Controller {
   @Security('jwt')
   @Post()
-  public async updateRegisterKeyNode(): Promise<IRegisterKeyObject> {
-    this.setStatus(201); // set return status 201
-    return new PlatformService().updateRegisterKeyNode();
+  public async updateRegisterKeyNode(): Promise<IRegisterKeyObject| {error : string}> {
+    try {
+      const newRegisterKey = await new PlatformService().updateRegisterKeyNode();
+      this.setStatus(200); // set return status 201
+      return newRegisterKey;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return {error: error.message};
+    }
   }
 
   @Security('jwt')
   @Get()
-  public async getRegisterKeyNode(): Promise<IRegisterKeyObject> {
-    this.setStatus(201); // set return status 201
-    return new PlatformService().getRegisterKeyNode();
+  public async getRegisterKeyNode(): Promise<IRegisterKeyObject | {error : string}> {
+    try {
+      const registerKey = await new PlatformService().getRegisterKeyNode();
+      this.setStatus(200); // set return status 201
+      return registerKey;
+    } catch (error) {
+      this.setStatus(error.status || 500);
+      return {error: error.message};
+    }
   }
 }

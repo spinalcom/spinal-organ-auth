@@ -71,7 +71,7 @@ export class UserService {
   public graph: SpinalGraph<any>;
   public logService: LogsService;
   constructor() {
-    this.spinalMiddleware.init();
+    //this.spinalMiddleware.init();
     this.graph = this.spinalMiddleware.getGraph();
     this.logService = new LogsService();
 

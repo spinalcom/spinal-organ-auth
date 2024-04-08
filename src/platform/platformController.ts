@@ -47,6 +47,7 @@ import { IUserProfile } from './userProfile.model';
 import { IAppProfile } from './appProfile.model';
 import { PlatformService } from './platformServices';
 import { ProfileServices } from './profileServices';
+import { error } from 'console';
 
 @Route('platforms')
 export class PlatformsController extends Controller {
@@ -54,28 +55,54 @@ export class PlatformsController extends Controller {
   @SuccessResponse('201', 'Created') // Custom success response
   @Post()
   public async createPlateform(@Body() requestBody): Promise<any> {
-    let platform = new PlatformService().createPlateform(requestBody);
-    this.setStatus(201); // set return status 201rt
-    return platform;
+    try {
+      let platform = await new PlatformService().createPlateform(requestBody);
+      this.setStatus(201); // set return status 201rt
+      return platform;
+    } catch(e) {
+      this.setStatus(e.status || 500);
+      return {error: e.message};
+    }
+    
   }
 
   @Security('jwt')
   @Get()
-  public async getPlatforms(): Promise<IPlatform[]> {
-    return new PlatformService().getPlateforms();
+  public async getPlatforms(): Promise<IPlatform[] | {error: string}> {
+    try {
+      const platforms = await new PlatformService().getPlateforms();
+      this.setStatus(200); // set return status 201
+      return platforms;
+    } catch (e) {
+      this.setStatus(e.status || 500);
+      return {error: e.message};
+    }
   }
 
   @Security('jwt')
   @Get('{platformId}')
-  public async getPlateform(@Path() platformId: string): Promise<IPlatform> {
-    this.setStatus(201); // set return status 201
-    return new PlatformService().getPlateform(platformId);
+  public async getPlateform(@Path() platformId: string): Promise<IPlatform| {error: string}> {
+    try {
+      const platform = await new PlatformService().getPlateform(platformId);
+      this.setStatus(200); // set return status 201
+      return platform;
+    } catch(e) {
+      this.setStatus(e.status || 500);
+      return {error: e.message};
+    }
   }
 
   @Security('jwt')
   @Delete('{platformId}')
-  public async deletePlatform(@Path() platformId: string): Promise<void> {
-    return new PlatformService().deletePlatform(platformId);
+  public async deletePlatform(@Path() platformId: string): Promise<void| {message?: string; error?: string}> {
+    try {
+      await new PlatformService().deletePlatform(platformId);
+      this.setStatus(200); // set return status 201
+      return {message: 'Platform deleted'};
+    } catch(e) {
+      this.setStatus(e.status || 500);
+      return {error: e.message};
+    }
   }
 
   @Security('jwt')
@@ -83,38 +110,72 @@ export class PlatformsController extends Controller {
   public async updatePlateform(
     @Path() platformId: string,
     @Body() requestBody: IPlatformUpdateParams
-  ): Promise<IPlatform> {
-    return new PlatformService().updatePlateform(platformId, requestBody);
+  ): Promise<IPlatform| {error: string}> {
+    try {
+      const updated = await new PlatformService().updatePlateform(platformId, requestBody);
+      this.setStatus(200); // set return status 201
+      return updated;
+    } catch(e) {
+      this.setStatus(e.status || 500);
+      return {error: e.message};
+    }
   }
 
   @Security('jwt')
   @Get('{platformId}/getUserProfileList')
   public async getUserProfileList(
     @Path() platformId: string
-  ): Promise<IUserProfile[]> {
-    return new ProfileServices().getUserProfileService(platformId);
+  ): Promise<IUserProfile[]| {error: string}> {
+    try {
+      const userProfile = await new ProfileServices().getUserProfileService(platformId);
+      this.setStatus(200); // set return status 201
+      return userProfile;
+    } catch(e) {
+      this.setStatus(e.status || 500);
+      return {error: e.message};
+    }
   }
 
   @Security('jwt')
   @Get('{platformId}/getAppProfileList')
   public async getAppProfileService(
     @Path() platformId: string
-  ): Promise<IAppProfile[]> {
-    return new ProfileServices().getAppProfileService(platformId);
+  ): Promise<IAppProfile[]| {error: string}> {
+    try {
+      const appProfile = await new ProfileServices().getAppProfileService(platformId);
+      this.setStatus(200); // set return status 201
+      return appProfile;
+    } catch(e) {
+      this.setStatus(e.status || 500);
+      return {error: e.message};
+    }
   }
 
   @Security('jwt')
   @Get('{platformId}/platformLogs')
   public async getPlatformLogs(
     @Path() platformId: string
-  ): Promise<IPlatformLogs[]> {
-    return new PlatformService().getPlateformLogs(platformId);
+  ): Promise<IPlatformLogs[]| {error: string}> {
+    try {
+      const plateformLogs = await new PlatformService().getPlateformLogs(platformId);
+      this.setStatus(200); // set return status 201
+      return plateformLogs;
+    } catch(e) {
+      this.setStatus(e.status || 500);
+      return {error: e.message};
+    }
   }
 
   @Security('jwt')
   @Post('/registerKey')
-  public async updateRegisterKeyNode(): Promise<IRegisterKeyObject> {
-    this.setStatus(201); // set return status 201
-    return new PlatformService().updateRegisterKeyNode();
+  public async updateRegisterKeyNode(): Promise<IRegisterKeyObject| {error: string}> {
+    try {
+      const updated = await new PlatformService().updateRegisterKeyNode();
+      this.setStatus(200); // set return status 201
+      return updated;
+    } catch(e) {
+      this.setStatus(e.status || 500);
+      return {error: e.message};
+    }
   }
 }

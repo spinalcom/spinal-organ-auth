@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { Controller, ValidationService, FieldErrors, ValidateError, TsoaRoute, HttpStatusCodeLiteral, TsoaResponse } from '@tsoa/runtime';
+import { Controller, ValidationService, FieldErrors, ValidateError, TsoaRoute, HttpStatusCodeLiteral, TsoaResponse, fetchMiddlewares } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ApplicationsController } from './authApplication/applicationController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -23,6 +23,7 @@ import { TokensController } from './tokens/tokenController';
 import { expressAuthentication } from './authUser/authentication';
 // @ts-ignore - no great way to install types from subpackage
 const promiseAny = require('promise.any');
+import type { RequestHandler } from 'express';
 import * as express from 'express';
 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -400,6 +401,8 @@ export function RegisterRoutes(app: express.Router) {
     // ###########################################################################################################
         app.post('/applications',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(ApplicationsController)),
+            ...(fetchMiddlewares<RequestHandler>(ApplicationsController.prototype.createApplication)),
 
             function ApplicationsController_createApplication(request: any, response: any, next: any) {
             const args = {
@@ -416,7 +419,7 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.createApplication.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
+              promiseHandler(controller, promise, response, 201, next);
             } catch (err) {
                 return next(err);
             }
@@ -424,6 +427,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/applications',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(ApplicationsController)),
+            ...(fetchMiddlewares<RequestHandler>(ApplicationsController.prototype.getApplications)),
 
             function ApplicationsController_getApplications(request: any, response: any, next: any) {
             const args = {
@@ -447,6 +452,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/applications/:applicationId',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(ApplicationsController)),
+            ...(fetchMiddlewares<RequestHandler>(ApplicationsController.prototype.getApplication)),
 
             function ApplicationsController_getApplication(request: any, response: any, next: any) {
             const args = {
@@ -471,6 +478,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/applications/:applicationId',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(ApplicationsController)),
+            ...(fetchMiddlewares<RequestHandler>(ApplicationsController.prototype.deleteApplication)),
 
             function ApplicationsController_deleteApplication(request: any, response: any, next: any) {
             const args = {
@@ -495,6 +504,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/applications/:applicationId',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(ApplicationsController)),
+            ...(fetchMiddlewares<RequestHandler>(ApplicationsController.prototype.updateApplication)),
 
             function ApplicationsController_updateApplication(request: any, response: any, next: any) {
             const args = {
@@ -519,6 +530,8 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/applications/login',
+            ...(fetchMiddlewares<RequestHandler>(ApplicationsController)),
+            ...(fetchMiddlewares<RequestHandler>(ApplicationsController.prototype.login)),
 
             function ApplicationsController_login(request: any, response: any, next: any) {
             const args = {
@@ -543,6 +556,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/applications/:applicationId/applicationLogs',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(ApplicationsController)),
+            ...(fetchMiddlewares<RequestHandler>(ApplicationsController.prototype.getApplicationLogs)),
 
             function ApplicationsController_getApplicationLogs(request: any, response: any, next: any) {
             const args = {
@@ -567,6 +582,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/users',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(UsersController)),
+            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.createUser)),
 
             function UsersController_createUser(request: any, response: any, next: any) {
             const args = {
@@ -583,7 +600,7 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.createUser.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
+              promiseHandler(controller, promise, response, 201, next);
             } catch (err) {
                 return next(err);
             }
@@ -591,6 +608,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/users',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(UsersController)),
+            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getUsers)),
 
             function UsersController_getUsers(request: any, response: any, next: any) {
             const args = {
@@ -614,6 +633,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/users/:userId',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(UsersController)),
+            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getUser)),
 
             function UsersController_getUser(request: any, response: any, next: any) {
             const args = {
@@ -638,6 +659,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/users/:userId',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(UsersController)),
+            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.deleteUser)),
 
             function UsersController_deleteUser(request: any, response: any, next: any) {
             const args = {
@@ -662,6 +685,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/users/:userId',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(UsersController)),
+            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.updateUser)),
 
             function UsersController_updateUser(request: any, response: any, next: any) {
             const args = {
@@ -687,6 +712,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/users',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(UsersController)),
+            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.updateAuthAdmin)),
 
             function UsersController_updateAuthAdmin(request: any, response: any, next: any) {
             const args = {
@@ -710,6 +737,8 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/users/getAuthAdmin',
+            ...(fetchMiddlewares<RequestHandler>(UsersController)),
+            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getAuthAdmin)),
 
             function UsersController_getAuthAdmin(request: any, response: any, next: any) {
             const args = {
@@ -733,6 +762,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/users/userProfilesList',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(UsersController)),
+            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.userProfilesList)),
 
             function UsersController_userProfilesList(request: any, response: any, next: any) {
             const args = {
@@ -755,6 +786,8 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/users/login',
+            ...(fetchMiddlewares<RequestHandler>(UsersController)),
+            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.login)),
 
             function UsersController_login(request: any, response: any, next: any) {
             const args = {
@@ -778,6 +811,8 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/users/loginAuthAdmin',
+            ...(fetchMiddlewares<RequestHandler>(UsersController)),
+            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.loginAuthAdmin)),
 
             function UsersController_loginAuthAdmin(request: any, response: any, next: any) {
             const args = {
@@ -801,6 +836,8 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/users/getRoles',
+            ...(fetchMiddlewares<RequestHandler>(UsersController)),
+            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getRoles)),
 
             function UsersController_getRoles(request: any, response: any, next: any) {
             const args = {
@@ -824,6 +861,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/users/:userId/userLogs',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(UsersController)),
+            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getUserLogs)),
 
             function UsersController_getUserLogs(request: any, response: any, next: any) {
             const args = {
@@ -848,6 +887,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/logs',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(LogsController)),
+            ...(fetchMiddlewares<RequestHandler>(LogsController.prototype.getLogs)),
 
             function LogsController_getLogs(request: any, response: any, next: any) {
             const args = {
@@ -871,6 +912,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/logs/getPlatformsLogs',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(LogsController)),
+            ...(fetchMiddlewares<RequestHandler>(LogsController.prototype.getPlatformsLogs)),
 
             function LogsController_getPlatformsLogs(request: any, response: any, next: any) {
             const args = {
@@ -893,6 +936,8 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/notification',
+            ...(fetchMiddlewares<RequestHandler>(NotificationController)),
+            ...(fetchMiddlewares<RequestHandler>(NotificationController.prototype.createNotification)),
 
             function NotificationController_createNotification(request: any, response: any, next: any) {
             const args = {
@@ -909,7 +954,7 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.createNotification.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
+              promiseHandler(controller, promise, response, 201, next);
             } catch (err) {
                 return next(err);
             }
@@ -917,6 +962,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/organs/:platformId',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(OrgansController)),
+            ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.createOrgan)),
 
             function OrgansController_createOrgan(request: any, response: any, next: any) {
             const args = {
@@ -933,7 +980,7 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.createOrgan.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
+              promiseHandler(controller, promise, response, 201, next);
             } catch (err) {
                 return next(err);
             }
@@ -941,6 +988,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/organs/:platformId',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(OrgansController)),
+            ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.getOrgans)),
 
             function OrgansController_getOrgans(request: any, response: any, next: any) {
             const args = {
@@ -965,6 +1014,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/organs/:organId',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(OrgansController)),
+            ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.updatePlateform)),
 
             function OrgansController_updatePlateform(request: any, response: any, next: any) {
             const args = {
@@ -990,6 +1041,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/platforms',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.createPlateform)),
 
             function PlatformsController_createPlateform(request: any, response: any, next: any) {
             const args = {
@@ -1006,7 +1059,7 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.createPlateform.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
+              promiseHandler(controller, promise, response, 201, next);
             } catch (err) {
                 return next(err);
             }
@@ -1014,6 +1067,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/platforms',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getPlatforms)),
 
             function PlatformsController_getPlatforms(request: any, response: any, next: any) {
             const args = {
@@ -1037,6 +1092,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/platforms/:platformId',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getPlateform)),
 
             function PlatformsController_getPlateform(request: any, response: any, next: any) {
             const args = {
@@ -1061,6 +1118,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/platforms/:platformId',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.deletePlatform)),
 
             function PlatformsController_deletePlatform(request: any, response: any, next: any) {
             const args = {
@@ -1085,6 +1144,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/platforms/:platformId',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.updatePlateform)),
 
             function PlatformsController_updatePlateform(request: any, response: any, next: any) {
             const args = {
@@ -1110,6 +1171,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/platforms/:platformId/getUserProfileList',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getUserProfileList)),
 
             function PlatformsController_getUserProfileList(request: any, response: any, next: any) {
             const args = {
@@ -1134,6 +1197,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/platforms/:platformId/getAppProfileList',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getAppProfileService)),
 
             function PlatformsController_getAppProfileService(request: any, response: any, next: any) {
             const args = {
@@ -1158,6 +1223,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/platforms/:platformId/platformLogs',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getPlatformLogs)),
 
             function PlatformsController_getPlatformLogs(request: any, response: any, next: any) {
             const args = {
@@ -1182,6 +1249,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/platforms/registerKey',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.updateRegisterKeyNode)),
 
             function PlatformsController_updateRegisterKeyNode(request: any, response: any, next: any) {
             const args = {
@@ -1205,6 +1274,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/registerKey',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(RegisterKeyController)),
+            ...(fetchMiddlewares<RequestHandler>(RegisterKeyController.prototype.updateRegisterKeyNode)),
 
             function RegisterKeyController_updateRegisterKeyNode(request: any, response: any, next: any) {
             const args = {
@@ -1228,6 +1299,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/registerKey',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(RegisterKeyController)),
+            ...(fetchMiddlewares<RequestHandler>(RegisterKeyController.prototype.getRegisterKeyNode)),
 
             function RegisterKeyController_getRegisterKeyNode(request: any, response: any, next: any) {
             const args = {
@@ -1250,6 +1323,8 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/register',
+            ...(fetchMiddlewares<RequestHandler>(RegisterController)),
+            ...(fetchMiddlewares<RequestHandler>(RegisterController.prototype.registerPlatform)),
 
             function RegisterController_registerPlatform(request: any, response: any, next: any) {
             const args = {
@@ -1266,13 +1341,15 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.registerPlatform.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
+              promiseHandler(controller, promise, response, 201, next);
             } catch (err) {
                 return next(err);
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/register',
+            ...(fetchMiddlewares<RequestHandler>(RegisterController)),
+            ...(fetchMiddlewares<RequestHandler>(RegisterController.prototype.updatePlatform)),
 
             function RegisterController_updatePlatform(request: any, response: any, next: any) {
             const args = {
@@ -1289,7 +1366,7 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.updatePlatform.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
+              promiseHandler(controller, promise, response, 201, next);
             } catch (err) {
                 return next(err);
             }
@@ -1297,6 +1374,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/tokens',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(TokensController)),
+            ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.getTokens)),
 
             function TokensController_getTokens(request: any, response: any, next: any) {
             const args = {
@@ -1320,6 +1399,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/tokens/UserToken',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(TokensController)),
+            ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.getUserTokens)),
 
             function TokensController_getUserTokens(request: any, response: any, next: any) {
             const args = {
@@ -1343,6 +1424,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/tokens/ApplicationToken',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(TokensController)),
+            ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.getApplicationTokens)),
 
             function TokensController_getApplicationTokens(request: any, response: any, next: any) {
             const args = {
@@ -1366,6 +1449,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/tokens/getUserProfileByToken',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(TokensController)),
+            ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.getUserProfileByToken)),
 
             function TokensController_getUserProfileByToken(request: any, response: any, next: any) {
             const args = {
@@ -1390,6 +1475,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/tokens/getAppProfileByToken',
             authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(TokensController)),
+            ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.getAppProfileByToken)),
 
             function TokensController_getAppProfileByToken(request: any, response: any, next: any) {
             const args = {
@@ -1413,6 +1500,8 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/tokens/verifyToken',
+            ...(fetchMiddlewares<RequestHandler>(TokensController)),
+            ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.verifyToken)),
 
             function TokensController_verifyToken(request: any, response: any, next: any) {
             const args = {

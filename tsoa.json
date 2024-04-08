@@ -38,7 +38,7 @@
   "routes": {
     "authenticationModule": "./src/authUser/authentication.ts",
     "basePath": "",
-    "entryFile": "./src/services/server.ts",
+    "entryFile": "./src/index.ts",
     "middleware": "express",
     "routesDir": "./src"
   }
