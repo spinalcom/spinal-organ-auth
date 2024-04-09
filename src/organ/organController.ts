@@ -42,6 +42,7 @@ import {
   statusOrgan,
 } from './organ.model';
 import { OrganService } from './organService';
+import { HttpStatusCode } from '../utilities/http-status-code';
 
 @Route('organs')
 export class OrgansController extends Controller {
@@ -54,10 +55,10 @@ export class OrgansController extends Controller {
     
     try {   
       let organ = new OrganService().createOrgan(requestBody);
-      this.setStatus(201); // set return status 201rt
+      this.setStatus(HttpStatusCode.CREATED); // set return status 201rt
       return organ;
     } catch (error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return { error: error.message };
     }
   }
@@ -67,10 +68,10 @@ export class OrgansController extends Controller {
   public async getOrgans(@Path() platformId: string): Promise<IOrgan[]|{error: string}> {
     try {
       const organs = await new OrganService().getOrgans(platformId);
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return organs;
     } catch (error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return { error: error.message };
     }
   }
@@ -84,10 +85,10 @@ export class OrgansController extends Controller {
     
     try {
       const updated = await new OrganService().updateOrgan(organId, requestBody);
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return updated;
     } catch (error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return { error: error.message };
     }
   }

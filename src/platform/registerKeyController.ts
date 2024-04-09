@@ -37,6 +37,7 @@ import {
 import { IOrgan } from '../organ/organ.model';
 import { IRegisterKeyObject } from './platform.model';
 import { PlatformService } from './platformServices';
+import { HttpStatusCode } from '../utilities/http-status-code';
 
 @Route('registerKey')
 export class RegisterKeyController extends Controller {
@@ -45,10 +46,10 @@ export class RegisterKeyController extends Controller {
   public async updateRegisterKeyNode(): Promise<IRegisterKeyObject| {error : string}> {
     try {
       const newRegisterKey = await new PlatformService().updateRegisterKeyNode();
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return newRegisterKey;
     } catch (error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return {error: error.message};
     }
   }
@@ -58,10 +59,10 @@ export class RegisterKeyController extends Controller {
   public async getRegisterKeyNode(): Promise<IRegisterKeyObject | {error : string}> {
     try {
       const registerKey = await new PlatformService().getRegisterKeyNode();
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return registerKey;
     } catch (error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return {error: error.message};
     }
   }

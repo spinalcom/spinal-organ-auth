@@ -43,7 +43,6 @@ import {
   SpinalContext,
   SpinalNode,
 } from 'spinal-env-viewer-graph-service';
-import { expressAuthentication } from './authentication';
 import { OperationError } from '../utilities/operation-error';
 import { HttpStatusCode } from '../utilities/http-status-code';
 import {
@@ -62,6 +61,10 @@ import data from './profileUserListData';
 import bcrypt = require('bcrypt');
 import jwt = require('jsonwebtoken');
 import jwt_decode from 'jwt-decode';
+const generator = require('generate-password');
+const { getEnvValue, setEnvValue } = require('../../whriteToenvFile');
+
+
 /**
  * @export
  * @class UserService
@@ -620,9 +623,12 @@ export class UserService {
   }
 
   async createAuthAdmin(): Promise<IUser> {
+    const password = process.env.AUTH_ADMIN_PASSWORD || generator.generate({ length: 10, numbers: true });
+    setEnvValue('AUTH_ADMIN_PASSWORD', password);
+
     let userCreationParams: IUserCreationParams = {
       userName: 'authAdmin',
-      password: process.env.AUTH_ADMIN_PASSWORD,
+      password,
       email: '',
       telephone: '',
       info: '',

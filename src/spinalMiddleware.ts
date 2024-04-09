@@ -31,7 +31,6 @@ import { store } from './utilities/utilitiesFunctions';
 import config from './config';
 import ConfigFile from "spinal-lib-organ-monitoring";
 
-
 class SpinalMiddleware {
   static instance: SpinalMiddleware = null;
   conn: spinal.FileSystem;

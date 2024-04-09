@@ -12,7 +12,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "public/whriteEnvFile.ts",
+    "public/whriteEnvFile.ts", "whriteToenvFile.ts",
   ],
   "exclude": [
     "node_modules",

@@ -39,6 +39,7 @@ import {
   INotificationCreationParams
 } from './notification.model';
 import { NotificationService } from './notificationServices';
+import { HttpStatusCode } from '../utilities/http-status-code';
 
 @Route('notification')
 export class NotificationController extends Controller {
@@ -47,10 +48,10 @@ export class NotificationController extends Controller {
   public async createNotification(@Body() object: INotificationCreationParams): Promise<INotification|{error: string}> {
     try {
       // let platform = new PlatformService().registerNewPlatform(object);
-      this.setStatus(200); // set return status 201rt
+      this.setStatus(HttpStatusCode.OK); // set return status 201rt
       return;
     } catch (error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return { error: error.message };
     }
   }

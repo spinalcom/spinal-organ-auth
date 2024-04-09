@@ -20,7 +20,7 @@ import { RegisterKeyController } from './platform/registerKeyController';
 import { RegisterController } from './register/registerController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { TokensController } from './tokens/tokenController';
-import { expressAuthentication } from './authUser/authentication';
+import { expressAuthentication } from './security/index';
 // @ts-ignore - no great way to install types from subpackage
 const promiseAny = require('promise.any');
 import type { RequestHandler } from 'express';

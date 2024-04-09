@@ -48,6 +48,7 @@ import { IAppProfile } from './appProfile.model';
 import { PlatformService } from './platformServices';
 import { ProfileServices } from './profileServices';
 import { error } from 'console';
+import { HttpStatusCode } from '../utilities/http-status-code';
 
 @Route('platforms')
 export class PlatformsController extends Controller {
@@ -57,11 +58,11 @@ export class PlatformsController extends Controller {
   public async createPlateform(@Body() requestBody): Promise<any> {
     try {
       let platform = await new PlatformService().createPlateform(requestBody);
-      this.setStatus(201); // set return status 201rt
+      this.setStatus(HttpStatusCode.CREATED); // set return status 201rt
       return platform;
-    } catch(e) {
-      this.setStatus(e.status || 500);
-      return {error: e.message};
+    } catch(error) {
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+      return {error: error.message};
     }
     
   }
@@ -71,11 +72,11 @@ export class PlatformsController extends Controller {
   public async getPlatforms(): Promise<IPlatform[] | {error: string}> {
     try {
       const platforms = await new PlatformService().getPlateforms();
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return platforms;
-    } catch (e) {
-      this.setStatus(e.status || 500);
-      return {error: e.message};
+    } catch (error) {
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+      return {error: error.message};
     }
   }
 
@@ -84,11 +85,11 @@ export class PlatformsController extends Controller {
   public async getPlateform(@Path() platformId: string): Promise<IPlatform| {error: string}> {
     try {
       const platform = await new PlatformService().getPlateform(platformId);
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return platform;
-    } catch(e) {
-      this.setStatus(e.status || 500);
-      return {error: e.message};
+    } catch(error) {
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+      return {error: error.message};
     }
   }
 
@@ -97,11 +98,11 @@ export class PlatformsController extends Controller {
   public async deletePlatform(@Path() platformId: string): Promise<void| {message?: string; error?: string}> {
     try {
       await new PlatformService().deletePlatform(platformId);
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return {message: 'Platform deleted'};
-    } catch(e) {
-      this.setStatus(e.status || 500);
-      return {error: e.message};
+    } catch(error) {
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+      return {error: error.message};
     }
   }
 
@@ -113,11 +114,11 @@ export class PlatformsController extends Controller {
   ): Promise<IPlatform| {error: string}> {
     try {
       const updated = await new PlatformService().updatePlateform(platformId, requestBody);
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return updated;
-    } catch(e) {
-      this.setStatus(e.status || 500);
-      return {error: e.message};
+    } catch(error) {
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+      return {error: error.message};
     }
   }
 
@@ -128,11 +129,11 @@ export class PlatformsController extends Controller {
   ): Promise<IUserProfile[]| {error: string}> {
     try {
       const userProfile = await new ProfileServices().getUserProfileService(platformId);
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return userProfile;
-    } catch(e) {
-      this.setStatus(e.status || 500);
-      return {error: e.message};
+    } catch(error) {
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+      return {error: error.message};
     }
   }
 
@@ -143,11 +144,11 @@ export class PlatformsController extends Controller {
   ): Promise<IAppProfile[]| {error: string}> {
     try {
       const appProfile = await new ProfileServices().getAppProfileService(platformId);
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return appProfile;
-    } catch(e) {
-      this.setStatus(e.status || 500);
-      return {error: e.message};
+    } catch(error) {
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+      return {error: error.message};
     }
   }
 
@@ -158,11 +159,11 @@ export class PlatformsController extends Controller {
   ): Promise<IPlatformLogs[]| {error: string}> {
     try {
       const plateformLogs = await new PlatformService().getPlateformLogs(platformId);
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return plateformLogs;
-    } catch(e) {
-      this.setStatus(e.status || 500);
-      return {error: e.message};
+    } catch(error) {
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+      return {error: error.message};
     }
   }
 
@@ -171,11 +172,11 @@ export class PlatformsController extends Controller {
   public async updateRegisterKeyNode(): Promise<IRegisterKeyObject| {error: string}> {
     try {
       const updated = await new PlatformService().updateRegisterKeyNode();
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return updated;
-    } catch(e) {
-      this.setStatus(e.status || 500);
-      return {error: e.message};
+    } catch(error) {
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+      return {error: error.message};
     }
   }
 }

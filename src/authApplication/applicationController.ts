@@ -45,6 +45,7 @@ import {
 } from './application.model';
 import { ApplicationService } from './applicationService';
 import { IApplicationToken } from '../tokens/token.model';
+import { HttpStatusCode } from '../utilities/http-status-code';
 
 let applicationService = new ApplicationService()
 
@@ -59,10 +60,10 @@ export class ApplicationsController extends Controller {
     try {
       await applicationService.init()
       let application = await applicationService.createApplication(requestBody);
-      this.setStatus(201); // set return status 201rt
+      this.setStatus(HttpStatusCode.CREATED); // set return status 201rt
       return application;
     } catch (error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return { error: error.message };
     }
     
@@ -74,10 +75,10 @@ export class ApplicationsController extends Controller {
     try {
       await applicationService.init()
       const applications = await applicationService.getApplications();
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return applications;
     } catch (error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return { error: error.message };
     }
     
@@ -91,10 +92,10 @@ export class ApplicationsController extends Controller {
     try {
       await applicationService.init()
       const application = await applicationService.getApplication(applicationId);
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return application;
     } catch (error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return { error: error.message };
     }
   }
@@ -105,10 +106,10 @@ export class ApplicationsController extends Controller {
     try {
       await applicationService.init()
       const app = applicationService.deleteApplication(applicationId);
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return { message: 'Application deleted'}
     } catch (error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return { error: error.message };
     }
   }
@@ -126,11 +127,11 @@ export class ApplicationsController extends Controller {
         requestBody
       );
 
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return updated;
       
     } catch (error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return { error: error.message };
     }
   }
@@ -142,11 +143,11 @@ export class ApplicationsController extends Controller {
     try {
       await applicationService.init()
       const appToken = await applicationService.login(requestBody);
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return appToken;
       
     } catch (error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return { error: error.message };
     }
   }
@@ -159,10 +160,10 @@ export class ApplicationsController extends Controller {
     try {
       await applicationService.init()
       const application = await  applicationService.getApplicationLogs(applicationId);
-      this.setStatus(200); 
+      this.setStatus(HttpStatusCode.OK); 
       return application;
     } catch (error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return { error: error.message };
     }
   }

@@ -40,6 +40,7 @@ import {
   IPlatformUpdateParams,
 } from '../platform/platform.model';
 import { PlatformService } from '../platform/platformServices';
+import { HttpStatusCode } from '../utilities/http-status-code';
 
 interface IRegisterParams {
   platformCreationParms: IPlateformCreationParams;
@@ -55,11 +56,11 @@ export class RegisterController extends Controller {
   public async registerPlatform(@Body() object: IRegisterParams): Promise<any> {
     try {
       let platform = await new PlatformService().registerNewPlatform(object);
-      this.setStatus(200); // set return status 201rt
+      this.setStatus(HttpStatusCode.OK); // set return status 201rt
       return platform;
       
     } catch (error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return {error: error.message};
     }
   }
@@ -69,11 +70,11 @@ export class RegisterController extends Controller {
   public async updatePlatform(@Body() object): Promise<any> {
     try {
       let platform = await new PlatformService().updateNewPlatform(object);
-      this.setStatus(200); // set return status 201rt
+      this.setStatus(HttpStatusCode.OK); // set return status 201rt
       return platform;
       
     } catch (error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return {error: error.message};
     }
   }

@@ -33,6 +33,8 @@ import * as methodOverride from 'method-override';
 import { RegisterRoutes } from './routes';
 import { Response as ExResponse, Request as ExRequest } from 'express';
 import * as swaggerUi from 'swagger-ui-express';
+import { ValidateError } from 'tsoa';
+import { AuthError } from './security/AuthError';
 const jsonFile = require('../build/swagger.json');
 var history = require('connect-history-api-fallback');
 /**
@@ -44,21 +46,14 @@ function Server(): express.Express {
   const app = express();
 
   // enable files upload
-  app.use(
-    fileUpload({
-      createParentPath: true,
-    })
-  );
+  app.use(fileUpload({ createParentPath: true }));
   app.use(morgan('tiny'));
   app.use(cors());
   app.disable('x-powered-by');
   app.use(express.json());
-  app.use(
-    express.urlencoded({
-      extended: true,
-    })
-  );
+  app.use(express.urlencoded({extended: true }));
   // app.use(methodOverride());
+
   app.use(history())
 
   // app.use('/static', express.static(path.join(__dirname, 'public')));
@@ -72,6 +67,8 @@ function Server(): express.Express {
   //    res.sendFile(__dirname + '/swagger.json');
   //});
   RegisterRoutes(app);
+  app.use(errorHandler);
+  
   app.use(express.static(path.resolve(__dirname, '../vue-client/dist')));
   app.get('/', function (req, res) {
     res.sendFile(path.resolve(__dirname, '../vue-client/dist', "index.html"));
@@ -81,7 +78,32 @@ function Server(): express.Express {
     console.log(`app listening at http://localhost:${config.api.port} ....`)
   );
 
-
-  return;
+  return app;
 }
+
 export default Server;
+
+
+function errorHandler(err: unknown, req: express.Request, res: express.Response, next: express.NextFunction ): express.Response | void {
+  if (err instanceof ValidateError) {
+    return res.status(400).send(_formatValidationError(err));
+  }
+
+  if (err instanceof AuthError) {
+    return res.status(err.code).send({message: err.message});
+  }
+
+  if (err instanceof Error) {
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+
+  next();
+}
+
+function _formatValidationError(err: ValidateError) {
+  err;
+  return {
+    message: 'Validation Failed',
+    details: err?.fields,
+  };
+}

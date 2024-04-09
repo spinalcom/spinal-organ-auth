@@ -37,6 +37,7 @@ import {
 } from 'tsoa';
 import { IToken, IUserToken, IApplicationToken } from './token.model';
 import { TokensService } from './tokenService';
+import { HttpStatusCode } from '../utilities/http-status-code';
 
 @Route('tokens')
 export class TokensController extends Controller {
@@ -45,10 +46,10 @@ export class TokensController extends Controller {
   public async getTokens(): Promise<IToken[] | {error: string}> {
     try{
       const tokens = await new TokensService().getTokens();
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return tokens;
     } catch(error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return {error: error.message};
     }
   }
@@ -58,10 +59,10 @@ export class TokensController extends Controller {
   public async getUserTokens(): Promise<IToken[]| {error: string}> {
     try{
       const userTokens = await new TokensService().getUserTokens();
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return userTokens;
     } catch(error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return {error: error.message};
     }
   }
@@ -71,10 +72,10 @@ export class TokensController extends Controller {
   public async getApplicationTokens(): Promise<IToken[]| {error: string}> {
     try{
       const applicationTokens = await new TokensService().getApplicationTokens();
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return applicationTokens;
     } catch(error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return {error: error.message};
     }
   }
@@ -87,10 +88,10 @@ export class TokensController extends Controller {
         requestBody.token,
         requestBody.platformId
         );
-        this.setStatus(200); // set return status 201
+        this.setStatus(HttpStatusCode.OK); // set return status 201
         return profile;
     } catch(error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return {error: error.message};
     }
     
@@ -104,9 +105,9 @@ export class TokensController extends Controller {
         requestBody.token,
         requestBody.platformId
         );
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
     } catch(error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return {error: error.message};
     }
    
@@ -119,10 +120,10 @@ export class TokensController extends Controller {
         requestBody.tokenParam,
         requestBody.actor
       );
-      this.setStatus(200); // set return status 201
+      this.setStatus(HttpStatusCode.OK); // set return status 201
       return verifiedToken;
     } catch(error) {
-      this.setStatus(error.status || 500);
+      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return {error: error.message};
     }
     

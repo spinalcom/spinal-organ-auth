@@ -36,7 +36,7 @@
     "basePath": "/v1"
   },
   "routes": {
-    "authenticationModule": "./src/authUser/authentication.ts",
+    "authenticationModule": "./src/security/index.ts",
     "basePath": "",
     "entryFile": "./src/index.ts",
     "middleware": "express",

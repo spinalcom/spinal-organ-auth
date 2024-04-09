@@ -22,12 +22,9 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 const dotenv = require('dotenv');
-const { getEnvValue, setEnvValue } = require('./whriteToenvFile');
-const generator = require('generate-password');
-var password = generator.generate({
-  length: 10,
-  numbers: true,
-});
-setEnvValue('AUTH_ADMIN_PASSWORD', password);
+// const { getEnvValue, setEnvValue } = require('./whriteToenvFile');
+// const generator = require('generate-password');
+// var password = process.env.AUTH_ADMIN_PASSWORD || generator.generate({ length: 10, numbers: true });
+// setEnvValue('AUTH_ADMIN_PASSWORD', password);
 dotenv.config();
 require('./dist/index.js');
