@@ -106,6 +106,7 @@ export class TokensController extends Controller {
         requestBody.platformId
         );
       this.setStatus(HttpStatusCode.OK); // set return status 201
+      return profile;
     } catch(error) {
       this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       return {error: error.message};
