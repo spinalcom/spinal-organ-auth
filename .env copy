@@ -1,10 +1,17 @@
-TOKEN_SECRET=''
-REGISTER_KEY=''
-TOKEN_BOS_ADMIN=""
+# Hub info
+ORGAN_NAME=""
 SPINAL_USER_ID=''
-SPINAL_PASSWORD=''
 SPINALHUB_IP=''
+SPINAL_PASSWORD=''
 SPINALHUB_PORT=''
-REQUESTS_PORT=''
 SPINALHUB_URL=''
-AUTH_ADMIN_PASSWORD=""
+
+#Auth info
+TOKEN_SECRET='' # will be generated if not provided
+AUTH_ADMIN_PASSWORD="" # will be generated if not provided
+TOKEN_BOS_ADMIN=""
+REGISTER_KEY="" # will be generated if not provided 
+
+# server info
+REQUESTS_PORT=''
+LIMIT_LOG="3000"

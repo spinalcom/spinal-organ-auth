@@ -22,36 +22,29 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { AuthGraphService } from './services/authGraphService';
-import { TokensService } from './tokens/tokenService';
-import Server from './server';
-import SpinalMiddleware from './spinalMiddleware';
-import { createOrGetRegisterKey, initLogsService, initPlatformService, initTokenService, initUserService } from './utilities/initialisation';
+import { initAllContexts } from "./services/authGraphService";
+import { TokensService } from "./tokens/tokenService";
+import Server from "./server";
+import SpinalMiddleware from "./spinalMiddleware";
+import { createOrGetRegisterKey, initLogsService, initPlatformService, initTokenService, initUserService } from "./utilities/initialisation";
+import * as cron from "node-cron";
 
 async function main() {
-  const spinalMiddleware = SpinalMiddleware.getInstance();
-  await spinalMiddleware.init();
-  console.log('connection to hub initialize ...');
-  const graph = spinalMiddleware.getGraph();
+	const graph = await SpinalMiddleware.getInstance().getGraph();
+	console.log("connection to hub initialize ...");
 
-  const authGraphService = new AuthGraphService(graph);
-  await authGraphService.init();
-  const contexts = await graph.getChildren('hasContext');
+	const contexts = await initAllContexts(graph);
 
-  return Promise.all([
-    initTokenService(contexts), initLogsService(contexts), initUserService(contexts), initPlatformService(),
-  ]).then(async () => {
-    await createOrGetRegisterKey(contexts);
-    const cron = require('node-cron');
-    cron.schedule('0-9 1 1 * * *', async function () {
-      await new TokensService().verify();
-    });
-  });
-
-
-
-  // start organ with token cron
-  
+	return Promise.all([initLogsService(contexts), initTokenService(contexts), initUserService(contexts), initPlatformService()]).then(async () => {
+		await createOrGetRegisterKey(contexts);
+		cron.schedule("30 */10 * * *", async () => {
+			console.log("purge invalid token");
+			await TokensService.getInstance().purgeInvalidToken();
+		});
+	});
 }
-main();
-Server();
+
+(async () => {
+	await main();
+	Server();
+})();

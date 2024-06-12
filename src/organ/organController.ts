@@ -22,74 +22,50 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Path,
-  Post,
-  Put,
-  Query,
-  Route,
-  Security,
-  SuccessResponse,
-} from 'tsoa';
-import {
-  IOrganCreationParams,
-  IOrganUpdateParams,
-  IOrgan,
-  statusOrgan,
-} from './organ.model';
-import { OrganService } from './organService';
-import { HttpStatusCode } from '../utilities/http-status-code';
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
+import { IOrganCreationParams, IOrganUpdateParams, IOrgan, statusOrgan } from "./organ.model";
+import { OrganService } from "./organService";
+import { HttpStatusCode } from "../utilities/http-status-code";
 
-@Route('organs')
+@Route("organs")
 export class OrgansController extends Controller {
-  @Security('jwt')
-  @SuccessResponse('201', 'Created') // Custom success response
-  @Post('{platformId}')
-  public async createOrgan(
-    @Body() requestBody: IOrganCreationParams
-  ): Promise<IOrgan|{error: string}> {
-    
-    try {   
-      let organ = new OrganService().createOrgan(requestBody);
-      this.setStatus(HttpStatusCode.CREATED); // set return status 201rt
-      return organ;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
+	@Security("jwt")
+	@SuccessResponse("201", "Created") // Custom success response
+	@Post("{platformId}")
+	public async createOrgan(@Body() requestBody: IOrganCreationParams): Promise<IOrgan | { error: string }> {
+		try {
+			let organ = OrganService.getInstance().createOrgan(requestBody);
+			this.setStatus(HttpStatusCode.CREATED); // set return status 201rt
+			return organ;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Get('{platformId}')
-  public async getOrgans(@Path() platformId: string): Promise<IOrgan[]|{error: string}> {
-    try {
-      const organs = await new OrganService().getOrgans(platformId);
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return organs;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
+	@Security("jwt")
+	@Get("{platformId}")
+	public async getOrgans(@Path() platformId: string): Promise<IOrgan[] | { error: string }> {
+		try {
+			const organs = await OrganService.getInstance().getOrgans(platformId);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return organs;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Put('{organId}')
-  public async updatePlateform(
-    @Path() organId: string,
-    @Body() requestBody: IOrganUpdateParams
-  ): Promise<IOrgan|{error: string}> {
-    
-    try {
-      const updated = await new OrganService().updateOrgan(organId, requestBody);
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return updated;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
+	@Security("jwt")
+	@Put("{organId}")
+	public async updatePlateform(@Path() organId: string, @Body() requestBody: IOrganUpdateParams): Promise<IOrgan | { error: string }> {
+		try {
+			const updated = await OrganService.getInstance().updateOrgan(organId, requestBody);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return updated;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 }

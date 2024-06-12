@@ -22,29 +22,17 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import {
-  SpinalGraphService,
-  SpinalGraph,
-} from 'spinal-env-viewer-graph-service';
+import { SpinalGraphService, SpinalGraph } from "spinal-env-viewer-graph-service";
 
-import {
-  IPlateformCreationParams,
-  IPlatform,
-} from '../platform/platform.model';
-import { PlatformService } from '../platform/platformServices';
-import SpinalMiddleware from '../spinalMiddleware';
+import { IPlateformCreationParams, IPlatform } from "../platform/platform.model";
+import { PlatformService } from "../platform/platformServices";
+import SpinalMiddleware from "../spinalMiddleware";
 
 interface IRegisterParams {
-  platformCreationParms: IPlateformCreationParams;
-  registerKey: string;
+	platformCreationParms: IPlateformCreationParams;
+	registerKey: string;
 }
 
 export class RegisterService {
-  public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
-  public graph: SpinalGraph<any>;
-  constructor() {
-    //this.spinalMiddleware.init();
-    this.graph = this.spinalMiddleware.getGraph();
-  }
-
+	constructor() {}
 }

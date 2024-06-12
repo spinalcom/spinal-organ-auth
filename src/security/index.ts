@@ -22,44 +22,43 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import * as express from 'express';
-import * as jwt from 'jsonwebtoken';
-import { AuthError } from './AuthError';
-import { HttpStatusCode } from '../utilities/http-status-code';
+import * as express from "express";
+import * as jwt from "jsonwebtoken";
+import { AuthError } from "./AuthError";
+import { HttpStatusCode } from "../utilities/http-status-code";
+import { TokensService } from "../tokens/tokenService";
 
 export function expressAuthentication(request: express.Request, securityName: string, scopes?: string[]): Promise<any> {
-  if(securityName !== 'jwt') return;
+	if (securityName !== "jwt") return;
 
-    const token = getToken(request);
+	const token = getToken(request);
 
-    if (!token) throw new AuthError(HttpStatusCode.UNAUTHORIZED, 'No token provided');
-      
-    return new Promise((resolve, reject) => {
-      jwt.verify(token, 'RANDOM_TOKEN_SECRET', function(err: any, decoded: any) {
-        if (err) return reject(new AuthError(HttpStatusCode.UNAUTHORIZED, err.message));
+	if (!token) throw new AuthError(HttpStatusCode.UNAUTHORIZED, "No token provided");
 
-        //verify jwt
-        // Check if JWT contains all required scopes
-        for (let scope of scopes) {
-          if (!decoded.scopes.includes(scope)) return reject(new AuthError(HttpStatusCode.UNAUTHORIZED, 'JWT does not contain required scope.'));
-        }
+	return new Promise((resolve, reject) => {
+		const secret = TokensService.getInstance().generateTokenKey();
+		jwt.verify(token, secret, function (err: any, decoded: any) {
+			if (err) return reject(new AuthError(HttpStatusCode.UNAUTHORIZED, err.message));
 
-        return resolve(decoded);
-      })
-    });
-      
-        
+			for (let scope of scopes) {
+				if (!decoded.scopes.includes(scope)) {
+					return reject(new AuthError(HttpStatusCode.UNAUTHORIZED, "JWT does not contain required scope."));
+				}
+			}
+
+			return resolve(decoded);
+		});
+	});
 }
 
-
 export function getToken(request: express.Request): string {
-  const header = request.headers.authorization || request.headers.Authorization;
+	const header = request.headers.authorization || request.headers.Authorization;
 
-  if (header) {
-    const splitted = (<string>header).split(" ");
-    const token = splitted[splitted.length - 1];
-      if (token) return token;
-  }
+	if (header) {
+		const splitted = (<string>header).split(" ");
+		const token = splitted[splitted.length - 1];
+		if (token) return token;
+	}
 
-  return request.body?.token || request.query?.token || request.headers["x-access-token"];
+	return request.body?.token || request.query?.token || request.headers["x-access-token"];
 }

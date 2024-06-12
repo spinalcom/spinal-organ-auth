@@ -22,888 +22,453 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import {
-  Model,
-  Ptr,
-  spinalCore,
-  FileSystem,
-} from 'spinal-core-connectorjs_type';
-import {
-  USER_LIST,
-  AUTH_SERVICE_USER_RELATION_NAME,
-  USER_TYPE,
-  AUTH_SERVICE_RELATION_TYPE_PTR_LST,
-  TOKEN_TYPE,
-  TOKEN_LIST,
-  AUTH_SERVICE_TOKEN_RELATION_NAME,
-} from '../constant';
-import {
-  SpinalGraphService,
-  SpinalGraph,
-  SpinalContext,
-  SpinalNode,
-} from 'spinal-env-viewer-graph-service';
-import { OperationError } from '../utilities/operation-error';
-import { HttpStatusCode } from '../utilities/http-status-code';
-import {
-  IUser,
-  IUserCreationParams,
-  IUserUpdateParams,
-  IAuthAdminUpdateParams,
-  IUserLoginParams,
-  IUserType,
-  IUserLogs
-} from './user.model';
-import { IUserToken } from '../tokens/token.model';
-import SpinalMiddleware from '../spinalMiddleware';
-import { LogsService } from '../logs/logService';
-import data from './profileUserListData';
-import bcrypt = require('bcrypt');
-import jwt = require('jsonwebtoken');
-import jwt_decode from 'jwt-decode';
-const generator = require('generate-password');
-const { getEnvValue, setEnvValue } = require('../../whriteToenvFile');
-
+import { Model, Ptr, spinalCore, FileSystem } from "spinal-core-connectorjs_type";
+import { USER_LIST, AUTH_SERVICE_USER_RELATION_NAME, USER_TYPE, AUTH_SERVICE_RELATION_TYPE_PTR_LST, TOKEN_TYPE, TOKEN_LIST, AUTH_SERVICE_TOKEN_RELATION_NAME, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, PLATFORM_TYPE, AUTH_SERVICE_LOG_RELATION_NAME, EVENTS_NAMES, EVENTS_REQUEST_NAMES, USER_LOG_CATEGORY_NAME, ADMIN_LOG_CATEGORY_NAME, AUTH_ADMIN_NAME } from "../constant";
+import { SpinalGraphService, SpinalGraph, SpinalContext, SpinalNode } from "spinal-env-viewer-graph-service";
+import { OperationError } from "../utilities/operation-error";
+import { HttpStatusCode } from "../utilities/http-status-code";
+import { IUser, IUserCreationParams, IUserUpdateParams, IAuthAdminUpdateParams, IUserLoginParams, IUserType, IUserLogs, IUpdateUserPassword } from "./user.model";
+import { IUserToken } from "../tokens/token.model";
+import SpinalMiddleware from "../spinalMiddleware";
+import { LogsService } from "../logs/logService";
+import data from "./profileUserListData";
+import bcrypt = require("bcrypt");
+import jwt = require("jsonwebtoken");
+import jwt_decode from "jwt-decode";
+import { PlatformService } from "../platform/platformServices";
+import { TokensService } from "../tokens/tokenService";
+import { format } from "path";
+const generator = require("generate-password");
+const { setEnvValue } = require("../../whriteToenvFile");
 
 /**
  * @export
  * @class UserService
  */
 export class UserService {
-  public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
-  public graph: SpinalGraph<any>;
-  public logService: LogsService;
-  constructor() {
-    //this.spinalMiddleware.init();
-    this.graph = this.spinalMiddleware.getGraph();
-    this.logService = new LogsService();
+	public context: SpinalContext;
 
-  }
+	static instance: UserService;
 
-  public async getProfile(platformId: string, profileIdBosConfig: string) {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === 'platformList') {
-        const platforms = await context.getChildren('HasPlatform')
-        for (const platform of platforms) {
-          if (platform.getId().get() === platformId) {
-            const userProfiles = await platform.getChildren('HasUserProfile');
-            for (const profile of userProfiles) {
-              if (profile.info.userProfileId.get() === profileIdBosConfig) {
-                return profile;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+	private constructor() {}
 
-  public async createUser(
-    userCreationParams: IUserCreationParams
-  ): Promise<IUser> {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === USER_LIST) {
-        const users = await context.getChildren('HasUser');
-        for (const user of users) {
-          if (user.info.userName.get() === userCreationParams.userName) {
-            await this.logService.createLog(user, 'UserLogs', 'Create', 'Create Not Valid', "create a new user with this userName");
-            throw new OperationError(
-              'USERNAME_IS_ALREADY_USED',
-              HttpStatusCode.FORBIDDEN
-            );
-          }
-        }
-        var userNode: SpinalNode<any> = bcrypt
-          .hash(userCreationParams.password, 10)
-          .then(async (hash) => {
-            const userObject = {
-              type: USER_TYPE,
-              name: userCreationParams.userName,
-              userType: userCreationParams.userType,
-              userName: userCreationParams.userName,
-              email: userCreationParams.email,
-              telephone: userCreationParams.telephone,
-              info: userCreationParams.info,
-              password: hash,
-            };
-            if (
-              userObject.userType !== 'authAdmin' &&
-              userObject.userName !== 'authAdmin'
-            ) {
+	static getInstance(): UserService {
+		if (!this.instance) {
+			this.instance = new UserService();
+		}
 
-              const UserId = SpinalGraphService.createNode(
-                userObject,
-                undefined
-              );
+		return this.instance;
+	}
 
-              const res = await SpinalGraphService.addChildInContext(
-                context.getId().get(),
-                UserId,
-                context.getId().get(),
-                AUTH_SERVICE_USER_RELATION_NAME,
-                AUTH_SERVICE_RELATION_TYPE_PTR_LST
-              );
+	public async getProfile(platformId: string, profileIdBosConfig: string) {
+		return PlatformService.getInstance().getUserProfile(platformId, profileIdBosConfig);
+	}
 
-              for (const platform of userCreationParams.platformList) {
-                const pro = await this.getProfile(platform.platformId, platform.userProfile.userProfileId);
-                // @ts-ignore
-                SpinalGraphService._addNode(pro)
-                await SpinalGraphService.addChild(res.getId().get(), pro.getId().get(), 'HasUserProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST)
-              }
-              return res
-            } else {
-              return undefined;
-            }
-          });
+	public async getUserListContext() {
+		const graph = await SpinalMiddleware.getInstance().getGraph();
+		return graph.getContext(USER_LIST);
+	}
 
-        const userCreated = await userNode;
-        if (userCreated === undefined) {
-          await this.logService.createLog(userCreated, 'UserLogs', 'Create', 'Create Not Valid', "Create Not Valid");
-          throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
-        } else {
-          await this.logService.createLog(userCreated, 'UserLogs', 'Create', 'Create Valid', "Create Valid");
-          return {
-            id: userCreated.getId().get(),
-            type: userCreated.getType().get(),
-            name: userCreated.getName().get(),
-            userName: userCreated.info.userName.get(),
-            password: userCreated.info.password.get(),
-            email: userCreated.info.email.get(),
-            telephone: userCreated.info.telephone.get(),
-            info: userCreated.info.info.get(),
-            userType: userCreated.info.userType.get(),
-            // platformList: res.info.platformList.get(),
-          };;
-        }
-      }
-    }
-  }
+	public async createUserListContext() {
+		const graph = await SpinalMiddleware.getInstance().getGraph();
+		const context = new SpinalContext(USER_LIST);
+		return graph.addContext(context);
+	}
 
-  public async login(userLoginParams: IUserLoginParams): Promise<IUserToken> {
-    // const logService = new LogsService();
-    const userListContext = SpinalGraphService.getContext(USER_LIST);
-    const tokenListContext = SpinalGraphService.getContext(TOKEN_LIST);
+	public async createUser(userCreationParams: IUserCreationParams): Promise<IUser> {
+		const [user] = await this.getUserNodes(userCreationParams.userName);
 
-    const users = await userListContext.getChildren(
-      AUTH_SERVICE_USER_RELATION_NAME
-    );
-    for (const user of users) {
-      if (userLoginParams.userName === user.info.userName.get()) {
-        return bcrypt
-          .compare(userLoginParams.password, user.info.password.get())
-          .then(async (valid) => {
-            if (!valid) {
-              await this.logService.createLog(user, 'UserLogs', 'Connection', 'User Valid Unknown Password', "User Valid Unknown Password");
-              throw new OperationError(
-                'NOT_FOUND',
-                HttpStatusCode.NOT_FOUND
-              );
-            }
-            else {
-              var tokenNode: SpinalNode;
-              var platformList = [];
-              const userProfiles = await user.getChildren('HasUserProfile');
-              for (const userProfile of userProfiles) {
-                const platformParents = await userProfile.getParents('HasUserProfile')
-                for (const platformParent of platformParents) {
-                  if (platformParent !== undefined) {
-                    if (platformParent.getType().get() === "AuthServicePlatform") {
-                      platformList.push({
-                        platformId: platformParent.getId().get(),
-                        platformName: platformParent.getName().get(),
-                        idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
-                        userProfile: {
-                          userProfileAdminId: userProfile.getId().get(),
-                          userProfileBosConfigId: userProfile.info.userProfileId.get(),
-                          userProfileName: userProfile.getName().get()
-                        }
-                      })
-                    }
-                  }
-                }
-              }
-              const categoryTokenUserList = await tokenListContext.getChildren(
-                'HasCategoryToken'
-              );
-              for (const categoryTokenUser of categoryTokenUserList) {
-                // @ts-ignore
-                SpinalGraphService._addNode(categoryTokenUser);
-                if (categoryTokenUser.getType().get() === 'AuthServiceUserCategory') {
+		if (user || (userCreationParams.userType === AUTH_ADMIN_NAME && userCreationParams.userName === AUTH_ADMIN_NAME)) {
+			await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CREATE, EVENTS_REQUEST_NAMES.CREATE_NOT_VALID, "create a new user with this userName");
+			throw new OperationError("USERNAME_IS_ALREADY_USED", HttpStatusCode.FORBIDDEN);
+		}
 
-                  const tokens = await categoryTokenUser.getChildren('HasToken')
-                  if (tokens.length !== 0) {
-                    for (const _token of tokens) {
-                      // await _token.removeFromGraph()
-                      if (_token.info.userId.get() === user.getId().get()) {
-                        const date = new Date();
-                        date.setHours(date.getHours() - 24);
-                        const _date = Math.trunc(date.getTime() / 1000);;
-                        if (_token.info.expieredToken.get() > _date) {
-                          tokenNode = _token
-                        } else if (_token.info.expieredToken.get() < _date) {
-                          await _token.removeFromGraph()
-                        }
-                      }
-                    }
-                  } else {
-                    let token = jwt.sign(
-                      { userId: user.getId().get() },
-                      'RANDOM_TOKEN_SECRET',
-                      { expiresIn: '24h' }
-                    );
-                    let decodedToken = jwt_decode(token);
-                    for (const categoryTokenUser of categoryTokenUserList) {
-                      // @ts-ignore
-                      SpinalGraphService._addNode(categoryTokenUser);
-                      if (
-                        categoryTokenUser.getType().get() ===
-                        'AuthServiceUserCategory'
-                      ) {
+		const userNode = await this.createUserNode(userCreationParams);
 
-                        const TokenId = SpinalGraphService.createNode(
-                          {
-                            name: 'token_' + user.getName().get(),
-                            type: TOKEN_TYPE,
-                            token: token,
-                            // @ts-ignore
-                            createdToken: decodedToken.iat,
-                            // @ts-ignore
-                            expieredToken: decodedToken.exp,
-                            userId: user.getId().get(),
-                            platformList: platformList,
-                          },
-                          undefined
-                        );
-                        tokenNode = await SpinalGraphService.addChildInContext(
-                          categoryTokenUser.getId().get(),
-                          TokenId,
-                          tokenListContext.getId().get(),
-                          AUTH_SERVICE_TOKEN_RELATION_NAME,
-                          AUTH_SERVICE_RELATION_TYPE_PTR_LST
-                        );
-                      }
-                    }
-                  }
-                }
-              }
+		for (const platform of userCreationParams.platformList) {
+			const pro = await this.getProfile(platform.platformId, platform.userProfile.userProfileId);
+			await userNode.addChild(pro, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+		}
 
-              // const categoryTokenUserList = await tokenListContext.getChildren(
-              //   'HasCategoryToken'
-              // );
-              let tokenObj: IUserToken = {
-                name: tokenNode.getName().get(),
-                token: tokenNode.info.token.get(),
-                createdToken: tokenNode.info.createdToken.get(),
-                expieredToken: tokenNode.info.expieredToken.get(),
-                userId: user.getId().get(),
-                platformList: platformList,
-              };
-              await this.logService.createLog(user, 'UserLogs', 'Connection', 'Login Valid', "Login Valid");
-              return tokenObj;
+		await LogsService.getInstance().createLog(userNode, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CREATE, EVENTS_REQUEST_NAMES.CREATE_VALID, EVENTS_REQUEST_NAMES.CREATE_VALID);
+		return this._formatUser(userNode);
+	}
 
-            }
-          });
-      }
-    }
-    await this.logService.createLog(undefined, 'UserLogs', 'Connection', 'User Not Valid', "User Not Valid");
-    throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
-  }
+	public async createUserNode(userCreationParams: IUserCreationParams) {
+		const context = await this.getUserListContext();
+		const userNode = new SpinalNode(userCreationParams.userName, USER_TYPE);
 
-  public async loginAuthAdmin(
-    userLoginParams: IUserLoginParams
-  ): Promise<IUserToken> {
-    const userListContext = SpinalGraphService.getContext(USER_LIST);
-    const tokenListContext = SpinalGraphService.getContext(TOKEN_LIST);
+		const hash = await bcrypt.hash(userCreationParams.password, 10);
+		userNode.info.add_attr({
+			userType: userCreationParams.userType,
+			userName: userCreationParams.userName,
+			email: userCreationParams.email,
+			telephone: userCreationParams.telephone,
+			info: userCreationParams.info,
+			password: hash,
+		});
 
-    const users = await userListContext.getChildren(
-      AUTH_SERVICE_USER_RELATION_NAME
-    );
-    for (const user of users) {
-      if (userLoginParams.userName === 'authAdmin') {
-        return bcrypt
-          .compare(userLoginParams.password, user.info.password.get())
-          .then(async (valid) => {
-            if (!valid) {
-              await this.logService.createLog(user, 'AdminLogs', 'Connection', 'Connection Not Valid', " Unknown AuthAdmin Password");
-              throw new OperationError(
-                'NOT_FOUND',
-                HttpStatusCode.NOT_FOUND
-              );
-            } else {
-              let token = jwt.sign(
-                { userId: user.getId().get() },
-                'RANDOM_TOKEN_SECRET',
-                { expiresIn: '24h' }
-              );
-              let decodedToken = jwt_decode(token);
-              const tokenContext = SpinalGraphService.getContext(
-                TOKEN_LIST
-              );
-              const categoryTokenUserList = await tokenContext.getChildren(
-                'HasCategoryToken'
-              );
-              for (const categoryTokenUser of categoryTokenUserList) {
-                // @ts-ignore
-                SpinalGraphService._addNode(categoryTokenUser);
-                if (
-                  categoryTokenUser.getType().get() ===
-                  'AuthServiceUserCategory'
-                ) {
-                  const TokenId = SpinalGraphService.createNode(
-                    {
-                      name: 'token_' + user.getName().get(),
-                      type: TOKEN_TYPE,
-                      token: token,
-                      // @ts-ignore
-                      createdToken: decodedToken.iat,
-                      // @ts-ignore
-                      expieredToken: decodedToken.exp,
-                      userId: user.getId().get(),
-                      userType: user.info.userType.get(),
-                      // platformList: user.info.platformList.get(),
-                    },
-                    undefined
-                  );
-                  const res = await SpinalGraphService.addChildInContext(
-                    categoryTokenUser.getId().get(),
-                    TokenId,
-                    tokenContext.getId().get(),
-                    AUTH_SERVICE_TOKEN_RELATION_NAME,
-                    AUTH_SERVICE_RELATION_TYPE_PTR_LST
-                  );
-                  let tokenObj: IUserToken = {
-                    name: res.getName().get(),
-                    type: res.getType().get(),
-                    token: token,
-                    // @ts-ignore
-                    createdToken: decodedToken.iat,
-                    // @ts-ignore
-                    expieredToken: decodedToken.exp,
-                    userId: user.getId().get(),
-                    userType: user.info.userType.get(),
-                  };
-                  if (tokenObj) {
-                    await this.logService.createLog(user, 'AdminLogs', 'Connection', 'Connection Valid', " Connection Valid");
-                    return tokenObj;
-                  }
-                }
-              }
-            }
-          });
-      }
-    }
-    throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
+		return context.addChildInContext(userNode, AUTH_SERVICE_USER_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
+	}
 
+	public async login(userLoginParams: IUserLoginParams): Promise<IUserToken> {
+		const users = await this.getUserNodes();
+		const user = users.find((user) => user.info.userName.get() === userLoginParams.userName);
 
-  }
+		if (!user) {
+			await LogsService.getInstance().createLog(undefined, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.USER_NOT_VALID, EVENTS_REQUEST_NAMES.USER_NOT_VALID);
+			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+		}
 
-  public async getUsers(): Promise<IUser[]> {
-    try {
-      var usersObjectList = [];
-      const context = SpinalGraphService.getContext(USER_LIST);
-      const users = await context.getChildren('HasUser');
-      for (const user of users) {
-        var platformList = [];
-        const userProfiles = await user.getChildren('HasUserProfile');
-        for (const userProfile of userProfiles) {
-          const platformParents = await userProfile.getParents('HasUserProfile')
-          for (const platformParent of platformParents) {
-            if (platformParent !== undefined) {
-              if (platformParent.getType().get() === "AuthServicePlatform") {
-                platformList.push({
-                  platformId: platformParent.getId().get(),
-                  platformName: platformParent.getName().get(),
-                  idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
-                  userProfile: {
-                    userProfileAdminId: userProfile.getId().get(),
-                    userProfileBosConfigId: userProfile.info.userProfileId.get(),
-                    userProfileName: userProfile.getName().get()
-                  }
-                })
-              }
-            }
-          }
-        }
+		const valid = await bcrypt.compare(userLoginParams.password, user.info.password.get());
 
-        var userObject: IUser = {
-          id: user.getId().get(),
-          type: user.getType().get(),
-          name: user.getName().get(),
-          userName: user.info.userName.get(),
-          password: user.info.password.get(),
-          email: user.info.email.get(),
-          telephone: user.info.telephone.get(),
-          info: user.info.info.get(),
-          userType: user.info.userType.get(),
-          platformList: platformList,
-        };
-        usersObjectList.push(userObject);
-      }
-      if (usersObjectList.length === 0) {
-        throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
-      } else {
-        return usersObjectList;
-      }
-    } catch (error) {
-      return error;
-    }
-  }
+		if (!valid) {
+			await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.USER_VALID_UNKNOWN_PASSWORD, EVENTS_REQUEST_NAMES.USER_VALID_UNKNOWN_PASSWORD);
+			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+		}
 
+		const platforms = await this._getUserPlatforms(user);
+		const platformList = this._formatPlatForms(platforms);
+		const tokenNode = await TokensService.getInstance().createToken(user, { userId: user.getId().get() }, platformList, "user");
 
+		await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.LOGIN_VALID, EVENTS_REQUEST_NAMES.LOGIN_VALID);
+		return {
+			name: tokenNode.getName().get(),
+			token: tokenNode.info.token.get(),
+			createdToken: tokenNode.info.createdToken.get(),
+			expieredToken: tokenNode.info.expieredToken.get(),
+			userId: user.getId().get(),
+			platformList: platformList,
+		};
+	}
 
-  public async getUser(id: string): Promise<IUser> {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === USER_LIST) {
-        const users = await context.getChildren(
-          AUTH_SERVICE_USER_RELATION_NAME
-        );
-        for (const user of users) {
-          if (user.getId().get() === id) {
-            var platformList = [];
-            const userProfiles = await user.getChildren('HasUserProfile');
-            for (const userProfile of userProfiles) {
-              const platformParents = await userProfile.getParents('HasUserProfile')
-              for (const platformParent of platformParents) {
-                if (platformParent !== undefined) {
-                  if (platformParent.getType().get() === "AuthServicePlatform") {
-                    platformList.push({
-                      platformId: platformParent.getId().get(),
-                      platformName: platformParent.getName().get(),
-                      idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
-                      userProfile: {
-                        userProfileAdminId: userProfile.getId().get(),
-                        userProfileBosConfigId: userProfile.info.userProfileId.get(),
-                        userProfileName: userProfile.getName().get()
-                      }
-                    })
-                  }
-                }
+	public async loginAuthAdmin(userLoginParams: IUserLoginParams): Promise<IUserToken> {
+		const users = await this.getUserNodes();
+		const user = users.find((user) => user.info.userName.get() === AUTH_ADMIN_NAME);
 
-              }
-            }
-            var userObject: IUser = {
-              id: user.getId().get(),
-              type: user.getType().get(),
-              name: user.getName().get(),
-              userName: user.info.userName.get(),
-              password: user.info.password.get(),
-              email: user.info.email.get(),
-              telephone: user.info.telephone.get(),
-              info: user.info.info.get(),
-              userType: user.info.userType.get(),
-              platformList: platformList,
-            };
-          }
-        }
-      }
-    }
-    if (userObject) {
-      return userObject;
-    } else {
-      throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
-    }
-  }
+		if (!user) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 
-  public async updateUser(
-    userId: string,
-    requestBody: IUserUpdateParams
-  ): Promise<IUser> {
-    const context = await SpinalGraphService.getContext(USER_LIST);
-    const users = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
-    var userObject: IUser;
+		const valid = await bcrypt.compare(userLoginParams.password, user.info.password.get());
 
-    for (const user of users) {
-      if (userId !== user.getId().get())
-        if (requestBody.userName === user.info.userName.get()) {
-          await this.logService.createLog(user, 'UserLogs', 'Edit', 'Edit Not Valid', "modify this user with a username that already exists");
-          throw new OperationError('USERNAME_IS_ALREADY_USED', HttpStatusCode.FORBIDDEN);
-        }
-    }
-    for (const user of users) {
-      if (user.getId().get() === userId) {
-        if (requestBody.userName === "authAdmin") {
-          await this.logService.createLog(user, 'UserLogs', 'Edit', 'Edit Not Valid', "modify this user with a username that is not authorized");
-          throw new OperationError('UNAUTHORIZED ROLE', HttpStatusCode.FORBIDDEN);
-        }
-        if (requestBody.userName !== undefined) {
-          user.info.userName.set(requestBody.userName);
-          user.info.name.set(requestBody.userName);
-        }
-        if (user.info.password !== undefined || user.info.password !== "") {
-          bcrypt
-            .hash(requestBody.password, 10)
-            .then(async (hash) => {
-              user.info.password.set(hash);
-            })
-        }
-        if (
-          requestBody.userType !== undefined &&
-          user.info.userType !== 'authAdmin'
-        ) {
-          user.info.userType.set(requestBody.userType);
-        }
+		if (!valid) {
+			await LogsService.getInstance().createLog(user, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.CONNECTION_NOT_VALID, " Unknown AuthAdmin Password");
+			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+		}
 
-        const oldUserProfileList = await user.getChildren('HasUserProfile');
-        const newUserPlatformList = requestBody.platformList;
-        await updateUserProfileList(oldUserProfileList, newUserPlatformList, user, this.graph);
+		const tokenNode = await TokensService.getInstance().createToken(user, { userId: user.getId().get() }, [], "user");
+		await LogsService.getInstance().createLog(user, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.CONNECTION_VALID, " Connection Valid");
 
+		return {
+			name: tokenNode.getName().get(),
+			type: tokenNode.getType().get(),
+			token: tokenNode.info.token?.get(),
+			createdToken: tokenNode.info.createdToken.get(),
+			expieredToken: tokenNode.info.expieredToken.get(),
+			userId: user.getId().get(),
+			userType: user.info.userType.get(),
+		};
+	}
 
-        var platformList = [];
-        const userProfiles = await user.getChildren('HasUserProfile');
-        for (const userProfile of userProfiles) {
-          const platformParents = await userProfile.getParents('HasUserProfile')
-          for (const platformParent of platformParents) {
-            if (platformParent !== undefined) {
-              if (platformParent.getType().get() === "AuthServicePlatform") {
-                platformList.push({
-                  platformId: platformParent.getId().get(),
-                  platformName: platformParent.getName().get(),
-                  idPlatformOfAdmin: platformParent.info.idPlatformOfAdmin?.get(),
-                  userProfile: {
-                    userProfileAdminId: userProfile.getId().get(),
-                    userProfileBosConfigId: userProfile.info.userProfileId.get(),
-                    userProfileName: userProfile.getName().get()
-                  }
-                })
-              }
-            }
-          }
-        }
+	public async getUsers(): Promise<IUser[]> {
+		try {
+			const users = await this.getUserNodes();
+			const promises = users.map(async (user) => {
+				const platforms = await this._getUserPlatforms(user);
+				return this._formatUser(user, platforms);
+			});
 
-        userObject = {
-          id: user.getId().get(),
-          type: user.getType().get(),
-          name: user.getName().get(),
-          userName: user.info.userName.get(),
-          password: user.info.password.get(),
-          email: user.info.email.get(),
-          telephone: user.info.telephone.get(),
-          info: user.info.info.get(),
-          userType: user.info.userType.get(),
-          platformList: platformList,
-        };
+			const usersObjectList = await Promise.all(promises);
 
-        if (userObject === undefined) {
-          await this.logService.createLog(user, 'UserLogs', 'Edit', 'Edit Not Valid', "Edit Not Valid");
-          throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
-        } else {
-          await this.logService.createLog(user, 'UserLogs', 'Edit', 'Edit Valid', "Edit Valid");
-          return userObject;
-        }
-      }
-    }
-  }
+			if (usersObjectList.length === 0) {
+				throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+			}
 
+			return usersObjectList;
+		} catch (error) {
+			return error;
+		}
+	}
 
-  public async deleteUser(userId: string): Promise<void> {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === USER_LIST) {
-        const users = await context.getChildren(
-          AUTH_SERVICE_USER_RELATION_NAME
-        );
-        var userFound: SpinalNode<any>;
-        for (const user of users) {
-          if (user.getId().get() === userId) {
-            userFound = user;
-          }
-        }
-        if (userFound !== undefined) {
-          await this.logService.createLog(userFound, 'UserLogs', 'Delete', 'Delete Valid', 'Delete Valid');
-          await userFound.removeFromGraph();
-        } else {
-          // send a undefined for a deleted user
-          throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
-        }
-      }
-    }
-  }
+	public async getUser(id: string): Promise<IUser> {
+		const [user] = await this.getUserNodes(id);
+		if (!user) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 
-  async createAuthAdmin(): Promise<IUser> {
-    const password = process.env.AUTH_ADMIN_PASSWORD || generator.generate({ length: 10, numbers: true });
-    setEnvValue('AUTH_ADMIN_PASSWORD', password);
+		const platforms = await this._getUserPlatforms(user);
+		return this._formatUser(user, platforms);
+	}
 
-    let userCreationParams: IUserCreationParams = {
-      userName: 'authAdmin',
-      password,
-      email: '',
-      telephone: '',
-      info: '',
-      userType: IUserType.authAdmin,
-      platformList: [],
-    };
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === USER_LIST) {
-        var userCreated = await bcrypt
-          .hash(userCreationParams.password, 10)
-          .then(async (hash) => {
-            const userObject = {
-              type: USER_TYPE,
-              name: userCreationParams.userName,
-              userName: userCreationParams.userName,
-              password: hash,
-              email: userCreationParams.email,
-              telephone: userCreationParams.telephone,
-              info: '',
-              userType: userCreationParams.userType,
-            };
-            if (
-              userObject.userType === 'authAdmin' &&
-              userObject.userName === 'authAdmin'
-            ) {
-              const UserId = SpinalGraphService.createNode(
-                userObject,
-                undefined
-              );
-              const res = await SpinalGraphService.addChildInContext(
-                context.getId().get(),
-                UserId,
-                context.getId().get(),
-                AUTH_SERVICE_USER_RELATION_NAME,
-                AUTH_SERVICE_RELATION_TYPE_PTR_LST
-              );
-              return res;
-            } else {
-              return undefined;
-            }
-          });
-        if (userCreated === undefined) {
-          await this.logService.createLog(undefined, 'AdminLogs', 'Create', 'Create Not Valid', "create Not Valid");
-          throw new OperationError('NOT_CREATED', HttpStatusCode.BAD_REQUEST);
-        } else {
-          var infoObject = {
-            id: userCreated.getId().get(),
-            type: userCreated.getType().get(),
-            name: userCreated.getName().get(),
-            userName: userCreated.info.userName.get(),
-            password: userCreated.info.password.get(),
-            telephone: userCreated.info.telephone.get(),
-            info: userCreated.info.info.get(),
-            userType: userCreated.info.userType.get(),
-          }
-          await this.logService.createLog(userCreated, 'AdminLogs', 'Create', 'Create Valid', "create Valid");
-          return infoObject;
-        }
-      }
-    }
-  }
+	public async updateUser(userId: string, requestBody: IUserUpdateParams): Promise<IUser> {
+		const users = await this.getUserNodes();
+		const user = users.find((user) => user.getId().get() === userId);
 
-  public async updateAuthAdmin(
-    requestBody: IAuthAdminUpdateParams
-  ): Promise<IUser> {
-    const context = await SpinalGraphService.getContext(USER_LIST);
-    const users = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
-    var userObject: IUser;
-    for (const user of users) {
-      if (user.getName().get() === requestBody.userName) {
-        if (requestBody.oldPassword !== undefined) {
-          return bcrypt
-            .compare(requestBody.oldPassword, user.info.password.get())
-            .then(async (valid) => {
-              if (!valid) {
-                await this.logService.createLog(user, 'AdminLogs', 'Edit', 'Edit Not Valid', "invalid old password");
-                throw new OperationError(
-                  'ERROR_PASSWORD',
-                  HttpStatusCode.FORBIDDEN
-                );
-              } else {
-                bcrypt.hash(requestBody.newPassword, 10).then(async (hash) => {
-                  user.info.password.set(hash);
-                });
-                if (requestBody.email !== undefined) {
-                  user.info.email.set(requestBody.email);
-                }
-                if (requestBody.telephone !== undefined) {
-                  user.info.telephone.set(requestBody.telephone);
-                }
-                if (requestBody.info !== undefined) {
-                  user.info.info.set(requestBody.info);
-                }
-                userObject = {
-                  id: user.getId().get(),
-                  type: user.getType().get(),
-                  name: user.getName().get(),
-                  userName: user.info.userName.get(),
-                  password: user.info.password.get(),
-                  email: user.info.email.get(),
-                  telephone: user.info.telephone.get(),
-                  info: user.info.info.get(),
-                  userType: user.info.userType.get(),
-                };
-                if (userObject === undefined) {
-                  await this.logService.createLog(user, 'AdminLogs', 'Edit', 'Edit Not Valid', "Edit Not Valid");
-                  throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
-                } else {
-                  await this.logService.createLog(user, 'AdminLogs', 'Edit', 'Edit Valid', "Edit Valid");
-                  return userObject;
-                }
-              }
-            });
-        }
-      }
-    }
-    throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
-  }
+		if (!user) {
+			await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID);
+			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+		}
 
+		const { userName, id } = user.info.get();
 
+		if (userName === AUTH_ADMIN_NAME) {
+			await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID, "modify this user with a username that is not authorized");
+			throw new OperationError("UNAUTHORIZED ROLE", HttpStatusCode.FORBIDDEN);
+		}
 
-  public async getAuthAdmin(): Promise<IUser> {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === USER_LIST) {
-        const users = await context.getChildren(
-          AUTH_SERVICE_USER_RELATION_NAME
-        );
-        for (const user of users) {
-          if (user.getName().get() === 'authAdmin') {
-            var userObject: IUser = {
-              id: user.getId().get(),
-              type: user.getType().get(),
-              name: user.getName().get(),
-              userName: user.info.userName.get(),
-              password: user.info.password.get(),
-              email: user.info.email.get(),
-              telephone: user.info.telephone.get(),
-              info: user.info.info.get(),
-              userType: user.info.userType.get(),
-            };
-          }
-        }
-      }
-    }
-    if (userObject) {
-      return userObject;
-    } else {
-      throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
-    }
-  }
+		if (id !== userId && userName === requestBody.userName) {
+			await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID, "modify this user with a username that already exists");
+			throw new OperationError("USERNAME_IS_ALREADY_USED", HttpStatusCode.FORBIDDEN);
+		}
 
-  public async getInfoToken(tokenParam: string) {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === TOKEN_LIST) {
-        let tokens = await context.getChildren(
-          AUTH_SERVICE_TOKEN_RELATION_NAME
-        );
-        for (const token of tokens) {
-          if (token.info.token.get() === tokenParam) {
-            return {
-              name: token.info.name.get(),
-              userProfileId: token.info.userProfileId.get(),
-              token: token.info.token.get(),
-              createdToken: token.info.createdToken.get(),
-              expieredToken: token.info.expieredToken.get(),
-              userId: token.info.userId.get(),
-              serverId: token.info.serverId.get(),
-              id: token.info.id.get(),
-            };
-          }
-        }
-      }
-    }
-  }
+		const keys = ["userName", "userType", "email", "telephone", "info"];
 
+		for (const key in requestBody) {
+			if (Object.prototype.hasOwnProperty.call(requestBody, key) && keys.includes(key)) {
+				let value = requestBody[key];
+				// if (key === "password") value = await bcrypt.hash(value, 10);
 
-  public async userProfilesList() {
-    return []
-  }
+				if (value) user.info[key].set(value);
+				if (key === "userName") user.info.name.set(value);
+			}
+		}
 
-  public async getRoles(): Promise<{ name: string }[]> {
-    return [{ name: 'Super User' }, { name: 'Simple User' }];
-  }
+		const oldUserProfileList = await user.getChildren(AUTH_SERVICE_USER_PROFILE_RELATION_NAME);
+		const newUserPlatformList = requestBody.platformList;
 
-  public async getUserLogs(id: string): Promise<IUserLogs[]> {
-    var logArrayList: IUserLogs[] = [];
-    var found: boolean = false;
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === USER_LIST) {
-        const platforms = await context.getChildren(
-          AUTH_SERVICE_USER_RELATION_NAME
-        );
-        for (const platform of platforms) {
-          if (platform.getId().get() === id) {
-            found = true;
-            const logs = await platform.getChildren('HasLog');
-            for (const log of logs) {
-              var PlatformObjectLog: IUserLogs = {
-                id: log.getId().get(),
-                type: log.getType().get(),
-                name: log.getName().get(),
-                date: log.info.date.get(),
-                message: log.info.message.get(),
-                actor: {
-                  actorId: log.info.actor.actorId.get(),
-                  actorName: log.info.actor.actorName.get()
-                }
-              }
-              logArrayList.push(PlatformObjectLog)
-            }
+		await updateUserProfileList(oldUserProfileList, newUserPlatformList, user);
 
-          }
-        }
-      }
-    }
+		var platformList = await this._getUserPlatforms(user);
 
-    if (found === true) {
-      return logArrayList;
-    } else {
-      throw new OperationError('NOT_FOUND', HttpStatusCode.NOT_FOUND);
-    }
-  }
+		await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_VALID);
+		return this._formatUser(user, platformList);
+	}
+
+	/**
+	 * updateUserPassword
+	 */
+	public async updateUserPassword(userId: string, requestBody: IUpdateUserPassword) {
+		const users = await this.getUserNodes(userId);
+		const user = users.find((user) => user.getId().get() === userId);
+		if (!user) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+
+		const valid = await bcrypt.compare(requestBody.oldPassword, user.info.password.get());
+		if (!valid) throw new OperationError("ERROR_PASSWORD", HttpStatusCode.FORBIDDEN);
+
+		const newPassword = await bcrypt.hash(requestBody.newPassword, 10);
+		user.info.password.set(newPassword);
+
+		return this._formatUser(user);
+	}
+
+	public async deleteUser(userId: string): Promise<void> {
+		const [userFound] = await this.getUserNodes(userId);
+		if (!userFound) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+
+		await LogsService.getInstance().createLog(userFound, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.DELETE, EVENTS_REQUEST_NAMES.DELETE_VALID, EVENTS_REQUEST_NAMES.DELETE_VALID);
+		await userFound.removeFromGraph();
+	}
+
+	async createAuthAdmin(): Promise<IUser> {
+		try {
+			const password = process.env.AUTH_ADMIN_PASSWORD || generator.generate({ length: 10, numbers: true });
+			setEnvValue("AUTH_ADMIN_PASSWORD", password);
+
+			const hash = await bcrypt.hash(password, 10);
+
+			const authAdminNode = new SpinalNode(AUTH_ADMIN_NAME, USER_TYPE);
+			authAdminNode.info.add_attr({
+				userName: AUTH_ADMIN_NAME,
+				password: hash,
+				email: "",
+				telephone: "",
+				info: "",
+				userType: IUserType.authAdmin,
+			});
+
+			const context = await this.getUserListContext();
+			await context.addChildInContext(authAdminNode, AUTH_SERVICE_USER_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
+
+			await LogsService.getInstance().createLog(authAdminNode, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.CREATE, EVENTS_REQUEST_NAMES.CREATE_VALID, EVENTS_REQUEST_NAMES.CREATE_VALID);
+			return authAdminNode.info.get();
+		} catch (error) {
+			await LogsService.getInstance().createLog(undefined, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.CREATE, EVENTS_REQUEST_NAMES.CREATE_NOT_VALID, EVENTS_REQUEST_NAMES.CREATE_NOT_VALID);
+			throw new OperationError("NOT_CREATED", HttpStatusCode.BAD_REQUEST);
+		}
+	}
+
+	public async updateAuthAdmin(requestBody: IAuthAdminUpdateParams): Promise<IUser> {
+		const [user] = await this.getUserNodes(requestBody.userName);
+		if (!user) {
+			await LogsService.getInstance().createLog(user, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID);
+			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+		}
+
+		const valid = await bcrypt.compare(requestBody.oldPassword, user.info.password.get());
+
+		if (!valid) {
+			await LogsService.getInstance().createLog(user, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID, "invalid old password");
+			throw new OperationError("ERROR_PASSWORD", HttpStatusCode.FORBIDDEN);
+		}
+
+		const newPassword = await bcrypt.hash(requestBody.newPassword, 10);
+		user.info.password.set(newPassword);
+
+		const keys = ["email", "telephone", "info"];
+
+		for (const key in requestBody) {
+			if (Object.prototype.hasOwnProperty.call(requestBody, key) && keys.includes(key)) {
+				const element = requestBody[key];
+				user.info[key].set(element);
+			}
+		}
+
+		await LogsService.getInstance().createLog(user, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_VALID);
+		return this._formatUser(user);
+	}
+
+	public async getAuthAdmin(): Promise<IUser> {
+		const [user] = await this.getUserNodes(AUTH_ADMIN_NAME);
+		if (user) return user.info.get();
+
+		throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+	}
+
+	public async getInfoToken(tokenParam: string) {
+		return TokensService.getInstance().getTokenInfo(tokenParam);
+	}
+
+	public async userProfilesList() {
+		return [];
+	}
+
+	public async getRoles(): Promise<{ name: string }[]> {
+		return [{ name: "Super User" }, { name: "Simple User" }];
+	}
+
+	public async getUserLogs(id: string): Promise<IUserLogs[]> {
+		try {
+			const [platform] = await this.getUserNodes(id);
+			const logs = await platform.getChildren(AUTH_SERVICE_LOG_RELATION_NAME);
+			return logs.map((log) => ({
+				id: log.getId().get(),
+				type: log.getType().get(),
+				name: log.getName().get(),
+				date: log.info.date.get(),
+				message: log.info.message.get(),
+				actor: {
+					actorId: log.info.actor.actorId.get(),
+					actorName: log.info.actor.actorName.get(),
+				},
+			}));
+		} catch (error) {
+			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+		}
+	}
+
+	public async getUserNodes(userId?: string): Promise<SpinalNode[]> {
+		const context = await this.getUserListContext();
+		const users = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
+		if (!userId) return users;
+
+		return users.filter((user) => user.info.username?.get() === userId || user.getId().get() === userId);
+	}
+
+	private async _getUserPlatforms(user: SpinalNode): Promise<{ platform: SpinalNode; profile: SpinalNode }[]> {
+		const profiles = await this._getUserProfile(user);
+		const promises = profiles.map(async (profile) => ({
+			profile,
+			platform: await this._getPlatFormByProfile(profile),
+		}));
+
+		return Promise.all(promises);
+	}
+
+	private _getUserProfile(application: SpinalNode): Promise<SpinalNode[]> {
+		return application.getChildren(AUTH_SERVICE_USER_PROFILE_RELATION_NAME);
+	}
+
+	private async _getPlatFormByProfile(profileNode: SpinalNode): Promise<SpinalNode> {
+		const parents = await profileNode.getParents(AUTH_SERVICE_USER_PROFILE_RELATION_NAME);
+		for (const parent of parents) {
+			if (parent.getType().get() === PLATFORM_TYPE) {
+				return parent;
+			}
+		}
+	}
+
+	private _formatUser(userNode: SpinalNode<any>, platformList?: any[]): IUser {
+		return {
+			id: userNode.getId().get(),
+			type: userNode.getType().get(),
+			name: userNode.getName().get(),
+			userName: userNode.info.userName.get(),
+			// password: userNode.info.password.get(),
+			email: userNode.info.email.get(),
+			telephone: userNode.info.telephone.get(),
+			info: userNode.info.info.get(),
+			userType: userNode.info.userType.get(),
+			...((platformList && { platformList: this._formatPlatForms(platformList) }) as any),
+		};
+	}
+
+	private _formatPlatForms(platformList: { platform: SpinalNode; profile: SpinalNode }[]) {
+		return platformList.map(({ platform, profile }) => ({
+			platformId: platform.getId().get(),
+			platformName: platform.getName().get(),
+			idPlatformOfAdmin: platform.info.idPlatformOfAdmin?.get(),
+			userProfile: {
+				userProfileAdminId: profile.getId().get(),
+				userProfileBosConfigId: profile.info.userProfileId.get(),
+				userProfileName: profile.getName().get(),
+			},
+		}));
+	}
 }
 
-async function updateUserProfileList(oldUserProfileList: SpinalNode<any>[], newUserPlatformList: any[], user: SpinalNode<any>, graph: SpinalGraph<any>) {
-  var arrayDelete = [];
-  var arrayCreate = [];
+async function updateUserProfileList(oldUserProfileList: SpinalNode<any>[], newUserPlatformList: any[], user: SpinalNode<any>) {
+	var arrayDelete = [];
+	var arrayCreate = [];
+	const graph = await SpinalMiddleware.getInstance().getGraph();
 
-  for (const olditem of oldUserProfileList) {
-    const resSome = newUserPlatformList.some(it => {
-      return it.userProfile.userProfileAdminId === olditem.getId().get();
-    });
-    if (resSome === false) {
-      arrayDelete.push(olditem);
-    }
-  }
+	for (const olditem of oldUserProfileList) {
+		const resSome = newUserPlatformList.some((it) => {
+			return it.userProfile.userProfileAdminId === olditem.getId().get();
+		});
+		if (resSome === false) {
+			arrayDelete.push(olditem);
+		}
+	}
 
-  for (const newItem of newUserPlatformList) {
-    const resSome = oldUserProfileList.some(it => {
-      return it.getId().get() === newItem.userProfile.userProfileAdminId;
-    });
-    if (resSome === false) {
-      arrayCreate.push(newItem);
-    }
-  }
+	for (const newItem of newUserPlatformList) {
+		const resSome = oldUserProfileList.some((it) => {
+			return it.getId().get() === newItem.userProfile.userProfileAdminId;
+		});
+		if (resSome === false) {
+			arrayCreate.push(newItem);
+		}
+	}
 
-  for (const arrdlt of arrayDelete) {
-    await user.removeChild(arrdlt, 'HasUserProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST)
-  }
+	for (const arrdlt of arrayDelete) {
+		await user.removeChild(arrdlt, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+	}
 
-  for (const arrcrt of arrayCreate) {
-    const realNode = await getrealNodeProfile(arrcrt.userProfile.userProfileAdminId, arrcrt.platformId, graph)
-    await user.addChild(realNode, 'HasUserProfile', AUTH_SERVICE_RELATION_TYPE_PTR_LST);
-  }
-
+	for (const arrcrt of arrayCreate) {
+		const realNode = await getrealNodeProfile(arrcrt.userProfile.userProfileAdminId, arrcrt.platformId, graph);
+		await user.addChild(realNode, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+	}
 }
 
 async function getrealNodeProfile(profileId: string, platformId: string, graph: SpinalGraph<any>) {
-  const contexts: SpinalNode<any>[] = await graph.getChildren('hasContext');
-  for (const context of contexts) {
-    const platforms = await context.getChildren('HasPlatform');
-    for (const platform of platforms) {
-      if (platform.getId().get() === platformId) {
-        const profiles = await platform.getChildren('HasUserProfile');
-        for (const profile of profiles) {
-          if (profile.getId().get() === profileId) {
-            return profile;
-          }
-        }
-      }
-    }
-  }
-
+	const contexts: SpinalNode<any>[] = await graph.getChildren("hasContext");
+	for (const context of contexts) {
+		const platforms = await context.getChildren("HasPlatform");
+		for (const platform of platforms) {
+			if (platform.getId().get() === platformId) {
+				const profiles = await platform.getChildren(AUTH_SERVICE_USER_PROFILE_RELATION_NAME);
+				for (const profile of profiles) {
+					if (profile.getId().get() === profileId) {
+						return profile;
+					}
+				}
+			}
+		}
+	}
 }

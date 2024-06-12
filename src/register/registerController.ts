@@ -21,62 +21,43 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Path,
-  Post,
-  Put,
-  Query,
-  Route,
-  Security,
-  SuccessResponse,
-} from 'tsoa';
-import {
-  IPlatform,
-  IPlateformCreationParams,
-  IPlatformUpdateParams,
-} from '../platform/platform.model';
-import { PlatformService } from '../platform/platformServices';
-import { HttpStatusCode } from '../utilities/http-status-code';
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
+import { IPlatform, IPlateformCreationParams, IPlatformUpdateParams } from "../platform/platform.model";
+import { PlatformService } from "../platform/platformServices";
+import { HttpStatusCode } from "../utilities/http-status-code";
 
 interface IRegisterParams {
-  platformCreationParms: IPlateformCreationParams;
-  registerKey: string;
+	platformCreationParms: IPlateformCreationParams;
+	registerKey: string;
 }
 interface IUpdateParams {
-  platformUpdateParams;
+	platformUpdateParams;
 }
-@Route('register')
+@Route("register")
 export class RegisterController extends Controller {
-  @SuccessResponse('201', 'Created') // Custom success response
-  @Post()
-  public async registerPlatform(@Body() object: IRegisterParams): Promise<any> {
-    try {
-      let platform = await new PlatformService().registerNewPlatform(object);
-      this.setStatus(HttpStatusCode.OK); // set return status 201rt
-      return platform;
-      
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-  }
+	@SuccessResponse("201", "Created") // Custom success response
+	@Post()
+	public async registerPlatform(@Body() object: IRegisterParams): Promise<any> {
+		try {
+			let platform = await PlatformService.getInstance().registerNewPlatform(object);
+			this.setStatus(HttpStatusCode.OK); // set return status 201rt
+			return platform;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @SuccessResponse('201', 'Updated') // Custom success response
-  @Put()
-  public async updatePlatform(@Body() object): Promise<any> {
-    try {
-      let platform = await new PlatformService().updateNewPlatform(object);
-      this.setStatus(HttpStatusCode.OK); // set return status 201rt
-      return platform;
-      
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-  }
+	@SuccessResponse("201", "Updated") // Custom success response
+	@Put()
+	public async updatePlatform(@Body() object): Promise<any> {
+		try {
+			let platform = await PlatformService.getInstance().updateNewPlatform(object);
+			this.setStatus(HttpStatusCode.OK); // set return status 201rt
+			return platform;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 }
-

@@ -21,7 +21,7 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-import { tokenGen } from "@/router/genToken.js";
+import { LogUserAnGetToken } from "@/router/genToken.js";
 const instanceAxios = require("../services/axiosConfig");
 import router from "../router"
 export default {
@@ -39,10 +39,11 @@ export default {
         },
         async login(context, formuser) {
             try {
-                await tokenGen(formuser.userName, formuser.password);
+                await LogUserAnGetToken(formuser.userName, formuser.password);
                 router.push("/");
             } catch (error) {
                 console.log(error);
+                throw error;
             }
         },
         async getUsers() {

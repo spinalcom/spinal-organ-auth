@@ -21,89 +21,78 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-import * as express from 'express';
-import * as fileUpload from 'express-fileupload';
-import * as bodyParser from 'body-parser';
-import * as cors from 'cors';
-import * as morgan from 'morgan';
-import * as _ from 'lodash';
-import config from './config';
-import path = require('path');
-import * as methodOverride from 'method-override';
-import { RegisterRoutes } from './routes';
-import { Response as ExResponse, Request as ExRequest } from 'express';
-import * as swaggerUi from 'swagger-ui-express';
-import { ValidateError } from 'tsoa';
-import { AuthError } from './security/AuthError';
-const jsonFile = require('../build/swagger.json');
-var history = require('connect-history-api-fallback');
+import * as express from "express";
+import * as fileUpload from "express-fileupload";
+import * as bodyParser from "body-parser";
+import * as cors from "cors";
+import * as morgan from "morgan";
+import * as _ from "lodash";
+import config from "./config";
+import path = require("path");
+import * as methodOverride from "method-override";
+import { RegisterRoutes } from "./routes";
+import { Response as ExResponse, Request as ExRequest } from "express";
+import * as swaggerUi from "swagger-ui-express";
+import { ValidateError } from "tsoa";
+import { AuthError } from "./security/AuthError";
+const jsonFile = require("../build/swagger.json");
+var history = require("connect-history-api-fallback");
 /**
  *
  *
  * @return {*}  {express.Express}
  */
 function Server(): express.Express {
-  const app = express();
+	const app = express();
 
-  // enable files upload
-  app.use(fileUpload({ createParentPath: true }));
-  app.use(morgan('tiny'));
-  app.use(cors());
-  app.disable('x-powered-by');
-  app.use(express.json());
-  app.use(express.urlencoded({extended: true }));
-  // app.use(methodOverride());
+	// enable files upload
+	app.use(fileUpload({ createParentPath: true }));
+	app.use(morgan("tiny"));
+	app.use(cors());
+	app.disable("x-powered-by");
+	app.use(express.json());
+	app.use(express.urlencoded({ extended: true }));
+	// app.use(methodOverride());
 
-  app.use(history())
+	app.use(history());
 
-  // app.use('/static', express.static(path.join(__dirname, 'public')));
+	app.use(express.static(path.resolve(__dirname, "../vue-client/dist")));
+	app.get("/", function (req, res) {
+		res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html"));
+	});
 
-  //app.use('/docs', express.static(__dirname + '/swagger-ui'));
+	RegisterRoutes(app);
+	app.use(errorHandler);
 
-  //app.use('/api-docs', swaggerUi.serve);
-  //app.get('/api-docs', swaggerUi.setup(jsonFile));
-  //
-  //app.use('/swagger.json', (req, res) => {
-  //    res.sendFile(__dirname + '/swagger.json');
-  //});
-  RegisterRoutes(app);
-  app.use(errorHandler);
-  
-  app.use(express.static(path.resolve(__dirname, '../vue-client/dist')));
-  app.get('/', function (req, res) {
-    res.sendFile(path.resolve(__dirname, '../vue-client/dist', "index.html"));
-  });
+	app.listen(config.api.port, () => console.log(`app listening at http://localhost:${config.api.port} ....`));
 
-  app.listen(config.api.port, () =>
-    console.log(`app listening at http://localhost:${config.api.port} ....`)
-  );
-
-  return app;
+	return app;
 }
 
 export default Server;
 
+function errorHandler(err: unknown, req: express.Request, res: express.Response, next: express.NextFunction): express.Response | void {
+	//@ts-ignore
+	console.log("hello from errorHandler");
+	if (err instanceof ValidateError) {
+		return res.status(400).send(_formatValidationError(err));
+	}
 
-function errorHandler(err: unknown, req: express.Request, res: express.Response, next: express.NextFunction ): express.Response | void {
-  if (err instanceof ValidateError) {
-    return res.status(400).send(_formatValidationError(err));
-  }
+	if (err instanceof AuthError) {
+		return res.status(err.code).send({ message: err.message });
+	}
 
-  if (err instanceof AuthError) {
-    return res.status(err.code).send({message: err.message});
-  }
+	if (err instanceof Error) {
+		return res.status(500).json({ message: "Internal Server Error" });
+	}
 
-  if (err instanceof Error) {
-    return res.status(500).json({ message: 'Internal Server Error' });
-  }
-
-  next();
+	next();
 }
 
 function _formatValidationError(err: ValidateError) {
-  err;
-  return {
-    message: 'Validation Failed',
-    details: err?.fields,
-  };
+	err;
+	return {
+		message: "Validation Failed",
+		details: err?.fields,
+	};
 }

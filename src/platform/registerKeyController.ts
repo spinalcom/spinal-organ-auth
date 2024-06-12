@@ -21,49 +21,37 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Path,
-  Post,
-  Put,
-  Query,
-  Route,
-  Security,
-  SuccessResponse,
-} from 'tsoa';
-import { IOrgan } from '../organ/organ.model';
-import { IRegisterKeyObject } from './platform.model';
-import { PlatformService } from './platformServices';
-import { HttpStatusCode } from '../utilities/http-status-code';
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
+import { IOrgan } from "../organ/organ.model";
+import { IRegisterKeyObject } from "./platform.model";
+import { PlatformService } from "./platformServices";
+import { HttpStatusCode } from "../utilities/http-status-code";
 
-@Route('registerKey')
+@Route("registerKey")
 export class RegisterKeyController extends Controller {
-  @Security('jwt')
-  @Post()
-  public async updateRegisterKeyNode(): Promise<IRegisterKeyObject| {error : string}> {
-    try {
-      const newRegisterKey = await new PlatformService().updateRegisterKeyNode();
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return newRegisterKey;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-  }
+	@Security("jwt")
+	@Post()
+	public async updateRegisterKeyNode(): Promise<IRegisterKeyObject | { error: string }> {
+		try {
+			const newRegisterKey = await PlatformService.getInstance().updateRegisterKeyNode();
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return newRegisterKey;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Get()
-  public async getRegisterKeyNode(): Promise<IRegisterKeyObject | {error : string}> {
-    try {
-      const registerKey = await new PlatformService().getRegisterKeyNode();
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return registerKey;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-  }
+	@Security("jwt")
+	@Get()
+	public async getRegisterKeyNode(): Promise<IRegisterKeyObject | { error: string }> {
+		try {
+			const registerKey = await PlatformService.getInstance().getRegisterKeyNode();
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return registerKey;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 }

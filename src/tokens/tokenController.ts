@@ -22,111 +22,87 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Path,
-  Post,
-  Put,
-  Query,
-  Route,
-  Security,
-  SuccessResponse,
-} from 'tsoa';
-import { IToken, IUserToken, IApplicationToken } from './token.model';
-import { TokensService } from './tokenService';
-import { HttpStatusCode } from '../utilities/http-status-code';
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
+import { IToken, IUserToken, IApplicationToken } from "./token.model";
+import { TokensService } from "./tokenService";
+import { HttpStatusCode } from "../utilities/http-status-code";
 
-@Route('tokens')
+@Route("tokens")
 export class TokensController extends Controller {
-  @Security('jwt')
-  @Get("")
-  public async getTokens(): Promise<IToken[] | {error: string}> {
-    try{
-      const tokens = await new TokensService().getTokens();
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return tokens;
-    } catch(error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-  }
+	@Security("jwt")
+	@Get("")
+	public async getTokens(): Promise<IToken[] | { error: string }> {
+		try {
+			const tokens = await TokensService.getInstance().getTokens();
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return tokens;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Get('/UserToken')
-  public async getUserTokens(): Promise<IToken[]| {error: string}> {
-    try{
-      const userTokens = await new TokensService().getUserTokens();
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return userTokens;
-    } catch(error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-  }
+	@Security("jwt")
+	@Get("/UserToken")
+	public async getUserTokens(): Promise<IToken[] | { error: string }> {
+		try {
+			const userTokens = await TokensService.getInstance().getUserTokens();
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return userTokens;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Get('/ApplicationToken')
-  public async getApplicationTokens(): Promise<IToken[]| {error: string}> {
-    try{
-      const applicationTokens = await new TokensService().getApplicationTokens();
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return applicationTokens;
-    } catch(error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-  }
+	@Security("jwt")
+	@Get("/ApplicationToken")
+	public async getApplicationTokens(): Promise<IToken[] | { error: string }> {
+		try {
+			const applicationTokens = await TokensService.getInstance().getApplicationTokens();
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return applicationTokens;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Post('/getUserProfileByToken')
-  public async getUserProfileByToken(@Body() requestBody: any): Promise<any> {
-    try{
-      const profile = await new TokensService().getUserProfileByToken(
-        requestBody.token,
-        requestBody.platformId
-        );
-        this.setStatus(HttpStatusCode.OK); // set return status 201
-        return profile;
-    } catch(error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-    
-  }
+	@Security("jwt")
+	@Post("/getUserProfileByToken")
+	public async getUserProfileByToken(@Body() requestBody: any): Promise<any> {
+		try {
+			const profile = await TokensService.getInstance().getUserProfileByToken(requestBody.token, requestBody.platformId);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return profile;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Post('/getAppProfileByToken')
-  public async getAppProfileByToken(@Body() requestBody: any): Promise<any> {
-    try{
-      const profile = await new TokensService().getAppProfileByToken(
-        requestBody.token,
-        requestBody.platformId
-        );
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return profile;
-    } catch(error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-   
-  }
+	@Security("jwt")
+	@Post("/getAppProfileByToken")
+	public async getAppProfileByToken(@Body() requestBody: any): Promise<any> {
+		try {
+			const profile = await TokensService.getInstance().getAppProfileByToken(requestBody.token, requestBody.platformId);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return profile;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Post('/verifyToken')
-  public async verifyToken(@Body() requestBody: any): Promise<any> {
-    try{
-      const verifiedToken = await new TokensService().verifyToken(
-        requestBody.tokenParam,
-        requestBody.actor
-      );
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return verifiedToken;
-    } catch(error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-    
-  }
+	@Post("/verifyToken")
+	public async verifyToken(@Body() requestBody: any): Promise<any> {
+		try {
+			const verifiedToken = await TokensService.getInstance().verifyToken(requestBody.tokenParam, requestBody.actor);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return verifiedToken;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 }

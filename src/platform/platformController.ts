@@ -22,161 +22,133 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Path,
-  Post,
-  Put,
-  Query,
-  Route,
-  Security,
-  SuccessResponse,
-} from 'tsoa';
-import { IOrgan } from '../organ/organ.model';
-import {
-  IPlatform,
-  IPlateformCreationParams,
-  IPlatformUpdateParams,
-  IRegisterKeyObject,
-  IPlatformLogs
-} from './platform.model';
-import { IUserProfile } from './userProfile.model';
-import { IAppProfile } from './appProfile.model';
-import { PlatformService } from './platformServices';
-import { ProfileServices } from './profileServices';
-import { error } from 'console';
-import { HttpStatusCode } from '../utilities/http-status-code';
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
+import { IOrgan } from "../organ/organ.model";
+import { IPlatform, IPlateformCreationParams, IPlatformUpdateParams, IRegisterKeyObject, IPlatformLogs } from "./platform.model";
+import { IUserProfile } from "./userProfile.model";
+import { IAppProfile } from "./appProfile.model";
+import { PlatformService } from "./platformServices";
+import { ProfileServices } from "./profileServices";
+import { error } from "console";
+import { HttpStatusCode } from "../utilities/http-status-code";
 
-@Route('platforms')
+@Route("platforms")
 export class PlatformsController extends Controller {
-  @Security('jwt')
-  @SuccessResponse('201', 'Created') // Custom success response
-  @Post()
-  public async createPlateform(@Body() requestBody): Promise<any> {
-    try {
-      let platform = await new PlatformService().createPlateform(requestBody);
-      this.setStatus(HttpStatusCode.CREATED); // set return status 201rt
-      return platform;
-    } catch(error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-    
-  }
+	@Security("jwt")
+	@SuccessResponse("201", "Created") // Custom success response
+	@Post()
+	public async createPlateform(@Body() requestBody): Promise<any> {
+		try {
+			let platform = await PlatformService.getInstance().createPlateform(requestBody);
+			this.setStatus(HttpStatusCode.CREATED); // set return status 201rt
+			return platform;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Get()
-  public async getPlatforms(): Promise<IPlatform[] | {error: string}> {
-    try {
-      const platforms = await new PlatformService().getPlateforms();
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return platforms;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-  }
+	@Security("jwt")
+	@Get()
+	public async getPlatforms(): Promise<IPlatform[] | { error: string }> {
+		try {
+			const platforms = await PlatformService.getInstance().getPlateforms();
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return platforms;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Get('{platformId}')
-  public async getPlateform(@Path() platformId: string): Promise<IPlatform| {error: string}> {
-    try {
-      const platform = await new PlatformService().getPlateform(platformId);
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return platform;
-    } catch(error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-  }
+	@Security("jwt")
+	@Get("{platformId}")
+	public async getPlateform(@Path() platformId: string): Promise<IPlatform | { error: string }> {
+		try {
+			const platform = await PlatformService.getInstance().getPlateform(platformId);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return platform;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Delete('{platformId}')
-  public async deletePlatform(@Path() platformId: string): Promise<void| {message?: string; error?: string}> {
-    try {
-      await new PlatformService().deletePlatform(platformId);
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return {message: 'Platform deleted'};
-    } catch(error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-  }
+	@Security("jwt")
+	@Delete("{platformId}")
+	public async deletePlatform(@Path() platformId: string): Promise<void | { message?: string; error?: string }> {
+		try {
+			await PlatformService.getInstance().deletePlatform(platformId);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return { message: "Platform deleted" };
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Put('{platformId}')
-  public async updatePlateform(
-    @Path() platformId: string,
-    @Body() requestBody: IPlatformUpdateParams
-  ): Promise<IPlatform| {error: string}> {
-    try {
-      const updated = await new PlatformService().updatePlateform(platformId, requestBody);
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return updated;
-    } catch(error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-  }
+	@Security("jwt")
+	@Put("{platformId}")
+	public async updatePlateform(@Path() platformId: string, @Body() requestBody: IPlatformUpdateParams): Promise<IPlatform | { error: string }> {
+		try {
+			const updated = await PlatformService.getInstance().updatePlateform(platformId, requestBody);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return updated;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Get('{platformId}/getUserProfileList')
-  public async getUserProfileList(
-    @Path() platformId: string
-  ): Promise<IUserProfile[]| {error: string}> {
-    try {
-      const userProfile = await new ProfileServices().getUserProfileService(platformId);
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return userProfile;
-    } catch(error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-  }
+	@Security("jwt")
+	@Get("{platformId}/getUserProfileList")
+	public async getUserProfileList(@Path() platformId: string): Promise<IUserProfile[] | { error: string }> {
+		try {
+			const userProfile = await ProfileServices.getInstance().getUserProfileService(platformId);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return userProfile;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Get('{platformId}/getAppProfileList')
-  public async getAppProfileService(
-    @Path() platformId: string
-  ): Promise<IAppProfile[]| {error: string}> {
-    try {
-      const appProfile = await new ProfileServices().getAppProfileService(platformId);
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return appProfile;
-    } catch(error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-  }
+	@Security("jwt")
+	@Get("{platformId}/getAppProfileList")
+	public async getAppProfileService(@Path() platformId: string): Promise<IAppProfile[] | { error: string }> {
+		try {
+			const appProfile = await ProfileServices.getInstance().getAppProfileService(platformId);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return appProfile;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Get('{platformId}/platformLogs')
-  public async getPlatformLogs(
-    @Path() platformId: string
-  ): Promise<IPlatformLogs[]| {error: string}> {
-    try {
-      const plateformLogs = await new PlatformService().getPlateformLogs(platformId);
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return plateformLogs;
-    } catch(error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-  }
+	@Security("jwt")
+	@Get("{platformId}/platformLogs")
+	public async getPlatformLogs(@Path() platformId: string): Promise<IPlatformLogs[] | { error: string }> {
+		try {
+			const plateformLogs = await PlatformService.getInstance().getPlateformLogs(platformId);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return plateformLogs;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Post('/registerKey')
-  public async updateRegisterKeyNode(): Promise<IRegisterKeyObject| {error: string}> {
-    try {
-      const updated = await new PlatformService().updateRegisterKeyNode();
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return updated;
-    } catch(error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return {error: error.message};
-    }
-  }
+	@Security("jwt")
+	@Post("/registerKey")
+	public async updateRegisterKeyNode(): Promise<IRegisterKeyObject | { error: string }> {
+		try {
+			const updated = await PlatformService.getInstance().updateRegisterKeyNode();
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return updated;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 }

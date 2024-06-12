@@ -22,204 +22,185 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Path,
-  Post,
-  Put,
-  Query,
-  Route,
-  Security,
-  SuccessResponse,
-} from 'tsoa';
-import {
-  IUser,
-  IUserCreationParams,
-  IUserUpdateParams,
-  IUserLoginParams,
-  IAuthAdminUpdateParams,
-  IUserLogs
-} from './user.model';
-import { UserService } from './userService';
-import { IUserToken } from '../tokens/token.model';
-import { HttpStatusCode } from '../utilities/http-status-code';
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
+import { IUser, IUserCreationParams, IUserUpdateParams, IUserLoginParams, IAuthAdminUpdateParams, IUserLogs, IUpdateUserPassword } from "./user.model";
+import { UserService } from "./userService";
+import { IUserToken } from "../tokens/token.model";
+import { HttpStatusCode } from "../utilities/http-status-code";
 
-@Route('users')
+@Route("users")
 export class UsersController extends Controller {
-  @Security('jwt')
-  @SuccessResponse('201', 'Created') // Custom success response
-  @Post()
-  public async createUser(
-    @Body() requestBody: IUserCreationParams
-  ): Promise<IUser|{error: string}> {
-    try {
-      let user = new UserService().createUser(requestBody);
-      this.setStatus(HttpStatusCode.CREATED); // set return status 201rt
-      return user;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
+	@Security("jwt")
+	@SuccessResponse("201", "Created") // Custom success response
+	@Post()
+	public async createUser(@Body() requestBody: IUserCreationParams): Promise<IUser | { error: string }> {
+		try {
+			let user = await UserService.getInstance().createUser(requestBody);
+			this.setStatus(HttpStatusCode.CREATED); // set return status 201rt
+			return user;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Get()
-  public async getUsers(): Promise<IUser[]|{error: string}> {
-    try {
-      const users = await new UserService().getUsers();
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return users;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
+	@Security("jwt")
+	@Get()
+	public async getUsers(): Promise<IUser[] | { error: string }> {
+		try {
+			const users = await UserService.getInstance().getUsers();
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return users;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Get('{userId}')
-  public async getUser(@Path() userId: string): Promise<IUser|{error: string}> {
-    try {
-      const user = await new UserService().getUser(userId);
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return user;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
+	@Security("jwt")
+	@Get("{userId}")
+	public async getUser(@Path() userId: string): Promise<IUser | { error: string }> {
+		try {
+			const user = await UserService.getInstance().getUser(userId);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return user;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Delete('{userId}')
-  public async deleteUser(@Path() userId: string): Promise<void|{error?: string; message?: string}> {
-    try {
-      await new UserService().deleteUser(userId);
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return {message: 'User deleted'};
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
+	@Security("jwt")
+	@Delete("{userId}")
+	public async deleteUser(@Path() userId: string): Promise<void | { error?: string; message?: string }> {
+		try {
+			await UserService.getInstance().deleteUser(userId);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return { message: "User deleted" };
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Put('{userId}')
-  public async updateUser(
-    @Path() userId: string,
-    @Body() requestBody: IUserUpdateParams
-  ): Promise<IUser|{error: string}> {
-    try {
-      const userUpdated = await new UserService().updateUser(userId, requestBody);
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return userUpdated;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
+	@Security("jwt")
+	@Put("{userId}")
+	public async updateUser(@Path() userId: string, @Body() requestBody: IUserUpdateParams): Promise<IUser | { error: string }> {
+		try {
+			const userUpdated = await UserService.getInstance().updateUser(userId, requestBody);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return userUpdated;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Put()
-  public async updateAuthAdmin(
-    @Body() requestBody: IAuthAdminUpdateParams
-  ): Promise<IUser|{error: string}> {
-    try {
-      const adminUpdated = await new UserService().updateAuthAdmin(requestBody);
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return adminUpdated;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
+	@Security("jwt")
+	@Put("{userId}/updatePassword")
+	public async updateUserPassword(@Path() userId: string, @Body() requestBody: IUpdateUserPassword): Promise<any | { error: string }> {
+		try {
+			const userUpdated = await UserService.getInstance().updateUserPassword(userId, requestBody);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return userUpdated;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  // @Security('jwt')
-  @Post('/getAuthAdmin')
-  public async getAuthAdmin(): Promise<IUser|{error: string}> {
-    try {
-      const authAdmin = await new UserService().getAuthAdmin();
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return authAdmin;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
+	@Security("jwt")
+	@Put()
+	public async updateAuthAdmin(@Body() requestBody: IAuthAdminUpdateParams): Promise<IUser | { error: string }> {
+		try {
+			const adminUpdated = await UserService.getInstance().updateAuthAdmin(requestBody);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return adminUpdated;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Security('jwt')
-  @Post('/userProfilesList')
-  public async userProfilesList(): Promise<any[]|{error: string}> {
-    try {
-      const profileList = await new UserService().userProfilesList();
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return profileList;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
+	// @Security('jwt')
+	@Post("/getAuthAdmin")
+	public async getAuthAdmin(): Promise<IUser | { error: string }> {
+		try {
+			const authAdmin = await UserService.getInstance().getAuthAdmin();
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return authAdmin;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Post('/login')
-  public async login(
-    @Body() requestBody: IUserLoginParams
-  ): Promise<IUserToken|{error: string}> {
-    try {
-      const userToken = await new UserService().login(requestBody);
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return userToken;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
+	@Security("jwt")
+	@Post("/userProfilesList")
+	public async userProfilesList(): Promise<any[] | { error: string }> {
+		try {
+			const profileList = await UserService.getInstance().userProfilesList();
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return profileList;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  @Post('/loginAuthAdmin')
-  public async loginAuthAdmin(
-    @Body() requestBody: IUserLoginParams
-  ): Promise<IUserToken|{error: string}> {
-    try {
-      const userToken = await new UserService().loginAuthAdmin(requestBody);
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return userToken;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
+	@Post("/login")
+	public async login(@Body() requestBody: IUserLoginParams): Promise<IUserToken | { error: string }> {
+		try {
+			const userToken = await UserService.getInstance().login(requestBody);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return userToken;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  // @Security("jwt")
-  // @Get('/getInfoToken/{token}')
-  // public async getInfoToken(@Path() token: string): Promise<IUserProfile> {
-  //   this.setStatus(HttpStatusCode.CREATED); // set return status 201
-  //   return new UserService().getInfoToken(token);
-  // }
+	@Post("/loginAuthAdmin")
+	public async loginAuthAdmin(@Body() requestBody: IUserLoginParams): Promise<IUserToken | { error: string }> {
+		try {
+			const userToken = await UserService.getInstance().loginAuthAdmin(requestBody);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return userToken;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 
-  // @Security("jwt")
-  @Post('/getRoles')
-  public async getRoles(): Promise<{ name: string }[]|{error: string}> {
-    try {
-      const roles = await new UserService().getRoles();
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return roles;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
-  @Security('jwt')
-  @Get('{userId}/userLogs')
-  public async getUserLogs(
-    @Path() userId: string
-  ): Promise<IUserLogs[]|{error: string}> {
-    try {
-      const logs = await new UserService().getUserLogs(userId);
-      this.setStatus(HttpStatusCode.OK); // set return status 201
-      return logs;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
+	// @Security("jwt")
+	// @Get('/getInfoToken/{token}')
+	// public async getInfoToken(@Path() token: string): Promise<IUserProfile> {
+	//   this.setStatus(HttpStatusCode.CREATED); // set return status 201
+	//   return UserService.getInstance().getInfoToken(token);
+	// }
+
+	// @Security("jwt")
+	@Post("/getRoles")
+	public async getRoles(): Promise<{ name: string }[] | { error: string }> {
+		try {
+			const roles = await UserService.getInstance().getRoles();
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return roles;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
+	@Security("jwt")
+	@Get("{userId}/userLogs")
+	public async getUserLogs(@Path() userId: string): Promise<IUserLogs[] | { error: string }> {
+		try {
+			const logs = await UserService.getInstance().getUserLogs(userId);
+			this.setStatus(HttpStatusCode.OK); // set return status 201
+			return logs;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 }

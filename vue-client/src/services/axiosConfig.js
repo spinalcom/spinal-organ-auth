@@ -36,12 +36,13 @@ instanceAxios.interceptors.response.use((response) => {
   return response;
 }, (error) => {
   
-  if (error.response.status === 401) {
-    localStorage.removeItem('token');
-    router.push("/Login");
-  } if (error.response && error.response.data) {
-
+  // if (error?.response?.status === 401) {
+    // localStorage.removeItem('token');
+    // router.push("/Login");
+  // }
+  if (error.response && error.response.data) {
     return Promise.reject(error.response.data);
   }
+
   return Promise.reject(error.message);
 });

@@ -24,18 +24,16 @@
 const TOKEN = 'token';
 const router = require('../router');
 const instanceAxios = require('../services/axiosConfig');
-async function getToken(user, pass) {
+
+
+export async function LogUserAnGetToken(user, pass) {
   let userparams = {
     userName: user,
     password: pass,
   };
   // console.error(process.env.SPINAL_HOST_API);
-  const { data } = await instanceAxios.instanceAxios.post(
-    '/users/loginAuthAdmin',
-    userparams
-  );
+  const { data } = await instanceAxios.instanceAxios.post('/users/loginAuthAdmin', userparams);
   if (data) {
-    // localstorage set
     localStorage.setItem(TOKEN, data.token);
   }
   return {
@@ -44,33 +42,48 @@ async function getToken(user, pass) {
   };
 }
 
-async function* genToken(user, pass) {
-  let token;
-  if (user && pass) {
-    token = await getToken(user, pass);
-    isLogedin = true;
-    yield token;
-  } else token = localStorage.getItem(TOKEN);
-  isLogedin = true;
-  while (true) {
-    yield token;
-  }
-}
+// async function* genToken(user, pass) {
+//   let token;
+//   if (user && pass) {
+//     token = await getToken(user, pass);
+//     // isLogedin = true;
+//     yield token;
+//   } else token = localStorage.getItem(TOKEN);
 
-export let isLogedin = false;
-let _tokenGen = null;
-export async function tokenGen(user = null, pass = null) {
+//   // isLogedin = true;
+//   while (true) {
+//     yield token;
+//   }
+// }
+
+// // export let isLogedin = false;
+// let _tokenGen = null;
+
+// export async function tokenGen(user = null, pass = null) {
+//   try {
+//     if (!_tokenGen) {
+//       _tokenGen = await genToken(user, pass);
+//     }
+//     return await _tokenGen.next();
+//   } catch (error) {
+//     _tokenGen = null;
+//     throw error;
+//   }
+// }
+
+export async function isAuthenticate() {
   try {
-    if (!_tokenGen) {
-      _tokenGen = genToken(user, pass);
-    }
-    return await _tokenGen.next();
+    let token = localStorage.getItem(TOKEN);
+    if (!token) return false;
+
+    return instanceAxios.instanceAxios.post('/tokens/verifyToken', { tokenParam: token, actor: "user" })
+      .then(() => {
+        return true;
+      }).catch(() => {
+        return false;
+      });
+
   } catch (error) {
-    _tokenGen = null;
-    throw error;
+    return false;
   }
-}
-
-
-async function redirectLogin() {
 }

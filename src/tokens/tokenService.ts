@@ -22,308 +22,213 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import {
-  Model,
-  Ptr,
-  spinalCore,
-  FileSystem,
-} from 'spinal-core-connectorjs_type';
-import {
-  TOKEN_TYPE,
-  AUTH_SERVICE_TOKEN_RELATION_NAME,
-  TOKEN_LIST,
-  AUTH_SERVICE_RELATION_TYPE_PTR_LST,
-  USER_TOKEN_CATEGORY_TYPE,
-  APPLICATION_TOKEN_CATEGORY_TYPE,
-  AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME,
-} from '../constant';
-import { SPINAL_RELATION_PTR_LST_TYPE } from 'spinal-env-viewer-graph-service';
-import {
-  SpinalGraphService,
-  SpinalGraph,
-  SpinalContext,
-  SpinalNode,
-} from 'spinal-env-viewer-graph-service';
-import { OperationError } from '../utilities/operation-error';
-import { HttpStatusCode } from '../utilities/http-status-code';
-import config from '../config';
-import SpinalMiddleware from '../spinalMiddleware';
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+import { Model, Ptr, spinalCore, FileSystem } from "spinal-core-connectorjs_type";
+import { TOKEN_TYPE, AUTH_SERVICE_TOKEN_RELATION_NAME, TOKEN_LIST, AUTH_SERVICE_RELATION_TYPE_PTR_LST, USER_TOKEN_CATEGORY_TYPE, APPLICATION_TOKEN_CATEGORY_TYPE, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME } from "../constant";
+import { SPINAL_RELATION_PTR_LST_TYPE } from "spinal-env-viewer-graph-service";
+import { SpinalGraphService, SpinalGraph, SpinalContext, SpinalNode } from "spinal-env-viewer-graph-service";
+import { OperationError } from "../utilities/operation-error";
+import { HttpStatusCode } from "../utilities/http-status-code";
+import config from "../config";
+import SpinalMiddleware from "../spinalMiddleware";
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+import jwt_decode from "jwt-decode";
+const generator = require("generate-password");
+const { setEnvValue } = require("../../whriteToenvFile");
 
 export class TokensService {
-  public spinalMiddleware: SpinalMiddleware = SpinalMiddleware.getInstance();
-  public graph: SpinalGraph<any>;
-  constructor() {
-    //this.spinalMiddleware.init();
-    this.graph = this.spinalMiddleware.getGraph();
-  }
+	context: SpinalContext;
+	static instance: TokensService;
 
-  public async createTokenTree(): Promise<void> {
-    let promises = [];
-    const context = await this.graph.getContext(TOKEN_LIST);
-    const userTokenGroupObject = {
-      type: USER_TOKEN_CATEGORY_TYPE,
-      name: 'User Token',
-    };
-    const applicationTokenGroupObject = {
-      type: APPLICATION_TOKEN_CATEGORY_TYPE,
-      name: 'Application Token',
-    };
-    const userTokenCategoryId = SpinalGraphService.createNode(
-      userTokenGroupObject,
-      undefined
-    );
-    const applicationTokenCategoryId = SpinalGraphService.createNode(
-      applicationTokenGroupObject,
-      undefined
-    );
-    await SpinalGraphService.addChildInContext(
-      context.getId().get(),
-      userTokenCategoryId,
-      context.getId().get(),
-      AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
-    await SpinalGraphService.addChildInContext(
-      context.getId().get(),
-      applicationTokenCategoryId,
-      context.getId().get(),
-      AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME,
-      AUTH_SERVICE_RELATION_TYPE_PTR_LST
-    );
-  }
+	private constructor() {}
 
-  public async verify(): Promise<void> {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === TOKEN_LIST) {
-        const categoriesToken = await context.getChildren('HasCategoryToken');
-        for (const category of categoriesToken) {
-          const tokens = await category.getChildren('HasToken');
-          for (const token of tokens) {
-            if (
-              Math.floor(Date.now() / 1000) > token.info?.expieredToken.get()
-            ) {
-              await token.removeFromGraph();
-            }
-          }
-        }
-      }
-    }
-  }
+	static getInstance(): TokensService {
+		if (!this.instance) this.instance = new TokensService();
+		return this.instance;
+	}
 
-  public async getTokens() {
-    const context = await this.graph.getContext(TOKEN_LIST);
-    const categoriesToken = await context.getChildren('HasCategoryToken');
-    var tokenList = [];
-    for (const category of categoriesToken) {
-      if (category.getName().get() === "User Token") {
-        const categoryTokens = await category.getChildren('HasToken');
-        for (const token of categoryTokens) {
-          let info = {
-            id: token.getId().get(),
-            type: token.getType().get(),
-            name: token.getName().get(),
-            token: token.info?.token.get(),
-            createdToken: token.info?.createdToken.get(),
-            expieredToken: token.info?.expieredToken.get(),
-            userId: token.info?.userId.get(),
-            userType: token.info?.userType?.get(),
-          };
-          tokenList.push(info);
-        }
-      } else if (category.getName().get() === "Application Token") {
-        const categoryTokens = await category.getChildren('HasToken');
-        for (const token of categoryTokens) {
-          let info = {
-            id: token.getId().get(),
-            type: token.getType().get(),
-            name: token.getName().get(),
-            token: token.info?.token.get(),
-            createdToken: token.info?.createdToken.get(),
-            expieredToken: token.info?.expieredToken.get(),
-            applicationId: token.info?.applicationId.get(),
-          };
-          tokenList.push(info);
-        }
-      }
+	public async getTokenListContext(): Promise<SpinalContext> {
+		const graph = await SpinalMiddleware.getInstance().getGraph();
+		return graph.getContext(TOKEN_LIST);
+	}
 
-    }
-    return tokenList;
-  }
-  public async getUserTokens() {
-    const context = await this.graph.getContext(TOKEN_LIST);
-    const categoriesToken = await context.getChildren('HasCategoryToken');
-    var tokenList = [];
-    for (const category of categoriesToken) {
-      if (category.getName().get() === 'User Token') {
-        const categoryTokens = await category.getChildren('HasToken');
-        for (const token of categoryTokens) {
-          let info = {
-            id: token.getId().get(),
-            type: token.getType().get(),
-            name: token.getName().get(),
-            token: token.info?.token.get(),
-            createdToken: token.info?.createdToken.get(),
-            expieredToken: token.info?.expieredToken.get(),
-            userId: token.info?.userId.get(),
-            userType: token.info?.userType.get(),
-          };
-          tokenList.push(info);
-        }
-      }
-    }
-    return tokenList;
-  }
-  public async getApplicationTokens() {
-    const context = await this.graph.getContext(TOKEN_LIST);
-    const categoriesToken = await context.getChildren('HasCategoryToken');
-    var tokenList = [];
-    for (const category of categoriesToken) {
-      if (category.getName().get() === 'Application Token') {
-        const categoryTokens = await category.getChildren('HasToken');
-        for (const token of categoryTokens) {
-          let info = {
-            id: token.getId().get(),
-            type: token.getType().get(),
-            name: token.getName().get(),
-            token: token.info?.token.get(),
-            createdToken: token.info?.createdToken.get(),
-            expieredToken: token.info?.expieredToken.get(),
-            userId: token.info?.userId.get(),
-            userType: token.info?.userType.get(),
-          };
-          tokenList.push(info);
-        }
-      }
-    }
-    return tokenList;
-  }
+	public async createTokenListContext(): Promise<SpinalContext> {
+		const graph = await SpinalMiddleware.getInstance().getGraph();
+		let context = new SpinalContext(TOKEN_LIST);
+		return graph.addContext(context);
+	}
 
-  public async getUserProfileByToken(Token: string, platformId: string) {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === TOKEN_LIST) {
-        const categoriesToken = await context.getChildren('HasCategoryToken');
-        for (const category of categoriesToken) {
-          if (category.getName().get() === "User Token") {
-            const tokens = await category.getChildren('HasToken');
-            for (const token of tokens) {
-              if (token.info?.token.get() === Token) {
-                if (token.info?.platformList.get()) {
-                  for (const platform of token.info?.platformList.get()) {
-                    if (platform.platformId === platformId) {
-                      return {
-                        token: Token,
-                        platformId: platformId,
-                        userProfileName: platform.userProfile.userProfileName,
-                        userProfileBosConfigId: platform.userProfile.userProfileBosConfigId,
-                      };
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+	generateTokenKey() {
+		let key = process.env.TOKEN_SECRET || generator.generate({ length: 30, numbers: true, uppercase: true, strict: true });
+		setEnvValue("TOKEN_SECRET", key);
+		return key;
+	}
 
-  public async getAppProfileByToken(Token: string, platformId: string) {
-    const contexts = await this.graph.getChildren('hasContext');
-    for (const context of contexts) {
-      if (context.getName().get() === TOKEN_LIST) {
-        const categoriesToken = await context.getChildren('HasCategoryToken');
-        for (const category of categoriesToken) {
-          if (category.getName().get() === "Application Token") {
-            const tokens = await category.getChildren('HasToken');
-            for (const token of tokens) {
-              if (token.info?.token.get() === Token) {
-                if (token.info?.platformList.get()) {
-                  for (const platform of token.info?.platformList.get()) {
-                    if (platform.platformId === platformId) {
-                      return {
-                        token: Token,
-                        platformId: platformId,
-                        appProfileName: platform.appProfile.appProfileName,
-                        appProfileBosConfigId: platform.appProfile.appProfileBosConfigId,
-                      };
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  public async verifyToken(tokenParam: string, actor: string) {
-    let foundUser: boolean = false, foundApplication: boolean = false
-    const context = await this.graph.getContext(TOKEN_LIST);
-    const categoriesToken = await context.getChildren('HasCategoryToken');
-    for (const category of categoriesToken) {
-      if (actor === "user" && category.getName().get() === "User Token") {
-        const categoryTokens = await category.getChildren('HasToken');
-        for (const token of categoryTokens) {
-          if (token.info.token.get() === tokenParam) {
-            foundUser = true;
-            if (Math.floor(Date.now() / 1000) < token.info.expieredToken.get()) {
-              let info = {
-                token: token.info.token.get(),
-                createdToken: token.info.createdToken.get(),
-                expieredToken: token.info.expieredToken.get(),
-                status: 'token valid'
-              };
-              return info
-            } else {
-              throw new OperationError(
-                'TOKEN_EXPIRED',
-                HttpStatusCode.UNAUTHORIZED
-              );
-            }
-          }
-        }
-        if (foundUser === false) {
-          throw new OperationError(
-            'UNKNOWN_TOKEN',
-            HttpStatusCode.UNAUTHORIZED
-          );
-        }
-      }
-      else if (actor === "application" && category.getName().get() === "Application Token") {
-        const categoryTokens = await category.getChildren('HasToken');
-        for (const token of categoryTokens) {
-          if (token.info.token.get() === tokenParam) {
-            foundApplication = true;
-            if (Math.floor(Date.now() / 1000) < token.info.expieredToken.get()) {
-              let info = {
-                token: token.info.token.get(),
-                createdToken: token.info.createdToken.get(),
-                expieredToken: token.info.expieredToken.get(),
-                status: 'token valid'
-              };
-              return info
-            } else {
-              throw new OperationError(
-                'TOKEN_EXPIRED',
-                HttpStatusCode.UNAUTHORIZED
-              );
-            }
-          }
-        }
-        if (foundApplication === false) {
-          throw new OperationError(
-            'UNKNOWN_TOKEN',
-            HttpStatusCode.UNAUTHORIZED
-          );
-        }
+	public async createToken(node: SpinalNode, tokenData: any, platformList: any[], actor: "user" | "application") {
+		const secret = this.generateTokenKey();
+		let token = jwt.sign(tokenData, secret, { expiresIn: "24h" });
+		let decodedToken: any = jwt_decode(token);
 
-      }
-    }
-  }
+		const tokenNode = new SpinalNode(`token_${node.getName().get()}`, TOKEN_TYPE);
+		tokenNode.info.add_attr({
+			token: token,
+			createdToken: decodedToken.iat,
+			expieredToken: decodedToken.exp,
+			...(actor === "application" && { applicationId: node.getId().get() }),
+			...(actor === "user" && { userId: node.getId().get() }),
+			platformList: platformList || [],
+		});
+
+		const context = await this.getTokenListContext();
+		let tokenCategory = await this.getTokenCategory(actor);
+
+		return tokenCategory.addChildInContext(tokenNode, AUTH_SERVICE_TOKEN_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
+	}
+
+	public async getTokenCategory(actor: "user" | "application"): Promise<SpinalNode> {
+		const context = await this.getTokenListContext();
+		const categoriesToken = await context.getChildren(AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME);
+		const type = actor === "user" ? USER_TOKEN_CATEGORY_TYPE : APPLICATION_TOKEN_CATEGORY_TYPE;
+		return categoriesToken.find((el) => el.getType().get() === type);
+	}
+
+	public async createTokenTree(): Promise<SpinalNode[]> {
+		const context = await this.getTokenListContext();
+		const userTokenCategory = new SpinalNode("User Token", USER_TOKEN_CATEGORY_TYPE);
+		const appTokenCategory = new SpinalNode("Application Token", APPLICATION_TOKEN_CATEGORY_TYPE);
+		let promises = [context.addChildInContext(userTokenCategory, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST), context.addChildInContext(userTokenCategory, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)];
+
+		return Promise.all(promises);
+	}
+
+	public async verify(): Promise<any[]> {
+		const tokens = await this.getAllTokensNode();
+		const promises = tokens.map((token) => {
+			if (Math.floor(Date.now() / 1000) > token.info?.expieredToken.get()) return token.removeFromGraph();
+		});
+
+		return Promise.all(promises);
+	}
+
+	public async getTokens() {
+		const tokens = await this.getAllTokensNode();
+		return tokens.map(this._formatToken);
+	}
+
+	public async getUserTokens() {
+		const userTokens = await this._getUserTokensNode();
+		return userTokens.map(this._formatToken);
+	}
+
+	public async getApplicationTokens() {
+		const appTokens = await this._getApplicationTokensNode();
+		return appTokens.map(this._formatToken);
+	}
+
+	public async getUserProfileByToken(Token: string, platformId: string) {
+		const tokens = await this._getUserTokensNode();
+		const token = tokens.find((el) => el.info?.token.get() === Token);
+
+		if (!token || !token.info?.platformList) return;
+		const platforms = token.info.platformList.get();
+		const platform = platforms.find((el) => el.platformId === platformId);
+		if (!platform) return;
+
+		return {
+			token: Token,
+			platformId: platformId,
+			userProfileName: platform.userProfile.userProfileName,
+			userProfileBosConfigId: platform.userProfile.userProfileBosConfigId,
+		};
+	}
+
+	public async getAppProfileByToken(Token: string, platformId: string) {
+		const tokens = await this._getApplicationTokensNode();
+		const token = tokens.find((el) => el.info?.token.get() === Token);
+		if (!token || token.info?.platformList) return;
+		const platforms = token.info.platformList.get();
+		const platform = platforms.find((el) => el.platformId === platformId);
+		if (!platform) return;
+		return {
+			token: Token,
+			platformId: platformId,
+			appProfileName: platform.appProfile.appProfileName,
+			appProfileBosConfigId: platform.appProfile.appProfileBosConfigId,
+		};
+	}
+
+	public async verifyToken(tokenParam: string, actor: string) {
+		const tokens = await (actor === "user" ? this._getUserTokensNode() : this._getApplicationTokensNode());
+		const token = tokens.find((el) => el.info?.token?.get() === tokenParam);
+		if (!token) throw new OperationError("UNKNOWN_TOKEN", HttpStatusCode.UNAUTHORIZED);
+
+		if (Math.floor(Date.now() / 1000) > token.info.expieredToken.get()) throw new OperationError("TOKEN_EXPIRED", HttpStatusCode.UNAUTHORIZED);
+
+		return {
+			token: token.info.token.get(),
+			createdToken: token.info.createdToken.get(),
+			expieredToken: token.info.expieredToken.get(),
+			status: "token valid",
+		};
+	}
+
+	public async getTokenInfo(tokenParam: string) {
+		const tokens = await this.getAllTokensNode();
+		const token = tokens.find((el) => el.info?.token?.get() === tokenParam);
+		if (token) return this._formatToken(token);
+	}
+
+	/////////////////////////////// PURGE //////////////////////////////////////
+
+	public async purgeInvalidToken() {
+		const tokens = await this.getAllTokensNode();
+		const now = Math.floor(Date.now() / 1000);
+		const promises = tokens.map(async (token) => {
+			if (now >= token.info.expieredToken.get()) return token.removeFromGraph();
+		});
+
+		return Promise.all(promises);
+	}
+
+	private getAllTokensNode(): Promise<SpinalNode[]> {
+		return Promise.all([this._getApplicationTokensNode(), this._getUserTokensNode()]).then((result) => {
+			return result.flat();
+		});
+	}
+
+	private async _getUserTokensNode(): Promise<SpinalNode[]> {
+		const graph = await SpinalMiddleware.getInstance().getGraph();
+		const context = await graph.getContext(TOKEN_LIST);
+		const categoriesToken = await context.getChildren(AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME);
+		const userTokenCategory = categoriesToken.find((el) => el.getName().get() === "User Token");
+		if (!userTokenCategory) return [];
+
+		return userTokenCategory.getChildren(AUTH_SERVICE_TOKEN_RELATION_NAME);
+	}
+
+	private async _getApplicationTokensNode() {
+		const graph = await SpinalMiddleware.getInstance().getGraph();
+		const context = await graph.getContext(TOKEN_LIST);
+		const categoriesToken = await context.getChildren(AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME);
+		const applicationTokenCategory = categoriesToken.find((el) => el.getName().get() === "Application Token");
+		if (!applicationTokenCategory) return [];
+
+		return applicationTokenCategory.getChildren(AUTH_SERVICE_TOKEN_RELATION_NAME);
+	}
+
+	private _formatToken(token: SpinalNode) {
+		return {
+			id: token.getId().get(),
+			type: token.getType().get(),
+			name: token.getName().get(),
+			token: token.info?.token?.get(),
+			createdToken: token.info?.createdToken?.get(),
+			expieredToken: token.info?.expieredToken?.get(),
+			userId: token.info?.userId?.get(),
+			userType: token.info?.userType?.get(),
+			applicationId: token.info?.applicationId?.get(),
+		};
+	}
 }
 
 // 'UNKNOWN_TOKEN'

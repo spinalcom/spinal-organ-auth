@@ -22,68 +22,84 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { spinalCore, FileSystem, Model } from 'spinal-core-connectorjs_type';
-import { SpinalGraphService } from 'spinal-env-viewer-graph-service';
-import { SpinalContext, SpinalGraph, SpinalNode } from 'spinal-model-graph';
-import { AuthGraphService } from './services/authGraphService';
-import { store } from './utilities/utilitiesFunctions';
+import { spinalCore, FileSystem, Model } from "spinal-core-connectorjs_type";
+import { SpinalGraphService } from "spinal-env-viewer-graph-service";
+import { SpinalContext, SpinalGraph, SpinalNode } from "spinal-model-graph";
+import { store } from "./utilities/utilitiesFunctions";
 
-import config from './config';
+import config from "./config";
 import ConfigFile from "spinal-lib-organ-monitoring";
 
 class SpinalMiddleware {
-  static instance: SpinalMiddleware = null;
-  conn: spinal.FileSystem;
+	static instance: SpinalMiddleware = null;
+	conn: spinal.FileSystem;
+	configFilePath: string = "/__users__/admin/ADMIN_config";
+	iteratorGraph = this.geneGraph();
 
-  static getInstance() {
-    if (SpinalMiddleware.instance === null) {
-      SpinalMiddleware.instance = new SpinalMiddleware();
-    }
-    return SpinalMiddleware.instance;
-  }
-  constructor() {
-    // connection string to connect to spinalhub
-    const connect_opt = `http://${config.spinalConnector.user}:${config.spinalConnector.password}@${config.spinalConnector.host}:${config.spinalConnector.port}/`;
-    // FileSystem._disp = true;
-    // initialize the connection
-    this.conn = spinalCore.connect(connect_opt);
-  }
+	static getInstance() {
+		if (SpinalMiddleware.instance === null) {
+			SpinalMiddleware.instance = new SpinalMiddleware();
+		}
+		return SpinalMiddleware.instance;
+	}
+	private constructor() {
+		// connection string to connect to spinalhub
+		const connect_opt = `http://${config.spinalConnector.user}:${config.spinalConnector.password}@${config.spinalConnector.host}:${config.spinalConnector.port}/`;
+		// initialize the connection
+		this.conn = spinalCore.connect(connect_opt);
+	}
 
-  async init() {
-    return new Promise<void>((resolve, reject) => {
-      // get the Model from the spinalhub, "onLoadSuccess" and "onLoadError" are 2
-      // callback function.
-      spinalCore.load(
-        this.conn,
-        '/__users__/admin/ADMIN_config',
-        this.onLoadSuccess.bind(this, resolve),
-        this.onLoadError.bind(this, resolve, reject)
-      );
-    });
-  }
+	private async *geneGraph(): AsyncGenerator<SpinalGraph<any>, never> {
+		const init = new Promise<SpinalGraph<any>>((resolve, reject) => {
+			spinalCore.load(
+				this.conn,
+				this.configFilePath,
+				(graph: any) => resolve(graph),
 
-  onLoadError(resolve, reject): void {
-    const graph = new SpinalGraph();
-    store(
-      this.conn,
-      graph,
-      '/__users__/admin/ADMIN_config',
-      () => {
-        this.onLoadSuccess(resolve, graph);
-      },
-      () => {
-        reject('IS NOT ABLE TO CONNECT TO HUB');
-      }
-    );
-  }
-  async onLoadSuccess(resolve: () => void, graph: SpinalGraph<any>) {
-    await SpinalGraphService.setGraph(graph);
-    await ConfigFile.init(this.conn, config.spinalConnector.organName, "Spinal-organ-auth", config.spinalConnector.host, parseInt(config.spinalConnector.port as string));
-    resolve();
-  }
+				() => {
+					const graph = new SpinalGraph();
+					store(
+						this.conn,
+						graph,
+						this.configFilePath,
+						() => resolve(graph),
+						() => reject("IS NOT ABLE TO CONNECT TO HUB")
+					);
+				}
+			);
+		});
 
-  getGraph(): SpinalGraph<any> {
-    return SpinalGraphService.getGraph();
-  }
+		const graph = await init;
+		while (true) {
+			yield graph;
+		}
+	}
+
+	// onLoadError(resolve, reject): void {
+	// 	const graph = new SpinalGraph();
+	// 	store(
+	// 		this.conn,
+	// 		graph,
+	// 		this.configFilePath,
+	// 		() => {
+	// 			this.onLoadSuccess(resolve, graph);
+	// 		},
+	// 		() => {
+	// 			reject("IS NOT ABLE TO CONNECT TO HUB");
+	// 		}
+	// 	);
+	// }
+
+	// async onLoadSuccess(resolve: () => void, graph: SpinalGraph<any>) {
+	// 	await SpinalGraphService.setGraph(graph);
+	// 	this.graph = graph;
+	// 	await ConfigFile.init(this.conn, config.spinalConnector.organName, "Spinal-organ-auth", config.spinalConnector.host, parseInt(config.spinalConnector.port as string));
+	// 	resolve();
+	// }
+
+	async getGraph(): Promise<SpinalGraph> {
+		const g = await this.iteratorGraph.next();
+		return g.value;
+	}
 }
 export default SpinalMiddleware;

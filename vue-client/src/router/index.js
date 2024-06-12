@@ -38,11 +38,12 @@ import EditUser from '@/views/EditUser';
 import Logs from '@/views/Logs';
 import Login from '@/views/Login';
 import EditPlatform from '@/views/EditPlatform'
+import { isAuthenticate } from './genToken';
 
 Vue.use(Router);
 
-export default new Router({
-  routes: [
+
+const routes = [
     {
       path: '/',
       name: 'Dashboard',
@@ -114,4 +115,18 @@ export default new Router({
     },
     
   ]
+
+const router = new Router({
+  routes,
+  mode: 'history'
 });
+
+router.beforeEach(async (to, from, next) => {
+  const isAuth = await isAuthenticate();
+  if (to.name === 'Login' && isAuth) return next({ name: 'Dashboard' });
+  if (!isAuth && to.name !== 'Login') return next({ name: 'Login' });
+  return next();
+ });
+
+export default router;
+export {router}

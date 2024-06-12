@@ -94,6 +94,23 @@ export default {
       }
     },
 
+    async updateUserPassword({ commit }, {userId, body}) {
+
+      const rep = await instanceAxios.instanceAxios.put(
+        `/users/${userId}/updatePassword`,
+        body,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": localStorage.getItem("token"),
+          }
+        }
+      );
+      if (rep) {
+        router.push("/Users");
+      }
+    },
+
 
 
     async getplatformList({ commit }) {
