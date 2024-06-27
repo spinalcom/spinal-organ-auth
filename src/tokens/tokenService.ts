@@ -58,7 +58,7 @@ export class TokensService {
 		return graph.addContext(context);
 	}
 
-	generateTokenKey() {
+	public generateTokenKey() {
 		let key = process.env.TOKEN_SECRET || generator.generate({ length: 30, numbers: true, uppercase: true, strict: true });
 		setEnvValue("TOKEN_SECRET", key);
 		return key;
@@ -101,14 +101,14 @@ export class TokensService {
 		return Promise.all(promises);
 	}
 
-	public async verify(): Promise<any[]> {
-		const tokens = await this.getAllTokensNode();
-		const promises = tokens.map((token) => {
-			if (Math.floor(Date.now() / 1000) > token.info?.expieredToken.get()) return token.removeFromGraph();
-		});
+	// public async verify(): Promise<any[]> {
+	// 	const tokens = await this.getAllTokensNode();
+	// 	const promises = tokens.map((token) => {
+	// 		if (Math.floor(Date.now() / 1000) > token.info?.expieredToken.get()) return token.removeFromGraph();
+	// 	});
 
-		return Promise.all(promises);
-	}
+	// 	return Promise.all(promises);
+	// }
 
 	public async getTokens() {
 		const tokens = await this.getAllTokensNode();
@@ -124,6 +124,31 @@ export class TokensService {
 		const appTokens = await this._getApplicationTokensNode();
 		return appTokens.map(this._formatToken);
 	}
+
+	public async verifyToken(tokenParam: string, actor: string) {
+		const tokens = await (actor === "user" ? this._getUserTokensNode() : this._getApplicationTokensNode());
+		const token = tokens.find((el) => el.info?.token?.get() === tokenParam);
+		if (!token) throw new OperationError("UNKNOWN_TOKEN", HttpStatusCode.UNAUTHORIZED);
+
+		const expirationDate = token.info.expieredToken.get() * 1000;
+		const now = Date.now();
+		if (Date.now() > expirationDate) throw new OperationError("TOKEN_EXPIRED", HttpStatusCode.UNAUTHORIZED);
+
+		return {
+			token: token.info.token.get(),
+			createdToken: token.info.createdToken.get(),
+			expieredToken: token.info.expieredToken.get(),
+			status: "token valid",
+		};
+	}
+
+	public async getTokenInfo(tokenParam: string) {
+		const tokens = await this.getAllTokensNode();
+		const token = tokens.find((el) => el.info?.token?.get() === tokenParam);
+		if (token) return this._formatToken(token);
+	}
+
+	/////////////////////////////// PROFILE //////////////////////////////////////
 
 	public async getUserProfileByToken(Token: string, platformId: string) {
 		const tokens = await this._getUserTokensNode();
@@ -157,25 +182,17 @@ export class TokensService {
 		};
 	}
 
-	public async verifyToken(tokenParam: string, actor: string) {
-		const tokens = await (actor === "user" ? this._getUserTokensNode() : this._getApplicationTokensNode());
-		const token = tokens.find((el) => el.info?.token?.get() === tokenParam);
-		if (!token) throw new OperationError("UNKNOWN_TOKEN", HttpStatusCode.UNAUTHORIZED);
+	public async removeToken(token: string | SpinalNode): Promise<boolean> {
+		try {
+			token = token instanceof SpinalNode ? token : (await this.getAllTokensNode(token))[0];
 
-		if (Math.floor(Date.now() / 1000) > token.info.expieredToken.get()) throw new OperationError("TOKEN_EXPIRED", HttpStatusCode.UNAUTHORIZED);
+			if (!token) return false;
 
-		return {
-			token: token.info.token.get(),
-			createdToken: token.info.createdToken.get(),
-			expieredToken: token.info.expieredToken.get(),
-			status: "token valid",
-		};
-	}
-
-	public async getTokenInfo(tokenParam: string) {
-		const tokens = await this.getAllTokensNode();
-		const token = tokens.find((el) => el.info?.token?.get() === tokenParam);
-		if (token) return this._formatToken(token);
+			await token.removeFromGraph();
+			return true;
+		} catch (error) {
+			return false;
+		}
 	}
 
 	/////////////////////////////// PURGE //////////////////////////////////////
@@ -184,15 +201,16 @@ export class TokensService {
 		const tokens = await this.getAllTokensNode();
 		const now = Math.floor(Date.now() / 1000);
 		const promises = tokens.map(async (token) => {
-			if (now >= token.info.expieredToken.get()) return token.removeFromGraph();
+			if (now >= token.info.expieredToken.get()) return this.removeToken(token);
 		});
 
 		return Promise.all(promises);
 	}
 
-	private getAllTokensNode(): Promise<SpinalNode[]> {
+	public getAllTokensNode(token?: string): Promise<SpinalNode[]> {
 		return Promise.all([this._getApplicationTokensNode(), this._getUserTokensNode()]).then((result) => {
-			return result.flat();
+			if (!token) return result.flat();
+			return result.flat().filter((el) => el.info?.token?.get() === token);
 		});
 	}
 

@@ -30,7 +30,7 @@ import { HttpStatusCode } from "../utilities/http-status-code";
 
 @Route("users")
 export class UsersController extends Controller {
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@SuccessResponse("201", "Created") // Custom success response
 	@Post()
 	public async createUser(@Body() requestBody: IUserCreationParams): Promise<IUser | { error: string }> {
@@ -44,7 +44,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Get()
 	public async getUsers(): Promise<IUser[] | { error: string }> {
 		try {
@@ -57,7 +57,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["ownData"])
 	@Get("{userId}")
 	public async getUser(@Path() userId: string): Promise<IUser | { error: string }> {
 		try {
@@ -70,7 +70,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Delete("{userId}")
 	public async deleteUser(@Path() userId: string): Promise<void | { error?: string; message?: string }> {
 		try {
@@ -83,7 +83,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Put("{userId}")
 	public async updateUser(@Path() userId: string, @Body() requestBody: IUserUpdateParams): Promise<IUser | { error: string }> {
 		try {
@@ -96,7 +96,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Put("{userId}/updatePassword")
 	public async updateUserPassword(@Path() userId: string, @Body() requestBody: IUpdateUserPassword): Promise<any | { error: string }> {
 		try {
@@ -109,7 +109,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Put()
 	public async updateAuthAdmin(@Body() requestBody: IAuthAdminUpdateParams): Promise<IUser | { error: string }> {
 		try {
@@ -122,7 +122,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	// @Security('jwt')
+	@Security("jwt", ["authAdmin"])
 	@Post("/getAuthAdmin")
 	public async getAuthAdmin(): Promise<IUser | { error: string }> {
 		try {
@@ -135,7 +135,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Post("/userProfilesList")
 	public async userProfilesList(): Promise<any[] | { error: string }> {
 		try {
@@ -148,6 +148,7 @@ export class UsersController extends Controller {
 		}
 	}
 
+	@Security("all")
 	@Post("/login")
 	public async login(@Body() requestBody: IUserLoginParams): Promise<IUserToken | { error: string }> {
 		try {
@@ -160,6 +161,7 @@ export class UsersController extends Controller {
 		}
 	}
 
+	@Security("all")
 	@Post("/loginAuthAdmin")
 	public async loginAuthAdmin(@Body() requestBody: IUserLoginParams): Promise<IUserToken | { error: string }> {
 		try {
@@ -180,6 +182,7 @@ export class UsersController extends Controller {
 	// }
 
 	// @Security("jwt")
+	@Security("all")
 	@Post("/getRoles")
 	public async getRoles(): Promise<{ name: string }[] | { error: string }> {
 		try {
@@ -191,7 +194,8 @@ export class UsersController extends Controller {
 			return { error: error.message };
 		}
 	}
-	@Security("jwt")
+
+	@Security("jwt", ["authAdmin"])
 	@Get("{userId}/userLogs")
 	public async getUserLogs(@Path() userId: string): Promise<IUserLogs[] | { error: string }> {
 		try {

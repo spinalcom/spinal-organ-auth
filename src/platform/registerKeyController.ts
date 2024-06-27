@@ -29,7 +29,7 @@ import { HttpStatusCode } from "../utilities/http-status-code";
 
 @Route("registerKey")
 export class RegisterKeyController extends Controller {
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Post()
 	public async updateRegisterKeyNode(): Promise<IRegisterKeyObject | { error: string }> {
 		try {
@@ -42,7 +42,7 @@ export class RegisterKeyController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Get()
 	public async getRegisterKeyNode(): Promise<IRegisterKeyObject | { error: string }> {
 		try {

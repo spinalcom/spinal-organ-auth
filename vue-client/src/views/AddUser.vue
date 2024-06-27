@@ -26,17 +26,19 @@
           <InputUser title="EMAIL" id="Email" v-model="formUser.email" />
           <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formUser.email.required">Un Email est
             requis</span>
-          <InputUser title="TELEPHONE" id="telephone" v-model="formUser.telephone" />
-          <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formUser.telephone.required">Un numero de
-            téléphone est requis</span>
-          <span class="errors" :class="{ 'showspan': iserrors }" v-else-if="!$v.formUser.telephone.numeric">Le numéro de
+          
+          
+          <SelectUser title="TYPE D'UTILISATEUR" id="userType" :tab="userType" v-model="formUser.userType" />
+
+
+            <InputUser title="TELEPHONE" id="telephone" v-model="formUser.telephone" />
+          
+          <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formUser.telephone.numeric">Le numéro de
             téléphone doit être composé uniquement de chiffre.</span>
           <span class="errors" :class="{ 'showspan': iserrors }" v-else-if="!$v.formUser.telephone.minLength">Le numero
             de telephone est invalide</span>
           <TextareaUser title="INFORMATION" id="information" v-model="formUser.info" />
-          <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formUser.info.required">Une information est
-            requise</span>
-          <SelectUser title="TYPE D'UTILISATEUR" id="userType" :tab="userType" v-model="formUser.userType" />
+         
           <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formUser.userType.required">
             The user type is required
           </span>
@@ -85,20 +87,22 @@ export default {
         userName: null,
         password: null,
         confirm_password: null,
-        telephone: null,
+        telephone: "",
         email: null,
-        info: null,
+        info: "",
         userType: null,
       },
       error_platform: false,
       iserrors: true,
-      userType: [{
-        name: 'Simple User'
+      userType: [
+        {
+          name: "Simple User",
       },
       {
-        name: 'Super User'
-      }],
-      conf_pass : false,
+          name: "Super User",
+        },
+      ],
+      conf_pass: false,
     };
   },
 
@@ -121,10 +125,10 @@ export default {
         email
       },
       info: {
-        required,
+        // required,
       },
       telephone: {
-        required,
+        // required,
         numeric,
         minLength: minLength(8)
       },

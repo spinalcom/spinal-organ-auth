@@ -120,3 +120,4 @@ export enum EVENTS_REQUEST_NAMES {
 }
 
 export const AUTH_ADMIN_NAME = "authAdmin";
+export const AUTH_ADMIN_SCOPE = "authAdmin";

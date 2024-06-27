@@ -35,6 +35,7 @@ interface IUpdateParams {
 }
 @Route("register")
 export class RegisterController extends Controller {
+	@Security("all")
 	@SuccessResponse("201", "Created") // Custom success response
 	@Post()
 	public async registerPlatform(@Body() object: IRegisterParams): Promise<any> {
@@ -48,6 +49,7 @@ export class RegisterController extends Controller {
 		}
 	}
 
+	@Security("jwt", ["ownData"])
 	@SuccessResponse("201", "Updated") // Custom success response
 	@Put()
 	public async updatePlatform(@Body() object): Promise<any> {

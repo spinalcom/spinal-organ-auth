@@ -33,7 +33,7 @@ let applicationService = ApplicationService.getInstance();
 
 @Route("applications")
 export class ApplicationsController extends Controller {
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@SuccessResponse("201", "Created") // Custom success response
 	@Post()
 	public async createApplication(@Body() requestBody: IApplicationCreationParams): Promise<IApplication | { error: string }> {
@@ -47,7 +47,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Get()
 	public async getApplications(): Promise<any[] | { error: string }> {
 		try {
@@ -60,7 +60,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["ownData"])
 	@Get("{applicationId}")
 	public async getApplication(@Path() applicationId: string): Promise<IApplication | { error: string }> {
 		try {
@@ -73,7 +73,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Delete("{applicationId}")
 	public async deleteApplication(@Path() applicationId: string): Promise<void | { message?: string; error?: string }> {
 		try {
@@ -86,7 +86,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Put("{applicationId}")
 	public async updateApplication(@Path() applicationId: string, @Body() requestBody: IApplicationUpdateParams): Promise<IApplication | { error: string }> {
 		try {
@@ -100,6 +100,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
+	@Security("all")
 	@Post("/login")
 	public async login(@Body() requestBody: IApplicationLoginParams): Promise<IApplicationToken | { error: string }> {
 		try {
@@ -112,7 +113,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Get("{applicationId}/applicationLogs")
 	public async getApplicationLogs(@Path() applicationId: string): Promise<IApplicationLogs[] | { error: string }> {
 		try {

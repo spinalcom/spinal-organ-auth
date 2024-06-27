@@ -21,39 +21,24 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Path,
-  Post,
-  Put,
-  Query,
-  Route,
-  Security,
-  SuccessResponse,
-} from 'tsoa';
-import {
-  INotification,
-  INotificationCreationParams
-} from './notification.model';
-import { NotificationService } from './notificationServices';
-import { HttpStatusCode } from '../utilities/http-status-code';
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
+import { INotification, INotificationCreationParams } from "./notification.model";
+import { NotificationService } from "./notificationServices";
+import { HttpStatusCode } from "../utilities/http-status-code";
 
-@Route('notification')
+@Route("notification")
 export class NotificationController extends Controller {
-  @SuccessResponse('201', 'Created') // Custom success response
-  @Post()
-  public async createNotification(@Body() object: INotificationCreationParams): Promise<INotification|{error: string}> {
-    try {
-      // let platform = new PlatformService().registerNewPlatform(object);
-      this.setStatus(HttpStatusCode.OK); // set return status 201rt
-      return;
-    } catch (error) {
-      this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      return { error: error.message };
-    }
-  }
+	@Security("jwt", ["authAdmin"])
+	@SuccessResponse("201", "Created") // Custom success response
+	@Post()
+	public async createNotification(@Body() object: INotificationCreationParams): Promise<INotification | { error: string }> {
+		try {
+			// let platform = new PlatformService().registerNewPlatform(object);
+			this.setStatus(HttpStatusCode.OK); // set return status 201rt
+			return;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 }
-

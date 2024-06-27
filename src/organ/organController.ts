@@ -29,7 +29,7 @@ import { HttpStatusCode } from "../utilities/http-status-code";
 
 @Route("organs")
 export class OrgansController extends Controller {
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@SuccessResponse("201", "Created") // Custom success response
 	@Post("{platformId}")
 	public async createOrgan(@Body() requestBody: IOrganCreationParams): Promise<IOrgan | { error: string }> {
@@ -43,7 +43,7 @@ export class OrgansController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Get("{platformId}")
 	public async getOrgans(@Path() platformId: string): Promise<IOrgan[] | { error: string }> {
 		try {
@@ -56,7 +56,7 @@ export class OrgansController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Put("{organId}")
 	public async updatePlateform(@Path() organId: string, @Body() requestBody: IOrganUpdateParams): Promise<IOrgan | { error: string }> {
 		try {

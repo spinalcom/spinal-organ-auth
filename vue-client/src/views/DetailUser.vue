@@ -260,7 +260,7 @@ export default {
     },
 
     editUserPassWord() {
-      if (this.old_password.length > 8 && this.password.length > 8) {
+      if (this.old_password.length >= 8 && this.password.length >= 8) {
         const body = {
           oldPassword: this.old_password,
           newPassword: this.password,

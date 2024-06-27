@@ -27,28 +27,36 @@ import * as jwt from "jsonwebtoken";
 import { AuthError } from "./AuthError";
 import { HttpStatusCode } from "../utilities/http-status-code";
 import { TokensService } from "../tokens/tokenService";
+import { AUTH_ADMIN_SCOPE } from "../constant";
+import { User } from "spinal-core-connectorjs";
+import { UserService } from "../authUser/userService";
 
-export function expressAuthentication(request: express.Request, securityName: string, scopes?: string[]): Promise<any> {
-	if (securityName !== "jwt") return;
+export async function expressAuthentication(request: express.Request, securityName: string, scopes?: string[]): Promise<any> {
+	try {
+		if (securityName === "all") return;
 
-	const token = getToken(request);
+		const token = getToken(request);
+		if (!token) throw new AuthError(HttpStatusCode.UNAUTHORIZED, "No token provided");
 
-	if (!token) throw new AuthError(HttpStatusCode.UNAUTHORIZED, "No token provided");
-
-	return new Promise((resolve, reject) => {
 		const secret = TokensService.getInstance().generateTokenKey();
-		jwt.verify(token, secret, function (err: any, decoded: any) {
-			if (err) return reject(new AuthError(HttpStatusCode.UNAUTHORIZED, err.message));
+		const decoded: any = await jwt.verify(token, secret);
 
-			for (let scope of scopes) {
-				if (!decoded.scopes.includes(scope)) {
-					return reject(new AuthError(HttpStatusCode.UNAUTHORIZED, "JWT does not contain required scope."));
-				}
-			}
+		if (scopes.includes(AUTH_ADMIN_SCOPE)) {
+			const isAdmin = await UserService.getInstance().isAuthAdmin(decoded.userId);
+			if (!isAdmin) throw new AuthError(HttpStatusCode.UNAUTHORIZED, "Unauthorized request");
+		}
+		return decoded;
+	} catch (error) {
+		throw new AuthError(HttpStatusCode.UNAUTHORIZED, error.message);
+	}
 
-			return resolve(decoded);
-		});
-	});
+	// for (let scope of scopes) {
+	// 	if (!decoded.scopes.includes(scope)) {
+	// 		return reject(new AuthError(HttpStatusCode.UNAUTHORIZED, "JWT does not contain required scope."));
+	// 	}
+	// }
+
+	// return resolve(decoded);
 }
 
 export function getToken(request: express.Request): string {

@@ -29,7 +29,7 @@ import { HttpStatusCode } from "../utilities/http-status-code";
 
 @Route("tokens")
 export class TokensController extends Controller {
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Get("")
 	public async getTokens(): Promise<IToken[] | { error: string }> {
 		try {
@@ -42,7 +42,7 @@ export class TokensController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Get("/UserToken")
 	public async getUserTokens(): Promise<IToken[] | { error: string }> {
 		try {
@@ -55,7 +55,7 @@ export class TokensController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Get("/ApplicationToken")
 	public async getApplicationTokens(): Promise<IToken[] | { error: string }> {
 		try {
@@ -68,7 +68,7 @@ export class TokensController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Post("/getUserProfileByToken")
 	public async getUserProfileByToken(@Body() requestBody: any): Promise<any> {
 		try {
@@ -81,7 +81,7 @@ export class TokensController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin"])
 	@Post("/getAppProfileByToken")
 	public async getAppProfileByToken(@Body() requestBody: any): Promise<any> {
 		try {

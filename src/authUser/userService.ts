@@ -111,19 +111,16 @@ export class UserService {
 		return context.addChildInContext(userNode, AUTH_SERVICE_USER_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
 	}
 
+	public async isAuthAdmin(id: string) {
+		const authAdmin = await this.getAuthAdmin();
+		return authAdmin.id === id;
+	}
+
 	public async login(userLoginParams: IUserLoginParams): Promise<IUserToken> {
-		const users = await this.getUserNodes();
-		const user = users.find((user) => user.info.userName.get() === userLoginParams.userName);
+		const user = await this.getUserByCredentials(userLoginParams.userName, userLoginParams.password);
 
 		if (!user) {
 			await LogsService.getInstance().createLog(undefined, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.USER_NOT_VALID, EVENTS_REQUEST_NAMES.USER_NOT_VALID);
-			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
-		}
-
-		const valid = await bcrypt.compare(userLoginParams.password, user.info.password.get());
-
-		if (!valid) {
-			await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.USER_VALID_UNKNOWN_PASSWORD, EVENTS_REQUEST_NAMES.USER_VALID_UNKNOWN_PASSWORD);
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 		}
 
@@ -142,9 +139,22 @@ export class UserService {
 		};
 	}
 
+	public async getUserByCredentials(userName: string, password: string): Promise<SpinalNode> {
+		const users = await this.getUserNodes();
+		const user = users.find((user) => user.info.userName.get() === userName);
+
+		if (!user) return null;
+
+		const valid = await bcrypt.compare(password, user.info.password.get());
+
+		if (!valid) return null;
+
+		return user;
+	}
+
 	public async loginAuthAdmin(userLoginParams: IUserLoginParams): Promise<IUserToken> {
 		const users = await this.getUserNodes();
-		const user = users.find((user) => user.info.userName.get() === AUTH_ADMIN_NAME);
+		const user = users.find((user) => user.info.userName?.get() === AUTH_ADMIN_NAME && user.info.userName.get() === userLoginParams.userName);
 
 		if (!user) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 
@@ -368,7 +378,7 @@ export class UserService {
 		const users = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
 		if (!userId) return users;
 
-		return users.filter((user) => user.info.username?.get() === userId || user.getId().get() === userId);
+		return users.filter((user) => user.info.userName?.get() === userId || user.getId().get() === userId);
 	}
 
 	private async _getUserPlatforms(user: SpinalNode): Promise<{ platform: SpinalNode; profile: SpinalNode }[]> {
