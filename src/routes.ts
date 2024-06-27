@@ -462,7 +462,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/applications/:applicationId',
-            authenticateMiddleware([{"jwt":["authAdmin:read",null]}]),
+            authenticateMiddleware([{"jwt":["authAdmin:read","ownData:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(ApplicationsController)),
             ...(fetchMiddlewares<RequestHandler>(ApplicationsController.prototype.getApplication)),
 
@@ -643,7 +643,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/users/:userId',
-            authenticateMiddleware([{"jwt":["authAdmin:read",null]}]),
+            authenticateMiddleware([{"jwt":["authAdmin:read","ownData:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getUser)),
 

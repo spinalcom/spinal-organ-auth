@@ -15,4 +15,4 @@ REGISTER_KEY="" # will be generated if not provided
 
 # server info
 REQUESTS_PORT=''
-LIMIT_LOG="300" # limit of logs in request event log
+LIMIT_LOG="300"

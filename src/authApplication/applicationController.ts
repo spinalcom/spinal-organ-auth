@@ -61,7 +61,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read", SCOPES["ownData:read"]])
+	@Security("jwt", ["authAdmin:read", "ownData:read"])
 	@Get("{applicationId}")
 	public async getApplication(@Path() applicationId: string): Promise<IApplication | { error: string }> {
 		try {
