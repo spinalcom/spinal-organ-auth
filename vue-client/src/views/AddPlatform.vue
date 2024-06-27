@@ -1,45 +1,39 @@
 <template>
   <v-app>
     <v-main>
-      <BackupInformation title="AJOUTER UNE APPLICATION">
+      <BackupInformation title="AJOUTER UNE PLATEFORME">
         <form class="formulaire" novalidate @submit.prevent="validateApp">
-          <p>Rentrez les informations de l’application.</p>
+          <p>Rentrez les informations de la plateforme.</p>
           <InputUser
-            title="NOM DE L'APPLICATION"
+            title="NOM DE LA PLATEFORME"
             id="appName"
-            v-model="formApp.appName"
+            v-model="formApp.name"
           />
           <span
             class="errors"
             :class="{ showspan: iserrors }"
-            v-if="!$v.formApp.appName.required"
-            >le nom de l'application est requis</span
+            v-if="!$v.formApp.name.minLength"
+            >Nom invalide</span
           >
-
           <span
             class="errors"
             :class="{ showspan: iserrors }"
-            v-else-if="!$v.formApp.appName.minLength"
-            >Le nom doit contenir au moins 3 caractères</span
+            v-else-if="!$v.formApp.name.required"
+            >Un nom est requis</span
           >
 
           <InputUser
-            title="URL DE REDIRECTION L'APPLICATION"
-            id="redirectUri"
-            v-model="formApp.redirectUri"
+            title="L'URL DE LA PLATEFORME"
+            id="appName"
+            v-model="formApp.redirectURI"
           />
-
           <span
             class="errors"
             :class="{ showspan: iserrors }"
-            v-if="!$v.formApp.redirectUri.required"
-            >l'url de redirection d'application est requis</span
-          >
-          <span
-            class="errors"
-            :class="{ showspan: iserrors }"
-            v-else-if="!$v.formApp.redirectUri.invalid"
-            >l'url est invalid</span
+            v-if="
+              !$v.formApp.redirectURI.minLength && $v.formApp.redirectURI.format
+            "
+            >le lien de redirection est invalide</span
           >
 
           <InputPass
@@ -54,6 +48,7 @@
             v-if="!$v.formApp.clientId.required"
             >un id client est requis</span
           >
+
           <InputPass
             readonly="true"
             title="CLIENT SECRET"
@@ -64,44 +59,15 @@
             class="errors"
             :class="{ showspan: iserrors }"
             v-if="!$v.formApp.clientSecret.required"
-            >Le mot de passe est nécessaire</span
           >
-
-          <SelectGrant
-            title="GRANT TYPES"
-            id="grant_types"
-            v-model="formApp.grant_types"
-          />
-          <span
-            class="errors"
-            :class="{ showspan: iserrors }"
-            v-if="!$v.formApp.grant_types.isValid"
-            >Au moins un type d'autorisation est nécessaire</span
-          >
-
-          <!-- <InputUser
-            title="TYPE D’APPLICATION"
-            id="appType"
-            v-model="formApp.appType"
-          /> -->
-          <!-- <span
-            class="errors"
-            :class="{ showspan: iserrors }"
-            v-if="!$v.formApp.appType.required"
-            >Le type d'application est nécessaire</span
-          > -->
-          <p class="mt-6">Sélectionnez les accès de plateformes.</p>
-          <AddPlatform :types="'app'" ref="refplatform" />
-          <span
-            style="position: absolute; margin-top: -45px"
-            class="errors"
-            :class="{ showspan: !error_platform }"
-          >
-            Les accès aux utilisateurs sont incorrects.
+            Le mot de passe est nécessaire
           </span>
+
           <div class="d-flex justify-end">
             <button class="btn-retour" @click="cancelAdd()">RETOUR</button>
-            <button type="submit" class="btn-creer">CRÉER L’APPLICATION</button>
+            <button type="submit" class="btn-creer">
+              AJOUTER LA PLATEFORME
+            </button>
           </div>
         </form>
       </BackupInformation>
@@ -112,7 +78,6 @@
 <script>
 import InputUser from "../Components/InputUser";
 import InputPass from "../Components/InputPassword";
-import SelectGrant from "../Components/SelectGrants.vue";
 import AddPlatform from "../Components/AddPlatform.vue";
 import BackupInformation from "../Components/BackupInformation.vue";
 import { validationMixin } from "vuelidate";
@@ -126,17 +91,14 @@ export default {
     InputPass,
     AddPlatform,
     BackupInformation,
-    SelectGrant,
   },
   data() {
     return {
       formApp: {
-        appName: null,
-        redirectUri: null,
+        name: null,
         clientId: this.generateRegisterKey(),
         clientSecret: this.generateRegisterKey(),
-        appType: null,
-        grant_types: [],
+        redirectURI: null,
       },
       iserrors: true,
       error_platform: false,
@@ -145,17 +107,9 @@ export default {
 
   validations: {
     formApp: {
-      appName: {
+      name: {
         required,
         minLength: minLength(3),
-      },
-      redirectUri: {
-        required,
-        invalid(value) {
-          const regex =
-            /https?:\/\/(?:w{1,3}\.)?[^\s.]+(?:\.[a-z]+)*(?::\d+)?(?![^<]*(?:<\/\w+>|\/?>))/gm;
-          return regex.test(value);
-        },
       },
       clientId: {
         required,
@@ -163,20 +117,20 @@ export default {
       clientSecret: {
         required,
       },
-      grant_types: {
-        isValid(value) {
-          return value.length > 0;
+      redirectURI: {
+        minLength: minLength(3),
+        format: (value) => {
+          return /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/.test(
+            value
+          );
         },
       },
-      // appType: {
-      //   required,
-      // },
     },
   },
 
   methods: {
     cancelAdd() {
-      this.$router.push("/Users");
+      this.$router.push("/Platforms");
     },
     generateRegisterKey() {
       const generator = require("generate-password");
@@ -190,14 +144,13 @@ export default {
 
     async validateApp() {
       await this.$refs.refplatform.maFonction();
+      this.$v.$touch();
       if (!this.$v.$invalid) {
         var objectBody = {
           name: this.formApp.appName,
           clientId: this.formApp.clientId,
           clientSecret: this.formApp.clientSecret,
-          grant_types: this.formApp.grant_types,
-          // appType: this.formApp.appType,
-          redirectUri: this.formApp.redirectUri,
+          appType: this.formApp.appType,
           platformList: this.platformObjectList.map((el) => {
             return {
               platformId: el.platformId,

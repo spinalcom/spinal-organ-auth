@@ -27,28 +27,51 @@ import * as jwt from "jsonwebtoken";
 import { AuthError } from "./AuthError";
 import { HttpStatusCode } from "../utilities/http-status-code";
 import { TokensService } from "../tokens/tokenService";
+import { SCOPES } from "../constant";
+import { AuthServerModel } from "../oauth/AuthServerModel";
+import { InsufficientScopeError, InvalidTokenError, Token } from "@node-oauth/oauth2-server";
+// import { spinalOAuth2Server } from "../oauth";
 
-export function expressAuthentication(request: express.Request, securityName: string, scopes?: string[]): Promise<any> {
-	if (securityName !== "jwt") return;
+export async function expressAuthentication(request: express.Request, securityName: string, scopes?: string[]): Promise<any> {
+	try {
+		if (securityName !== "jwt") return;
 
-	const token = getToken(request);
+		const token = getToken(request);
 
-	if (!token) throw new AuthError(HttpStatusCode.UNAUTHORIZED, "No token provided");
+		if (!token) throw new Error("No token provided");
 
-	return new Promise((resolve, reject) => {
-		const secret = TokensService.getInstance().generateTokenKey();
-		jwt.verify(token, secret, function (err: any, decoded: any) {
-			if (err) return reject(new AuthError(HttpStatusCode.UNAUTHORIZED, err.message));
+		let tokenInfo = await getTokenInfo(token);
+		tokenInfo = await validateAccessToken(tokenInfo);
+		if (scopes) await verifyScope(tokenInfo, scopes);
 
-			for (let scope of scopes) {
-				if (!decoded.scopes.includes(scope)) {
-					return reject(new AuthError(HttpStatusCode.UNAUTHORIZED, "JWT does not contain required scope."));
-				}
-			}
+		return tokenInfo;
+	} catch (error) {
+		throw new AuthError(HttpStatusCode.UNAUTHORIZED, error.message);
+	}
 
-			return resolve(decoded);
-		});
-	});
+	// return new Promise((resolve, reject) => {
+	// 	const secret = TokensService.getInstance().generateTokenKey();
+	// 	jwt.verify(token, secret, function (err: any, decoded: any) {
+	// 		if (err) return reject(new AuthError(HttpStatusCode.UNAUTHORIZED, err.message));
+
+	// 		for (let scope of scopes) {
+	// 			if (!decoded.scopes.includes(scope)) {
+	// 				return reject(new AuthError(HttpStatusCode.UNAUTHORIZED, "JWT does not contain required scope."));
+	// 			}
+	// 		}
+
+	// 		return resolve(decoded);
+	// 	});
+	// });
+
+	// spinalOAuth2Server
+	// 	.verifyToken(request, null)
+	// 	.then((result) => {
+	// 		return result;
+	// 	})
+	// 	.catch((err) => {
+	// 		throw new AuthError(HttpStatusCode.UNAUTHORIZED, err.message);
+	// 	});
 }
 
 export function getToken(request: express.Request): string {
@@ -61,4 +84,30 @@ export function getToken(request: express.Request): string {
 	}
 
 	return request.body?.token || request.query?.token || request.headers["x-access-token"];
+}
+
+export async function getTokenInfo(token: string): Promise<Token> {
+	const accessToken = await AuthServerModel.instance.getAccessToken(token);
+
+	if (!accessToken) {
+		throw new InvalidTokenError("Invalid token: access token is invalid");
+	}
+
+	return accessToken;
+}
+
+export function validateAccessToken(accessToken): Token {
+	if (accessToken.accessTokenExpiresAt < new Date()) {
+		throw new InvalidTokenError("Invalid token: access token has expired");
+	}
+
+	return accessToken;
+}
+
+async function verifyScope(accessToken: Token, scope: string[]) {
+	const verifedScope = await AuthServerModel.instance.verifyScope(accessToken, scope);
+
+	if (!verifedScope) {
+		throw new InsufficientScopeError("Insufficient scope: authorized scope is insufficient");
+	}
 }

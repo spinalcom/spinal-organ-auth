@@ -28,12 +28,13 @@ import { IApplication, IApplicationCreationParams, IApplicationUpdateParams, IAp
 import { ApplicationService } from "./applicationService";
 import { IApplicationToken } from "../tokens/token.model";
 import { HttpStatusCode } from "../utilities/http-status-code";
+import { SCOPES } from "../constant";
 
 let applicationService = ApplicationService.getInstance();
 
 @Route("applications")
 export class ApplicationsController extends Controller {
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:write"])
 	@SuccessResponse("201", "Created") // Custom success response
 	@Post()
 	public async createApplication(@Body() requestBody: IApplicationCreationParams): Promise<IApplication | { error: string }> {
@@ -47,7 +48,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get()
 	public async getApplications(): Promise<any[] | { error: string }> {
 		try {
@@ -60,7 +61,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read", SCOPES["ownData:read"]])
 	@Get("{applicationId}")
 	public async getApplication(@Path() applicationId: string): Promise<IApplication | { error: string }> {
 		try {
@@ -73,7 +74,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:delete"])
 	@Delete("{applicationId}")
 	public async deleteApplication(@Path() applicationId: string): Promise<void | { message?: string; error?: string }> {
 		try {
@@ -86,7 +87,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:write"])
 	@Put("{applicationId}")
 	public async updateApplication(@Path() applicationId: string, @Body() requestBody: IApplicationUpdateParams): Promise<IApplication | { error: string }> {
 		try {
@@ -112,7 +113,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get("{applicationId}/applicationLogs")
 	public async getApplicationLogs(@Path() applicationId: string): Promise<IApplicationLogs[] | { error: string }> {
 		try {

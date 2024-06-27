@@ -26,10 +26,11 @@ import { IOrgan } from "../organ/organ.model";
 import { IRegisterKeyObject } from "./platform.model";
 import { PlatformService } from "./platformServices";
 import { HttpStatusCode } from "../utilities/http-status-code";
+import { SCOPES } from "../constant";
 
 @Route("registerKey")
 export class RegisterKeyController extends Controller {
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:write"])
 	@Post()
 	public async updateRegisterKeyNode(): Promise<IRegisterKeyObject | { error: string }> {
 		try {
@@ -42,7 +43,7 @@ export class RegisterKeyController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get()
 	public async getRegisterKeyNode(): Promise<IRegisterKeyObject | { error: string }> {
 		try {

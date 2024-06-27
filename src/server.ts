@@ -35,6 +35,11 @@ import { Response as ExResponse, Request as ExRequest } from "express";
 import * as swaggerUi from "swagger-ui-express";
 import { ValidateError } from "tsoa";
 import { AuthError } from "./security/AuthError";
+// import * as OAuthServer from "@node-oauth/express-oauth-server";
+import { spinalOAuth2Server } from "./oauth";
+import { AuthServerModel } from "./oauth/AuthServerModel";
+// import { AuthenticateHandler } from "./oauth/AuthenticateHandler";
+
 const jsonFile = require("../build/swagger.json");
 var history = require("connect-history-api-fallback");
 /**
@@ -43,7 +48,12 @@ var history = require("connect-history-api-fallback");
  * @return {*}  {express.Express}
  */
 function Server(): express.Express {
-	const app = express();
+	const app: any = express();
+
+	// app.oauth = new OAuthServer({
+	// 	model: AuthServerModel.instance,
+	// 	useErrorHandler: false,
+	// });
 
 	// enable files upload
 	app.use(fileUpload({ createParentPath: true }));
@@ -54,14 +64,28 @@ function Server(): express.Express {
 	app.use(express.urlencoded({ extended: true }));
 	// app.use(methodOverride());
 
-	app.use(history());
+	// app.use(history());
 
 	app.use(express.static(path.resolve(__dirname, "../vue-client/dist")));
-	app.get("/", function (req, res) {
-		res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html"));
-	});
+
+	// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(jsonFile));
+
+	app.get("/", (req, res) => res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html")));
+	app.get("/authorize", (req, res) => res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html")));
+
+	// app.post("/oauth/token", app.oauth.token());
+	// app.post(
+	// 	"/oauth/authorize",
+	// 	app.oauth.authorize({
+	// 		authenticateHandler: new AuthenticateHandler({ model: AuthServerModel.instance }),
+	// 	})
+	// );
+
+	app.post("/oauth/token", spinalOAuth2Server.getToken.bind(spinalOAuth2Server));
+	app.post("/oauth/authorize", spinalOAuth2Server.askUserAuthorization.bind(spinalOAuth2Server));
 
 	RegisterRoutes(app);
+
 	app.use(errorHandler);
 
 	app.listen(config.api.port, () => console.log(`app listening at http://localhost:${config.api.port} ....`));
@@ -73,7 +97,6 @@ export default Server;
 
 function errorHandler(err: unknown, req: express.Request, res: express.Response, next: express.NextFunction): express.Response | void {
 	//@ts-ignore
-	console.log("hello from errorHandler");
 	if (err instanceof ValidateError) {
 		return res.status(400).send(_formatValidationError(err));
 	}

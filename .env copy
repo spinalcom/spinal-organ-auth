@@ -4,6 +4,7 @@ SPINAL_USER_ID=''
 SPINALHUB_IP=''
 SPINAL_PASSWORD=''
 SPINALHUB_PORT=''
+
 SPINALHUB_URL=''
 
 #Auth info
@@ -14,4 +15,4 @@ REGISTER_KEY="" # will be generated if not provided
 
 # server info
 REQUESTS_PORT=''
-LIMIT_LOG="3000"
+LIMIT_LOG="300" # limit of logs in request event log

@@ -24,16 +24,17 @@
 
 import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
 import { LogsService } from "./logService";
+import { SCOPES } from "../constant";
 @Route("logs")
 export class LogsController extends Controller {
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get()
 	public async getLogs(): Promise<any[]> {
 		this.setStatus(201); // set return status 201
 		return LogsService.getInstance().getLogs();
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get("/getPlatformsLogs")
 	public async getPlatformsLogs(): Promise<any[]> {
 		this.setStatus(201); // set return status 201

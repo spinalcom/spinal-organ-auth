@@ -26,10 +26,11 @@ import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security,
 import { IOrganCreationParams, IOrganUpdateParams, IOrgan, statusOrgan } from "./organ.model";
 import { OrganService } from "./organService";
 import { HttpStatusCode } from "../utilities/http-status-code";
+import { SCOPES } from "../constant";
 
 @Route("organs")
 export class OrgansController extends Controller {
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:write"])
 	@SuccessResponse("201", "Created") // Custom success response
 	@Post("{platformId}")
 	public async createOrgan(@Body() requestBody: IOrganCreationParams): Promise<IOrgan | { error: string }> {
@@ -43,7 +44,7 @@ export class OrgansController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get("{platformId}")
 	public async getOrgans(@Path() platformId: string): Promise<IOrgan[] | { error: string }> {
 		try {
@@ -56,7 +57,7 @@ export class OrgansController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Put("{organId}")
 	public async updatePlateform(@Path() organId: string, @Body() requestBody: IOrganUpdateParams): Promise<IOrgan | { error: string }> {
 		try {

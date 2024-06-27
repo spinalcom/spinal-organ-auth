@@ -27,10 +27,11 @@ import { IUser, IUserCreationParams, IUserUpdateParams, IUserLoginParams, IAuthA
 import { UserService } from "./userService";
 import { IUserToken } from "../tokens/token.model";
 import { HttpStatusCode } from "../utilities/http-status-code";
+import { SCOPES } from "../constant";
 
 @Route("users")
 export class UsersController extends Controller {
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:write"])
 	@SuccessResponse("201", "Created") // Custom success response
 	@Post()
 	public async createUser(@Body() requestBody: IUserCreationParams): Promise<IUser | { error: string }> {
@@ -44,7 +45,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get()
 	public async getUsers(): Promise<IUser[] | { error: string }> {
 		try {
@@ -57,7 +58,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read", SCOPES["ownData:read"]])
 	@Get("{userId}")
 	public async getUser(@Path() userId: string): Promise<IUser | { error: string }> {
 		try {
@@ -70,7 +71,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:delete"])
 	@Delete("{userId}")
 	public async deleteUser(@Path() userId: string): Promise<void | { error?: string; message?: string }> {
 		try {
@@ -83,7 +84,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:write"])
 	@Put("{userId}")
 	public async updateUser(@Path() userId: string, @Body() requestBody: IUserUpdateParams): Promise<IUser | { error: string }> {
 		try {
@@ -96,7 +97,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:write"])
 	@Put("{userId}/updatePassword")
 	public async updateUserPassword(@Path() userId: string, @Body() requestBody: IUpdateUserPassword): Promise<any | { error: string }> {
 		try {
@@ -109,7 +110,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:write"])
 	@Put()
 	public async updateAuthAdmin(@Body() requestBody: IAuthAdminUpdateParams): Promise<IUser | { error: string }> {
 		try {
@@ -122,7 +123,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	// @Security('jwt')
+	@Security("jwt", ["authAdmin:read"])
 	@Post("/getAuthAdmin")
 	public async getAuthAdmin(): Promise<IUser | { error: string }> {
 		try {
@@ -135,7 +136,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:write"])
 	@Post("/userProfilesList")
 	public async userProfilesList(): Promise<any[] | { error: string }> {
 		try {
@@ -191,7 +192,7 @@ export class UsersController extends Controller {
 			return { error: error.message };
 		}
 	}
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get("{userId}/userLogs")
 	public async getUserLogs(@Path() userId: string): Promise<IUserLogs[] | { error: string }> {
 		try {

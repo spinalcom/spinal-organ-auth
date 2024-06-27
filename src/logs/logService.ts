@@ -282,7 +282,7 @@ export class LogsService {
 		const eventRequestLog = await this.getEventRequestLog(_eventLog, _eventrequest, _category);
 
 		const logNode = new SpinalNode("Log", USER_LOG_TYPE);
-		logNode.add_attr({
+		logNode.info.add_attr({
 			actor: {
 				actorId: _actor !== undefined ? _actor.getId().get() : "",
 				actorName: _actor !== undefined ? _actor?.getName().get() : "",
@@ -295,11 +295,14 @@ export class LogsService {
 
 		if (_actor !== undefined) await _actor.addChildInContext(logNode, AUTH_SERVICE_LOG_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
 
-		await this.garbageCollectorLogs(eventRequestLog);
+		await this.purgeLogs();
 	}
 
-	public async garbageCollectorLogs(eventRequetsLog: SpinalNode) {
-		const logs = await eventRequetsLog.getChildren(AUTH_SERVICE_LOG_RELATION_NAME);
+	public async purgeLogs() {
+		// const logs = await eventRequetsLog.getChildren(AUTH_SERVICE_LOG_RELATION_NAME);
+		const logs = await this.getAllLogsNodes();
+		logs.sort((a, b) => comparerParDate(a.info.get(), b.info.get()));
+
 		const limitdelete = logs.length - this.getLogLimit();
 		const promise = [];
 		if (limitdelete > 0) {
@@ -331,31 +334,28 @@ export class LogsService {
 		return Promise.all(promises).then((result) => result.flat());
 	}
 
-	public async getLogs(): Promise<any[]> {
+	public async getAllLogsNodes() {
 		const requestsEventLog = await this.getAllEventRequestLogs();
-
 		const promises = requestsEventLog.map(async (requestEventLog) => requestEventLog.getChildren(AUTH_SERVICE_LOG_RELATION_NAME));
+		return Promise.all(promises).then((logs) => logs.flat());
+	}
 
-		return Promise.all(promises).then(async (logsChunked) => {
-			const logs = logsChunked.flat();
-			const res = [];
-			for (const log of logs) {
-				res.push({
-					id: log.getId().get(),
-					type: log.getType().get(),
-					name: log.getName().get(),
-					date: log.info.date?.get(),
-					message: log.info.message?.get(),
-					actor: {
-						actorId: log.info.actor?.actorId.get(),
-						actorName: log.info.actor?.actorName.get(),
-					},
-					parentsInfo: await getParents(log),
-				});
-			}
+	public async getLogs(): Promise<any[]> {
+		const logs = await this.getAllLogsNodes();
+		const promises = logs.map(async (log) => ({
+			id: log.getId().get(),
+			type: log.getType().get(),
+			name: log.getName().get(),
+			date: log.info.date?.get(),
+			message: log.info.message?.get(),
+			actor: {
+				actorId: log.info.actor?.actorId.get(),
+				actorName: log.info.actor?.actorName.get(),
+			},
+			parentsInfo: await getParents(log),
+		}));
 
-			return res;
-		});
+		return Promise.all(promises);
 	}
 
 	public async getPlatformsLogs(): Promise<any[]> {
@@ -387,7 +387,7 @@ export class LogsService {
 	private getLogLimit() {
 		let limit = parseInt(process.env.LIMIT_LOG);
 
-		if (isNaN(limit)) limit = 5000;
+		if (isNaN(limit)) limit = 3000;
 
 		return limit;
 	}

@@ -1,36 +1,44 @@
 <template>
   <div id="app">
     <Navbar v-if="!isLoginRoute"></Navbar>
-    <router-view id="content" />
+    <router-view class="content" :class="{ auth: isLoginRoute }" />
   </div>
 </template>
 
 <script>
 import Navbar from "./views/SideBar.vue";
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    Navbar
+    Navbar,
   },
-  methods: {
-    
-  },
+  methods: {},
   computed: {
     isLoginRoute() {
-      return this.$route.path === '/Login' ||  this.$route.path === '/login';
+      return (
+        this.$route.path === "/Login" ||
+        this.$route.path === "/login" ||
+        this.$route.path.toLowerCase().includes("/authorize")
+      );
     },
   },
-
-}
+};
 </script>
 
 <style>
 #app {
+  /* width: 100vw;
+  height: 100vh; */
   overflow-x: scroll;
 }
 
-#content {
+.content {
   margin-top: 80px;
+  padding: 10px;
+}
+
+.content.auth {
+  margin: 0 !important;
   padding: 10px;
 }
 </style>

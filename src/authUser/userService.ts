@@ -23,7 +23,7 @@
  */
 
 import { Model, Ptr, spinalCore, FileSystem } from "spinal-core-connectorjs_type";
-import { USER_LIST, AUTH_SERVICE_USER_RELATION_NAME, USER_TYPE, AUTH_SERVICE_RELATION_TYPE_PTR_LST, TOKEN_TYPE, TOKEN_LIST, AUTH_SERVICE_TOKEN_RELATION_NAME, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, PLATFORM_TYPE, AUTH_SERVICE_LOG_RELATION_NAME, EVENTS_NAMES, EVENTS_REQUEST_NAMES, USER_LOG_CATEGORY_NAME, ADMIN_LOG_CATEGORY_NAME, AUTH_ADMIN_NAME } from "../constant";
+import { USER_LIST, AUTH_SERVICE_USER_RELATION_NAME, USER_TYPE, AUTH_SERVICE_RELATION_TYPE_PTR_LST, TOKEN_TYPE, TOKEN_LIST, AUTH_SERVICE_TOKEN_RELATION_NAME, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, PLATFORM_TYPE, AUTH_SERVICE_LOG_RELATION_NAME, EVENTS_NAMES, EVENTS_REQUEST_NAMES, USER_LOG_CATEGORY_NAME, ADMIN_LOG_CATEGORY_NAME, AUTH_ADMIN_NAME, SCOPES } from "../constant";
 import { SpinalGraphService, SpinalGraph, SpinalContext, SpinalNode } from "spinal-env-viewer-graph-service";
 import { OperationError } from "../utilities/operation-error";
 import { HttpStatusCode } from "../utilities/http-status-code";
@@ -112,18 +112,10 @@ export class UserService {
 	}
 
 	public async login(userLoginParams: IUserLoginParams): Promise<IUserToken> {
-		const users = await this.getUserNodes();
-		const user = users.find((user) => user.info.userName.get() === userLoginParams.userName);
+		const user = await this.getUserByCredentials(userLoginParams.userName, userLoginParams.password);
 
 		if (!user) {
 			await LogsService.getInstance().createLog(undefined, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.USER_NOT_VALID, EVENTS_REQUEST_NAMES.USER_NOT_VALID);
-			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
-		}
-
-		const valid = await bcrypt.compare(userLoginParams.password, user.info.password.get());
-
-		if (!valid) {
-			await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.USER_VALID_UNKNOWN_PASSWORD, EVENTS_REQUEST_NAMES.USER_VALID_UNKNOWN_PASSWORD);
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 		}
 
@@ -142,9 +134,22 @@ export class UserService {
 		};
 	}
 
+	public async getUserByCredentials(userName: string, password: string): Promise<SpinalNode> {
+		const users = await this.getUserNodes();
+		const user = users.find((user) => user.info.userName.get() === userName);
+
+		if (!user) return null;
+
+		const valid = await bcrypt.compare(password, user.info.password.get());
+
+		if (!valid) return null;
+
+		return user;
+	}
+
 	public async loginAuthAdmin(userLoginParams: IUserLoginParams): Promise<IUserToken> {
 		const users = await this.getUserNodes();
-		const user = users.find((user) => user.info.userName.get() === AUTH_ADMIN_NAME);
+		const user = users.find((user) => user.info.userName?.get() === AUTH_ADMIN_NAME && user.info.userName.get() === userLoginParams.userName);
 
 		if (!user) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 
@@ -281,6 +286,7 @@ export class UserService {
 				telephone: "",
 				info: "",
 				userType: IUserType.authAdmin,
+				scope: [SCOPES["authAdmin:delete"], SCOPES["authAdmin:read"], SCOPES["authAdmin:write"]],
 			});
 
 			const context = await this.getUserListContext();

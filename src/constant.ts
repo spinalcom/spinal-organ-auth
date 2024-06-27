@@ -50,8 +50,11 @@ export const USER_REQUEST_EVENT_LOG_TYPE = "AuthServiceUserRequestEventLog";
 export const APPLICATION_REQUEST_EVENT_LOG_TYPE = "AuthServiceApplicationRequestEventLog";
 export const PLATFORM_REQUEST_EVENT_LOG_TYPE = "AuthServicePlatformRequestEventLog";
 export const ADMIN_REQUEST_EVENT_LOG_TYPE = "AuthServiceAdminRequestEventLog";
-
 export const USER_LOG_TYPE = "AuthServiceUserLog";
+export const REFRESH_TOKEN_CONTEXT_TYPE = "RefreshTokenContext";
+export const REFRESH_TOKEN_TYPE = "RefreshTokenNode";
+export const AUTHORIZATION_CODE_CONTEXT_TYPE = "AuthorizationCodesContext";
+export const AUTHORIZATION_CODE_TYPE = "AuthorizationCode";
 
 // RelationName
 export const AUTH_SERVICE_PLATFORM_RELATION_NAME = "HasPlatform";
@@ -71,6 +74,8 @@ export const AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME = "HasEventLog";
 export const AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME = "HasEventLog";
 export const AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME = "HasEventLog";
 export const AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME = "HasRequestEventLog";
+export const REFRESH_TOKEN_CONTEXT_TO_NODE_RELATION_NAME = "HasRefreshToken";
+export const AUTHORIZATION_CODE_CONTEXT_TO_NODE_RELATION_NAME = "HasAuthorizationCode";
 
 //ContextName
 export const PLATFORM_LIST = "platformList";
@@ -80,6 +85,8 @@ export const TOKEN_LIST = "tokenList";
 export const INFO_ADMIN = "infoAdmin";
 export const LOG_LIST = "logList";
 export const NOTIFICATION_LIST = "notificationList";
+export const REFRESH_TOKEN_CONTEXT_NAME = "RefreshToken";
+export const AUTHORIZATION_CODE_CONTEXT_NAME = "AuthorizationCodes";
 
 // logs categories
 
@@ -120,3 +127,11 @@ export enum EVENTS_REQUEST_NAMES {
 }
 
 export const AUTH_ADMIN_NAME = "authAdmin";
+
+// scopes
+export enum SCOPES {
+	"authAdmin:write" = "authAdmin:write",
+	"authAdmin:read" = "authAdmin:read",
+	"authAdmin:delete" = "authAdmin:delete",
+	"ownData:read" = "ownData:read",
+}

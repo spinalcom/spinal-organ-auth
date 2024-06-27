@@ -65,9 +65,11 @@ export class ApplicationService {
 		const context = await this.getApplicationListContext();
 
 		const applicationObject = {
-			appType: applicationCreationParams.appType,
+			// appType: applicationCreationParams.appType,
 			clientId: applicationCreationParams.clientId,
 			clientSecret: applicationCreationParams.clientSecret,
+			redirectUri: applicationCreationParams.redirectUri || "",
+			grant_types: applicationCreationParams.grant_types || [],
 		};
 
 		const application = new SpinalNode(applicationCreationParams.name, APPLICATION_TYPE);
@@ -132,7 +134,7 @@ export class ApplicationService {
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 		}
 
-		const keys = ["name", "clientId", "clientSecret", "appType"];
+		const keys = ["name", "clientId", "clientSecret", "appType", "grant_types"];
 
 		for (const key of keys) {
 			if (requestBody[key] !== undefined) {
@@ -243,7 +245,8 @@ export class ApplicationService {
 			id: application.getId().get(),
 			type: application.getType().get(),
 			name: application.getName().get(),
-			appType: application.info.appType.get(),
+			appType: application.info.appType?.get() || "",
+			grant_types: application.info.grant_types?.get() || [],
 			clientId: application.info.clientId.get(),
 			clientSecret: application.info.clientSecret.get(),
 			...(platformList && { platformList: this._formatPlatForms(platformList) as any }),

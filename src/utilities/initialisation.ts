@@ -5,6 +5,13 @@ import { AUTH_SERVICE_INFO_ADMIN_RELATION_NAME, AUTH_SERVICE_LOG_CATEGORY_RELATI
 import { LogsService } from "../logs/logService";
 import { UserService } from "../authUser/userService";
 import { PlatformService } from "../platform/platformServices";
+import { RefreshTokenService } from "../tokens/refreshTokenService";
+import { AuthorizationCodeService } from "../tokens/AuthorizationCodeService";
+
+export async function initAllServices(contexts: SpinalContext[]) {
+	const promises = [AuthorizationCodeService.getInstance().init(), RefreshTokenService.getInstance().init(), initLogsService(contexts), initTokenService(contexts), initUserService(contexts), initPlatformService()];
+	return Promise.all(promises);
+}
 
 export async function initTokenService(contexts: SpinalContext[]) {
 	const context = contexts.find((context) => context.getName().get() === TOKEN_LIST);

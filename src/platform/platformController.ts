@@ -31,10 +31,11 @@ import { PlatformService } from "./platformServices";
 import { ProfileServices } from "./profileServices";
 import { error } from "console";
 import { HttpStatusCode } from "../utilities/http-status-code";
+import { SCOPES } from "../constant";
 
 @Route("platforms")
 export class PlatformsController extends Controller {
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:write"])
 	@SuccessResponse("201", "Created") // Custom success response
 	@Post()
 	public async createPlateform(@Body() requestBody): Promise<any> {
@@ -48,7 +49,7 @@ export class PlatformsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get()
 	public async getPlatforms(): Promise<IPlatform[] | { error: string }> {
 		try {
@@ -61,7 +62,7 @@ export class PlatformsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get("{platformId}")
 	public async getPlateform(@Path() platformId: string): Promise<IPlatform | { error: string }> {
 		try {
@@ -74,7 +75,7 @@ export class PlatformsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:delete"])
 	@Delete("{platformId}")
 	public async deletePlatform(@Path() platformId: string): Promise<void | { message?: string; error?: string }> {
 		try {
@@ -87,7 +88,7 @@ export class PlatformsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:write"])
 	@Put("{platformId}")
 	public async updatePlateform(@Path() platformId: string, @Body() requestBody: IPlatformUpdateParams): Promise<IPlatform | { error: string }> {
 		try {
@@ -100,7 +101,7 @@ export class PlatformsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get("{platformId}/getUserProfileList")
 	public async getUserProfileList(@Path() platformId: string): Promise<IUserProfile[] | { error: string }> {
 		try {
@@ -113,7 +114,7 @@ export class PlatformsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get("{platformId}/getAppProfileList")
 	public async getAppProfileService(@Path() platformId: string): Promise<IAppProfile[] | { error: string }> {
 		try {
@@ -126,7 +127,7 @@ export class PlatformsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get("{platformId}/platformLogs")
 	public async getPlatformLogs(@Path() platformId: string): Promise<IPlatformLogs[] | { error: string }> {
 		try {
@@ -139,7 +140,7 @@ export class PlatformsController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:write"])
 	@Post("/registerKey")
 	public async updateRegisterKeyNode(): Promise<IRegisterKeyObject | { error: string }> {
 		try {

@@ -26,10 +26,11 @@ import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security,
 import { IToken, IUserToken, IApplicationToken } from "./token.model";
 import { TokensService } from "./tokenService";
 import { HttpStatusCode } from "../utilities/http-status-code";
+import { SCOPES } from "../constant";
 
 @Route("tokens")
 export class TokensController extends Controller {
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get("")
 	public async getTokens(): Promise<IToken[] | { error: string }> {
 		try {
@@ -42,7 +43,7 @@ export class TokensController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get("/UserToken")
 	public async getUserTokens(): Promise<IToken[] | { error: string }> {
 		try {
@@ -55,7 +56,7 @@ export class TokensController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Get("/ApplicationToken")
 	public async getApplicationTokens(): Promise<IToken[] | { error: string }> {
 		try {
@@ -68,7 +69,7 @@ export class TokensController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Post("/getUserProfileByToken")
 	public async getUserProfileByToken(@Body() requestBody: any): Promise<any> {
 		try {
@@ -81,7 +82,7 @@ export class TokensController extends Controller {
 		}
 	}
 
-	@Security("jwt")
+	@Security("jwt", ["authAdmin:read"])
 	@Post("/getAppProfileByToken")
 	public async getAppProfileByToken(@Body() requestBody: any): Promise<any> {
 		try {

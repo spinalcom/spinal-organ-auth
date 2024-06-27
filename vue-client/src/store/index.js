@@ -22,22 +22,31 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import Vue from 'vue'
-import Vuex from 'vuex'
-import module from '../modules/module'
-import login from '../modules/Login'
-import users from '../modules/users'
-import applications from '../modules/applications'
-import platforms from '../modules/platforms'
-import logs from '../modules/logs'
-Vue.use(Vuex)
+import Vue from "vue";
+import Vuex from "vuex";
+import module from "../modules/module";
+import login from "../modules/Login";
+import users from "../modules/users";
+import applications from "../modules/applications";
+import platforms from "../modules/platforms";
+import logs from "../modules/logs";
+import authorization from "../modules/authorization";
+
+Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    count : 2
+    count: 2
   },
   mutations: {},
-  actions: {
-  },
-  modules: { module,login,users,applications,platforms,logs},
-})
+  actions: {},
+  modules: {
+    module,
+    login,
+    users,
+    applications,
+    platforms,
+    logs,
+    authorization
+  }
+});

@@ -29,19 +29,19 @@
  * @interface IApplication
  */
 export interface IApplication {
-  id: string | number;
-  type: string;
-  name: string;
-  appType: string;
-  clientId: string;
-  clientSecret: string;
-  platformList?: {
-    platformId: string;
-    appProfile: {
-      name: string;
-      appProfileId: string;
-    };
-  }[];
+	id: string | number;
+	type: string;
+	name: string;
+	appType: string;
+	clientId: string;
+	clientSecret: string;
+	platformList?: {
+		platformId: string;
+		appProfile: {
+			name: string;
+			appProfileId: string;
+		};
+	}[];
 }
 
 /**
@@ -51,17 +51,19 @@ export interface IApplication {
  * @interface IApplicationCreationParams
  */
 export interface IApplicationCreationParams {
-  name: string;
-  clientId: string;
-  clientSecret: string;
-  appType: string;
-  platformList?: {
-    platformId: string;
-    appProfile: {
-      name: string;
-      appProfileId: string;
-    };
-  }[];
+	name: string;
+	clientId: string;
+	clientSecret: string;
+	appType?: string;
+	redirectUri?: string;
+	grant_types?: string[];
+	platformList?: {
+		platformId: string;
+		appProfile: {
+			name: string;
+			appProfileId: string;
+		};
+	}[];
 }
 
 /**
@@ -71,19 +73,19 @@ export interface IApplicationCreationParams {
  * @interface IApplicationUpdateParams
  */
 export interface IApplicationUpdateParams {
-  name?: string;
-  clientId?: string;
-  clientSecret?: string;
-  appType?: string;
-  platformList?: {
-    platformId: string;
-    platformName: string;
-    appProfile: {
-      appProfileAdminId: string;
-      appProfileBosConfigId: string;
-      appProfileName: string;
-    };
-  }[];
+	name?: string;
+	clientId?: string;
+	clientSecret?: string;
+	appType?: string;
+	platformList?: {
+		platformId: string;
+		platformName: string;
+		appProfile: {
+			appProfileAdminId: string;
+			appProfileBosConfigId: string;
+			appProfileName: string;
+		};
+	}[];
 }
 
 /**
@@ -93,17 +95,17 @@ export interface IApplicationUpdateParams {
  * @interface IApplicationLoginParams
  */
 export interface IApplicationLoginParams {
-  clientId: string;
-  clientSecret: string;
+	clientId: string;
+	clientSecret: string;
 }
 export interface IApplicationLogs {
-  id: string;
-  name: string;
-  type: string;
-  date: string;
-  message: string;
-  actor: {
-    actorId: string;
-    actorName: string;
-  }
+	id: string;
+	name: string;
+	type: string;
+	date: string;
+	message: string;
+	actor: {
+		actorId: string;
+		actorName: string;
+	};
 }
