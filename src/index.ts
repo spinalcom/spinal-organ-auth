@@ -35,7 +35,7 @@ async function main() {
 	const contexts = await initAllContexts(graph);
 	return initAllServices(contexts).then(async () => {
 		await createOrGetRegisterKey(contexts);
-		cron.schedule("30 */10 * * *", async () => {
+		cron.schedule("30 */1 * * *", async () => {
 			console.log("purge invalid token");
 			await TokensService.getInstance().purgeInvalidToken();
 		});

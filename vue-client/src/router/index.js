@@ -38,6 +38,7 @@ import EditUser from "@/views/EditUser";
 import Logs from "@/views/Logs";
 import Login from "@/views/Login";
 import EditPlatform from "@/views/EditPlatform";
+import AddPlatform from "@/views/AddPlatform";
 import Authorization from "@/views/Authorization";
 
 import { isAuthenticate } from "./genToken";
@@ -62,10 +63,17 @@ const routes = [
     name: "DetailUser",
     component: DetailUser
   },
+
   {
     path: "/Platforms",
     name: "Platforms",
     component: Platforms
+  },
+
+  {
+    path: "/AddPlatform",
+    name: "AddPlatform",
+    component: AddPlatform
   },
 
   {

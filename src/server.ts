@@ -70,7 +70,7 @@ function Server(): express.Express {
 
 	// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(jsonFile));
 
-	app.get("/", (req, res) => res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html")));
+	// app.get("/", (req, res) => res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html")));
 	app.get("/authorize", (req, res) => res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html")));
 
 	// app.post("/oauth/token", app.oauth.token());
@@ -85,6 +85,8 @@ function Server(): express.Express {
 	app.post("/oauth/authorize", spinalOAuth2Server.askUserAuthorization.bind(spinalOAuth2Server));
 
 	RegisterRoutes(app);
+
+	app.get("/*", (req, res) => res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html")));
 
 	app.use(errorHandler);
 

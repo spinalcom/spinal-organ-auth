@@ -77,8 +77,8 @@
           <div style="width: 36%" class="d-flex flex-column">
             <div class="btn-valider-user">
               <StatutButton
-                :val="item.statusPlatform"
-                title="ONLINE"
+                :val="getStatus(item.statusPlatform)"
+                :title="item.statusPlatform || 'unknown'"
               ></StatutButton>
             </div>
           </div>
@@ -160,6 +160,10 @@ export default {
     ...mapActions({
       generateRegisterKey: "platforms/generateRegisterKey",
     }),
+
+    getStatus(status) {
+      return status ? status : "unknown";
+    },
   },
   computed: {
     ...mapGetters({

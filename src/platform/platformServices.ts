@@ -34,7 +34,8 @@ import jwt = require("jsonwebtoken");
 import { LogsService } from "../logs/logService";
 import { TokensService } from "../tokens/tokenService";
 const { setEnvValue } = require("../../whriteToenvFile");
-
+import * as bcrypt from "bcrypt";
+import { url } from "inspector";
 export class PlatformService {
 	static instance: PlatformService;
 	public platFormContext: SpinalContext;
@@ -78,8 +79,15 @@ export class PlatformService {
 		try {
 			const context = await this.getContext();
 
-			(platformCreationParms.TokenBosAdmin = this.generateTokenBosAdmin(platformCreationParms.name)), (platformCreationParms.TokenAdminBos = "");
-			platformCreationParms.idPlatformOfAdmin = "";
+			// (platformCreationParms.TokenBosAdmin = this.generateTokenBosAdmin(platformCreationParms.name)), (platformCreationParms.TokenAdminBos = "");
+			// platformCreationParms.idPlatformOfAdmin = "";
+
+			platformCreationParms = Object.assign({}, platformCreationParms, {
+				clientSecret: await bcrypt.hash(platformCreationParms.clientSecret, 10),
+				url: platformCreationParms.url || platformCreationParms.redirectUrl,
+				redirectUrl: platformCreationParms.redirectUrl || platformCreationParms.url,
+				address: platformCreationParms.address || "",
+			});
 
 			const plateformNode = new SpinalNode(platformCreationParms.name, PLATFORM_TYPE);
 
@@ -136,43 +144,43 @@ export class PlatformService {
 		throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 	}
 
-	public async createAuthPlateform(): Promise<IPlatform> {
-		try {
-			const context = await this.getContext();
+	// public async createAuthPlateform(): Promise<IPlatform> {
+	// 	try {
+	// 		const context = await this.getContext();
 
-			const platformObject: IPlateformCreationParams = {
-				name: "authenticationPlatform",
-				type: PLATFORM_TYPE,
-				statusPlatform: statusPlatform.online,
-				url: process.env.SPINALHUB_URL,
-				TokenBosAdmin: this.generateTokenBosAdmin("authenticationPlatform"),
-				address: "",
-				TokenAdminBos: "",
-				idPlatformOfAdmin: "",
-			};
+	// 		const platformObject: IPlateformCreationParams = {
+	// 			name: "authenticationPlatform",
+	// 			type: PLATFORM_TYPE,
+	// 			statusPlatform: statusPlatform.online,
+	// 			url: process.env.SPINALHUB_URL,
+	// 			TokenBosAdmin: this.generateTokenBosAdmin("authenticationPlatform"),
+	// 			address: "",
+	// 			TokenAdminBos: "",
+	// 			idPlatformOfAdmin: "",
+	// 		};
 
-			const plateformNode = new SpinalNode("authenticationPlatform", PLATFORM_TYPE);
+	// 		const plateformNode = new SpinalNode("authenticationPlatform", PLATFORM_TYPE);
 
-			for (const [key, value] of Object.entries(platformObject)) {
-				if (plateformNode.info[key]) plateformNode.info[key].set(value);
-				else plateformNode.info.add_attr(key, value);
-			}
+	// 		for (const [key, value] of Object.entries(platformObject)) {
+	// 			if (plateformNode.info[key]) plateformNode.info[key].set(value);
+	// 			else plateformNode.info.add_attr(key, value);
+	// 		}
 
-			const res = await context.addChildInContext(plateformNode, AUTH_SERVICE_PLATFORM_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
+	// 		const res = await context.addChildInContext(plateformNode, AUTH_SERVICE_PLATFORM_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
 
-			await LogsService.getInstance().createLog(res, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.REGISTER, EVENTS_REQUEST_NAMES.REGISTER_VALID, "Register Valid AuthPlatform created");
-			return {
-				id: res.getId().get(),
-				type: res.getType().get(),
-				name: res.getName().get(),
-				statusPlatform: res.info.statusPlatform.get(),
-				url: res.info.url.get(),
-			};
-		} catch (error) {
-			await LogsService.getInstance().createLog(undefined, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.REGISTER, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID);
-			throw new OperationError("NOT_CREATED", HttpStatusCode.BAD_REQUEST);
-		}
-	}
+	// 		await LogsService.getInstance().createLog(res, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.REGISTER, EVENTS_REQUEST_NAMES.REGISTER_VALID, "Register Valid AuthPlatform created");
+	// 		return {
+	// 			id: res.getId().get(),
+	// 			type: res.getType().get(),
+	// 			name: res.getName().get(),
+	// 			statusPlatform: res.info.statusPlatform.get(),
+	// 			url: res.info.url.get(),
+	// 		};
+	// 	} catch (error) {
+	// 		await LogsService.getInstance().createLog(undefined, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.REGISTER, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID);
+	// 		throw new OperationError("NOT_CREATED", HttpStatusCode.BAD_REQUEST);
+	// 	}
+	// }
 
 	public async getRegisterKeyContext(): Promise<SpinalContext> {
 		const graph = await SpinalMiddleware.getInstance().getGraph();
@@ -315,6 +323,7 @@ export class PlatformService {
 			name: platform.getName().get(),
 			statusPlatform: platform.info.statusPlatform?.get(),
 			url: platform.info.url?.get(),
+			redirectUrl: platform.info.redirectUrl?.get(),
 			address: platform.info.address?.get(),
 			TokenBosAdmin: platform.info.TokenBosAdmin?.get(),
 			TokenAdminBos: platform.info.TokenAdminBos?.get(),

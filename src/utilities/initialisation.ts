@@ -55,15 +55,16 @@ export async function initUserService(contexts: SpinalContext[]) {
 }
 
 export async function initPlatformService() {
-	var plateformsService = PlatformService.getInstance();
-	var plateforms = await plateformsService.getPlateforms();
-	if (plateforms.length === 0) {
-		let res = await plateformsService.createAuthPlateform();
-		if (res) {
-			console.log("Auth Plateform created ...");
-			return res;
-		}
-	}
+	// var plateformsService = PlatformService.getInstance();
+	// var plateforms = await plateformsService.getPlateforms();
+	// if (plateforms.length === 0) {
+	// 	let res = await plateformsService.createAuthPlateform();
+	// 	if (res) {
+	// 		console.log("Auth Plateform created ...");
+	// 		return res;
+	// 	}
+	// }
+	return;
 }
 
 export async function createOrGetRegisterKey(contexts: SpinalContext[]) {

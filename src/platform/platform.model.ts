@@ -22,64 +22,70 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Model } from 'spinal-core-connectorjs_type';
-import { IOrgan } from '../organ/organ.model';
+import { Model } from "spinal-core-connectorjs_type";
+import { IOrgan } from "../organ/organ.model";
 
 export interface IPlatform {
-  id: string;
-  name: string;
-  type: string;
-  statusPlatform: statusPlatform;
-  url: string;
-  address?: string;
-  TokenBosAdmin?: string;
-  TokenAdminBos?: string;
-  idPlatformOfAdmin?: string;
+	id: string;
+	name: string;
+	type: string;
+	statusPlatform: statusPlatform;
+	url: string;
+	address?: string;
+	TokenBosAdmin?: string;
+	TokenAdminBos?: string;
+	idPlatformOfAdmin?: string;
+	redirectUrl: string;
 }
 
 export interface IPlateformCreationParams {
-  name: string;
-  type?: string;
-  url: string;
-  statusPlatform?: statusPlatform;
-  address: string;
-  TokenBosAdmin?: string;
-  TokenAdminBos?: string;
-  idPlatformOfAdmin?: string;
+	name: string;
+	type?: string;
+	redirectUrl: string;
+	url?: string;
+	clientId: string;
+	clientSecret: string;
+	[key: string]: any;
+	statusPlatform?: statusPlatform;
+	address?: string;
+	// TokenBosAdmin?: string;
+	// TokenAdminBos?: string;
+	// idPlatformOfAdmin?: string;
 }
 
 export interface IPlatformUpdateParams {
-  name: string;
-  statusPlatform?: statusPlatform;
-  url?: string;
-  address?: string;
-  TokenBosAdmin?: string;
+	name: string;
+	statusPlatform?: statusPlatform;
+	url?: string;
+	address?: string;
+	TokenBosAdmin?: string;
 }
 export interface IRegisterParams {
-  platformCreationParms: IPlateformCreationParams;
-  registerKey: string;
+	platformCreationParms: IPlateformCreationParams;
+	registerKey: string;
 }
 export interface IRegisterKeyObject {
-  id: string;
-  name: string;
-  type: string;
-  value: string;
+	id: string;
+	name: string;
+	type: string;
+	value: string;
 }
 
 export enum statusPlatform {
-  'online' = 'online',
-  'fail' = 'fail',
-  'stop' = 'stop',
+	"online" = "online",
+	"fail" = "fail",
+	"stop" = "stop",
+	"not registered" = "not registered",
 }
 
 export interface IPlatformLogs {
-  id: string;
-  name: string;
-  type: string;
-  date: string;
-  message: string;
-  actor: {
-    actorId: string;
-    actorName: string;
-  }
+	id: string;
+	name: string;
+	type: string;
+	date: string;
+	message: string;
+	actor: {
+		actorId: string;
+		actorName: string;
+	};
 }

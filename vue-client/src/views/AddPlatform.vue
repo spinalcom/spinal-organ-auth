@@ -9,31 +9,60 @@
             id="appName"
             v-model="formApp.name"
           />
+
           <span
             class="errors"
             :class="{ showspan: iserrors }"
-            v-if="!$v.formApp.name.minLength"
-            >Nom invalide</span
+            v-if="!$v.formApp.name.required"
+            >Un nom est requis</span
           >
           <span
             class="errors"
             :class="{ showspan: iserrors }"
-            v-else-if="!$v.formApp.name.required"
-            >Un nom est requis</span
+            v-else-if="!$v.formApp.name.minLength"
+            >Le doit contenir au moins 2 caractères</span
           >
 
           <InputUser
-            title="L'URL DE LA PLATEFORME"
+            title="L'URL DE MIS A JOUR DE LA PLATEFORME"
             id="appName"
-            v-model="formApp.redirectURI"
+            v-model="formApp.url"
           />
+
+          <span
+            class="errors"
+            :class="{ showspan: iserrors }"
+            v-if="!$v.formApp.url.required"
+            >L'url de mis à jour est requis</span
+          >
+
+          <span
+            class="errors"
+            :class="{ showspan: iserrors }"
+            v-if="!$v.formApp.url.minLength && $v.formApp.url.format"
+            >l'url de mis à jour est invalide</span
+          >
+
+          <InputUser
+            title="L'URL DE REDIRECTION DE LA PLATEFORME"
+            id="appName"
+            v-model="formApp.redirectUrl"
+          />
+
+          <span
+            class="errors"
+            :class="{ showspan: iserrors }"
+            v-if="!$v.formApp.redirectUrl.required"
+            >L'url de redirection est requis</span
+          >
+
           <span
             class="errors"
             :class="{ showspan: iserrors }"
             v-if="
-              !$v.formApp.redirectURI.minLength && $v.formApp.redirectURI.format
+              !$v.formApp.redirectUrl.minLength && $v.formApp.redirectUrl.format
             "
-            >le lien de redirection est invalide</span
+            >l'url de redirection est invalide</span
           >
 
           <InputPass
@@ -98,7 +127,8 @@ export default {
         name: null,
         clientId: this.generateRegisterKey(),
         clientSecret: this.generateRegisterKey(),
-        redirectURI: null,
+        redirectUrl: null,
+        url: null,
       },
       iserrors: true,
       error_platform: false,
@@ -117,12 +147,20 @@ export default {
       clientSecret: {
         required,
       },
-      redirectURI: {
-        minLength: minLength(3),
+      redirectUrl: {
+        required,
         format: (value) => {
-          return /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/.test(
-            value
-          );
+          const regex =
+            /https?:\/\/(?:w{1,3}\.)?[^\s.]+(?:\.[a-z]+)*(?::\d+)?(?![^<]*(?:<\/\w+>|\/?>))/gm;
+          return regex.test(value);
+        },
+      },
+      url: {
+        required,
+        format: (value) => {
+          const regex =
+            /https?:\/\/(?:w{1,3}\.)?[^\s.]+(?:\.[a-z]+)*(?::\d+)?(?![^<]*(?:<\/\w+>|\/?>))/gm;
+          return regex.test(value);
         },
       },
     },
@@ -140,37 +178,22 @@ export default {
       });
       return registerKey;
     },
-    ...mapActions({ saveApp: "applications/saveApp" }),
+    ...mapActions({ savePlatform: "platforms/savePlatform" }),
 
     async validateApp() {
-      await this.$refs.refplatform.maFonction();
       this.$v.$touch();
       if (!this.$v.$invalid) {
-        var objectBody = {
-          name: this.formApp.appName,
-          clientId: this.formApp.clientId,
-          clientSecret: this.formApp.clientSecret,
-          appType: this.formApp.appType,
-          platformList: this.platformObjectList.map((el) => {
-            return {
-              platformId: el.platformId,
-              appProfile: {
-                name: el.appProfile.name,
-                appProfileId: el.appProfile.appProfileId,
-              },
-            };
-          }),
-        };
-        this.saveApp(objectBody);
+        this.savePlatform(this.formApp)
+          .then((result) => {
+            this.$router.push("/Platforms");
+          })
+          .catch((err) => {
+            console.error(err);
+          });
       } else {
         this.iserrors = false;
       }
     },
-  },
-  computed: {
-    ...mapGetters({
-      platformObjectList: "applications/selectedplatformObjectList",
-    }),
   },
 };
 </script>
