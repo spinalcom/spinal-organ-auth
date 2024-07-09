@@ -282,7 +282,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "statusPlatform": {
         "dataType": "refEnum",
-        "enums": ["online","fail","stop","not registered"],
+        "enums": ["connected","not connected"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IPlatform": {
@@ -297,6 +297,8 @@ const models: TsoaRoute.Models = {
             "TokenBosAdmin": {"dataType":"string"},
             "TokenAdminBos": {"dataType":"string"},
             "idPlatformOfAdmin": {"dataType":"string"},
+            "redirectUrl": {"dataType":"string","required":true},
+            "clientId": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -304,11 +306,10 @@ const models: TsoaRoute.Models = {
     "IPlatformUpdateParams": {
         "dataType": "refObject",
         "properties": {
-            "name": {"dataType":"string","required":true},
-            "statusPlatform": {"ref":"statusPlatform"},
+            "name": {"dataType":"string"},
+            "redirectUrl": {"dataType":"string"},
             "url": {"dataType":"string"},
             "address": {"dataType":"string"},
-            "TokenBosAdmin": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
@@ -379,8 +380,9 @@ const models: TsoaRoute.Models = {
     "IRegisterParams": {
         "dataType": "refObject",
         "properties": {
+            "clientId": {"dataType":"string","required":true},
+            "clientSecret": {"dataType":"string","required":true},
             "platformCreationParms": {"ref":"IPlateformCreationParams","required":true},
-            "registerKey": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },

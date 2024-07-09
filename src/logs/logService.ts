@@ -71,7 +71,7 @@ export class LogsService {
 	public async createPlatformLogsCategory() {
 		const context = await this.getLogsContext();
 		const node = new SpinalNode(PLATFORM_LOG_CATEGORY_NAME, PLATFORM_LOG_CATEGORY_TYPE);
-		const nodeNames = [EVENTS_NAMES.REGISTER, EVENTS_NAMES.PUSH_DATA, EVENTS_NAMES.UPDATE_TOKEN, EVENTS_NAMES.DELETE];
+		const nodeNames = [EVENTS_NAMES.REGISTER, EVENTS_NAMES.PUSH_DATA, EVENTS_NAMES.UPDATE_TOKEN, EVENTS_NAMES.DELETE, EVENTS_NAMES.EDIT];
 		await this.createEventLogNodes(node, context, nodeNames, PLATFORM_LOG_EVENT_TYPE, AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME);
 		return node;
 	}
@@ -215,6 +215,9 @@ export class LogsService {
 				break;
 			case EVENTS_NAMES.UPDATE_TOKEN:
 				names = [EVENTS_REQUEST_NAMES.UPDATE_TOKEN_VALID, EVENTS_REQUEST_NAMES.UPDATE_TOKEN_NOT_VALID];
+				break;
+			case EVENTS_NAMES.EDIT:
+				names = [EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID];
 				break;
 		}
 

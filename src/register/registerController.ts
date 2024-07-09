@@ -22,14 +22,10 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
-import { IPlatform, IPlateformCreationParams, IPlatformUpdateParams } from "../platform/platform.model";
+import { IPlatform, IPlateformCreationParams, IPlatformUpdateParams, IRegisterParams } from "../platform/platform.model";
 import { PlatformService } from "../platform/platformServices";
 import { HttpStatusCode } from "../utilities/http-status-code";
 
-interface IRegisterParams {
-	platformCreationParms: IPlateformCreationParams;
-	registerKey: string;
-}
 interface IUpdateParams {
 	platformUpdateParams;
 }

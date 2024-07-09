@@ -227,13 +227,10 @@ export default {
       commit("setregisterkey", rep.data);
     },
 
-    async editPlatformItem(context, platform) {
-      // console.log(platform[0],platform[1]);
+    async editPlatformItem(context, { platform, platformId }) {
       const rep = await instanceAxios.instanceAxios.put(
-        `/platforms/${platform[1]}`,
-        {
-          name: platform[0]
-        },
+        `/platforms/${platformId}`,
+        platform,
         {
           headers: {
             "Content-Type": "application/json",

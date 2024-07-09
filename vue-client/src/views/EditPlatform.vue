@@ -6,20 +6,64 @@
           <InputUser
             title="NOM DE LA PLATEFORME"
             id="telephone"
-            v-model="formPlatform.platformName"
+            v-model="formPlatform.name"
           />
           <span
             class="errors"
             :class="{ showspan: iserrors }"
-            v-if="!$v.formPlatform.platformName.minLength"
+            v-if="!$v.formPlatform.name.minLength"
             >Nom invalide</span
           >
           <span
             class="errors"
             :class="{ showspan: iserrors }"
-            v-else-if="!$v.formPlatform.platformName.required"
+            v-else-if="!$v.formPlatform.name.required"
             >Un nom de plateforme est requis</span
           >
+
+          <InputUser
+            title="L'URL DE MIS A JOUR DE LA PLATEFORME"
+            id="appName"
+            v-model="formPlatform.url"
+          />
+
+          <span
+            class="errors"
+            :class="{ showspan: iserrors }"
+            v-if="!$v.formPlatform.url.required"
+            >L'url de mis à jour est requis</span
+          >
+
+          <span
+            class="errors"
+            :class="{ showspan: iserrors }"
+            v-if="!$v.formPlatform.url.minLength && $v.formPlatform.url.format"
+            >l'url de mis à jour est invalide</span
+          >
+
+          <InputUser
+            title="L'URL DE REDIRECTION DE LA PLATEFORME"
+            id="appName"
+            v-model="formPlatform.redirectUrl"
+          />
+
+          <span
+            class="errors"
+            :class="{ showspan: iserrors }"
+            v-if="!$v.formPlatform.redirectUrl.required"
+            >L'url de redirection est requis</span
+          >
+
+          <span
+            class="errors"
+            :class="{ showspan: iserrors }"
+            v-if="
+              !$v.formPlatform.redirectUrl.minLength &&
+              $v.formPlatform.redirectUrl.format
+            "
+            >l'url de redirection est invalide</span
+          >
+
           <div class="d-flex justify-end">
             <div class="btn-retour" @click="cancelAdd()">RETOUR</div>
             <button type="submit" class="btn-creer">
@@ -35,8 +79,7 @@
 <script>
 import BachupInformation from "../Components/BackupInformation.vue";
 import InputUser from "../Components/InputUser";
-import { validationMixin } from "vuelidate";
-import { required, email, minLength, numeric } from "vuelidate/lib/validators";
+import { required, minLength } from "vuelidate/lib/validators";
 import { mapActions, mapGetters } from "vuex";
 
 export default {
@@ -48,7 +91,9 @@ export default {
   data() {
     return {
       formPlatform: {
-        platformName: null,
+        name: null,
+        url: null,
+        redirectUrl: null,
       },
       iserrors: true,
       error_platform: false,
@@ -56,9 +101,25 @@ export default {
   },
   validations: {
     formPlatform: {
-      platformName: {
+      name: {
         required,
         minLength: minLength(3),
+      },
+      redirectUrl: {
+        required,
+        format: (value) => {
+          const regex =
+            /https?:\/\/(?:w{1,3}\.)?[^\s.]+(?:\.[a-z]+)*(?::\d+)?(?![^<]*(?:<\/\w+>|\/?>))/gm;
+          return regex.test(value);
+        },
+      },
+      url: {
+        required,
+        format: (value) => {
+          const regex =
+            /https?:\/\/(?:w{1,3}\.)?[^\s.]+(?:\.[a-z]+)*(?::\d+)?(?![^<]*(?:<\/\w+>|\/?>))/gm;
+          return regex.test(value);
+        },
       },
     },
   },
@@ -67,13 +128,17 @@ export default {
       this.$router.push("/Platforms");
     },
 
-    async updateAppForm() {
+    async getPlatform() {
       const tem_plat = await this.$store.dispatch(
         "platforms/getPlatformInfo",
         this.$route.query.id
       );
 
-      console.log("tem_plat", tem_plat);
+      console.log(tem_plat, this.formPlatform);
+
+      this.formPlatform.name = tem_plat.name;
+      this.formPlatform.url = tem_plat.url;
+      this.formPlatform.redirectUrl = tem_plat.redirectUrl;
     },
 
     ...mapActions({ editPlatformItem: "platforms/editPlatformItem" }),
@@ -82,10 +147,16 @@ export default {
       this.$v.$touch();
 
       if (!this.$v.$invalid) {
-        console.log("valid form");
-
-        var profile = [this.formPlatform.platformName, this.$route.query.id];
-        this.editPlatformItem(profile);
+        this.editPlatformItem({
+          platform: this.formPlatform,
+          platformId: this.$route.query.id,
+        }).then((result) => {
+          console.log(result);
+          this.$router.push({
+            name: "DetailPlatform",
+            query: { id: this.$route.query.id },
+          });
+        });
       } else {
         this.iserrors = false;
       }
@@ -95,7 +166,7 @@ export default {
     ...mapGetters({}),
   },
   created() {
-    this.updateAppForm();
+    this.getPlatform();
   },
 };
 </script>

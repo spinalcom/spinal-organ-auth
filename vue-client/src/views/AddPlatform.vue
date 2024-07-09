@@ -39,7 +39,7 @@
           <span
             class="errors"
             :class="{ showspan: iserrors }"
-            v-if="!$v.formApp.url.minLength && $v.formApp.url.format"
+            v-if="!$v.formApp.url.format"
             >l'url de mis à jour est invalide</span
           >
 
@@ -59,9 +59,7 @@
           <span
             class="errors"
             :class="{ showspan: iserrors }"
-            v-if="
-              !$v.formApp.redirectUrl.minLength && $v.formApp.redirectUrl.format
-            "
+            v-if="!$v.formApp.redirectUrl.format"
             >l'url de redirection est invalide</span
           >
 

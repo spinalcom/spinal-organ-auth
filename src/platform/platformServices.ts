@@ -36,6 +36,7 @@ import { TokensService } from "../tokens/tokenService";
 const { setEnvValue } = require("../../whriteToenvFile");
 import * as bcrypt from "bcrypt";
 import { url } from "inspector";
+import { get } from "http";
 export class PlatformService {
 	static instance: PlatformService;
 	public platFormContext: SpinalContext;
@@ -87,6 +88,7 @@ export class PlatformService {
 				url: platformCreationParms.url || platformCreationParms.redirectUrl,
 				redirectUrl: platformCreationParms.redirectUrl || platformCreationParms.url,
 				address: platformCreationParms.address || "",
+				statusPlatform: statusPlatform["not connected"],
 			});
 
 			const plateformNode = new SpinalNode(platformCreationParms.name, PLATFORM_TYPE);
@@ -125,7 +127,7 @@ export class PlatformService {
 		const [platform] = await this.getPlatformsNodes(id);
 
 		for (const [key, value] of Object.entries(requestBody)) {
-			if (platform.info[key] && value !== undefined) platform.info[key].set(value);
+			if (platform.info[key] && value) platform.info[key].set(value);
 		}
 
 		await LogsService.getInstance().createLog(platform, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_VALID);
@@ -246,15 +248,34 @@ export class PlatformService {
 	}
 
 	public async registerNewPlatform(object: IRegisterParams): Promise<IPlatform | string> {
-		const registerKeyNode = await this.getRegisterKeySpinalNode();
-		const registerKey = registerKeyNode.info.value.get();
-		if (object.registerKey !== registerKey) {
-			await LogsService.getInstance().createLog(undefined, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.REGISTER, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID, "registerKey Not Valid");
-			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+		const plateform = await this.getPlatformByClientId(object.clientId);
+		if (!plateform || plateform.info.clientSecret?.get() !== object.clientSecret) {
+			await LogsService.getInstance().createLog(undefined, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.REGISTER, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID, "Invalid ClientId or ClientSecret");
+			throw new OperationError("Invalid ClientId or ClientSecret", HttpStatusCode.BAD_REQUEST);
 		}
 
-		const res = await this.createPlateform(object.platformCreationParms);
-		return res;
+		if (plateform.info.statusPlatform.get() === statusPlatform.connected && plateform.info.TokenBosAdmin?.get()) {
+			await LogsService.getInstance().createLog(plateform, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.REGISTER, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID, "Platform Already Connected");
+			throw new OperationError("Platform Already Connected", HttpStatusCode.BAD_REQUEST);
+		}
+
+		const plateformName = plateform.getName().get();
+		const tokenBosAdmin = this.generateTokenBosAdmin(plateformName);
+
+		plateform.info.statusPlatform.set(statusPlatform.connected);
+		plateform.info.mod_attr("TokenBosAdmin", tokenBosAdmin);
+
+		return this._formatPlatform(plateform);
+
+		// const registerKeyNode = await this.getRegisterKeySpinalNode();
+		// const registerKey = registerKeyNode.info.value.get();
+		// if (object.registerKey !== registerKey) {
+		// 	await LogsService.getInstance().createLog(undefined, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.REGISTER, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID, "registerKey Not Valid");
+		// 	throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+		// }
+
+		// const res = await this.createPlateform(object.platformCreationParms);
+		// return res;
 	}
 
 	public async updateNewPlatform(updateParams) {
@@ -310,10 +331,15 @@ export class PlatformService {
 
 	public async getPlatformsNodes(id?: string): Promise<SpinalNode[]> {
 		const context = await this.getContext();
-		const contexts = await context.getChildren(AUTH_SERVICE_PLATFORM_RELATION_NAME);
-		if (!id) return contexts;
+		const nodes = await context.getChildren(AUTH_SERVICE_PLATFORM_RELATION_NAME);
+		if (!id) return nodes;
 
-		return contexts.filter((platform) => platform.getId().get() === id);
+		return nodes.filter((platform) => platform.getId().get() === id);
+	}
+
+	public async getPlatformByClientId(clientId: string): Promise<SpinalNode> {
+		const nodes = await this.getPlatformsNodes();
+		return nodes.find((platform) => platform.info.clientId?.get() === clientId);
 	}
 
 	private _formatPlatform(platform: SpinalNode): IPlatform {
@@ -328,6 +354,8 @@ export class PlatformService {
 			TokenBosAdmin: platform.info.TokenBosAdmin?.get(),
 			TokenAdminBos: platform.info.TokenAdminBos?.get(),
 			idPlatformOfAdmin: platform.info.idPlatformOfAdmin?.get(),
+			clientId: platform.info.clientId?.get(),
+			// clientSecret: platform.info.clientSecret?.get(),
 		};
 	}
 }

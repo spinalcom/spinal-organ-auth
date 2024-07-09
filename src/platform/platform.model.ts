@@ -36,6 +36,8 @@ export interface IPlatform {
 	TokenAdminBos?: string;
 	idPlatformOfAdmin?: string;
 	redirectUrl: string;
+	clientId: string;
+	// clientSecret: string;
 }
 
 export interface IPlateformCreationParams {
@@ -54,16 +56,22 @@ export interface IPlateformCreationParams {
 }
 
 export interface IPlatformUpdateParams {
-	name: string;
-	statusPlatform?: statusPlatform;
+	name?: string;
+	redirectUrl?: string;
 	url?: string;
 	address?: string;
-	TokenBosAdmin?: string;
 }
+// export interface IRegisterParams {
+// 	platformCreationParms: IPlateformCreationParams;
+// 	registerKey: string;
+// }
+
 export interface IRegisterParams {
+	clientId: string;
+	clientSecret: string;
 	platformCreationParms: IPlateformCreationParams;
-	registerKey: string;
 }
+
 export interface IRegisterKeyObject {
 	id: string;
 	name: string;
@@ -72,10 +80,12 @@ export interface IRegisterKeyObject {
 }
 
 export enum statusPlatform {
-	"online" = "online",
-	"fail" = "fail",
-	"stop" = "stop",
-	"not registered" = "not registered",
+	connected = "connected",
+	"not connected" = "not connected",
+	// "online" = "online",
+	// "fail" = "fail",
+	// "stop" = "stop",
+	// "not registered" = "not registered",
 }
 
 export interface IPlatformLogs {

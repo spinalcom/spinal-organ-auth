@@ -22,22 +22,12 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { HttpStatusCode } from './http-status-code';
+import { HttpStatusCode } from "./http-status-code";
 
-export type OperationErrorMessage =
-  | 'UNKNOWN_ERROR'
-  | 'EMAIL_IN_USE'
-  | 'NOT_FOUND'
-  | 'INVALID_EMAIL'
-  | 'USERNAME_IS_ALREADY_USED'
-  | 'NOT_CREATED'
-  | 'UNAUTHORIZED ROLE'
-  | 'ERROR_PASSWORD'
-  | 'UNKNOWN_TOKEN'
-  | 'TOKEN_EXPIRED';
+export type OperationErrorMessage = "UNKNOWN_ERROR" | "EMAIL_IN_USE" | "NOT_FOUND" | "INVALID_EMAIL" | "USERNAME_IS_ALREADY_USED" | "NOT_CREATED" | "UNAUTHORIZED ROLE" | "ERROR_PASSWORD" | "UNKNOWN_TOKEN" | "TOKEN_EXPIRED" | string;
 
 export class OperationError extends Error {
-  constructor(message: OperationErrorMessage, readonly status: HttpStatusCode) {
-    super(message);
-  }
+	constructor(message: OperationErrorMessage, readonly status: HttpStatusCode) {
+		super(message);
+	}
 }

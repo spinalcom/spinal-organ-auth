@@ -16,8 +16,14 @@
               <span class="bar-information">{{ this.platform.url }}</span>
             </div>
             <div class="d-flex flex-column mr-16">
-              <span class="bar-sub-title">ADRESSE</span>
-              <span class="bar-information">{{ this.platform.address }}</span>
+              <span class="bar-sub-title">CLIENT ID</span>
+              <span class="bar-information">{{ this.platform.clientId }}</span>
+            </div>
+            <div class="d-flex flex-column mr-16">
+              <span class="bar-sub-title">CLIENT SECRET</span>
+              <span class="bar-information">{{
+                this.platform.clientSecret
+              }}</span>
             </div>
             <div class="d-flex flex-column mr-16">
               <span class="bar-sub-title">STATUT</span>
@@ -299,12 +305,6 @@ export default {
   },
   created() {
     this.updatePlatform();
-  },
-
-  watch: {
-    platform() {
-      console.log("this.platform", this.platform);
-    },
   },
 };
 </script>
