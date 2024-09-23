@@ -40,9 +40,9 @@ export default {
 
   data() {
     return {
-      menuList: ['TOUTE L’ADMINISTRATION', 'GESTION UTILISATEUR', 'GESTION APPLICATION', 'GESTION PLATFORME', 'LOGS'],
-      iconList: ['mdi-chart-tree', 'mdi-cog', 'mdi-cog', 'mdi-cog', 'mdi-chart-timeline-variant-shimmer'],
-      routeList: ['', 'users', 'Application', 'platforms', 'Logs'],
+      menuList: ['TOUTE L’ADMINISTRATION', 'GESTION UTILISATEUR', 'GESTION APPLICATION', 'GESTION PLATFORME', 'GESTION SERVEUR', 'LOGS'],
+      iconList: ['mdi-chart-tree', 'mdi-cog', 'mdi-cog', 'mdi-cog', 'mdi-server-security', 'mdi-chart-timeline-variant-shimmer'],
+      routeList: ['', 'users', 'Application', 'platforms', 'Servers', 'Logs'],
       menuIsOpen: false,
       menu2IsOpen: false,
       selectionMenu: false,
@@ -63,13 +63,13 @@ export default {
     },
 
     checkroute() {
-      if (this.$route.path == '/DetailUser' || this.$route.path == '/users'|| this.$route.path == '/AddUser' || this.$route.path == '/EditUser' ) {
+      if (this.$route.path == '/DetailUser' || this.$route.path == '/users' || this.$route.path == '/AddUser' || this.$route.path == '/EditUser') {
         this.selectionMenu = 1
-      } else if (this.$route.path == '/Application' || this.$route.path == '/DetailApp' || this.$route.path == '/AddApp'|| this.$route.path == '/EditApp') {
+      } else if (this.$route.path == '/Application' || this.$route.path == '/DetailApp' || this.$route.path == '/AddApp' || this.$route.path == '/EditApp') {
         this.selectionMenu = 2
       } else if (this.$route.path == '/platforms' || this.$route.path == '/DetailPlatform') {
         this.selectionMenu = 3
-      } else if(this.$route.path == '/'){
+      } else if (this.$route.path == '/') {
         this.selectionMenu = 0
       }
       else {
@@ -91,7 +91,7 @@ export default {
 }
 </script>
 
-<style scoped >
+<style scoped>
 .v-application {
   position: fixed;
   z-index: 99;

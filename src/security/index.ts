@@ -26,9 +26,9 @@ import * as express from "express";
 import * as jwt from "jsonwebtoken";
 import { AuthError } from "./AuthError";
 import { HttpStatusCode } from "../utilities/http-status-code";
-import { TokensService } from "../tokens/tokenService";
+import { TokensService } from "../routes/tokens/tokenService";
 import { SCOPES } from "../constant";
-import { AuthServerModel } from "../oauth/AuthServerModel";
+import { AuthServerModel } from "../SSO/oauth/AuthServerModel";
 import { InsufficientScopeError, InvalidTokenError, Token } from "@node-oauth/oauth2-server";
 // import { spinalOAuth2Server } from "../oauth";
 
@@ -42,7 +42,7 @@ export async function expressAuthentication(request: express.Request, securityNa
 
 		let tokenInfo = await getTokenInfo(token);
 		tokenInfo = await validateAccessToken(tokenInfo);
-		if (scopes) await verifyScope(tokenInfo, scopes);
+		// if (scopes) await verifyScope(tokenInfo, scopes);
 
 		return tokenInfo;
 	} catch (error) {

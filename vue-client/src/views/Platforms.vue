@@ -16,22 +16,15 @@
     </div> -->
 
     <div class="d-flex justify-end" style="width: 100%; min-width: 980px">
-      <v-card
-        class="d-flex flex-column ml-2 pl-1 pt-1 pb-1 pr-1 justify-center rounded-lg"
-        elevation="2"
-      >
-        <BlueButton
-          @click.native="goToCreatePlatform()"
-          :icon="'mdi-plus'"
-          title="AJOUTER UNE PLATEFORME"
-          :val="'blue'"
-        />
+      <v-card class="d-flex flex-column ml-2 pl-1 pt-1 pb-1 pr-1 justify-center rounded-lg" elevation="2">
+        <BlueButton @click.native="goToCreatePlatform()" :icon="'mdi-plus'" title="AJOUTER UNE PLATEFORME"
+          :val="'blue'" />
       </v-card>
     </div>
 
     <BachupInformation title="LISTE DES PLATEFORMES">
       <div class="d-flex mt-2">
-        <div style="width: 19%; min-width: 230px" class="sub-division">
+        <div class="sub-division">
           <span class="subtitle-backbar">Nom</span>
         </div>
         <div class="sub-division">
@@ -44,8 +37,13 @@
           <span class="subtitle-backbar">Nombre de Profil d'application</span>
         </div>
         <div class="sub-division">
-          <span class="subtitle-backbar">statut</span>
+          <span class="subtitle-backbar">dernière synchronisation</span>
         </div>
+
+        <!-- <div class="sub-division">
+          <span class="subtitle-backbar">Methode de connexion</span>
+        </div> -->
+
         <div class="sub-division">
           <span class="subtitle-backbar"></span>
         </div>
@@ -53,42 +51,68 @@
 
       <div v-for="item in this.platformList" :key="item.id">
         <div class="d-flex mb-2">
-          <div style="width: 20%; min-width: 230px" class="d-flex flex-column">
+          <div class="d-flex flex-column platformColumn ">
             <div class="btn-valider-user rounded-l-lg">
               <!-- <StateButton :obj="'bos'" :content1="item.name" :icon="'mdi-chip'" /> -->
               {{ item.name }}
             </div>
           </div>
-          <div style="width: 16%" class="d-flex flex-column">
+
+          <div class="d-flex flex-column platformColumn">
             <div class="btn-valider-user">
               <span>{{ item.organs.length }}</span>
             </div>
           </div>
-          <div style="width: 16%" class="d-flex flex-column">
+
+          <div class="d-flex flex-column platformColumn">
             <div class="btn-valider-user">
               <span>{{ item.userProfiles.length }}</span>
             </div>
           </div>
-          <div style="width: 16%" class="d-flex flex-column">
+
+          <div class="d-flex flex-column platformColumn">
             <div class="btn-valider-user">
               <span>{{ item.appProfiles.length }}</span>
             </div>
           </div>
-          <div style="width: 36%" class="d-flex flex-column">
+
+          <div class="d-flex flex-column platformColumn">
             <div class="btn-valider-user">
-              <StatutButton
-                :val="getStatus(item.statusPlatform)"
-                :title="item.statusPlatform || 'unknown'"
-              ></StatutButton>
+              <span>{{  getLastTimeSyncValue(item.lastSyncTime) }}</span>
+              <!-- <StatutButton
+                :val="lastSyncTime"
+                :title="item.lastSyncTime || 'unknown'"
+              ></StatutButton> -->
             </div>
           </div>
-          <div class="d-flex flex-column">
+
+          <!-- <div class="d-flex flex-column platformColumn">
+            <div class="btn-valider-user">
+              <span>{{ item.authentication_method }}</span>
+            </div>
+          </div> -->
+
+
+          <div class="d-flex platformColumn actions">
+            <div class="btn-valider-user rounded-r-lg pr-2 hover">
+              <button @click="deletePlatform(item)">
+                <v-icon>mdi-trash-can-outline</v-icon>
+              </button>
+            </div>
+
+            <div class="btn-valider-user rounded-r-lg pr-2 hover">
+              <button @click="syncData(item)" title="mettre les données à jour">
+                <v-icon>mdi-sync</v-icon>
+              </button>
+            </div>
+
             <div class="btn-valider-user rounded-r-lg pr-2 hover">
               <button @click="displayDetail(item)">
                 <v-icon>mdi-arrow-right</v-icon>
               </button>
             </div>
           </div>
+
         </div>
       </div>
     </BachupInformation>
@@ -99,12 +123,7 @@
           <span>X</span>
         </div>
         <p class="mb-12">NOUVELLE CLÉ</p>
-        <InputUser
-          :readonly="true"
-          class="mb-12 mt-6"
-          title="CLÉ ENREGISTRÉE"
-          :value="this.registerKey.value"
-        >
+        <InputUser :readonly="true" class="mb-12 mt-6" title="CLÉ ENREGISTRÉE" :value="this.registerKey.value">
         </InputUser>
         <div @click="show = false" class="mt-4 ml-1 popup-btn-fermer">
           <span>FERMER</span>
@@ -113,7 +132,7 @@
     </div>
   </v-app>
 </template>
-  
+
 <script>
 import BlueButton from "../Components/BlueButton.vue";
 import StatutButton from "../Components/StatutButton.vue";
@@ -122,6 +141,7 @@ import BachupInformation from "../Components/BackupInformation.vue";
 import StateButton from "../Components/StateButton.vue";
 import InputPassword from "../Components/InputPassword.vue";
 import { mapActions, mapGetters } from "vuex";
+import * as moment from "moment";
 
 export default {
   name: "App",
@@ -138,7 +158,19 @@ export default {
     show: false,
   }),
 
+  filters: {
+    formatDate(val) {
+      return moment(val).fromNow();
+    }
+  },
+
   methods: {
+
+    getLastTimeSyncValue(date) {
+      console.log("date", date)
+      return date ? moment(date).fromNow() : "never"
+    },
+
     getDataFromStore() {
       this.$store.dispatch("platforms/getPlatformlist");
       this.$store.dispatch("platforms/getRegisterKey");
@@ -157,6 +189,16 @@ export default {
     displayDetail(item) {
       this.$router.push({ name: "DetailPlatform", query: { id: item.id } });
     },
+
+    deletePlatform(item) {
+      const res = confirm(`Voulez-vous supprimer la plateforme "${item.name}"`);
+      if (res) this.$store.dispatch("platforms/deletePlatform", item.id);
+    },
+
+    syncData(platform) {
+      console.log(platform)
+    },
+
     ...mapActions({
       generateRegisterKey: "platforms/generateRegisterKey",
     }),
@@ -181,8 +223,8 @@ export default {
   },
 };
 </script>
-  
-<style scoped >
+
+<style scoped>
 .app {
   font: normal normal normal 10px/12px Charlevoix Pro;
   letter-spacing: 1px;
@@ -228,7 +270,29 @@ export default {
 .sub-division {
   display: flex;
   flex-direction: column;
-  width: 15%;
+  /* width: 14%; */
+  width: calc(20% - 30px);
+}
+
+.sub-division:last-child {
+  width: 150px !important;
+}
+
+.platformColumn {
+  /* width: 14%; */
+  width: calc(20% - 30px);
+}
+
+.platformColumn:last-child {
+  /* width: 14%; */
+  width: 150px !important;
+}
+
+.platformColumn.actions {
+  justify-content: flex-end;
+  background-color: #ffffff;
+  border-top-right-radius: 8px !important;
+  border-bottom-right-radius: 8px !important;
 }
 
 .popup-closebtn {
@@ -262,6 +326,7 @@ export default {
   align-items: center;
   cursor: pointer;
 }
+
 .hover:hover {
   background: rgb(228, 228, 228);
   transition: 0.3s;

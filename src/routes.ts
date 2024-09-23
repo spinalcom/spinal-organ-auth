@@ -3,23 +3,25 @@
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { Controller, ValidationService, FieldErrors, ValidateError, TsoaRoute, HttpStatusCodeLiteral, TsoaResponse, fetchMiddlewares } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { ApplicationsController } from './authApplication/applicationController';
+import { ApplicationsController } from './routes/authApplication/applicationController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { UsersController } from './authUser/userController';
+import { UsersController } from './routes/authUser/userController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { LogsController } from './logs/logController';
+import { LoginServerController } from './routes/loginServer/loginServerController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { NotificationController } from './notification/notificationController';
+import { LogsController } from './routes/logs/logController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { OrgansController } from './organ/organController';
+import { NotificationController } from './routes/notification/notificationController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { PlatformsController } from './platform/platformController';
+import { OrgansController } from './routes/organ/organController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { RegisterKeyController } from './platform/registerKeyController';
+import { PlatformsController } from './routes/platform/platformController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { RegisterController } from './register/registerController';
+import { RegisterKeyController } from './routes/platform/registerKeyController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { TokensController } from './tokens/tokenController';
+import { RegisterController } from './routes/register/registerController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { TokensController } from './routes/tokens/tokenController';
 import { expressAuthentication } from './security/index';
 // @ts-ignore - no great way to install types from subpackage
 const promiseAny = require('promise.any');
@@ -217,6 +219,62 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ServerType": {
+        "dataType": "refEnum",
+        "enums": ["INTERNAL_SERVER","EXTERNAL_SERVER"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CONNECTION_METHODS": {
+        "dataType": "refEnum",
+        "enums": ["local","saml","oauth2"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ISAMLAuthenticationInfo": {
+        "dataType": "refObject",
+        "properties": {
+            "issuer": {"dataType":"string","required":true},
+            "entryPoint": {"dataType":"string","required":true},
+            "cert": {"dataType":"string","required":true},
+            "callbackUrl": {"dataType":"string","required":true},
+            "logoutUrl": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IOAuthAuthenticationInfo": {
+        "dataType": "refObject",
+        "properties": {
+            "clientId": {"dataType":"string","required":true},
+            "clientSecret": {"dataType":"string","required":true},
+            "callbackUrl": {"dataType":"string"},
+            "grant_type": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"array","array":{"dataType":"string"}}]},
+            "endpoint": {"dataType":"string"},
+            "logoutUrl": {"dataType":"string"},
+            "scopes": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"array","array":{"dataType":"string"}}]},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ILocalAuthenticationInfo": {
+        "dataType": "refObject",
+        "properties": {
+            "code_challenge": {"dataType":"string","required":true},
+            "code_challenge_method": {"dataType":"enum","enums":["S256"],"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ILoginServer": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string"},
+            "type": {"ref":"ServerType"},
+            "authentication_method": {"ref":"CONNECTION_METHODS"},
+            "authentication_info": {"dataType":"union","subSchemas":[{"ref":"ISAMLAuthenticationInfo"},{"ref":"IOAuthAuthenticationInfo"},{"ref":"ILocalAuthenticationInfo"}]},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "INotification": {
         "dataType": "refObject",
         "properties": {
@@ -288,17 +346,19 @@ const models: TsoaRoute.Models = {
     "IPlatform": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"string","required":true},
+            "id": {"dataType":"string"},
             "name": {"dataType":"string","required":true},
             "type": {"dataType":"string","required":true},
             "statusPlatform": {"ref":"statusPlatform","required":true},
+            "lastSyncTime": {"dataType":"union","subSchemas":[{"dataType":"double"},{"dataType":"enum","enums":[null]}]},
             "url": {"dataType":"string","required":true},
             "address": {"dataType":"string"},
             "TokenBosAdmin": {"dataType":"string"},
             "TokenAdminBos": {"dataType":"string"},
             "idPlatformOfAdmin": {"dataType":"string"},
-            "redirectUrl": {"dataType":"string","required":true},
             "clientId": {"dataType":"string","required":true},
+            "clientSecret": {"dataType":"string"},
+            "redirectUrl": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -310,6 +370,7 @@ const models: TsoaRoute.Models = {
             "redirectUrl": {"dataType":"string"},
             "url": {"dataType":"string"},
             "address": {"dataType":"string"},
+            "loginServerIds": {"dataType":"array","array":{"dataType":"string"}},
         },
         "additionalProperties": false,
     },
@@ -365,16 +426,22 @@ const models: TsoaRoute.Models = {
     "IPlateformCreationParams": {
         "dataType": "refObject",
         "properties": {
+            "id": {"dataType":"string"},
             "name": {"dataType":"string","required":true},
-            "type": {"dataType":"string"},
-            "redirectUrl": {"dataType":"string","required":true},
-            "url": {"dataType":"string"},
-            "clientId": {"dataType":"string","required":true},
-            "clientSecret": {"dataType":"string","required":true},
-            "statusPlatform": {"ref":"statusPlatform"},
+            "type": {"dataType":"string","required":true},
+            "statusPlatform": {"ref":"statusPlatform","required":true},
+            "lastSyncTime": {"dataType":"union","subSchemas":[{"dataType":"double"},{"dataType":"enum","enums":[null]}]},
+            "url": {"dataType":"string","required":true},
             "address": {"dataType":"string"},
+            "TokenBosAdmin": {"dataType":"string"},
+            "TokenAdminBos": {"dataType":"string"},
+            "idPlatformOfAdmin": {"dataType":"string"},
+            "clientId": {"dataType":"string","required":true},
+            "clientSecret": {"dataType":"string"},
+            "redirectUrl": {"dataType":"string","required":true},
+            "loginServerIds": {"dataType":"array","array":{"dataType":"string"}},
         },
-        "additionalProperties": {"dataType":"any"},
+        "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IRegisterParams": {
@@ -382,7 +449,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "clientId": {"dataType":"string","required":true},
             "clientSecret": {"dataType":"string","required":true},
-            "platformCreationParms": {"ref":"IPlateformCreationParams","required":true},
+            "platformCreationParms": {"ref":"IPlateformCreationParams"},
         },
         "additionalProperties": false,
     },
@@ -926,6 +993,136 @@ export function RegisterRoutes(app: express.Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/loginserver/create',
+            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            ...(fetchMiddlewares<RequestHandler>(LoginServerController)),
+            ...(fetchMiddlewares<RequestHandler>(LoginServerController.prototype.createLoginServer)),
+
+            function LoginServerController_createLoginServer(request: any, response: any, next: any) {
+            const args = {
+                    serverInfo: {"in":"body","name":"serverInfo","required":true,"ref":"ILoginServer"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new LoginServerController();
+
+
+              const promise = controller.createLoginServer.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/loginserver/all_servers',
+            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            ...(fetchMiddlewares<RequestHandler>(LoginServerController)),
+            ...(fetchMiddlewares<RequestHandler>(LoginServerController.prototype.getAllLoginServer)),
+
+            function LoginServerController_getAllLoginServer(request: any, response: any, next: any) {
+            const args = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new LoginServerController();
+
+
+              const promise = controller.getAllLoginServer.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/loginserver/:serverId',
+            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            ...(fetchMiddlewares<RequestHandler>(LoginServerController)),
+            ...(fetchMiddlewares<RequestHandler>(LoginServerController.prototype.getLoginServer)),
+
+            function LoginServerController_getLoginServer(request: any, response: any, next: any) {
+            const args = {
+                    serverId: {"in":"path","name":"serverId","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new LoginServerController();
+
+
+              const promise = controller.getLoginServer.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.put('/loginserver/update/:serverId',
+            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            ...(fetchMiddlewares<RequestHandler>(LoginServerController)),
+            ...(fetchMiddlewares<RequestHandler>(LoginServerController.prototype.editLoginServer)),
+
+            function LoginServerController_editLoginServer(request: any, response: any, next: any) {
+            const args = {
+                    serverId: {"in":"path","name":"serverId","required":true,"dataType":"string"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"ILoginServer"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new LoginServerController();
+
+
+              const promise = controller.editLoginServer.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.delete('/loginserver/delete/:serverId',
+            authenticateMiddleware([{"jwt":["authAdmin:delete"]}]),
+            ...(fetchMiddlewares<RequestHandler>(LoginServerController)),
+            ...(fetchMiddlewares<RequestHandler>(LoginServerController.prototype.deleteLoginServer)),
+
+            function LoginServerController_deleteLoginServer(request: any, response: any, next: any) {
+            const args = {
+                    serverId: {"in":"path","name":"serverId","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new LoginServerController();
+
+
+              const promise = controller.deleteLoginServer.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/logs',
             authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(LogsController)),
@@ -1151,6 +1348,59 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.getPlateform.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/platforms/:platformId/loginServers',
+            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getPlateformLoginServers)),
+
+            function PlatformsController_getPlateformLoginServers(request: any, response: any, next: any) {
+            const args = {
+                    platformId: {"in":"path","name":"platformId","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new PlatformsController();
+
+
+              const promise = controller.getPlateformLoginServers.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/platforms/:platformId/loginServers',
+            authenticateMiddleware([{"jwt":["authAdmin:delete"]}]),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.removeLoginServersFromPlateform)),
+
+            function PlatformsController_removeLoginServersFromPlateform(request: any, response: any, next: any) {
+            const args = {
+                    platformId: {"in":"path","name":"platformId","required":true,"dataType":"string"},
+                    data: {"in":"body","name":"data","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"ids":{"dataType":"array","array":{"dataType":"string"},"required":true}}},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new PlatformsController();
+
+
+              const promise = controller.removeLoginServersFromPlateform.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

@@ -103,7 +103,6 @@ export default {
                         appProfileId: platform.appProfile.appProfileId
                     }
                 };
-                console.log(infoPlatform);
                 commit('ADD_PLATFORM_OBJECT', infoPlatform);
             }
         },

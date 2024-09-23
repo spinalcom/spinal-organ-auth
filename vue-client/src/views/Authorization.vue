@@ -15,39 +15,15 @@
             incorrect login and/or password !
           </v-alert>
 
-          <v-text-field
-            outlined
-            height="35"
-            autocomplete="username"
-            dense
-            label="Login"
-            name="userName"
-            v-model="credential.userName"
-            required
-          ></v-text-field>
+          <v-text-field outlined height="35" autocomplete="username" dense label="Login" name="userName"
+            v-model="credential.userName" required></v-text-field>
 
-          <v-text-field
-            outlined
-            name="password"
-            v-model="credential.password"
-            height="35"
-            dense
-            label="Password"
-            required
-            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="showPassword ? 'text' : 'password'"
-            class="input-group--focused"
-            @click:append="showPassword = !showPassword"
-          ></v-text-field>
+          <v-text-field outlined name="password" v-model="credential.password" height="35" dense label="Password"
+            required :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" :type="showPassword ? 'text' : 'password'"
+            class="input-group--focused" @click:append="showPassword = !showPassword"></v-text-field>
 
-          <v-text-field
-            v-for="key in hiddenKeys"
-            :key="key"
-            style="display: none"
-            :name="key"
-            type="hidden"
-            v-model="hidenData[key]"
-          ></v-text-field>
+          <v-text-field v-for="key in hiddenKeys" :key="key" style="display: none" :name="key" type="hidden"
+            v-model="hidenData[key]"></v-text-field>
         </v-card-text>
 
         <v-card-actions class="loginCardAction">
@@ -62,7 +38,6 @@
 // import logoSvg from "../assets/img/logo1.jpg";
 import { mapActions } from "vuex";
 import logoSvg from "../assets/logo1.jpg";
-import authorization from "../modules/authorization";
 
 export default {
   name: "Authorization",
@@ -86,7 +61,7 @@ export default {
       },
     };
   },
-  created() {},
+  created() { },
   mounted() {
     this.hidenData = this.$route.query;
     this.hiddenKeys = Object.keys(this.hidenData);

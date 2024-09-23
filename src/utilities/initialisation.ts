@@ -1,15 +1,24 @@
 import { SpinalGraphService } from "spinal-env-viewer-graph-service";
 import { SpinalContext } from "spinal-model-graph";
-import { TokensService } from "../tokens/tokenService";
-import { AUTH_SERVICE_INFO_ADMIN_RELATION_NAME, AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, AUTH_SERVICE_USER_RELATION_NAME, INFO_ADMIN, LOG_LIST, TOKEN_LIST, USER_LIST } from "../constant";
-import { LogsService } from "../logs/logService";
-import { UserService } from "../authUser/userService";
-import { PlatformService } from "../platform/platformServices";
-import { RefreshTokenService } from "../tokens/refreshTokenService";
-import { AuthorizationCodeService } from "../tokens/AuthorizationCodeService";
+import { TokensService } from "../routes/tokens/tokenService";
+import { AUTH_SERVICE_INFO_ADMIN_RELATION_NAME, AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, AUTH_SERVICE_USER_RELATION_NAME, INFO_ADMIN, LOG_LIST, LOGIN_SERVER_CONTEXT_NAME, TOKEN_LIST, USER_LIST } from "../constant";
+import { LogsService } from "../routes/logs/logService";
+import { UserService } from "../routes/authUser/userService";
+import { PlatformService } from "../routes/platform/platformServices";
+import { RefreshTokenService } from "../routes/tokens/refreshTokenService";
+import { AuthorizationCodeService } from "../routes/tokens/AuthorizationCodeService";
+import loginService from "../routes/loginServer/loginServerService";
 
 export async function initAllServices(contexts: SpinalContext[]) {
-	const promises = [AuthorizationCodeService.getInstance().init(), RefreshTokenService.getInstance().init(), initLogsService(contexts), initTokenService(contexts), initUserService(contexts), initPlatformService()];
+	const promises = [
+		AuthorizationCodeService.getInstance().init(),
+		RefreshTokenService.getInstance().init(),
+		initLogsService(contexts),
+		initTokenService(contexts),
+		initUserService(contexts),
+		initPlatformService(),
+		initLoginServer(contexts)
+	]
 	return Promise.all(promises);
 }
 
@@ -80,4 +89,10 @@ export async function createOrGetRegisterKey(contexts: SpinalContext[]) {
 			}
 		}
 	}
+}
+
+
+export async function initLoginServer(contexts: SpinalContext[]) {
+	const context = contexts.find((context) => context.getName().get() === LOGIN_SERVER_CONTEXT_NAME);
+	if (context) loginService.init(context);
 }

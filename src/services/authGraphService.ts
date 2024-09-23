@@ -22,10 +22,10 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 import { SpinalGraph, SpinalContext } from "spinal-env-viewer-graph-service";
-import { PLATFORM_LIST, USER_LIST, APPLICATION_LIST, TOKEN_LIST, LOG_LIST, INFO_ADMIN, NOTIFICATION_LIST } from "../constant";
+import { PLATFORM_LIST, USER_LIST, APPLICATION_LIST, TOKEN_LIST, LOG_LIST, INFO_ADMIN, NOTIFICATION_LIST, LOGIN_SERVER_CONTEXT_NAME, LOGIN_SERVER_CONTEXT_TYPE } from "../constant";
 
 export async function initAllContexts(graph: SpinalGraph): Promise<SpinalContext[]> {
-	const contextNames = [USER_LIST, APPLICATION_LIST, PLATFORM_LIST, TOKEN_LIST, INFO_ADMIN, LOG_LIST, NOTIFICATION_LIST];
+	const contextNames = [USER_LIST, APPLICATION_LIST, PLATFORM_LIST, TOKEN_LIST, INFO_ADMIN, LOG_LIST, NOTIFICATION_LIST, LOGIN_SERVER_CONTEXT_NAME];
 	// const promises = contextNames.map(async (contextName) => {
 	// 	let context = await graph.getContext(contextName);
 	// 	if (!context) context = await graph.addContext(new SpinalContext(contextName));
@@ -37,11 +37,25 @@ export async function initAllContexts(graph: SpinalGraph): Promise<SpinalContext
 	const contexts = [];
 	for (const contextName of contextNames) {
 		let context = await graph.getContext(contextName);
-		if (!context) context = await graph.addContext(new SpinalContext(contextName));
+		let type = getContextType(contextName);
+		if (!context) context = await graph.addContext(new SpinalContext(contextName, type));
 		contexts.push(context);
 	}
 
 	return contexts;
+}
+
+
+function getContextType(contextName: string): string {
+
+	switch (contextName) {
+		case LOGIN_SERVER_CONTEXT_NAME:
+			return LOGIN_SERVER_CONTEXT_TYPE
+
+		default:
+			"SpinalContext";
+	}
+
 }
 
 // export class Services {

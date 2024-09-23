@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Login </title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link rel="stylesheet" href="/auth_static/css/basic/reset.css" />
+    <link rel="stylesheet" href="/auth_static/css/basic/main.css" />
+    <link rel="stylesheet" href="/auth_static/css/basic/style.css" />
+</head>
+
+<body>
+    <div class="container" id="app">
+        <!-- <form id="form" method="post">
+
+
+
+            <input type="text" id="username" class="input">
+            <input type="password" id="password" class="input">
+            <button type="submit">Se connecter</button>
+        </form> -->
+
+        <v-container class="loginAppContainer" fluid>
+            <v-card class="loginCard" elevation="4">
+                <v-card-title class="loginCardTitle">
+                    <div class="logoImg">
+                        <div class="logo">
+                            <img class="img" alt="logo" src="/auth_static/css/assets/logo1.jpg" />
+                        </div>
+                    </div>
+                </v-card-title>
+
+                <v-card-text class="loginCardContent">
+
+                    <div class="externalLogin" v-if="externalServers.length > 0">
+                        <form v-for="(server,index) in externalServers" :key="index" method="post"
+                            :action="`/login/${platformId}/${server.id}`">
+                            <v-btn class="ma-2 connectionBtn" outlined rounded block type="submit">
+                                <!-- @click="connectWithExternalServer(server)" -->
+                                Login with {{server.name}}
+                            </v-btn>
+                        </form>
+                    </div>
+
+                    <div class="divider" v-if="localServers.length > 0 && externalServers.length > 0">
+                        <v-row>
+                            <v-col cols="4" class="text-center dividerBar">
+                                <v-divider />
+                            </v-col>
+
+                            <v-col cols="4" class="text-center class dividerText"> or connect with </v-col>
+
+                            <v-col cols="4" class="text-center dividerBar">
+                                <v-divider />
+                            </v-col>
+                        </v-row>
+                    </div>
+
+
+
+                    <form class="localLogin" v-if="localServers.length > 0" method="post"
+                        :action="`/login/${platformId}/${localServers[0].id}`">
+                        <v-alert v-show="!hide && showError" dense outlined class="alertDiv">
+                            incorrect login and/or password !
+                        </v-alert>
+
+                        <v-text-field outlined height="35" autocomplete="username" dense label="Login" name="userName"
+                            v-model="credential.userName" required></v-text-field>
+
+                        <v-text-field outlined name="password" v-model="credential.password" height="35" dense
+                            label="Password" required :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                            :type="showPassword ? 'text' : 'password'" class="input-group--focused"
+                            @click:append="showPassword = !showPassword"></v-text-field>
+
+                        <div class="loginCardAction" @click="connectWithLocalServer">
+                            <v-btn dark type="submit"> Connexion </v-btn>
+                        </div>
+                    </form>
+
+
+                </v-card-text>
+
+
+            </v-card>
+        </v-container>
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+        var servers = '<%- servers %>'
+    </script>
+    <script src="/auth_static/vueComponent.js"></script>
+    <!-- <script src="/auth_static/script.js"></script> -->
+</body>
+
+</html>

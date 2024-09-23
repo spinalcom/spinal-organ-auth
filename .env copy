@@ -5,7 +5,6 @@ SPINALHUB_IP=''
 SPINAL_PASSWORD=''
 SPINALHUB_PORT=''
 
-SPINALHUB_URL=''
 
 #Auth info
 TOKEN_SECRET='' # will be generated if not provided

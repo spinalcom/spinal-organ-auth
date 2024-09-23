@@ -27,33 +27,27 @@ import * as bodyParser from "body-parser";
 import * as cors from "cors";
 import * as morgan from "morgan";
 import * as _ from "lodash";
+import * as passport from "passport";
+import * as session from "express-session";
 import config from "./config";
 import path = require("path");
-import * as methodOverride from "method-override";
 import { RegisterRoutes } from "./routes";
-import { Response as ExResponse, Request as ExRequest } from "express";
-import * as swaggerUi from "swagger-ui-express";
 import { ValidateError } from "tsoa";
 import { AuthError } from "./security/AuthError";
-// import * as OAuthServer from "@node-oauth/express-oauth-server";
-import { spinalOAuth2Server } from "./oauth";
-import { AuthServerModel } from "./oauth/AuthServerModel";
-// import { AuthenticateHandler } from "./oauth/AuthenticateHandler";
-
+import { MultiSamlStrategy } from "passport-saml";
+import { RegisterSamlRoutes } from "./SSO/saml/routes";
+import { registerOAuthRoutes } from "./SSO/oauth/routes";
+import { LogWithServer, redirectToLoginPage } from "./loginRoute";
+// import * as methodOverride from "method-override";
+// import { Response as ExResponse, Request as ExRequest } from "express";
+// import * as swaggerUi from "swagger-ui-express";
 const jsonFile = require("../build/swagger.json");
 var history = require("connect-history-api-fallback");
-/**
- *
- *
- * @return {*}  {express.Express}
- */
+
 function Server(): express.Express {
 	const app: any = express();
 
-	// app.oauth = new OAuthServer({
-	// 	model: AuthServerModel.instance,
-	// 	useErrorHandler: false,
-	// });
+	app.set('view engine', 'ejs');
 
 	// enable files upload
 	app.use(fileUpload({ createParentPath: true }));
@@ -62,29 +56,33 @@ function Server(): express.Express {
 	app.disable("x-powered-by");
 	app.use(express.json());
 	app.use(express.urlencoded({ extended: true }));
-	// app.use(methodOverride());
+	app.use(session({ secret: "sessionSecret", resave: true, saveUninitialized: true, cookie: { secure: false, maxAge: 60000 } }));
+	app.use(passport.initialize());
+	app.use(passport.session());
 
-	// app.use(history());
 
+	app.use("/auth_static", express.static(path.resolve(__dirname, "../authorizationPage")));
 	app.use(express.static(path.resolve(__dirname, "../vue-client/dist")));
+
 
 	// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(jsonFile));
 
 	// app.get("/", (req, res) => res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html")));
-	app.get("/authorize", (req, res) => res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html")));
 
-	// app.post("/oauth/token", app.oauth.token());
-	// app.post(
-	// 	"/oauth/authorize",
-	// 	app.oauth.authorize({
-	// 		authenticateHandler: new AuthenticateHandler({ model: AuthServerModel.instance }),
-	// 	})
-	// );
 
-	app.post("/oauth/token", spinalOAuth2Server.getToken.bind(spinalOAuth2Server));
-	app.post("/oauth/authorize", spinalOAuth2Server.askUserAuthorization.bind(spinalOAuth2Server));
-
+	// Register routes here !!!!
+	registerOAuthRoutes(app);
+	RegisterSamlRoutes(app);
 	RegisterRoutes(app);
+
+	app.get("/login/:plateformClientId", redirectToLoginPage);
+	app.post("/login/:platformId/:serverId", LogWithServer);
+
+	app.get("/authorize", (req, res) => {
+		const myRelativePath = path.resolve(__dirname, "../authorizationPage", "index.ejs");
+		console.log(myRelativePath)
+		res.render(myRelativePath, { name: "Moussa" })
+	});
 
 	app.get("/*", (req, res) => res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html")));
 

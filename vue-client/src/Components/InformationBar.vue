@@ -1,17 +1,16 @@
 <template>
-  <div class="d-flex">
-    <v-card
-      style="min-width: 800px; width: 100%"
-      class="d-flex bar-bloc-left rounded-lg"
-      elevation="2"
-    >
+  <div class="d-flex header-bar">
+    <!-- style="min-width: 800px; width: 100%" -->
+    <v-card class="d-flex bar-bloc-left rounded-lg" elevation="2">
       <div class="bar-icon">
         <img width="100" height="100" :src="icon" alt="" />
       </div>
       <div class="px-3 py-2" :class="{ total: btn === 'off' }">
         <div class="bar-title-section mb-1">{{ title }}</div>
         <div class="mb-4 bar-title-nom">{{ title2 }}</div>
-        <slot></slot>
+        <div class="slotContent">
+          <slot></slot>
+        </div>
       </div>
     </v-card>
 
@@ -55,10 +54,19 @@ export default {
 </script>
   
 <style >
-.bar-bloc-left {
-  width: 87%;
+.header-bar {
+  width: 100%;
+  min-width: 800px;
   min-height: 171px;
-  height: 171px;
+  margin-bottom: 20px;
+}
+
+.bar-bloc-left {
+  /* width: 87%; */
+  /* min-height: 171px; */
+  /* height: 171px; */
+  width: 100%;
+  height: 100%;
 }
 
 .bar-bloc-right {
@@ -81,6 +89,7 @@ export default {
 }
 
 .bar-title-section {
+  height: 20px;
   letter-spacing: 0.6px;
   color: #435567;
   font-size: 12px;
@@ -89,6 +98,7 @@ export default {
 }
 
 .bar-title-nom {
+  height: 40px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   letter-spacing: 1.1px;
   font-weight: 100;
@@ -100,6 +110,11 @@ export default {
   color: #949da6;
   font: normal normal normal 11px/13px Charlevoix Pro;
   margin-bottom: 10px;
+}
+
+.slotContent {
+  width: 100%;
+  height: calc(100% - 70px);
 }
 
 .px-3.py-2.total {

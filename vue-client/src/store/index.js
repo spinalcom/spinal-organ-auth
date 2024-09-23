@@ -31,6 +31,7 @@ import applications from "../modules/applications";
 import platforms from "../modules/platforms";
 import logs from "../modules/logs";
 import authorization from "../modules/authorization";
+import serverLogin from "../modules/serverLogin";
 
 Vue.use(Vuex);
 
@@ -47,6 +48,7 @@ export default new Vuex.Store({
     applications,
     platforms,
     logs,
-    authorization
+    authorization,
+    serverLogin
   }
 });

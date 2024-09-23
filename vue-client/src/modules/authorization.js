@@ -18,7 +18,6 @@ export default {
         const response = await instanceAxios.post("/oauth/authorize", data, {
           headers: { "content-type": "application/x-www-form-urlencoded" }
         });
-        console.log(response);
         commit("SET_STATE", true);
 
         return response.data;

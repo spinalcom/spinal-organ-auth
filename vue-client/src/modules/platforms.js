@@ -34,7 +34,8 @@ export default {
     platform: [],
     platformlog: [],
     appListLinkPlatform: [],
-    userListLinkPlatform: []
+    userListLinkPlatform: [],
+    loginServerList: []
   },
   getters: {
     platformList: state => state.platformlist,
@@ -42,7 +43,8 @@ export default {
     platform: state => state.platform,
     platformlog: state => state.platformlog,
     appListLinkPlatform: state => state.appListLinkPlatform,
-    userListLinkPlatform: state => state.userListLinkPlatform
+    userListLinkPlatform: state => state.userListLinkPlatform,
+    loginServerList: state => state.loginServerList
   },
   actions: {
     async savePlatform({ commit }, platform) {
@@ -119,7 +121,7 @@ export default {
       });
       this.platformList = rep.data;
       const test = await Promise.all(
-        rep.data.map(async function(item) {
+        rep.data.map(async function (item) {
           item.organs = await dispatch("getOrgans", item.id);
           item.userProfiles = await dispatch("getUserProfiles", item.id);
           item.appProfiles = await dispatch("getAppProfiles", item.id);
@@ -141,6 +143,37 @@ export default {
         }
       );
       commit("setPlatformLog", rep.data);
+    },
+
+
+    async getServerList({ commit }, platformId) {
+      const rep = await instanceAxios.instanceAxios.get(
+        `/platforms/${platformId}/loginServers`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": localStorage.getItem("token")
+          }
+        }
+      );
+      commit("setPlatformServerList", rep.data);
+      return rep.data
+    },
+    async deletePlatform({ commit, dispatch }, platformId) {
+      try {
+        const rep = await instanceAxios.instanceAxios.delete(`/platforms/${platformId}`, {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": localStorage.getItem("token")
+          }
+        });
+
+        // console.log(test);
+        commit("deletePlatform", platformId);
+      } catch (error) {
+        console.error(error);
+      }
+
     },
 
     async getPlatformInfo({ commit }, platformId) {
@@ -244,6 +277,7 @@ export default {
     addPlatform: (state, platform) =>
       (state.platformlist = [...state.platformlist, platform]),
 
+    deletePlatform: (state, platformId) => (state.platformlist = state.platformlist.filter(el => el.id !== platformId)),
     setplatformList: (state, platformlist) =>
       (state.platformlist = platformlist),
     setregisterkey: (state, registerKey) => (state.registerKey = registerKey),
@@ -252,6 +286,8 @@ export default {
     setAppListLinkPlatform: (state, appListLinkPlatform) =>
       (state.appListLinkPlatform = appListLinkPlatform),
     setuserListLinkPlatform: (state, userListLinkPlatform) =>
-      (state.userListLinkPlatform = userListLinkPlatform)
+      (state.userListLinkPlatform = userListLinkPlatform),
+
+    setPlatformServerList: (state, servers) => (state.loginServerList = servers)
   }
 };

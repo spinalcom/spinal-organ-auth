@@ -27,12 +27,14 @@ export default {
 
 <style>
 #app {
-  /* width: 100vw;
-  height: 100vh; */
+  /*
+  width: 100vw;
+  height: 100vh; 
   overflow-x: scroll;
+  */
 }
 
-.content {
+#app .content {
   margin-top: 80px;
   padding: 10px;
 }

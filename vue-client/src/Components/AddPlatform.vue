@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="types == 'user'">
-            
+
             <div v-for="(item, index) in nbPlatform" :key="item" class="ajout-platform"
                 :style="disableobjet[index] ? disableobjet[index].plat == true ? 'background : #e6f3ed' : '' : ''"
                 :id="index">
@@ -11,7 +11,8 @@
                         :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false" />
                     <SelectUser @change.native="" :id=index class="profilut"
                         :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false"
-                        :tab="userProfileList" v-model="formPlatformObject.userProfileValue" title="PROFIL UTILISATEUR" />
+                        :tab="userProfileList" v-model="formPlatformObject.userProfileValue"
+                        title="PROFIL UTILISATEUR" />
                 </div>
                 <button @click="deletePlatformObjectitem(index)" type="button" class="red-cross">X</button>
             </div>
@@ -31,7 +32,8 @@
                         :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false" />
                     <SelectUser @change.native="" :id=index class="profilut"
                         :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false"
-                        :tab="appProfileList" v-model="formPlatformObjectapp.appProfileValue" title="PROFIL APPLICATION" />
+                        :tab="appProfileList" v-model="formPlatformObjectapp.appProfileValue"
+                        title="PROFIL APPLICATION" />
                 </div>
                 <button @click="deletePlatformObjectitemapp(index)" type="button" class="red-cross">X</button>
             </div>
@@ -78,7 +80,6 @@ export default {
     },
     methods: {
         detailPlatform(tab) {
-            // console.log(tab);
             if (this.types == 'user') {
                 this.nbPlatform = tab.length
             } else {
@@ -111,12 +112,10 @@ export default {
 
             var test = true;
             var plat = true;
-            console.log(this.platformObjectList.length);
 
 
 
 
-            console.log(this.platformObjectList);//prend l object
             for (const platformObject of this.platformObjectList) {
                 if (platformObject.platformId === this.formPlatformObject.platform.id) {//verification unicité
                     alert("you cannot select platform even twice");
@@ -144,9 +143,7 @@ export default {
 
             if (this.platformObjectList.length > 0) {
                 this.platformObjectList.forEach((element, index) => {
-                    console.log(element.userProfile.userProfileId);
                     if (element.userProfile.userProfileId == undefined) {
-                        console.log('un unedefined');
                         alert("platform vide");
                         // this.nbPlatform--;
                         //  this.disableobjet.splice(-1, 1);
@@ -155,7 +152,6 @@ export default {
                         this.platformObjectList.splice(index, 1); // Supprimer l'élément
                         return;
                     }
-                    console.log(this.platformObjectList);
                 });
             }
             if (plat == true) {
@@ -165,7 +161,6 @@ export default {
                     plat: false,
                 })
             }
-            console.log('log' + this.platformObjectList);
             this.lafonction(this.platformObjectList);
 
 
@@ -186,10 +181,9 @@ export default {
             // if (this.formPlatformObjectapp.appProfileValue.appProfileId) {
             var test = true;
             var plat = true;
-            // console.log(this.formPlatformObjectapp);
-            console.log('log' + this.platformObjectList);
 
-            
+
+
 
 
             //if this.platformObjectList est superieur a 0 et tant que this.platformObjectList.toutlesobjet si this.platformObjectList.appprofil.appprofilID == undefined alerte vous ne pouvez pas ajouter de platformvide supprime l element en question
@@ -220,9 +214,7 @@ export default {
             }
             if (this.platformObjectList.length > 0) {
                 this.platformObjectList.forEach((element, index) => {
-                    console.log(element.appProfile.appProfileId);
                     if (element.appProfile.appProfileId == undefined) {
-                        console.log('un unedefined');
                         alert("platform vide");
                         // this.nbPlatform--;
                         //  this.disableobjet.splice(-1, 1);
@@ -231,7 +223,6 @@ export default {
                         this.platformObjectList.splice(index, 1); // Supprimer l'élément
                         return;
                     }
-                    console.log(this.platformObjectList);
                 });
             }
 
@@ -280,7 +271,6 @@ export default {
         },
 
         async getuserfromplatform() {
-            console.log(this.formPlatformObject.platform);
             var id = this.formPlatformObject.platform.id
             this.userProfileList = await this.$store.dispatch('users/getUserProfileList', id);
         },
@@ -332,7 +322,7 @@ export default {
 
 };
 </script>
-  
+
 <style>
 .platform {
     z-index: 99;

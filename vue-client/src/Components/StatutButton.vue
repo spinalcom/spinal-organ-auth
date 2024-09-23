@@ -1,7 +1,7 @@
 <template >
   <div class="d-flex justify-center">
     <div
-      v-if="val.toUpperCase() == 'ONLINE'"
+      v-if="val.toUpperCase() == 'CONNECTED'"
       tile
       class="d-flex align-center justify-start pl-1"
       :class="'online-btn'"
@@ -11,7 +11,7 @@
     </div>
 
     <div
-      v-else-if="val.toUpperCase() == 'OFFLINE'"
+      v-else-if="val.toUpperCase() == 'NOT CONNECTED'"
       tile
       class="d-flex align-center justify-start pl-1"
       :class="'offline-btn'"

@@ -55,6 +55,8 @@ export const REFRESH_TOKEN_CONTEXT_TYPE = "RefreshTokenContext";
 export const REFRESH_TOKEN_TYPE = "RefreshTokenNode";
 export const AUTHORIZATION_CODE_CONTEXT_TYPE = "AuthorizationCodesContext";
 export const AUTHORIZATION_CODE_TYPE = "AuthorizationCode";
+export const LOGIN_SERVER_CONTEXT_TYPE = "LoginServerList";
+export const LOGIN_SERVER_TYPE = "LoginServer";
 
 // RelationName
 export const AUTH_SERVICE_PLATFORM_RELATION_NAME = "HasPlatform";
@@ -76,6 +78,8 @@ export const AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME = "HasEventLog";
 export const AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME = "HasRequestEventLog";
 export const REFRESH_TOKEN_CONTEXT_TO_NODE_RELATION_NAME = "HasRefreshToken";
 export const AUTHORIZATION_CODE_CONTEXT_TO_NODE_RELATION_NAME = "HasAuthorizationCode";
+export const LOGIN_SERVER_RELATION_NAME = "HasLoginServer";
+export const PLATFORM_TO_LOGIN_SERVER = "PlatformHasLoginServer";
 
 //ContextName
 export const PLATFORM_LIST = "platformList";
@@ -87,6 +91,7 @@ export const LOG_LIST = "logList";
 export const NOTIFICATION_LIST = "notificationList";
 export const REFRESH_TOKEN_CONTEXT_NAME = "RefreshToken";
 export const AUTHORIZATION_CODE_CONTEXT_NAME = "AuthorizationCodes";
+export const LOGIN_SERVER_CONTEXT_NAME = "LoginServerList";
 
 // logs categories
 
@@ -134,4 +139,10 @@ export enum SCOPES {
 	"authAdmin:read" = "authAdmin:read",
 	"authAdmin:delete" = "authAdmin:delete",
 	"ownData:read" = "ownData:read",
+}
+
+export enum CONNECTION_METHODS {
+	"local" = "local",
+	"saml" = "saml",
+	"oauth2" = "oauth2",
 }

@@ -41,7 +41,13 @@ import EditPlatform from "@/views/EditPlatform";
 import AddPlatform from "@/views/AddPlatform";
 import Authorization from "@/views/Authorization";
 
+import AddServer from "@/views/AddServer";
+import ServerDetail from "@/views/ServerDetail";
+import ServerList from "@/views/ServerList";
+
+
 import { isAuthenticate } from "./genToken";
+import path from "path";
 
 const authorizationPath = "/authorize";
 
@@ -131,8 +137,13 @@ const routes = [
     path: authorizationPath,
     name: "Authorize",
     component: Authorization
-  }
+  },
+  { path: "/Servers", name: "Servers", component: ServerList },
+  { path: "/EditServer", name: "EditServer", component: AddServer },
+  { path: "/AddServer", name: "AddServer", component: AddServer },
+  { path: "/ServerDetail", name: "ServerDetail", component: ServerDetail },
 ];
+
 
 const router = new Router({
   routes,

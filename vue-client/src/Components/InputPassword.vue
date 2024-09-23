@@ -1,15 +1,9 @@
 <template>
   <div>
     <label class="title-input">{{ title }}</label>
-    <div class="d-flex">
-      <input
-        :readonly="readonly"
-        :required="required"
-        :value="value"
-        :type="show3 ? 'text' : 'password'"
-        @input="$emit('input', $event.target.value)"
-        class="input-user"
-      />
+    <div class="input-Div">
+      <input :readonly="readonly" :required="required" :value="value" :type="show3 ? 'text' : 'password'"
+        @input="$emit('input', $event.target.value)" class="input-user" />
 
       <div class="btn-eye" v-if="generate" @click="generatePassword">
         <v-icon style="color: white"> mdi-autorenew </v-icon>
@@ -18,12 +12,12 @@
       <div class="btn-eye" @click="show3 = !show3">
         <v-icon style="color: white">{{
           show3 ? "mdi-eye-outline" : "mdi-eye-off-outline"
-        }}</v-icon>
+          }}</v-icon>
       </div>
     </div>
   </div>
 </template>
-    
+
 <script>
 export default {
   name: "input-pass",
@@ -41,7 +35,11 @@ export default {
 };
 </script>
 
-<style >
+<style>
+.input-Div {
+  display: flex;
+}
+
 .input-user {
   border-radius: 6px;
   border: 1px solid #e3e7e8;
