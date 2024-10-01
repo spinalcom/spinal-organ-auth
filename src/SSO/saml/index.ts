@@ -40,7 +40,7 @@ class SpinalPassportSaml extends Authenticator {
 		let options = this.samlOptions[(<any>req).sessionID];
 
 		if (!options) {
-			const [serverNode] = await loginService.getLoginServer(serverId)
+			const [serverNode] = await loginService.getLoginServer(serverId);
 			if (serverNode) {
 				const sessionID = (<any>req).sessionID;
 

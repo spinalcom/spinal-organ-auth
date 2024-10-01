@@ -7,6 +7,9 @@ import { AuthenticateHandler } from "./AuthenticateHandler";
 import { getTokenFromRequest } from "./utils";
 import path = require("path");
 import * as NodeOAuthServer from "@node-oauth/oauth2-server";
+import { PlatformService } from "../../routes/platform/platformServices";
+import loginService from "../../routes/loginServer/loginServerService";
+import axios from "axios";
 
 export class SpinalOAuth2Server extends OAuth2Server {
 	constructor(private options: OAuth2Server.ServerOptions) {
@@ -93,7 +96,36 @@ export class SpinalOAuth2Server extends OAuth2Server {
 				res.status(err.code || HttpStatusCode.INTERNAL_SERVER_ERROR).json(err);
 			});
 	}
+
+	async loginWithExternalServer(req: ExpressRequest, res: ExpressResponse) {
+		const { platformId, serverId } = req.query as any;
+		// const platformNode = await PlatformService.getInstance().getPlateformByClientId(platformId);
+		// const platform = PlatformService.getInstance()._formatPlatform(platformNode);
+		const [serverNode] = await loginService.getLoginServer(serverId);
+		const server = loginService.formatServerNode(serverNode);
+
+		let { clientId, callbackUrl, endpoint, scopes } = server.authentication_info;
+
+		endpoint = endpoint.endsWith("/") ? endpoint.substring(0, endpoint.length - 1) : endpoint;
+		callbackUrl = callbackUrl.endsWith("/") ? callbackUrl.substring(0, callbackUrl.length - 1) : callbackUrl;
+		scopes = scopes.split(",").map(el => el.trim("")).join("%20");
+
+		const code_challenge = "8jIqKP0G-eVXqVO0N3U00pf-tsUDXJSpsbB_FW9l8w0";
+		const code_challenge_method = "S256";
+		const state = "1234";
+
+		const url = `${endpoint}?client_id=${clientId}&redirect_uri=${callbackUrl}&state=${state}&response_type=code&code_challenge=${code_challenge}&code_challenge_method=${code_challenge_method}&scope=${scopes}`;
+
+		return res.redirect(url);
+
+		// res.redirect(`${platform.server_uri}/authorize?client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}&response_type=code&code_challenge=${code_challenge}&code_challenge_method=${code_challenge_method}`);
+
+
+	}
+
 }
+
+
 
 export const spinalOAuth2Server = new SpinalOAuth2Server({
 	model: AuthServerModel.instance,

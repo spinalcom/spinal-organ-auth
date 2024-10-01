@@ -77,16 +77,16 @@
                     </div>
 
                     <div class="formItem">
-                        <SelectGrant title="GRANT TYPES" id="grant_types"
-                            v-model="serverInfo.authentication_info.grant_type" />
-                    </div>
-
-                    <div class="formItem">
                         <InputUser title="url de connexion" id="endpoint"
                             v-model="serverInfo.authentication_info.endpoint" />
                     </div>
 
                     <div class="formItem">
+                        <InputUser title="url de connexion" id="tokenUrl"
+                            v-model="serverInfo.authentication_info.tokenUrl" />
+                    </div>
+
+                     <div class="formItem">
                         <InputUser title="url de retour" id="callbackUrl"
                             v-model="serverInfo.authentication_info.callbackUrl" />
                     </div>
@@ -94,6 +94,11 @@
                     <div class="formItem">
                         <InputUser title="url de deconnexion" id="logoutUrl"
                             v-model="serverInfo.authentication_info.logoutUrl" />
+                    </div>
+
+                    <div class="formItem">
+                        <SelectGrant title="GRANT TYPES" id="grant_types"
+                            v-model="serverInfo.authentication_info.grant_type" />
                     </div>
 
                 </div>
@@ -246,8 +251,9 @@ export default {
                     callbackUrl: "",
                     endpoint: "",
                     logoutUrl: "",
-                    grant_type: [],
-                    scopes: ""
+                    grant_type: "",
+                    scopes: "",
+                    tokenUrl
                 }
             }
         }

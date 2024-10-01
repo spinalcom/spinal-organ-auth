@@ -56,7 +56,7 @@ export async function LogWithServer(req: express.Request, res: express.Response)
                 loginWithLocal(req, res);
                 break;
             case CONNECTION_METHODS.oauth2:
-                break;
+                return res.redirect(`/oauth/login?platformId=${platformId}&serverId=${serverId}`);
 
             case CONNECTION_METHODS.saml:
                 const query = `platformId=${encodeURIComponent(platformId)}&serverId=${encodeURIComponent(serverId)}`;

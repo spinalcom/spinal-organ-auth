@@ -13,10 +13,11 @@ export interface IOAuthAuthenticationInfo {
     clientId: string;
     clientSecret: string;
     callbackUrl?: string;
-    grant_type?: string | string[];
+    grant_type?: string;
     endpoint?: string;
     logoutUrl?: string;
-    scopes?: string | string[];
+    scopes?: string;
+    tokenUrl: string;
 }
 
 export interface ILocalAuthenticationInfo {
