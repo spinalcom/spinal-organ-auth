@@ -57,7 +57,13 @@
                             <StatutButton :val="item.statusPlatform" title="ONLINE"></StatutButton>
                         </div>
                     </div>
-                    <div class="d-flex flex-column ">
+                    <div class="d-flex">
+                        <div class="btn-valider-user rounded-r-lg pr-2 hover">
+                            <button @click="deletePlatform(item)">
+                                <v-icon>mdi-delete-outline</v-icon>
+                            </button>
+                        </div>
+
                         <div class="btn-valider-user rounded-r-lg pr-2 hover">
                             <button @click="displayDetail(item)">
                                 <v-icon>mdi-arrow-right</v-icon>
@@ -108,6 +114,11 @@ export default {
     }),
 
     methods: {
+        ...mapActions({
+            generateRegisterKey: 'platforms/generateRegisterKey',
+            deletePlatformItem: 'platforms/deletePlatformItem'
+        }),
+
         getDataFromStore() {
             this.$store.dispatch('platforms/getPlatformlist');
             this.$store.dispatch('platforms/getRegisterKey');
@@ -121,9 +132,12 @@ export default {
         displayDetail(item) {
             this.$router.push({ name: "DetailPlatform", query: { id: item.id } });
         },
-        ...mapActions({
-            generateRegisterKey: 'platforms/generateRegisterKey'
-        }),
+
+        async deletePlatform(item) {
+            const res = confirm("Voulez-vous vraiment supprimer cette plateforme?");
+            if(res) await this.deletePlatformItem(item.id);
+        },
+
 
     },
     computed: {

@@ -4,21 +4,30 @@
             <BackupInformation title="AJOUTER UNE APPLICATION">
                 <form class="formulaire" novalidate @submit.prevent="validateApp">
                     <p>Rentrez les informations de l’application.</p>
+                    
                     <InputUser title="NOM DE L'APPLICATION" id="appName" v-model="formApp.appName" />
                     <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formApp.appName.minLength">Nom
                         invalide</span>
                     <span class="errors" :class="{ 'showspan': iserrors }" v-else-if="!$v.formApp.appName.required">Un
                         nom d'application est requis</span>
-                    <InputPass readonly="true" title="CLIENT ID" id="clientId" v-model="formApp.clientId" />
+                    
+                    
+                    <InputPass title="CLIENT ID" id="clientId" v-model="formApp.clientId" />
                     <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formApp.clientId.required">un id
                         client est requis</span>
-                    <InputPass readonly="true" title="CLIENT SECRET" id="clientSecret" v-model="formApp.clientSecret" />
+
+
+                    <InputPass title="CLIENT SECRET" id="clientSecret" v-model="formApp.clientSecret" />
                     <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formApp.clientSecret.required">Le
                         mot de passe est nécessaire</span>
+
+
                     <InputUser title="TYPE D’APPLICATION" id="appType" v-model="formApp.appType" />
                     <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formApp.appType.required">Le type
                         d'application est nécessaire</span>
                     <p class="mt-6">Sélectionnez les accès de plateformes.</p>
+
+
                     <AddPlatform :types="'app'" ref="refplatform" />
                     <span style="position: absolute;margin-top:-45px;" class="errors"
                         :class="{ 'showspan': !error_platform }">
@@ -57,7 +66,7 @@ export default {
                 appName: null,
                 clientId: this.generateRegisterKey(),
                 clientSecret: this.generateRegisterKey(),
-                appType: null,
+                appType: "WEB",
             },
             iserrors: true,
             error_platform: false,

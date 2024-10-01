@@ -29,7 +29,6 @@ import { IUserProfile } from "./userProfile.model";
 import { IAppProfile } from "./appProfile.model";
 import { PlatformService } from "./platformServices";
 import { ProfileServices } from "./profileServices";
-import { error } from "console";
 import { HttpStatusCode } from "../utilities/http-status-code";
 
 @Route("platforms")

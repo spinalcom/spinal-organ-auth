@@ -59,16 +59,16 @@ export default {
         getUsersFromPltaform({ commit }, { platformId, data }) {
             var users = [];
             for (const user of data) {
-              if (user.platformList) {
-                for (const platform of user.platformList) {
-                  if (platform.platformId === platformId) {  
-                    users.push(user);
-                  }
+                if (user.platformList) {
+                    for (const platform of user.platformList) {
+                        if (platform.platformId === platformId) {
+                            users.push(user);
+                        }
+                    }
                 }
-              }
             }
             commit("setuserListLinkPlatform", users);
-          },
+        },
 
         async getApplications({ dispatch }, platformId) {
             const rep = await instanceAxios.instanceAxios.get("/applications", {
@@ -80,7 +80,7 @@ export default {
             dispatch('getAPPSFromPltaform', { platformId, data: rep.data })
         },
 
-        getAPPSFromPltaform({ commit }, { platformId, data }) { 
+        getAPPSFromPltaform({ commit }, { platformId, data }) {
             var apps = [];
             for (const app of data) {
                 if (app.platformList) {
@@ -209,23 +209,37 @@ export default {
             commit("setregisterkey", rep.data);
         },
 
-        
+
         async editPlatformItem(context, platform) {
             // console.log(platform[0],platform[1]);
             const rep = await instanceAxios.instanceAxios.put(
-              `/platforms/${platform[1]}`,
-              {
-                name: platform[0]
-              },
-              {
-                headers: {
-                  "Content-Type": "application/json",
-                  "x-access-token": localStorage.getItem("token")
+                `/platforms/${platform[1]}`,
+                {
+                    name: platform[0]
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-access-token": localStorage.getItem("token")
+                    }
                 }
-              }
             );
-           
-          },
+
+        },
+
+        async deletePlatformItem({ commit }, platformId) {
+            const rep = await instanceAxios.instanceAxios.delete(
+                `/platforms/${platformId}`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-access-token": localStorage.getItem("token"),
+                    }
+                }
+            );
+
+            commit("deletePlatformItem", platformId);
+        }
 
 
     },
@@ -248,5 +262,9 @@ export default {
         setuserListLinkPlatform: (state, userListLinkPlatform) => (
             state.userListLinkPlatform = userListLinkPlatform
         ),
+
+        deletePlatformItem: (state, platformId) => {
+            state.platformlist = state.platformlist.filter(item => item.id !== platformId);
+        }
     }
 }

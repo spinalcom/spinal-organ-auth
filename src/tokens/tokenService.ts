@@ -40,7 +40,7 @@ export class TokensService {
 	context: SpinalContext;
 	static instance: TokensService;
 
-	private constructor() {}
+	private constructor() { }
 
 	static getInstance(): TokensService {
 		if (!this.instance) this.instance = new TokensService();
@@ -92,13 +92,23 @@ export class TokensService {
 		return categoriesToken.find((el) => el.getType().get() === type);
 	}
 
-	public async createTokenTree(): Promise<SpinalNode[]> {
+	public async createTokenTree(categoryNodes: SpinalNode[] = []): Promise<SpinalNode[]> {
 		const context = await this.getTokenListContext();
-		const userTokenCategory = new SpinalNode("User Token", USER_TOKEN_CATEGORY_TYPE);
-		const appTokenCategory = new SpinalNode("Application Token", APPLICATION_TOKEN_CATEGORY_TYPE);
-		let promises = [context.addChildInContext(userTokenCategory, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST), context.addChildInContext(userTokenCategory, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST)];
 
-		return Promise.all(promises);
+		let userTokenCategory = categoryNodes?.find((el) => el.getType().get() === USER_TOKEN_CATEGORY_TYPE);
+		let appTokenCategory = categoryNodes?.find((el) => el.getType().get() === APPLICATION_TOKEN_CATEGORY_TYPE);
+
+		if (!userTokenCategory) {
+			let node = new SpinalNode("User Token", USER_TOKEN_CATEGORY_TYPE);
+			userTokenCategory = await context.addChildInContext(node, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+		}
+
+		if (!appTokenCategory) {
+			let node = new SpinalNode("Application Token", APPLICATION_TOKEN_CATEGORY_TYPE);
+			appTokenCategory = await context.addChildInContext(node, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+		}
+
+		return [userTokenCategory, appTokenCategory];
 	}
 
 	// public async verify(): Promise<any[]> {
@@ -170,7 +180,7 @@ export class TokensService {
 	public async getAppProfileByToken(Token: string, platformId: string) {
 		const tokens = await this._getApplicationTokensNode();
 		const token = tokens.find((el) => el.info?.token.get() === Token);
-		if (!token || token.info?.platformList) return;
+		if (!token || !token.info?.platformList) return;
 		const platforms = token.info.platformList.get();
 		const platform = platforms.find((el) => el.platformId === platformId);
 		if (!platform) return;

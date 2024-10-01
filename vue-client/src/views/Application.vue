@@ -20,6 +20,18 @@
             </div>
           </div>
           <div class="content-list rounded-r-lg hover">
+            <button class="pr-3" style="height: 100%;" @click="deleteApp(item)">
+              <v-icon>mdi-delete-outline</v-icon>
+            </button>
+          </div>
+
+          <div class="content-list rounded-r-lg hover">
+            <button class="pr-3" style="height: 100%;" @click="goToEditApp(item)">
+                <v-icon>mdi-pencil</v-icon>
+            </button>
+          </div>
+
+          <div class="content-list rounded-r-lg hover">
             <button class="pr-3" style="height: 100%;" @click="displayDetail(item)">
               <v-icon>mdi-arrow-right</v-icon>
             </button>
@@ -52,6 +64,7 @@ export default {
 
   methods: {
     
+...mapActions({ deleteAppFunc: 'applications/deleteApp' }),
 
     updateAppList() {
       this.$store.dispatch('applications/getApplist')
@@ -65,6 +78,15 @@ export default {
       this.$router.push("/AddApp");
       
     },
+
+    deleteApp(item) {
+      this.deleteAppFunc(item.id);
+    },
+
+    goToEditApp(item) {
+      this.$router.push({ name: "EditApp", query: { id: item.id } });
+    },
+  
   },
   computed: {
     ...mapGetters({ appList: 'applications/appList' }),

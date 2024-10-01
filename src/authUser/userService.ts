@@ -50,7 +50,7 @@ export class UserService {
 
 	static instance: UserService;
 
-	private constructor() {}
+	private constructor() { }
 
 	static getInstance(): UserService {
 		if (!this.instance) {
@@ -272,8 +272,8 @@ export class UserService {
 		const [userFound] = await this.getUserNodes(userId);
 		if (!userFound) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 
-		await LogsService.getInstance().createLog(userFound, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.DELETE, EVENTS_REQUEST_NAMES.DELETE_VALID, EVENTS_REQUEST_NAMES.DELETE_VALID);
 		await userFound.removeFromGraph();
+		await LogsService.getInstance().createLog(userFound, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.DELETE, EVENTS_REQUEST_NAMES.DELETE_VALID, EVENTS_REQUEST_NAMES.DELETE_VALID);
 	}
 
 	async createAuthAdmin(): Promise<IUser> {

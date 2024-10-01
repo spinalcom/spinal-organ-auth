@@ -40,7 +40,7 @@ export class PlatformService {
 	public platFormContext: SpinalContext;
 	public registerKeyContext: SpinalContext;
 
-	private constructor() {}
+	private constructor() { }
 
 	public static getInstance(): PlatformService {
 		if (!this.instance) this.instance = new PlatformService();
@@ -232,7 +232,7 @@ export class PlatformService {
 
 	public generateTokenBosAdmin(platformName: string) {
 		const secret = TokensService.getInstance().generateTokenKey();
-		let token = jwt.sign({ platformName: platformName }, secret, { expiresIn: "24h" });
+		let token = jwt.sign({ platformName: platformName }, secret, { expiresIn: "1y" });
 		// let decodedToken = jwt_decode(token);
 		return token;
 	}

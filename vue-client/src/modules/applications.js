@@ -173,6 +173,10 @@ export default {
                         }
                     }
                 );
+
+                if (router.currentRoute.path === "/Application") {
+                    return commit("DELETE_FROM_APPLIST", id);
+                }
                 router.push("/Application");
             }
         },
@@ -200,6 +204,10 @@ export default {
         ),
         RESET_PLATFORM_OBJECT(state) {
             state.platformObjectList = [];
+        },
+
+        DELETE_FROM_APPLIST(state, appId) {
+            state.applist = state.applist.filter(app => app.id !== appId);
         }
     }
 }

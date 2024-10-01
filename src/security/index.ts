@@ -68,5 +68,5 @@ export function getToken(request: express.Request): string {
 		if (token) return token;
 	}
 
-	return request.body?.token || request.query?.token || request.headers["x-access-token"];
+	return request.body?.token || request.body?.TokenBosAdmin || request.query?.token || request.headers["x-access-token"];
 }

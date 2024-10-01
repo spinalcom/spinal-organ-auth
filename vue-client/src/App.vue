@@ -32,7 +32,11 @@ export default {
   overflow-x: scroll;
 }
 
-.content {
+#app .theme--light.v-application {
+  background: transparent !important;
+}
+
+#content {
   margin-top: 80px;
   padding: 10px;
 }

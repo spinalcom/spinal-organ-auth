@@ -58,6 +58,18 @@ with this file. If not, see
             </div>
           </div>
           <div class="content-list rounded-r-lg hover">
+            <button class="pr-2" style="height: 100%" @click="deleteUser(item)">
+              <v-icon>mdi-delete-outline</v-icon>
+            </button>
+          </div>
+
+          <div class="content-list rounded-r-lg hover">
+            <button class="pr-2" style="height: 100%" @click="goToEditUser(item)">
+              <v-icon>mdi-pencil</v-icon>
+            </button>
+          </div>
+
+           <div class="content-list rounded-r-lg hover">
             <button class="pr-2" style="height: 100%" @click="displayDetail(item)">
               <v-icon>mdi-arrow-right</v-icon>
             </button>
@@ -87,9 +99,11 @@ export default {
     token: "",
   }),
   methods: {
+    ...mapActions({ deleteUserFunc: "users/deleteUser" }),
     showapplist(){
       console.log(this.userList);
     },
+
     updateUserlist() {
       this.$store.dispatch('users/getUsers')
     },
@@ -101,6 +115,22 @@ export default {
 
     adduser() {
       this.$router.push("/AddUser");
+    },
+
+    goToEditUser(item) {
+      this.$router.push({
+        name: "EditUser",
+        query: { id: item.id },
+      });
+    },
+
+    deleteUser(item) {
+      var user = {
+        id: item.id,
+        name: item.userName,
+      };
+      
+      this.deleteUserFunc(user);
     },
 
   },

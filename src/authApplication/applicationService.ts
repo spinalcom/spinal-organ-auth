@@ -39,7 +39,7 @@ export class ApplicationService {
 	public context: SpinalContext;
 	static instance: ApplicationService;
 
-	private constructor() {}
+	private constructor() { }
 
 	static getInstance(): ApplicationService {
 		if (!this.instance) this.instance = new ApplicationService();
@@ -154,8 +154,8 @@ export class ApplicationService {
 		const [appFound] = await this.getApplicationNodes(applicationId);
 
 		if (appFound) {
-			await LogsService.getInstance().createLog(appFound, APPLICATION_LOG_CATEGORY_NAME, EVENTS_NAMES.DELETE, EVENTS_REQUEST_NAMES.DELETE_VALID, EVENTS_REQUEST_NAMES.DELETE_VALID);
 			await appFound.removeFromGraph();
+			await LogsService.getInstance().createLog(appFound, APPLICATION_LOG_CATEGORY_NAME, EVENTS_NAMES.DELETE, EVENTS_REQUEST_NAMES.DELETE_VALID, EVENTS_REQUEST_NAMES.DELETE_VALID);
 		} else {
 			await LogsService.getInstance().createLog(appFound, APPLICATION_LOG_CATEGORY_NAME, EVENTS_NAMES.DELETE, EVENTS_REQUEST_NAMES.DELETE_NOT_VALID, "Delete Not Valid, User Not Found");
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
