@@ -65,8 +65,9 @@ export class TokensService {
 	}
 
 	public generateTokenKey() {
-		let key = process.env.TOKEN_SECRET || generator.generate({ length: 30, numbers: true, uppercase: true, strict: true });
-		setEnvValue("TOKEN_SECRET", key);
+		// let key = process.env.TOKEN_SECRET || generator.generate({ length: 30, numbers: true, uppercase: true, strict: true });
+		let key = process.env.TOKEN_SECRET;
+		// setEnvValue("TOKEN_SECRET", key);
 		return key;
 	}
 

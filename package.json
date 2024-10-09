@@ -7,7 +7,7 @@
 		"test": "test"
 	},
 	"scripts": {
-		"start": "npm run build && node --enable-source-maps index.js",
+		"start": "node completeDotEnv.js && npm run build && node --enable-source-maps index.js",
 		"build": "npm run clean && npm run swagger-gen && npm run routes-gen && tsc && npm run copy-swagger-ui",
 		"test": "rm -rf dist && tsc && nyc mocha --require ts-node/register test/**/*.ts",
 		"docs": "jsdoc2md --no-cache --files 'src/**/*.ts' --configure jsdoc2md.json --template 'Markdown Templates/README.hbs' > README.md && doctoc README.md",

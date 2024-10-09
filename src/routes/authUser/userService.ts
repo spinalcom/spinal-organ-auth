@@ -294,11 +294,16 @@ export class UserService {
 		await userFound.removeFromGraph();
 	}
 
+	getAuthPassword() {
+		// const password = process.env.AUTH_ADMIN_PASSWORD || generator.generate({ length: 10, numbers: true });
+		const password = process.env.AUTH_ADMIN_PASSWORD;
+		// setEnvValue("AUTH_ADMIN_PASSWORD", password);
+		return password;
+	}
+
 	async createAuthAdmin(): Promise<IUser> {
 		try {
-			const password = process.env.AUTH_ADMIN_PASSWORD || generator.generate({ length: 10, numbers: true });
-			setEnvValue("AUTH_ADMIN_PASSWORD", password);
-
+			const password = this.getAuthPassword();
 			const hash = await bcrypt.hash(password, 10);
 
 			const authAdminNode = new SpinalNode(AUTH_ADMIN_NAME, USER_TYPE);

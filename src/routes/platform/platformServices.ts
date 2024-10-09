@@ -213,6 +213,7 @@ export class PlatformService {
 
 		const res = await context.addChildInContext(regesterKeyNode, AUTH_SERVICE_INFO_ADMIN_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
 		setEnvValue("REGISTER_KEY", res.info.value.get());
+
 		return {
 			id: res.getId().get(),
 			type: res.getType().get(),
@@ -222,6 +223,8 @@ export class PlatformService {
 	}
 
 	public generateRegisterKey() {
+		if (process.env.REGISTER_KEY) return process.env.REGISTER_KEY;
+
 		const generator = require("generate-password");
 		var registerKey = generator.generate({ length: 20, numbers: true });
 		return registerKey;

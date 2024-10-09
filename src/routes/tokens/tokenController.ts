@@ -69,7 +69,7 @@ export class TokensController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read"])
+	@Security("jwt", ["ownData:read"])
 	@Post("/getUserProfileByToken")
 	public async getUserProfileByToken(@Body() requestBody: any): Promise<any> {
 		try {
@@ -82,7 +82,7 @@ export class TokensController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read"])
+	@Security("jwt", ["ownData:read"])
 	@Post("/getAppProfileByToken")
 	public async getAppProfileByToken(@Body() requestBody: any): Promise<any> {
 		try {
