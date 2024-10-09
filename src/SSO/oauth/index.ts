@@ -123,6 +123,8 @@ export class SpinalOAuth2Server extends OAuth2Server {
 
 	}
 
+	getTokenWithCode(req: ExpressRequest, res: ExpressResponse) { }
+
 }
 
 
