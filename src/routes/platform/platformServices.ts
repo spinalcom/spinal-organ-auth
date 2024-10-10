@@ -124,7 +124,7 @@ export class PlatformService {
 
 	public async getPlateformByClientId(clientId: string): Promise<SpinalNode> {
 		const platforms = await this.getPlatformsNodes();
-		const found = platforms.find((platform) => platform.info.clientId.get() === clientId);
+		const found = platforms.find((platform) => platform.info.clientId?.get() === clientId);
 
 		if (!found) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 
