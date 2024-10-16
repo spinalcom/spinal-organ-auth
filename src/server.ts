@@ -53,8 +53,8 @@ function Server(): express.Express {
 	const app: any = express();
 
 	const sslOptions = {
-		key: process.env.SSL_KEY_PATH,
-		cert: process.env.SSL_CERT_PATH
+		key: fs.readFileSync(process.env.SSL_KEY_PATH),
+		cert: fs.readFileSync(process.env.SSL_CERT_PATH)
 	};
 	// const sslOptions = {
 	// key: fs.readFileSync(path.resolve(__dirname, '../cert/key.pem')),
