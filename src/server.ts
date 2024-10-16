@@ -38,14 +38,28 @@ import { MultiSamlStrategy } from "passport-saml";
 import { RegisterSamlRoutes } from "./SSO/saml/routes";
 import { registerOAuthRoutes } from "./SSO/oauth/routes";
 import { LogWithServer, redirectToLoginPage } from "./loginRoute";
+import * as https from "https";
+import * as fs from "fs";
 // import * as methodOverride from "method-override";
 // import { Response as ExResponse, Request as ExRequest } from "express";
 // import * as swaggerUi from "swagger-ui-express";
 const jsonFile = require("../build/swagger.json");
 var history = require("connect-history-api-fallback");
 
+
+
+
 function Server(): express.Express {
 	const app: any = express();
+
+	const sslOptions = {
+		key: process.env.SSL_KEY_PATH,
+		cert: process.env.SSL_CERT_PATH
+	};
+	// const sslOptions = {
+	// key: fs.readFileSync(path.resolve(__dirname, '../cert/key.pem')),
+	// cert: fs.readFileSync(path.resolve(__dirname, '../cert/cert.pem'))
+	// };
 
 	app.set('view engine', 'ejs');
 
@@ -88,7 +102,9 @@ function Server(): express.Express {
 
 	app.use(errorHandler);
 
-	app.listen(config.api.port, () => console.log(`app listening at http://localhost:${config.api.port} ....`));
+	// app.listen(config.api.port, () => console.log(`app listening at http://localhost:${config.api.port} ....`));
+
+	https.createServer(sslOptions, app).listen(config.api.port, () => console.log(`app listening at https://localhost:${config.api.port} ....`));
 
 	return app;
 }

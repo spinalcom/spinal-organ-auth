@@ -15,3 +15,7 @@ REGISTER_KEY="" # will be generated if not provided
 # server info
 REQUESTS_PORT=''
 LIMIT_LOG="300"
+
+CERT_PATH=""
+CERTICAT_KEY_PATH=""
+NODE_TLS_REJECT_UNAUTHORIZED=0
