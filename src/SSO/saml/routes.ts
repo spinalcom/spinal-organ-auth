@@ -21,9 +21,18 @@ export function RegisterSamlRoutes(app: express.Application) {
 
 	app.post("/callback", (req, res, next) => {
 		spinalPassportSaml.auth.bind(spinalPassportSaml)("saml", { failureRedirect: "/error", failureFlash: true }, async (err, data, info) => {
-			const resData: any = await spinalPassportSaml.authUser(data.user, data.platform);
-			const html = formatResponseHtml(data.platform.redirectUrl, resData);
-			res.status(HttpStatusCode.OK).send(html);
+			if (err) {
+				return res.status(HttpStatusCode.BAD_REQUEST).send({ status: HttpStatusCode.BAD_REQUEST, message: err.message })
+			}
+
+			try {
+				const resData: any = await spinalPassportSaml.authUser(data.user, data.platform);
+				const html = formatResponseHtml(data.platform.redirectUrl, resData);
+				res.status(HttpStatusCode.OK).send(html);
+			} catch (error) {
+				res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({ status: HttpStatusCode.INTERNAL_SERVER_ERROR, message: error.message })
+			}
+
 		})(req, res, next);
 
 	});

@@ -143,10 +143,7 @@ export default {
           platformId: this.$route.query.id,
         }).then((result) => {
           console.log(result);
-          this.$router.push({
-            name: "DetailPlatform",
-            query: { id: this.$route.query.id },
-          });
+          this.$router.push("/Platforms");
         });
       } else {
         this.iserrors = false;

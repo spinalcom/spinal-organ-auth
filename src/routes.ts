@@ -237,6 +237,7 @@ const models: TsoaRoute.Models = {
             "cert": {"dataType":"string","required":true},
             "callbackUrl": {"dataType":"string","required":true},
             "logoutUrl": {"dataType":"string"},
+            "serverEntityId": {"dataType":"string"},
         },
         "additionalProperties": false,
     },

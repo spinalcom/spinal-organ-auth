@@ -30,8 +30,13 @@
                 <div class="server_info" v-if="serverInfo.authentication_method === 'saml'">
 
                     <div class="formItem">
-                        <InputUser title="Emetteur (Entity ID)" id="issuer"
+                        <InputUser title="Emetteur (Issuer EntityID)" id="issuer"
                             v-model="serverInfo.authentication_info.issuer" />
+                    </div>
+
+                    <div class="formItem">
+                        <InputUser title="Entity ID du serveur (SP Entity ID)" id="serverEntityId"
+                            v-model="serverInfo.authentication_info.serverEntityId" />
                     </div>
 
                     <div class="formItem">
@@ -86,7 +91,7 @@
                             v-model="serverInfo.authentication_info.tokenUrl" />
                     </div>
 
-                     <div class="formItem">
+                    <div class="formItem">
                         <InputUser title="url de retour" id="callbackUrl"
                             v-model="serverInfo.authentication_info.callbackUrl" />
                     </div>
@@ -243,6 +248,7 @@ export default {
                     cert: "",
                     callbackUrl: "",
                     logoutUrl: "",
+                    serverEntityId: ""
                 }
             } else if (this.serverInfo.authentication_method === 'oauth2') {
                 this.serverInfo.authentication_info = {

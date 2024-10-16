@@ -31,6 +31,7 @@ export interface ISAMLAuthenticationInfo {
 	cert: string;
 	callbackUrl: string;
 	logoutUrl?: string;
+	serverEntityId?: string;
 }
 
 export interface IOAuthAuthenticationInfo {

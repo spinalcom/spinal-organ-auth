@@ -2,21 +2,19 @@ import { AuthenticateCallback, AuthenticateOptions, Authenticator, DoneCallback 
 import * as express from "express";
 import { Strategy as SamlStrategy, MultiSamlStrategy } from "passport-saml";
 import { Profile } from "passport-saml";
-import { SamlOptions } from "passport-saml/lib/node-saml/types";
 import { IPlatform, ISAMLAuthenticationInfo } from "../../routes/platform/platform.model";
 import { TokensService } from "../../routes/tokens/tokenService";
 import { SpinalNode } from "spinal-model-graph";
-import { AUTH_SERVICE_USER_PROFILE_RELATION_NAME, AUTH_SERVICE_USER_RELATION_NAME, CONNECTION_METHODS, TOKEN_TYPE, USER_PROFILE_TYPE, USER_TYPE } from "../../constant";
-import jwt_decode from "jwt-decode";
+import { USER_TYPE } from "../../constant";
 import loginService from "../../routes/loginServer/loginServerService";
 import { PlatformService } from "../../routes/platform/platformServices";
-import { name } from "ejs";
 import { IUserType } from "../../routes/authUser/user.model";
+import * as xml2js from "xml2js";
 
 class SpinalPassportSaml extends Authenticator {
 	private static _instance: SpinalPassportSaml;
 	private samlOptions = {};
-	private sessionIdToPlatformId = {};
+	private serverEntityIdToPlatformId = {};
 
 	private constructor() {
 		super();
@@ -35,15 +33,20 @@ class SpinalPassportSaml extends Authenticator {
 	}
 
 	public async getSamlOptions(req: express.Request, done: DoneCallback) {
+
+
+		const samlResponse = req.body.SAMLResponse;
+
+		if (samlResponse) {
+			return this._useSamlResponse(samlResponse, done);
+		}
+
 		let serverId: any = req.query.serverId;
+		let options;
 
-		let options = this.samlOptions[(<any>req).sessionID];
-
-		if (!options) {
+		if (serverId) {
 			const [serverNode] = await loginService.getLoginServer(serverId);
 			if (serverNode) {
-				const sessionID = (<any>req).sessionID;
-
 				const server = loginService.formatServerNode(serverNode);
 				const serverInfo: ISAMLAuthenticationInfo = server.authentication_info;
 
@@ -51,13 +54,14 @@ class SpinalPassportSaml extends Authenticator {
 					entryPoint: serverInfo.entryPoint,
 					issuer: serverInfo.issuer,
 					callbackUrl: serverInfo.callbackUrl,
-					cert: serverInfo.cert
+					cert: serverInfo.cert,
+					forceAuthn: true,
+					disableRequestedAuthnContext: true,
 				}
-				// console.log("options.cert", options.cert)
 
-				this.samlOptions[sessionID] = options;
-
-				this.sessionIdToPlatformId[sessionID] = req.query.platformId;
+				const serverEntityId = serverInfo.serverEntityId;
+				this.samlOptions[serverEntityId] = options;
+				this.serverEntityIdToPlatformId[serverEntityId] = req.query.platformId;
 			}
 		};
 
@@ -67,8 +71,8 @@ class SpinalPassportSaml extends Authenticator {
 	}
 
 	public async verifyWithRequest(req: express.Request, profile: Profile, done: DoneCallback) {
-		const sessionID = (<any>req).sessionID;
-		const platformId = this.sessionIdToPlatformId[sessionID];
+		const serverEntityId = profile.issuer;
+		const platformId = this.serverEntityIdToPlatformId[serverEntityId];
 
 		profile["SAMLResponse"] = req.body.SAMLResponse;
 
@@ -85,26 +89,13 @@ class SpinalPassportSaml extends Authenticator {
 	}
 
 	public async authUser(profile: any, platform: IPlatform) {
-		const userProfile = await PlatformService.getInstance().getUserProfile(platform.id, profile.groups);
-		const tokenData = {
-			userId: profile.nameID,
-			platformId: platform.id,
-			profile: {
-				userProfileName: userProfile.getName().get(),
-				userProfileBosConfigId: userProfile.info.userProfileId?.get()
-			},
-			userInfo: {
-				id: profile.nameID,
-				type: USER_TYPE,
-				name: profile.name || profile.nameID,
-				userName: profile.nameID,
-				// password: profile.info.password.get(),
-				email: profile.nameID,
-				telephone: "",
-				info: "",
-				userType: IUserType["Simple User"],
-			}
-		}
+		const profileId = Array.isArray(profile.groups) ? profile.groups[0] : profile.groups;
+
+		const userProfile = await PlatformService.getInstance().getUserProfile(platform.id, profileId);
+
+		if (!userProfile) throw new Error(`No profil found for ${profileId}`);
+
+		const tokenData = this._getTokenData(platform.id, profile, userProfile);
 
 		const tokenNode = await TokensService.getInstance().createSamlToken(tokenData, platform);
 
@@ -119,8 +110,6 @@ class SpinalPassportSaml extends Authenticator {
 	}
 
 	private extractDataFromProfile(profile: Profile) {
-		// return profile
-
 		const data = {
 			nameID: profile.nameID,
 			issuer: profile.issuer,
@@ -139,7 +128,88 @@ class SpinalPassportSaml extends Authenticator {
 		return data;
 	}
 
+	private _getTokenData(platformId: string, profile: any, userProfile: SpinalNode) {
+		return {
+			userId: profile.nameID,
+			platformId: platformId,
+			profile: {
+				userProfileName: userProfile.getName().get(),
+				userProfileBosConfigId: userProfile.info.userProfileId?.get()
+			},
+			userInfo: {
+				id: profile.nameID,
+				type: USER_TYPE,
+				name: profile.name || profile.nameID,
+				userName: profile.nameID,
+				// password: profile.info.password.get(),
+				email: profile.nameID,
+				telephone: "",
+				info: "",
+				userType: IUserType["Simple User"],
+			}
+		}
+	}
 
+	private async _useSamlResponse(samlResponse: string, done: DoneCallback) {
+		try {
+			const serverEntityId = await this._getServerEntityIdInResponse(samlResponse);
+			let options = this.samlOptions[serverEntityId];
+
+			return done(null, options)
+		} catch (error) {
+			return done(error, {})
+		}
+	}
+
+	private _getServerEntityIdInResponse(samlResponse: string): Promise<string> {
+		return new Promise((resolve, reject) => {
+			const bufferObj = Buffer.from(samlResponse, "base64");
+			const xml = bufferObj.toString("utf-8");
+			xml2js.parseString(xml, (err, result) => {
+				if (err) return reject(err);
+				const entityId = result["samlp:Response"].Issuer[0]._;
+				resolve(entityId)
+			})
+		});
+	}
+
+	private _extractXmlInfo(data) {
+		const entityDescriptor = data.EntityDescriptor || {};
+		const entityID = entityDescriptor['$'].entityID;
+		const ID = entityDescriptor['$'].ID;
+
+		// Accéder à la signature et au certificat
+		const signature = entityDescriptor['Signature'];
+
+		// Accéder à l'élément IDPSSODescriptor
+		const idpSSODescriptor = entityDescriptor['IDPSSODescriptor'];
+		// Extraire les informations de l'IDPSSODescriptor
+		const singleLogoutServices = idpSSODescriptor['SingleLogoutService'];
+		const singleSignOnServices = idpSSODescriptor['SingleSignOnService'];
+
+		return {
+			entityID,
+			ID,
+			signature: {
+				signatureMethod: signature?.SignedInfo?.SignatureMethod['$']?.Algorithm,
+				digestMethod: signature?.SignedInfo?.Reference?.DigestMethod['$']?.Algorithm,
+				signatureValue: signature?.SignatureValue,
+				x509Certificate: signature['ds:KeyInfo']['ds:X509Data']['ds:X509Certificate']
+			},
+
+
+		}
+
+	}
+
+	private _convertXmlToJSON(xml: string) {
+		return new Promise((resolve, reject) => {
+			xml2js.parseString(xml, (err, result) => {
+				if (err) return reject(err);
+				resolve(result);
+			})
+		});
+	}
 
 	// 	useSamlStrategy(req: express.Request, res: express.Response, next: express.NextFunction): void {
 	// 		const options = {
