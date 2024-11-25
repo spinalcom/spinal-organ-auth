@@ -71,6 +71,19 @@ export class UsersController extends Controller {
 		}
 	}
 
+	@Security("jwt", ["authAdmin:read", "ownData:read"])
+	@Post("userInfo")
+	public async getUserInfoByToken(@Body() body: { token: string }): Promise<IUser | { error: string }> {
+		try {
+			const user = await UserService.getInstance().getUserInfoByToken(body.token);
+			this.setStatus(HttpStatusCode.OK);
+			return user;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
+
 	@Security("jwt", ["authAdmin:delete"])
 	@Delete("{userId}")
 	public async deleteUser(@Path() userId: string): Promise<void | { error?: string; message?: string }> {
