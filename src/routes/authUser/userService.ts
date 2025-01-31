@@ -225,6 +225,16 @@ export class UserService {
 		return this._formatUser(user, platforms);
 	}
 
+	public async getUserInfoByToken(token: string) {
+		try {
+			const decoded = await TokensService.getInstance().verifyToken(token, "user");
+			const userInfo = decoded.userInfo;
+			if (userInfo) return userInfo;
+		} catch (error) { }
+
+		throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+	}
+
 	public async updateUser(userId: string, requestBody: IUserUpdateParams): Promise<IUser> {
 		const users = await this.getUserNodes();
 		const user = users.find((user) => user.getId().get() === userId);

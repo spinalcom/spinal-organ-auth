@@ -7,11 +7,15 @@ SPINALHUB_PORT=''
 
 
 #Auth info
-TOKEN_SECRET='' # will be generated if not provided
-AUTH_ADMIN_PASSWORD="" # will be generated if not provided
+TOKEN_SECRET=""
+AUTH_ADMIN_PASSWORD=""
 TOKEN_BOS_ADMIN=""
-REGISTER_KEY="" # will be generated if not provided 
+REGISTER_KEY=""
 
 # server info
 REQUESTS_PORT=''
-LIMIT_LOG="300"
+LIMIT_LOG=""
+
+SSL_CERT_PATH="/home/ubuntu/spinalcom/cert/cert.pem"
+SSL_KEY_PATH="/home/ubuntu/spinalcom/cert/key.pem"
+NODE_TLS_REJECT_UNAUTHORIZED=0
