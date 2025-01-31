@@ -52,15 +52,6 @@ var history = require("connect-history-api-fallback");
 function Server(): express.Express {
 	const app: any = express();
 
-	const sslOptions = {
-		key: fs.readFileSync(process.env.SSL_KEY_PATH),
-		cert: fs.readFileSync(process.env.SSL_CERT_PATH)
-	};
-	// const sslOptions = {
-	// key: fs.readFileSync(path.resolve(__dirname, '../cert/key.pem')),
-	// cert: fs.readFileSync(path.resolve(__dirname, '../cert/cert.pem'))
-	// };
-
 	app.set('view engine', 'ejs');
 
 	// enable files upload
@@ -102,9 +93,16 @@ function Server(): express.Express {
 
 	app.use(errorHandler);
 
-	// app.listen(config.api.port, () => console.log(`app listening at http://localhost:${config.api.port} ....`));
+	if (process.env.SERVER_PROTOCOL === "https") {
+		const sslOptions = {
+			key: fs.readFileSync(process.env.SSL_KEY_PATH),
+			cert: fs.readFileSync(process.env.SSL_CERT_PATH)
+		};
+		https.createServer(sslOptions, app).listen(config.api.port, () => console.log(`app listening at https://localhost:${config.api.port} ....`));
+	} else {
+		app.listen(config.api.port, () => console.log(`app listening at http://localhost:${config.api.port} ....`));
+	}
 
-	https.createServer(sslOptions, app).listen(config.api.port, () => console.log(`app listening at https://localhost:${config.api.port} ....`));
 
 	return app;
 }
