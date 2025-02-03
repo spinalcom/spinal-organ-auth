@@ -23,7 +23,6 @@
  */
 
 import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
-import { IOrgan } from "../organ/organ.model";
 import { IPlatform, IPlateformCreationParams, IPlatformUpdateParams, IRegisterKeyObject, IPlatformLogs } from "./platform.model";
 import { IUserProfile } from "./userProfile.model";
 import { IAppProfile } from "./appProfile.model";
@@ -178,6 +177,22 @@ export class PlatformsController extends Controller {
 		} catch (error) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
+		}
+	}
+
+
+	@Security("all", ["platform:write"])
+	@Post("/updatePlatformToken")
+	public async updatePlatformToken(@Body() requestBody: { clientId: string; token: string }): Promise<{ code: number; token?: string; error?: string }> {
+		try {
+			const token = await PlatformService.getInstance().updatePlatformToken(requestBody);
+			this.setStatus(HttpStatusCode.OK);
+			return { code: HttpStatusCode.OK, token };
+		} catch (error) {
+			const code = error.status || HttpStatusCode.INTERNAL_SERVER_ERROR;
+			this.setStatus(code);
+
+			return { code, error: error.message };
 		}
 	}
 }

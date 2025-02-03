@@ -156,6 +156,18 @@ export class PlatformService {
 		throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 	}
 
+	public async updatePlatformToken(platformCredential: { clientId: string, token: string }): Promise<string> {
+		const client = await this.getPlatformByClientId(platformCredential.clientId);
+		const lastToken = client?.info?.TokenBosAdmin?.get();
+
+		if (lastToken !== platformCredential.token)
+			throw new OperationError("UNAUTHORIZED", HttpStatusCode.UNAUTHORIZED);
+
+		const token = this.generateTokenBosAdmin(client.getName().get());
+		client.info.mod_attr("TokenBosAdmin", token);
+		return token;
+	}
+
 	// public async createAuthPlateform(): Promise<IPlatform> {
 	// 	try {
 	// 		const context = await this.getContext();

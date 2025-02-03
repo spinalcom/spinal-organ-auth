@@ -23,12 +23,10 @@
  */
 
 import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
-
 import { IApplication, IApplicationCreationParams, IApplicationUpdateParams, IApplicationLoginParams, IApplicationLogs } from "./application.model";
 import { ApplicationService } from "./applicationService";
 import { IApplicationToken } from "../tokens/token.model";
 import { HttpStatusCode } from "../../utilities/http-status-code";
-import { SCOPES } from "../../constant";
 
 let applicationService = ApplicationService.getInstance();
 

@@ -162,6 +162,7 @@ export class UsersController extends Controller {
 		}
 	}
 
+	@Security("all")
 	@Post("/login")
 	public async login(@Body() requestBody: IUserLoginParams): Promise<IUserToken | { error: string }> {
 		try {
@@ -174,6 +175,7 @@ export class UsersController extends Controller {
 		}
 	}
 
+	@Security("all")
 	@Post("/loginAuthAdmin")
 	public async loginAuthAdmin(@Body() requestBody: IUserLoginParams): Promise<IUserToken | { error: string }> {
 		try {
@@ -186,14 +188,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	// @Security("jwt")
-	// @Get('/getInfoToken/{token}')
-	// public async getInfoToken(@Path() token: string): Promise<IUserProfile> {
-	//   this.setStatus(HttpStatusCode.CREATED); 
-	//   return UserService.getInstance().getInfoToken(token);
-	// }
-
-	// @Security("jwt")
+	@Security("all")
 	@Post("/getRoles")
 	public async getRoles(): Promise<{ name: string }[] | { error: string }> {
 		try {
