@@ -31,6 +31,7 @@ import { ProfileServices } from "./profileServices";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 import { SCOPES } from "../../constant";
 import loginService from "../loginServer/loginServerService";
+import data from "../authUser/profileUserListData";
 
 @Route("platforms")
 export class PlatformsController extends Controller {
@@ -181,7 +182,7 @@ export class PlatformsController extends Controller {
 	}
 
 
-	@Security("all", ["platform:write"])
+	@Security("jwt", ["platform:write"])
 	@Post("/updatePlatformToken")
 	public async updatePlatformToken(@Body() requestBody: { clientId: string; token: string }): Promise<{ code: number; token?: string; error?: string }> {
 		try {

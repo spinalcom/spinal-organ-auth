@@ -34,8 +34,11 @@ import { InsufficientScopeError, InvalidTokenError, Token } from "@node-oauth/oa
 
 export async function expressAuthentication(request: express.Request, securityName: string, scopes?: string[]): Promise<any> {
 	try {
-		if (securityName !== "jwt") return;
+		if (securityName === "all") return;
 
+		if (securityName !== "jwt") throw new AuthError(HttpStatusCode.UNAUTHORIZED, "Invalid security name");
+
+		return;
 		const token = getToken(request);
 
 		if (!token) throw new Error("No token provided");
