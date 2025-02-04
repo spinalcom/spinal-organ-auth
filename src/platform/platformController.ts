@@ -150,4 +150,20 @@ export class PlatformsController extends Controller {
 			return { error: error.message };
 		}
 	}
+
+
+	@Security("jwt", ["platform:write"])
+	@Post("/updatePlatformToken")
+	public async updatePlatformToken(@Body() requestBody: { clientId: string; token: string }): Promise<{ code: number; token?: string; error?: string }> {
+		try {
+			const token = await PlatformService.getInstance().updatePlatformToken(requestBody);
+			this.setStatus(HttpStatusCode.OK);
+			return { code: HttpStatusCode.OK, token };
+		} catch (error) {
+			const code = error.status || HttpStatusCode.INTERNAL_SERVER_ERROR;
+			this.setStatus(code);
+
+			return { code, error: error.message };
+		}
+	}
 }

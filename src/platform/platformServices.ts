@@ -22,8 +22,8 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { PLATFORM_LIST, AUTH_SERVICE_PLATFORM_RELATION_NAME, PLATFORM_TYPE, AUTH_SERVICE_RELATION_TYPE_PTR_LST, AUTH_SERVICE_ORGAN_RELATION_NAME, REGISTER_KEY_TYPE, INFO_ADMIN_TYPE, AUTH_SERVICE_INFO_ADMIN_RELATION_NAME, INFO_ADMIN, AUTH_SERVICE_APP_PROFILE_RELATION_NAME, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, AUTH_SERVICE_LOG_RELATION_NAME, EVENTS_NAMES, EVENTS_REQUEST_NAMES, PLATFORM_LOG_CATEGORY_NAME } from "../constant";
-import { SpinalGraphService, SpinalGraph, SpinalContext, SpinalNode } from "spinal-env-viewer-graph-service";
+import { PLATFORM_LIST, AUTH_SERVICE_PLATFORM_RELATION_NAME, PLATFORM_TYPE, AUTH_SERVICE_RELATION_TYPE_PTR_LST, REGISTER_KEY_TYPE, AUTH_SERVICE_INFO_ADMIN_RELATION_NAME, INFO_ADMIN, AUTH_SERVICE_APP_PROFILE_RELATION_NAME, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, AUTH_SERVICE_LOG_RELATION_NAME, EVENTS_NAMES, EVENTS_REQUEST_NAMES, PLATFORM_LOG_CATEGORY_NAME } from "../constant";
+import { SpinalContext, SpinalNode } from "spinal-env-viewer-graph-service";
 import { OperationError } from "../utilities/operation-error";
 import { HttpStatusCode } from "../utilities/http-status-code";
 import { IPlatform, IPlateformCreationParams, IPlatformUpdateParams, statusPlatform, IRegisterParams, IRegisterKeyObject, IPlatformLogs } from "./platform.model";
@@ -135,6 +135,18 @@ export class PlatformService {
 		await LogsService.getInstance().createLog(undefined, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.DELETE, EVENTS_REQUEST_NAMES.DELETE_NOT_VALID, EVENTS_REQUEST_NAMES.DELETE_NOT_VALID);
 		throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 	}
+
+	public async updatePlatformToken(platformCredential: { clientId: string, token: string }): Promise<string> {
+		const [client] = await this.getPlatformsNodes(platformCredential.clientId);
+		const lastToken = client?.info?.TokenBosAdmin?.get();
+
+		if (lastToken !== platformCredential.token) throw new OperationError("UNAUTHORIZED", HttpStatusCode.UNAUTHORIZED);
+
+		const token = this.generateTokenBosAdmin(client.getName().get());
+		client.info.mod_attr("TokenBosAdmin", token);
+		return token;
+	}
+
 
 	public async createAuthPlateform(): Promise<IPlatform> {
 		try {

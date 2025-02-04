@@ -34,7 +34,8 @@ export type OperationErrorMessage =
   | 'UNAUTHORIZED ROLE'
   | 'ERROR_PASSWORD'
   | 'UNKNOWN_TOKEN'
-  | 'TOKEN_EXPIRED';
+  | 'TOKEN_EXPIRED'
+  | 'UNAUTHORIZED';
 
 export class OperationError extends Error {
   constructor(message: OperationErrorMessage, readonly status: HttpStatusCode) {
