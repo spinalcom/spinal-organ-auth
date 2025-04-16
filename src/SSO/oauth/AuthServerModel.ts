@@ -6,6 +6,7 @@ import { UserService } from "../../routes/authUser/userService";
 import { AuthorizationCodeService } from "../../routes/tokens/AuthorizationCodeService";
 import { RefreshTokenService } from "../../routes/tokens/refreshTokenService";
 import { getScope } from "./utils";
+import { PlatformService } from "../../routes/platform/platformServices";
 
 export class AuthServerModel implements AuthorizationCodeModel, ClientCredentialsModel, PasswordModel, RefreshTokenModel {
 	private static _instance: AuthServerModel;
@@ -18,37 +19,35 @@ export class AuthServerModel implements AuthorizationCodeModel, ClientCredential
 		return this._instance;
 	}
 
-	async getClient(clientId: string, clientSecret: string): Promise<Client | Falsey> {
-		const applications = await ApplicationService.getInstance().getApplicationNodes();
+	public async getClient(clientId: string, clientSecret: string): Promise<Client | Falsey> {
+		const applications = await this._getAllApplications();
+
 		const app = applications.find((app) => clientId === app.info.clientId?.get() && (clientSecret === app.info.clientSecret?.get() || !clientSecret));
 		if (!app) return null;
 
 		return {
 			id: app.getId().get(),
 			client_id: app.info.clientId?.get(),
-			grants: app.info.grants?.get() || [],
-			redirectUris: app.info.redirectUri?.get(),
+			grants: app.info.grant_types?.get() || [],
+			redirectUris: app.info.redirectUri?.get() || app.info.redirectUrl?.get(),
 		};
 	}
 
-	saveToken(token: Token, client: Client, user: User): Promise<Token | Falsey> {
-		return TokensService.getInstance()
-			.saveOAuthToken(token, client, user)
+	public saveToken(token: Token, client: Client, user: User): Promise<Token | Falsey> {
+		return TokensService.getInstance().saveOAuthToken(token, client, user)
 			.then(() => {
 				return {
 					...token,
 					client,
 					user,
 				};
-			})
-			.catch((err) => {
+			}).catch((err) => {
 				console.error(err);
-
 				return null;
 			});
 	}
 
-	async getAccessToken(accessToken: string): Promise<Token | Falsey> {
+	public async getAccessToken(accessToken: string): Promise<Token | Falsey> {
 		const tokens = await TokensService.getInstance().getAllTokensNode();
 		const tokenNode = tokens.find((token) => token.info?.token?.get() === accessToken);
 		if (!tokenNode) return null;
@@ -64,7 +63,7 @@ export class AuthServerModel implements AuthorizationCodeModel, ClientCredential
 		};
 	}
 
-	async getUser(username: string, password: string, client: Client): Promise<User | Falsey> {
+	public async getUser(username: string, password: string, client: Client): Promise<User | Falsey> {
 		const user = await UserService.getInstance().getUserByCredentials(username, password);
 		if (!user) return null;
 
@@ -81,8 +80,8 @@ export class AuthServerModel implements AuthorizationCodeModel, ClientCredential
 	}
 
 	async getUserFromClient(client: Client): Promise<User | Falsey> {
-		const applications = await ApplicationService.getInstance().getApplicationNodes();
-		const app = applications.find((app) => app.info.clientId.get() === client.client_id);
+		const applications = await this._getAllApplications();
+		const app = applications.find((app) => app.info.clientId?.get() === client.client_id);
 		if (!app) return null;
 
 		return {
@@ -110,27 +109,20 @@ export class AuthServerModel implements AuthorizationCodeModel, ClientCredential
 		};
 	}
 
-	revokeAuthorizationCode(code: AuthorizationCode): Promise<boolean> {
+	public revokeAuthorizationCode(code: AuthorizationCode): Promise<boolean> {
 		return AuthorizationCodeService.getInstance().removeAuthorizationCode(code);
 	}
 
-	async validateRedirectUri(redirect_uri: string, client: Client): Promise<boolean> {
+	public async validateRedirectUri(redirect_uri: string, client: Client): Promise<boolean> {
 		try {
-			const applications = await ApplicationService.getInstance().getApplicationNodes();
-			const app = applications.find((app) => app.info.clientId?.get() === client.client_id);
-			if (!app) return false;
-
-			return app.info.redirectUri?.get() === redirect_uri;
+			const uris = Array.isArray(client.redirectUris) ? client.redirectUris : [client.redirectUris];
+			return !!uris.includes(redirect_uri);
 		} catch (error) {
 			return false;
 		}
 	}
 
-	async verifyScope(token: Token, scope: string[]): Promise<boolean> {
-		// const t_scope = (token.scope || []).join(" ");
-		// const u_scope = scope.join(" ");
-		// return t_scope === u_scope;
-
+	public async verifyScope(token: Token, scope: string[]): Promise<boolean> {
 		const t_scope = token.scope || [];
 		for (let s of t_scope) {
 			if (scope.includes(s)) return true;
@@ -139,7 +131,7 @@ export class AuthServerModel implements AuthorizationCodeModel, ClientCredential
 		return false;
 	}
 
-	async validateScope(user: User, client: Client, scope?: string[]): Promise<string[] | Falsey> {
+	public async validateScope(user: User, client: Client, scope?: string[]): Promise<string[] | Falsey> {
 		const client_type = user.id === client.id ? "client" : "user";
 		const access_scopes = await getScope(client_type, user, client);
 
@@ -151,14 +143,28 @@ export class AuthServerModel implements AuthorizationCodeModel, ClientCredential
 		return scope;
 	}
 
-	async getRefreshToken(refreshToken: string): Promise<RefreshToken | Falsey> {
+	public async getRefreshToken(refreshToken: string): Promise<RefreshToken | Falsey> {
 		const token = await RefreshTokenService.getInstance().getRefreshToken(refreshToken);
 		if (!token) return null;
 
 		return Object.assign(token.info.get(), { refreshTokenExpiresAt: new Date(token.info.refreshTokenExpiresAt.get()) });
 	}
 
-	revokeToken(token: RefreshToken): Promise<boolean> {
+	public revokeToken(token: RefreshToken): Promise<boolean> {
 		return RefreshTokenService.getInstance().removeRefreshToken(token);
 	}
+
+
+	private _getAllApplications() {
+		const promises = [ApplicationService.getInstance().getApplicationNodes(), PlatformService.getInstance().getPlatformsNodes()];
+		return Promise.allSettled(promises).then((values) => {
+			return values.reduce((acc, val) => {
+				if (val.status === "fulfilled") {
+					acc.push(...val.value);
+				}
+				return acc;
+			}, []);
+		});
+	}
+
 }

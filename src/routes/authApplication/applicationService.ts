@@ -81,8 +81,7 @@ export class ApplicationService {
 	}
 
 	public async login(applicationLoginParams: IApplicationLoginParams): Promise<IApplicationToken> {
-		const applications = await this.getApplicationNodes();
-		const app = applications.find((app) => applicationLoginParams.clientId === app.info.clientId?.get());
+		const app = await this.findApplicationByClientId(applicationLoginParams.clientId);
 
 		if (!app || applicationLoginParams.clientSecret !== app.info?.clientSecret?.get()) {
 			await LogsService.getInstance().createLog(undefined, APPLICATION_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.LOGIN_NOT_VALID, "Login Not Valid Unknown Client Id && Client Secret ");
@@ -103,6 +102,18 @@ export class ApplicationService {
 			applicationId: app.getId().get(),
 			platformList: platformList,
 		};
+	}
+
+	private async findApplicationByClientId(client_id: string) {
+		const applications = await this.getApplicationNodes();
+		const app = applications.find((app) => client_id === app.info.clientId?.get());
+		return app;
+	}
+
+	public async _getAppPlatformsByClientId(app: string | SpinalNode) {
+		const application = typeof app === "string" ? await this.findApplicationByClientId(app) : app;
+		const platforms = await this._getApplicationPlatforms(application);
+		return this._formatPlatForms(platforms);
 	}
 
 	public async getApplications() {

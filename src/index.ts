@@ -26,7 +26,8 @@ import { initAllContexts } from "./services/authGraphService";
 import { TokensService } from "./routes/tokens/tokenService";
 import Server from "./server";
 import SpinalMiddleware from "./spinalMiddleware";
-import { createOrGetRegisterKey, initAllServices, initLogsService, initPlatformService, initTokenService, initUserService } from "./utilities/initialisation";
+import { createOrGetRegisterKey, initAllServices } from "./utilities/initialisation";
+
 import * as cron from "node-cron";
 
 async function main() {

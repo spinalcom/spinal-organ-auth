@@ -12,8 +12,11 @@ export class AuthenticateHandler {
 	}
 
 	async handle(req: Request): Promise<User | Falsey> {
-		const { userName, password } = req.body;
-		const usr = await this.options.model.getUser(userName, password);
+
+		// const token = this.options.getTokenFromRequest(req);
+
+		const { username, password } = req.body;
+		const usr = await this.options.model.getUser(username, password);
 		return usr;
 	}
 }

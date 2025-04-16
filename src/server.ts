@@ -23,30 +23,27 @@
  */
 import * as express from "express";
 import * as fileUpload from "express-fileupload";
-import * as bodyParser from "body-parser";
 import * as cors from "cors";
 import * as morgan from "morgan";
 import * as _ from "lodash";
 import * as passport from "passport";
 import * as session from "express-session";
+import * as https from "https";
+import * as fs from "fs";
+import * as path from "path";
+
 import config from "./config";
-import path = require("path");
 import { RegisterRoutes } from "./routes";
 import { ValidateError } from "tsoa";
 import { AuthError } from "./security/AuthError";
-import { MultiSamlStrategy } from "passport-saml";
+import { LogWithServer, redirectToLoginPage } from "./loginRoute";
 import { RegisterSamlRoutes } from "./SSO/saml/routes";
 import { registerOAuthRoutes } from "./SSO/oauth/routes";
-import { LogWithServer, redirectToLoginPage } from "./loginRoute";
-import * as https from "https";
-import * as fs from "fs";
-// import * as methodOverride from "method-override";
-// import { Response as ExResponse, Request as ExRequest } from "express";
-// import * as swaggerUi from "swagger-ui-express";
-const jsonFile = require("../build/swagger.json");
-var history = require("connect-history-api-fallback");
+import { RegisterOpenIdRoutes } from "./SSO/openid/routes";
 
 
+// const jsonFile = require("../build/swagger.json");
+// var history = require("connect-history-api-fallback");
 
 
 function Server(): express.Express {
@@ -78,36 +75,35 @@ function Server(): express.Express {
 	// Register routes here !!!!
 	registerOAuthRoutes(app);
 	RegisterSamlRoutes(app);
+	RegisterOpenIdRoutes(app);
 	RegisterRoutes(app);
 
-	app.get("/login/:plateformClientId", redirectToLoginPage);
-	app.post("/login/:platformId/:serverId", LogWithServer);
+	// app.get("/login/:plateformClientId", redirectToLoginPage);
+	// app.post("/login/:platformId/:serverId", LogWithServer);
 
-	app.get("/authorize", (req, res) => {
-		const myRelativePath = path.resolve(__dirname, "../authorizationPage", "index.ejs");
-		console.log(myRelativePath)
-		res.render(myRelativePath, { name: "Moussa" })
-	});
+	// app.get("/authorize", (req, res) => {
+	// 	const myRelativePath = path.resolve(__dirname, "../authorizationPage", "index.ejs");
+	// 	console.log(myRelativePath)
+	// 	res.render(myRelativePath, { name: "Moussa" })
+	// });
 
 	app.get("/*", (req, res) => res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html")));
 
 	app.use(errorHandler);
 
 	if (process.env.SERVER_PROTOCOL === "https") {
-		const sslOptions = {
-			key: fs.readFileSync(process.env.SSL_KEY_PATH),
-			cert: fs.readFileSync(process.env.SSL_CERT_PATH)
-		};
+		const sslOptions = { key: fs.readFileSync(process.env.SSL_KEY_PATH), cert: fs.readFileSync(process.env.SSL_CERT_PATH) };
 		https.createServer(sslOptions, app).listen(config.api.port, () => console.log(`app listening at https://localhost:${config.api.port} ....`));
 	} else {
 		app.listen(config.api.port, () => console.log(`app listening at http://localhost:${config.api.port} ....`));
 	}
 
-
 	return app;
 }
 
 export default Server;
+
+
 
 function errorHandler(err: unknown, req: express.Request, res: express.Response, next: express.NextFunction): express.Response | void {
 	//@ts-ignore

@@ -41,6 +41,11 @@ import { Profile } from "passport-saml";
 import { IPlatform } from "../platform/platform.model";
 import { PlatformService } from "../platform/platformServices";
 import { IUserType } from "../authUser/user.model";
+import { platform } from "os";
+import { IApplication } from "../authApplication/application.model";
+import { ApplicationService } from "../authApplication/applicationService";
+import { use } from "passport";
+import { UserService } from "../authUser/userService";
 
 export class TokensService {
 	context: SpinalContext;
@@ -94,6 +99,7 @@ export class TokensService {
 		const tokenNode = new SpinalNode(`token_${node.getName().get()}`, TOKEN_TYPE);
 		tokenNode.info.add_attr({
 			token: token,
+			authType: CONNECTION_METHODS.local,
 			createdToken: decodedToken.iat,
 			expieredToken: decodedToken.exp,
 			platformList: platformList || [],
@@ -105,7 +111,6 @@ export class TokensService {
 		return this.addTokenToContext(tokenNode, actor);
 
 	}
-
 
 	public async createSamlToken(tokenData: any, platform: IPlatform) {
 
@@ -145,6 +150,7 @@ export class TokensService {
 			...(actor === "application" && { applicationId: user.id }),
 			...(actor === "user" && { userId: user.id }),
 			...(token.scope && { scope: token.scope }),
+			platformList: await this._getPlatformList(actor, client, user) || [],
 			client,
 			user,
 		});
@@ -352,6 +358,14 @@ export class TokensService {
 			userType: token.info?.userType?.get(),
 			applicationId: token.info?.applicationId?.get(),
 		};
+	}
+
+	private _getPlatformList(actor: string, client: Client, user: User) {
+		if (actor === "application") {
+			return ApplicationService.getInstance()._getAppPlatformsByClientId((client.client_id as string));
+		} else {
+			return UserService.getInstance().getUserPlatformList(user.id, client.id);
+		}
 	}
 }
 

@@ -125,6 +125,7 @@ const models: TsoaRoute.Models = {
             "telephone": {"dataType":"string"},
             "info": {"dataType":"string"},
             "userType": {"ref":"IUserType","required":true},
+            "grant_types": {"dataType":"array","array":{"dataType":"string"},"required":true},
             "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}},"required":true},"platformId":{"dataType":"string","required":true}}}},
         },
         "additionalProperties": false,
@@ -153,6 +154,7 @@ const models: TsoaRoute.Models = {
             "telephone": {"dataType":"string"},
             "info": {"dataType":"string"},
             "userType": {"ref":"IUserType"},
+            "grant_types": {"dataType":"array","array":{"dataType":"string"},"required":true},
             "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileName":{"dataType":"string","required":true},"userProfileBosConfigId":{"dataType":"string","required":true},"userProfileAdminId":{"dataType":"string","required":true}},"required":true},"platformName":{"dataType":"string","required":true},"platformId":{"dataType":"string","required":true}}}},
         },
         "additionalProperties": false,
@@ -226,7 +228,23 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CONNECTION_METHODS": {
         "dataType": "refEnum",
-        "enums": ["local","saml","oauth2"],
+        "enums": ["local","saml","oauth2","openid connect"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IOpenIdAuthenticationInfo": {
+        "dataType": "refObject",
+        "properties": {
+            "issuer": {"dataType":"string","required":true},
+            "authorizationUrl": {"dataType":"string","required":true},
+            "tokenUrl": {"dataType":"string","required":true},
+            "userInfoUrl": {"dataType":"string","required":true},
+            "clientId": {"dataType":"string","required":true},
+            "clientSecret": {"dataType":"string","required":true},
+            "callbackUrl": {"dataType":"string","required":true},
+            "scopes": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"array","array":{"dataType":"string"}}],"required":true},
+            "logoutUrl": {"dataType":"string"},
+        },
+        "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ISAMLAuthenticationInfo": {
@@ -272,7 +290,7 @@ const models: TsoaRoute.Models = {
             "name": {"dataType":"string"},
             "type": {"ref":"ServerType"},
             "authentication_method": {"ref":"CONNECTION_METHODS"},
-            "authentication_info": {"dataType":"union","subSchemas":[{"ref":"ISAMLAuthenticationInfo"},{"ref":"IOAuthAuthenticationInfo"},{"ref":"ILocalAuthenticationInfo"}]},
+            "authentication_info": {"dataType":"union","subSchemas":[{"ref":"IOpenIdAuthenticationInfo"},{"ref":"ISAMLAuthenticationInfo"},{"ref":"IOAuthAuthenticationInfo"},{"ref":"ILocalAuthenticationInfo"}]},
         },
         "additionalProperties": false,
     },
@@ -361,6 +379,7 @@ const models: TsoaRoute.Models = {
             "clientId": {"dataType":"string","required":true},
             "clientSecret": {"dataType":"string"},
             "redirectUrl": {"dataType":"string","required":true},
+            "grant_types": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"array","array":{"dataType":"string"}}],"required":true},
         },
         "additionalProperties": false,
     },
@@ -373,6 +392,7 @@ const models: TsoaRoute.Models = {
             "url": {"dataType":"string"},
             "address": {"dataType":"string"},
             "loginServerIds": {"dataType":"array","array":{"dataType":"string"}},
+            "grant_types": {"dataType":"array","array":{"dataType":"string"}},
         },
         "additionalProperties": false,
     },
@@ -441,6 +461,7 @@ const models: TsoaRoute.Models = {
             "clientId": {"dataType":"string","required":true},
             "clientSecret": {"dataType":"string"},
             "redirectUrl": {"dataType":"string","required":true},
+            "grant_types": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"array","array":{"dataType":"string"}}],"required":true},
             "loginServerIds": {"dataType":"array","array":{"dataType":"string"}},
         },
         "additionalProperties": false,
@@ -1386,7 +1407,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/platforms/:platformId/loginServers',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"all":["all"]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getPlateformLoginServers)),
 
@@ -1796,7 +1817,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/tokens/getUserProfileByToken',
-            authenticateMiddleware([{"jwt":["ownData:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin:read","ownData:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(TokensController)),
             ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.getUserProfileByToken)),
 
@@ -1822,7 +1843,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/tokens/getAppProfileByToken',
-            authenticateMiddleware([{"jwt":["ownData:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin:read","ownData:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(TokensController)),
             ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.getAppProfileByToken)),
 

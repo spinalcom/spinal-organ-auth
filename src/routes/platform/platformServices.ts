@@ -351,7 +351,7 @@ export class PlatformService {
 		const nodes = await context.getChildren(AUTH_SERVICE_PLATFORM_RELATION_NAME);
 		if (!id) return nodes;
 
-		return nodes.filter((platform) => platform.getId().get() === id);
+		return nodes.filter((platform) => platform.getId().get() === id || platform.info.clientId?.get() === id);
 	}
 
 	public async getPlatformByClientId(clientId: string): Promise<SpinalNode> {
@@ -428,6 +428,7 @@ export class PlatformService {
 			clientId: platform.info.clientId?.get(),
 			clientSecret: platform.info.clientSecret?.get(),
 			lastSyncTime: platform.info.lastSyncTime?.get(),
+			grant_types: platform.info.grant_types?.get() || [],
 			// authentication_method: platform.info.authentication_method?.get(),
 			// authentication_info: platform.info.authentication_info?.get(),
 		};
@@ -451,12 +452,16 @@ export class PlatformService {
 	}
 
 	private _formatPlatformCreationParams(platformCreationParms: IPlateformCreationParams) {
+		let grant_types = platformCreationParms.grant_types || [];
+		if (!Array.isArray(grant_types)) grant_types = [grant_types];
+
 		return Object.assign({}, platformCreationParms, {
 			clientSecret: platformCreationParms.clientSecret,
 			url: platformCreationParms.url || platformCreationParms.redirectUrl,
 			redirectUrl: platformCreationParms.redirectUrl || platformCreationParms.url,
 			address: platformCreationParms.address || "",
 			statusPlatform: statusPlatform["not connected"],
+			grant_types
 			// ...(platformCreationParms.authentication_method === CONNECTION_METHODS.local && {
 			// 	authentication_info: {
 			// 		code_challenge: "sdfsdfsdfsdf", // generate code challenge

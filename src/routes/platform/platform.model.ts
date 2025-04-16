@@ -44,6 +44,17 @@ export interface IOAuthAuthenticationInfo {
 	scopes?: string | string[];
 }
 
+export interface IOpenIdAuthenticationInfo {
+	issuer: string;
+	authorizationUrl: string;
+	tokenUrl: string;
+	userInfoUrl: string;
+	clientId: string;
+	clientSecret: string;
+	callbackUrl: string;
+	scope: string[];
+}
+
 export interface ILocalAuthenticationInfo {
 	code_challenge: string;
 	code_challenge_method: "S256"
@@ -63,6 +74,7 @@ export interface IPlatform {
 	clientId: string;
 	clientSecret?: string;
 	redirectUrl: string;
+	grant_types: string | string[];
 	// authentication_method: CONNECTION_METHODS;
 	// authentication_info?: ISAMLAuthenticationInfo | IOAuthAuthenticationInfo | ILocalAuthenticationInfo;
 }
@@ -91,7 +103,8 @@ export interface IPlatformUpdateParams {
 	redirectUrl?: string;
 	url?: string;
 	address?: string;
-	loginServerIds?: string[]
+	loginServerIds?: string[];
+	grant_types?: string[];
 }
 // export interface IRegisterParams {
 // 	platformCreationParms: IPlateformCreationParams;

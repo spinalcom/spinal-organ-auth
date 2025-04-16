@@ -1,6 +1,6 @@
 import { SPINAL_RELATION_PTR_LST_TYPE, SpinalContext, SpinalGraph, SpinalNode } from "spinal-model-graph";
 import { ILoginServer, ServerType } from "./loginServer.model";
-import { isOAuthAuthenticationInfo, isSAMLAuthenticationInfo } from "../platform/utils";
+import { isOAuthAuthenticationInfo, isOpenIdAuthenticationInfo, isSAMLAuthenticationInfo } from "../platform/utils";
 import { CONNECTION_METHODS, LOGIN_SERVER_CONTEXT_NAME, LOGIN_SERVER_CONTEXT_TYPE, LOGIN_SERVER_RELATION_NAME } from "../../constant";
 import { OperationError } from "../../utilities/operation-error";
 import { Http2ServerRequest } from "http2";
@@ -83,13 +83,15 @@ class LoginServerService {
         if (!base) return false;
 
         switch (serverInfo.authentication_method) {
-            case CONNECTION_METHODS.oauth2:
-                return isOAuthAuthenticationInfo(serverInfo.authentication_info);
+            // case CONNECTION_METHODS.oauth2:
+            //     return isOAuthAuthenticationInfo(serverInfo.authentication_info);
+            case CONNECTION_METHODS["openid connect"]:
+                return isOpenIdAuthenticationInfo(serverInfo.authentication_info);
 
             case CONNECTION_METHODS.saml:
                 return isSAMLAuthenticationInfo(serverInfo.authentication_info);
             default:
-                return false
+                return false;
         }
 
     }

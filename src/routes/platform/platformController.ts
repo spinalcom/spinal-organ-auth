@@ -75,7 +75,7 @@ export class PlatformsController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read"])
+	@Security("all", ["all"])
 	@Get("{platformId}/loginServers")
 	public async getPlateformLoginServers(@Path() platformId: string) {
 		try {

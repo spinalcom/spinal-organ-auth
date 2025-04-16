@@ -10,6 +10,18 @@ export interface ISAMLAuthenticationInfo {
     serverEntityId?: string;
 }
 
+export interface IOpenIdAuthenticationInfo {
+    issuer: string;
+    authorizationUrl: string;
+    tokenUrl: string;
+    userInfoUrl: string;
+    clientId: string;
+    clientSecret: string;
+    callbackUrl: string;
+    scopes: string | string[];
+    logoutUrl?: string;
+}
+
 export interface IOAuthAuthenticationInfo {
     clientId: string;
     clientSecret: string;
@@ -35,5 +47,5 @@ export interface ILoginServer {
     name?: string;
     type?: ServerType;
     authentication_method?: CONNECTION_METHODS;
-    authentication_info?: ISAMLAuthenticationInfo | IOAuthAuthenticationInfo | ILocalAuthenticationInfo;
+    authentication_info?: IOpenIdAuthenticationInfo | ISAMLAuthenticationInfo | IOAuthAuthenticationInfo | ILocalAuthenticationInfo;
 }

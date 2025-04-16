@@ -36,6 +36,7 @@ export interface IUser {
 	telephone?: string;
 	info?: string; // champs libre optionnel
 	userType: IUserType;
+	grant_types: string[];
 	platformList?: {
 		platformId: string;
 		userProfile: {
@@ -44,6 +45,8 @@ export interface IUser {
 		};
 	}[];
 }
+
+153624
 
 export enum IUserType {
 	"authAdmin" = "authAdmin",
@@ -82,6 +85,7 @@ export interface IUserUpdateParams {
 	telephone?: string;
 	info?: string; // champs libre optionnel
 	userType?: IUserType;
+	grant_types: string[];
 	platformList?: {
 		platformId: string;
 		platformName: string;

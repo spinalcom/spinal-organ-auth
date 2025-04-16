@@ -75,6 +75,7 @@
 		"morgan": "^1.10.0",
 		"node-cron": "^3.0.0",
 		"passport": "^0.7.0",
+		"passport-openidconnect": "^0.1.2",
 		"passport-saml": "^3.2.4",
 		"routes": "^2.1.0",
 		"spinal-core-connectorjs": "git+https://github.com/spinalcom/spinal-core-connectorjs.git",

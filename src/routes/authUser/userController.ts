@@ -27,7 +27,6 @@ import { IUser, IUserCreationParams, IUserUpdateParams, IUserLoginParams, IAuthA
 import { UserService } from "./userService";
 import { IUserToken } from "../tokens/token.model";
 import { HttpStatusCode } from "../../utilities/http-status-code";
-import { SCOPES } from "../../constant";
 
 @Route("users")
 export class UsersController extends Controller {

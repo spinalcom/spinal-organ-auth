@@ -42,6 +42,17 @@ import { platform, userInfo } from "os";
 const generator = require("generate-password");
 const { setEnvValue } = require("../../../whriteToenvFile");
 
+type UserPlatformDetails = {
+	platformId: string;
+	platformName: string;
+	idPlatformOfAdmin: any;
+	userProfile: {
+		userProfileAdminId: string;
+		userProfileBosConfigId: any;
+		userProfileName: string;
+	};
+};
+
 /**
  * @export
  * @class UserService
@@ -100,16 +111,22 @@ export class UserService {
 		const userNode = new SpinalNode(userCreationParams.userName, USER_TYPE);
 
 		const hash = await bcrypt.hash(userCreationParams.password, 10);
-		userNode.info.add_attr({
-			userType: userCreationParams.userType,
-			userName: userCreationParams.userName,
-			email: userCreationParams.email,
-			telephone: userCreationParams.telephone,
-			info: userCreationParams.info,
-			password: hash,
-		});
+		const userInfo = this._generateUserAttributes(userCreationParams, hash);
+		userNode.info.add_attr(userInfo);
 
 		return context.addChildInContext(userNode, AUTH_SERVICE_USER_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
+	}
+
+	public async getUserByCredentials(userName: string, password: string): Promise<SpinalNode> {
+		const user = await this._findUserByUserName(userName);
+
+		if (!user) return null;
+
+		const valid = await bcrypt.compare(password, user.info.password.get());
+
+		if (!valid) return null;
+
+		return user;
 	}
 
 	public async login(userLoginParams: IUserLoginParams, platformId?: string): Promise<IUserToken> {
@@ -121,58 +138,20 @@ export class UserService {
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 		}
 
-		const platforms = await this._getUserPlatforms(user);
-		const platformList = this._formatPlatForms(platforms);
-
-		const platform = platformList.find(el => el.platformId === platformId)
-		const userId = user.getId().get();
-
-		const tokenData = {
-			userId,
-			platformId,
-			...(platform && {
-				profile: {
-					userProfileName: platform.userProfile.userProfileName,
-					userProfileBosConfigId: platform.userProfile.userProfileBosConfigId
-				},
-
-				userInfo: await this.getUser(userId)
-
-			}),
-			...(!platform && {
-				platformList
-			})
-		};
+		const platformList = await this.getUserPlatformList(user, platformId);
+		const tokenData = await this._generateTokenData(platformList, user, platformId);
 
 		const tokenNode = await TokensService.getInstance().createToken(user, tokenData, platformList, "user");
 
 		await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.LOGIN_VALID, EVENTS_REQUEST_NAMES.LOGIN_VALID);
-		return {
-			name: tokenNode.getName().get(),
-			token: tokenNode.info.token.get(),
-			createdToken: tokenNode.info.createdToken.get(),
-			expieredToken: tokenNode.info.expieredToken.get(),
-			userId: user.getId().get(),
-			platformList: platformList,
-		};
+		return this._getUserTokenResponse(tokenNode, user, platformList);
 	}
 
-	public async getUserByCredentials(userName: string, password: string): Promise<SpinalNode> {
-		const users = await this.getUserNodes();
-		const user = users.find((user) => user.info.userName.get() === userName);
 
-		if (!user) return null;
 
-		const valid = await bcrypt.compare(password, user.info.password.get());
-
-		if (!valid) return null;
-
-		return user;
-	}
 
 	public async loginAuthAdmin(userLoginParams: IUserLoginParams): Promise<IUserToken> {
-		const users = await this.getUserNodes();
-		const user = users.find((user) => user.info.userName?.get() === AUTH_ADMIN_NAME && user.info.userName.get() === userLoginParams.userName);
+		const user = await this._findUserByUserName(userLoginParams.userName, true);
 
 		if (!user) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 
@@ -186,16 +165,28 @@ export class UserService {
 		const tokenNode = await TokensService.getInstance().createToken(user, { userId: user.getId().get(), isAuthAdmin: true }, [], "user");
 		await LogsService.getInstance().createLog(user, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.CONNECTION_VALID, " Connection Valid");
 
-		return {
-			name: tokenNode.getName().get(),
-			type: tokenNode.getType().get(),
-			token: tokenNode.info.token?.get(),
-			createdToken: tokenNode.info.createdToken.get(),
-			expieredToken: tokenNode.info.expieredToken.get(),
-			userId: user.getId().get(),
-			userType: user.info.userType.get(),
-		};
+		return this._getUserTokenResponse(tokenNode, user);
 	}
+
+
+	public async getUserPlatformList(user: string | SpinalNode, platformId?: string) {
+		if (typeof user === "string") {
+			const users = await this.getUserNodes(user)
+			user = users[0];
+		}
+
+		if (!user) return [];
+
+		const platforms = await this._getUserPlatforms(user);
+		const platformList = this._formatPlatForms(platforms);
+
+		if (!platformId) return platformList;
+
+		return platformList.filter(el => el.platformId === platformId)
+	}
+
+	/////////////////////////////////////
+
 
 	public async getUsers(): Promise<IUser[]> {
 		try {
@@ -208,12 +199,12 @@ export class UserService {
 			const usersObjectList = await Promise.all(promises);
 
 			if (usersObjectList.length === 0) {
-				throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+				return [];
 			}
 
 			return usersObjectList;
 		} catch (error) {
-			return error;
+			return [];
 		}
 	}
 
@@ -304,12 +295,7 @@ export class UserService {
 		await userFound.removeFromGraph();
 	}
 
-	getAuthPassword() {
-		// const password = process.env.AUTH_ADMIN_PASSWORD || generator.generate({ length: 10, numbers: true });
-		const password = process.env.AUTH_ADMIN_PASSWORD;
-		// setEnvValue("AUTH_ADMIN_PASSWORD", password);
-		return password;
-	}
+
 
 	async createAuthAdmin(): Promise<IUser> {
 		try {
@@ -440,30 +426,90 @@ export class UserService {
 
 	private _formatUser(userNode: SpinalNode<any>, platformList?: any[]): IUser {
 		return {
-			id: userNode.getId().get(),
-			type: userNode.getType().get(),
-			name: userNode.getName().get(),
-			userName: userNode.info.userName.get(),
+			id: userNode.getId()?.get(),
+			type: userNode.getType()?.get(),
+			name: userNode.getName()?.get(),
+			userName: userNode.info?.userName?.get(),
 			// password: userNode.info.password.get(),
-			email: userNode.info.email.get(),
-			telephone: userNode.info.telephone.get(),
-			info: userNode.info.info.get(),
-			userType: userNode.info.userType.get(),
+			email: userNode.info?.email?.get(),
+			telephone: userNode.info?.telephone?.get(),
+			info: userNode.info?.info?.get(),
+			userType: userNode.info?.userType?.get(),
 			...((platformList && { platformList: this._formatPlatForms(platformList) }) as any),
 		};
 	}
 
 	private _formatPlatForms(platformList: { platform: SpinalNode; profile: SpinalNode }[]) {
 		return platformList.map(({ platform, profile }) => ({
-			platformId: platform.getId().get(),
-			platformName: platform.getName().get(),
-			idPlatformOfAdmin: platform.info.idPlatformOfAdmin?.get(),
+			platformId: platform?.getId().get(),
+			platformName: platform?.getName().get(),
+			idPlatformOfAdmin: platform?.info.idPlatformOfAdmin?.get(),
 			userProfile: {
-				userProfileAdminId: profile.getId().get(),
-				userProfileBosConfigId: profile.info.userProfileId.get(),
-				userProfileName: profile.getName().get(),
+				userProfileAdminId: profile?.getId().get(),
+				userProfileBosConfigId: profile?.info?.userProfileId?.get(),
+				userProfileName: profile?.getName().get(),
 			},
 		}));
+	}
+
+	private _generateUserAttributes(userCreationParams: IUserCreationParams, hash: any): { [nameAttr: string]: any; } {
+		return {
+			userType: userCreationParams.userType,
+			userName: userCreationParams.userName,
+			email: userCreationParams.email,
+			telephone: userCreationParams.telephone,
+			info: userCreationParams.info,
+			password: hash,
+		};
+	}
+
+	private async _generateTokenData(platformList: UserPlatformDetails[], user: SpinalNode, platformId: string) {
+		let platform;
+		if (platformList.length === 1) platform = platformList[0];
+
+		const tokenData = {
+			userId: user.getId().get(),
+			platformId,
+			...(platform && {
+				profile: {
+					userProfileName: platform.userProfile.userProfileName,
+					userProfileBosConfigId: platform.userProfile.userProfileBosConfigId
+				},
+
+				userInfo: await this.getUser(user.getId().get())
+			}),
+			...(!platform && { platformList })
+		};
+		return tokenData;
+	}
+
+	private async _findUserByUserName(userName: string, isAuthAdmin?: boolean): Promise<SpinalNode> {
+		if ((isAuthAdmin && userName !== AUTH_ADMIN_NAME) || (!isAuthAdmin && userName === AUTH_ADMIN_NAME)) return undefined;
+
+		const users = await this.getUserNodes();
+		const user = users.find((user) => user.info.userName.get() === userName);
+		if (isAuthAdmin && user.info.userName.get() === AUTH_ADMIN_NAME) return user;
+		return user;
+	}
+
+	private _getUserTokenResponse(tokenNode: SpinalNode<any>, user: SpinalNode<any>, platformList?: UserPlatformDetails[]): IUserToken | PromiseLike<IUserToken> {
+		return {
+			name: tokenNode.getName().get(),
+			type: tokenNode.getType().get(),
+			token: tokenNode.info.token.get(),
+			createdToken: tokenNode.info.createdToken.get(),
+			expieredToken: tokenNode.info.expieredToken.get(),
+			userId: user.getId().get(),
+			userType: user.info.userType.get(),
+			platformList: platformList || [],
+		};
+	}
+
+	private getAuthPassword() {
+		// const password = process.env.AUTH_ADMIN_PASSWORD || generator.generate({ length: 10, numbers: true });
+		const password = process.env.AUTH_ADMIN_PASSWORD;
+		// setEnvValue("AUTH_ADMIN_PASSWORD", password);
+		return password;
 	}
 }
 

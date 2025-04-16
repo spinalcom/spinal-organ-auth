@@ -29,63 +29,15 @@ class SpinalPassportSaml extends Authenticator {
 	}
 
 	public useMultiSamlStrategy() {
-		this.use(new MultiSamlStrategy({ passReqToCallback: true, getSamlOptions: this.getSamlOptions.bind(this) }, this.verifyWithRequest.bind(this)));
+		this.use(new MultiSamlStrategy({
+			passReqToCallback: true,
+			getSamlOptions: this._getSamlOptions.bind(this)
+		}, this._verifyWithRequest.bind(this)));
 	}
 
-	public async getSamlOptions(req: express.Request, done: DoneCallback) {
-
-
-		const samlResponse = req.body.SAMLResponse;
-
-		if (samlResponse) {
-			return this._useSamlResponse(samlResponse, done);
-		}
-
-		let serverId: any = req.query.serverId;
-		let options;
-
-		if (serverId) {
-			const [serverNode] = await loginService.getLoginServer(serverId);
-			if (serverNode) {
-				const server = loginService.formatServerNode(serverNode);
-				const serverInfo: ISAMLAuthenticationInfo = server.authentication_info;
-
-				options = {
-					entryPoint: serverInfo.entryPoint,
-					issuer: serverInfo.issuer,
-					callbackUrl: serverInfo.callbackUrl,
-					cert: serverInfo.cert,
-					forceAuthn: true,
-					disableRequestedAuthnContext: true,
-				}
-
-				const serverEntityId = serverInfo.serverEntityId;
-				this.samlOptions[serverEntityId] = options;
-				this.serverEntityIdToPlatformId[serverEntityId] = req.query.platformId;
-			}
-		};
-
-
-		let err = options ? null : "server not found";
-		return done(err, options);
-	}
-
-	public async verifyWithRequest(req: express.Request, profile: Profile, done: DoneCallback) {
-		const serverEntityId = profile.issuer;
-		const platformId = this.serverEntityIdToPlatformId[serverEntityId];
-
-		profile["SAMLResponse"] = req.body.SAMLResponse;
-
-		const platformNode = await PlatformService.getInstance().getPlateformByClientId(platformId);
-		const platform = PlatformService.getInstance()._formatPlatform(platformNode);
-
-		const data = { user: this.extractDataFromProfile(profile), platform };
-
-		done(null, data);
-	}
 
 	public auth(strategy: SamlStrategy | string | string[], options: AuthenticateOptions, callback?: AuthenticateCallback) {
-		return this.authenticate(strategy, options, callback)
+		return this.authenticate(strategy, options, callback);
 	}
 
 	public async authUser(profile: any, platform: IPlatform) {
@@ -107,6 +59,53 @@ class SpinalPassportSaml extends Authenticator {
 			userId: tokenNode.info.userId?.get(),
 			platformList: tokenNode.info.platformList?.get() || [],
 		}
+	}
+
+	private async _getSamlOptions(req: express.Request, done: DoneCallback) {
+
+		const samlResponse = req.body.SAMLResponse;
+
+		if (samlResponse) {
+			return this._useSamlResponse(samlResponse, done);
+		}
+
+		let serverId: any = req.query.serverId;
+		if (!serverId) return done("serverId not found", null);
+
+		const [serverNode] = await loginService.getLoginServer(serverId);
+		if (!serverNode) return done("serverId not found", null);
+
+		const server = loginService.formatServerNode(serverNode);
+		const serverInfo: ISAMLAuthenticationInfo = server.authentication_info;
+
+		let options = {
+			entryPoint: serverInfo.entryPoint,
+			issuer: serverInfo.issuer,
+			callbackUrl: serverInfo.callbackUrl,
+			cert: serverInfo.cert,
+			forceAuthn: true,
+			disableRequestedAuthnContext: true,
+		}
+
+		const serverEntityId = serverInfo.serverEntityId;
+		this.samlOptions[serverEntityId] = options;
+		this.serverEntityIdToPlatformId[serverEntityId] = req.query.platformId;
+
+		return done(null, options);
+	}
+
+	private async _verifyWithRequest(req: express.Request, profile: Profile, done: DoneCallback) {
+		const serverEntityId = profile.issuer;
+		const platformId = this.serverEntityIdToPlatformId[serverEntityId];
+
+		profile["SAMLResponse"] = req.body.SAMLResponse;
+
+		const platformNode = await PlatformService.getInstance().getPlateformByClientId(platformId);
+		const platform = PlatformService.getInstance()._formatPlatform(platformNode);
+
+		const data = { user: this.extractDataFromProfile(profile), platform };
+
+		done(null, data);
 	}
 
 	private extractDataFromProfile(profile: Profile) {
@@ -210,41 +209,6 @@ class SpinalPassportSaml extends Authenticator {
 			})
 		});
 	}
-
-	// 	useSamlStrategy(req: express.Request, res: express.Response, next: express.NextFunction): void {
-	// 		const options = {
-	// 			entryPoint: "https://login.microsoftonline.com/a9d85645-f091-44b2-839b-e1df301686f4/saml2",
-	// 			issuer: "spinalcom-lodh-sandbox",
-	// 			callbackUrl: "http://localhost/",
-	// 			cert: `-----BEGIN CERTIFICATE-----
-	// MIIC8DCCAdigAwIBAgIQF9cCi/5cXqFEiaqEMcKZSzANBgkqhkiG9w0BAQsFADA0MTIwMAYDVQQD
-	// EylNaWNyb3NvZnQgQXp1cmUgRmVkZXJhdGVkIFNTTyBDZXJ0aWZpY2F0ZTAeFw0yNDA3MDQwODQx
-	// NTdaFw0yNzA3MDQwODQxNTZaMDQxMjAwBgNVBAMTKU1pY3Jvc29mdCBBenVyZSBGZWRlcmF0ZWQg
-	// U1NPIENlcnRpZmljYXRlMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0s7ClCnDu+5q
-	// VUGyTkxsInzqTSfHpCSzfoNbfjcD4sh81Rx2MfgVY8OXclb/gp+hx3LkEsw+AZG4coYbzP8TIsIC
-	// YiqrjMR1Sm0FNIFj/fvui3tFekEPrxQKn0ibTfjP8QBw7XbMPbKcdDEduGxSfIWgD11jW/WGmNK2
-	// i35SyprWveVlVWpUzpXxh9asu02B9z1knwoBv2Rt4xU4t2mz0QUH3hnJew5lkVCfU09LsbZfpEYV
-	// ujgFqLa6sTdzIuqX5k9GLg9w74/2yMNSDMNKVdXv7LcuOToWTtm+mBanwEDTsrfsawk1w6AQyyJI
-	// cCxMalkUog5hNqSueULRPsztuQIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQAhZMq2GzeTRORPeqEQ
-	// tRa3wRNJsORHzCZBqOn1lmMDSz2sTM33fzEJXH+k0sTy99ReVwbKBn+rCEpZemUSYFLfh/3+gqed
-	// T/i4JAysiNvvvlBYuLDlZUxTrIHN7/Ckfyxfd5L+JYXRxBzGqeoaIsdEVtpriXKAB1ve6+3Uk7vq
-	// MawUeTKazP/5e3R3SKQr0m+QDbtU1B6X2Whk1V1s+rwXfYMlORfQuaovOD8DHyXyLtDBNn8kyXQo
-	// 5Iz5TVpqPOBQCLB4a4/2XA5h85OSYxXdUyGvWWjCglnCH91XE1WqbbpyybmzxZ+fMCYClzVuRRgb
-	// sswDQNy5USfALacrMt+A
-	// -----END CERTIFICATE-----`,
-	// 		};
-
-	// 		// @ts-ignore
-	// 		this.use(
-	// 			new SamlStrategy(options, (profile, done) => {
-	// 				console.log("profile", profile);
-	// 				// @ts-ignore
-	// 				return done(null, profile);
-	// 			})
-	// 		);
-
-	// 		next();
-	// 	}
 }
 
 export default SpinalPassportSaml.getInstance();

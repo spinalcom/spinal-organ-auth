@@ -40,7 +40,6 @@ export async function redirectToLoginPage(req: express.Request, res: express.Res
 
 }
 
-
 export async function LogWithServer(req: express.Request, res: express.Response) {
     const { platformId, serverId } = req.params;
     let [server] = await loginService.getLoginServer(serverId);
@@ -61,6 +60,10 @@ export async function LogWithServer(req: express.Request, res: express.Response)
             case CONNECTION_METHODS.saml:
                 const query = `platformId=${encodeURIComponent(platformId)}&serverId=${encodeURIComponent(serverId)}`;
                 return res.redirect(`/saml/login?${query}`);
+
+            case CONNECTION_METHODS["openid connect"]:
+                const _query = `platformId=${encodeURIComponent(platformId)}&serverId=${encodeURIComponent(serverId)}`;
+                return res.redirect(`/openid/login?${_query}`);
         }
     } catch (error) {
         const status = error.status || HttpStatusCode.INTERNAL_SERVER_ERROR

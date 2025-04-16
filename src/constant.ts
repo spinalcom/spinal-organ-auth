@@ -145,4 +145,5 @@ export enum CONNECTION_METHODS {
 	"local" = "local",
 	"saml" = "saml",
 	"oauth2" = "oauth2",
+	"openid connect" = "openid connect",
 }
