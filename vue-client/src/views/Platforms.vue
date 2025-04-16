@@ -76,9 +76,11 @@
             </div>
           </div>
 
+
+
           <div class="d-flex flex-column platformColumn">
             <div class="btn-valider-user">
-              <span>{{  getLastTimeSyncValue(item.lastSyncTime) }}</span>
+              <span>{{ getLastTimeSyncValue(item.lastSyncTime) }}</span>
               <!-- <StatutButton
                 :val="lastSyncTime"
                 :title="item.lastSyncTime || 'unknown'"
@@ -97,6 +99,12 @@
             <div class="btn-valider-user rounded-r-lg pr-2 hover">
               <button @click="deletePlatform(item)">
                 <v-icon>mdi-trash-can-outline</v-icon>
+              </button>
+            </div>
+
+            <div class="btn-valider-user rounded-r-lg pr-2 hover">
+              <button @click="goToEdit(item)" title="Modifier">
+                <v-icon>mdi-pencil</v-icon>
               </button>
             </div>
 
@@ -197,6 +205,10 @@ export default {
 
     syncData(platform) {
       console.log(platform)
+    },
+
+    goToEdit(plateforme) {
+      this.$router.push({ name: "EditPlatform", query: { id: plateforme.id } });
     },
 
     ...mapActions({

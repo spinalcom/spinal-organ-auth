@@ -49,95 +49,27 @@ import ServerList from "@/views/ServerList";
 import { isAuthenticate } from "./genToken";
 import path from "path";
 
-const authorizationPath = "/authorize";
+// const authorizationPath = "/authorize";
 
 Vue.use(Router);
 
 const routes = [
-  {
-    path: "/",
-    name: "Dashboard",
-    component: Dashboard
-  },
-  {
-    path: "/Users",
-    name: "Users",
-    component: Users
-  },
-  {
-    path: "/DetailUser",
-    name: "DetailUser",
-    component: DetailUser
-  },
-
-  {
-    path: "/Platforms",
-    name: "Platforms",
-    component: Platforms
-  },
-
-  {
-    path: "/AddPlatform",
-    name: "AddPlatform",
-    component: AddPlatform
-  },
-
-  {
-    path: "/DetailPlatform",
-    name: "DetailPlatform",
-    component: DetailPlatform
-  },
-  {
-    path: "/Application",
-    name: "Application",
-    component: Application
-  },
-  {
-    path: "/DetailApp",
-    name: "DetailApp",
-    component: DetailApp
-  },
-  {
-    path: "/AddUser",
-    name: "AddUser",
-    component: AddUser
-  },
-  {
-    path: "/AddApp",
-    name: "AddApp",
-    component: AddApp
-  },
-  {
-    path: "/EditApp",
-    name: "EditApp",
-    component: EditApp
-  },
-  {
-    path: "/EditUser",
-    name: "EditUser",
-    component: EditUser
-  },
-  {
-    path: "/EditPlatform",
-    name: "EditPlatform",
-    component: EditPlatform
-  },
-  {
-    path: "/Logs",
-    name: "Logs",
-    component: Logs
-  },
-  {
-    path: "/Login",
-    name: "Login",
-    component: Login
-  },
-
-  {
-    path: authorizationPath,
-    name: "Authorize",
-    component: Authorization
-  },
+  { path: "/", name: "Dashboard", component: Dashboard },
+  { path: "/Users", name: "Users", component: Users },
+  { path: "/DetailUser", name: "DetailUser", component: DetailUser },
+  { path: "/PlatformsList", name: "Platforms", component: Platforms },
+  { path: "/AddPlatform", name: "AddPlatform", component: AddPlatform },
+  { path: "/DetailPlatform", name: "DetailPlatform", component: DetailPlatform },
+  { path: "/Application", name: "Application", component: Application },
+  { path: "/DetailApp", name: "DetailApp", component: DetailApp },
+  { path: "/AddUser", name: "AddUser", component: AddUser },
+  { path: "/AddApp", name: "AddApp", component: AddApp },
+  { path: "/EditApp", name: "EditApp", component: EditApp },
+  { path: "/EditUser", name: "EditUser", component: EditUser },
+  { path: "/EditPlatform", name: "EditPlatform", component: EditPlatform },
+  { path: "/Logs", name: "Logs", component: Logs },
+  { path: "/Login", name: "Login", component: Login },
+  { path: "/authorize", name: "Authorize", component: Authorization },
   { path: "/Servers", name: "Servers", component: ServerList },
   { path: "/EditServer", name: "EditServer", component: AddServer },
   { path: "/AddServer", name: "AddServer", component: AddServer },
@@ -151,14 +83,15 @@ const router = new Router({
 });
 
 router.beforeEach(async (to, from, next) => {
-  const isAuth = await isAuthenticate();
-  if (to.name === "Login" && isAuth) return next({ name: "Dashboard" });
-  if (!isAuth && !["Login", "Authorize"].includes(to.name)) {
-    return next({ name: "Login" });
-  }
+  // const isAuth = await isAuthenticate();
+  // if (to.name === "Login" && isAuth) return next({ name: "Dashboard" });
+  // if (!isAuth && !["Login", "Authorize"].includes(to.name)) {
+  //   return next({ name: "Login" });
+  // }
 
   return next();
 });
 
 export default router;
 export { router };
+window.router = router;

@@ -3,29 +3,36 @@
     <v-main>
       <BachupInformation title="MODIFICATION PLATEFORME">
         <form class="formulaire" novalidate @submit.prevent="validateApp">
-          <InputUser title="NOM DE LA PLATEFORME" id="telephone" v-model="formPlatform.name" />
+          <InputUser title="NOM DE LA PLATEFORME" id="name" v-model="formPlatform.name" />
           <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.name.minLength">Nom
             invalide</span>
           <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formPlatform.name.required">Un nom de
             plateforme est requis</span>
 
-          <InputUser title="L'URL DE MIS A JOUR DE LA PLATEFORME" id="appName" v-model="formPlatform.url" />
-
+          <InputUser title="L'URL DE MIS A JOUR DE LA PLATEFORME" id="url" v-model="formPlatform.url" />
           <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.url.required">L'url de mis à jour
             est requis</span>
-
           <span class="errors" :class="{ showspan: iserrors }"
             v-if="!$v.formPlatform.url.minLength && $v.formPlatform.url.format">l'url de mis à jour est invalide</span>
 
-          <InputUser title="L'URL DE REDIRECTION DE LA PLATEFORME" id="appName" v-model="formPlatform.redirectUrl" />
 
-          <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.redirectUrl.required">L'url de
-            redirection est requis</span>
 
-          <span class="errors" :class="{ showspan: iserrors }" v-if="
-            !$v.formPlatform.redirectUrl.minLength &&
-            $v.formPlatform.redirectUrl.format
-          ">l'url de redirection est invalide</span>
+          <InputUser title="L'URL DE REDIRECTION DE LA PLATEFORME" id="redirectUrl"
+            v-model="formPlatform.redirectUrl" />
+          <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.redirectUrl.required">
+            L'url de redirection est requis
+          </span>
+
+          <span class="errors" :class="{ showspan: iserrors }"
+            v-if="!$v.formPlatform.redirectUrl.minLength && $v.formPlatform.redirectUrl.format">
+            l'url de redirection est invalide
+          </span>
+
+          <SelectGrant title="GRANT TYPES" id="grant_types" v-model="formPlatform.grant_types"
+            :value="formPlatform.grant_types" />
+          <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.grant_types.isValid">Au moins un
+            type d'autorisation est nécessaire
+          </span>
 
           <div class="loginServerContainer">
             <h5 class="title">Ajouter le(s) serveur(s) d'authentification</h5>
@@ -70,16 +77,19 @@ import BachupInformation from "../Components/BackupInformation.vue";
 import InputUser from "../Components/InputUser";
 import { required, minLength } from "vuelidate/lib/validators";
 import { mapActions, mapGetters } from "vuex";
+import SelectGrant from "../Components/SelectGrants.vue";
 
 export default {
   name: "App",
   components: {
     BachupInformation,
     InputUser,
+    SelectGrant
   },
   data() {
     return {
       formPlatform: {
+        grant_types: [],
         name: null,
         url: null,
         redirectUrl: null,
@@ -111,11 +121,17 @@ export default {
           return regex.test(value);
         },
       },
+      grant_types: {
+        required,
+        format: (value) => {
+          return value.length > 0;
+        },
+      },
     },
   },
   methods: {
     cancelAdd() {
-      this.$router.push("/Platforms");
+      this.$router.push("/PlatformsList");
     },
 
     async getPlatform() {
@@ -126,6 +142,7 @@ export default {
       this.formPlatform.name = tem_plat.name;
       this.formPlatform.url = tem_plat.url;
       this.formPlatform.redirectUrl = tem_plat.redirectUrl;
+      this.formPlatform.grant_types = tem_plat.grant_types;
       this.formPlatform.loginServerIds = await this.getServersIds(id);
     },
 
@@ -143,7 +160,7 @@ export default {
           platformId: this.$route.query.id,
         }).then((result) => {
           console.log(result);
-          this.$router.push("/Platforms");
+          this.$router.push("/PlatformsList");
         });
       } else {
         this.iserrors = false;

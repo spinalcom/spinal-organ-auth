@@ -3,17 +3,12 @@
     <label class="title-input">{{ title }}</label>
     <div class="select-container">
       <div class="select-trigger" @click="toggleOptions">
-        {{ selectedValue  }}
+        {{ selectedValue.join(", ") }}
         <span class="arrow" :class="{ 'arrow-rotate': rotateArrow }"></span>
       </div>
       <div class="options" v-show="showOptions">
-        <div
-          v-for="(item, index) in tab"
-          :key="index"
-          class="option"
-          :class="{ selected: selectedValue === item.value }"
-          @click="selectItem(item.value)"
-        >
+        <div v-for="(item, index) in tab" :key="index" class="option"
+          :class="{ selected: selectedValue.includes(item.value) }" @click="selectItem(item.value)">
           {{ item.name }}
         </div>
       </div>
@@ -33,7 +28,7 @@ export default {
       { value: "authorization_code", name: "authorization_code" },
     ];
     return {
-      selectedValue: null,
+      selectedValue: [],
       showOptions: false,
       rotateArrow: false, // Ajout de la propriété rotateArrow
     };
@@ -41,26 +36,26 @@ export default {
   watch: {
     tab: function (newValue, oldValue) {
       // Réinitialiser la selectedValue lorsque tab change
-      this.selectedValue = null;
+      this.selectedValue = [];
+    },
+    value: function (newValue, oldValue) {
+      this.selectedValue = newValue;
     },
   },
   methods: {
     selectItem(item) {
-      // const isAreadySelected = this.selectedValue.includes(item);
+      const isAreadySelected = this.selectedValue.includes(item);
 
-      // if (isAreadySelected) {
-      //   this.selectedValue = this.selectedValue.filter(
-      //     (value) => value !== item
-      //   );
-      // } else {
-        this.selectedValue =  item;
-      // }
+      if (isAreadySelected) {
+        this.selectedValue = this.selectedValue.filter((value) => value !== item);
+      } else {
+        this.selectedValue = [...this.selectedValue, item];
+      }
       // this.selectedValue = item;
       this.$emit("input", this.selectedValue);
       this.$emit("select", this.selectedValue); // émettre l'événement 'select'
       // this.showOptions = false;
 
-      this.toggleOptions();
     },
 
     toggleOptions() {
@@ -201,6 +196,7 @@ export default {
   border-radius: 5px;
   z-index: 1;
 }
+
 .arrow-rotate {
   transform: rotate(135deg);
 }

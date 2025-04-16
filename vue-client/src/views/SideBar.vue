@@ -67,7 +67,7 @@ export default {
         this.selectionMenu = 1
       } else if (this.$route.path == '/Application' || this.$route.path == '/DetailApp' || this.$route.path == '/AddApp' || this.$route.path == '/EditApp') {
         this.selectionMenu = 2
-      } else if (this.$route.path == '/platforms' || this.$route.path == '/DetailPlatform') {
+      } else if (this.$route.path == '/PlatformsList' || this.$route.path == '/DetailPlatform') {
         this.selectionMenu = 3
       } else if (this.$route.path == '/') {
         this.selectionMenu = 0

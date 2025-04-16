@@ -418,7 +418,7 @@ export default {
     background: #ebf0ea;
     font-family: Arial, Helvetica, sans-serif;
     letter-spacing: 1.3px;
-    font-siplatform_copiee: 10px;
+    /* font-siplatform_copiee: 10px; */
     transition: 0.2s;
 }
 

@@ -69,6 +69,7 @@ export default {
         }
       });
       // console.log(platformId);
+      console.log("rep.data", rep.data);
       dispatch("getUsersFromPltaform", { platformId, data: rep.data });
     },
 

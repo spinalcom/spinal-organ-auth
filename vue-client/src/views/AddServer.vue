@@ -108,6 +108,55 @@
 
                 </div>
 
+                <div class="server_info" v-else-if="serverInfo.authentication_method === 'openid connect'">
+
+                    <div class="formItem">
+                        <InputUser title="Emetteur (Issuer EntityID)" id="issuer"
+                            v-model="serverInfo.authentication_info.issuer" />
+                    </div>
+
+                    <div class="formItem">
+                        <InputUser title="App Client Id" id="appClientId"
+                            v-model="serverInfo.authentication_info.clientId" />
+                    </div>
+
+                    <div class="formItem">
+                        <InputPass title="App Client Secret" id="appClientSecret"
+                            v-model="serverInfo.authentication_info.clientSecret" />
+                    </div>
+
+                    <div class="formItem">
+                        <InputUser title="Scopes (separés par un espace)" id="scopes"
+                            v-model="serverInfo.authentication_info.scopes" />
+                    </div>
+
+                    <div class="formItem">
+                        <InputUser title="url d'information d'utilisateur" id="userInfoUrl"
+                            v-model="serverInfo.authentication_info.userInfoUrl" />
+                    </div>
+
+                    <div class="formItem">
+                        <InputUser title="url d'authorization" id="authorizationUrl"
+                            v-model="serverInfo.authentication_info.authorizationUrl" />
+                    </div>
+
+                    <div class="formItem">
+                        <InputUser title="url de recuperation de token" id="tokenUrl"
+                            v-model="serverInfo.authentication_info.tokenUrl" />
+                    </div>
+
+                    <div class="formItem">
+                        <InputUser title="url de retour" id="callbackUrl"
+                            v-model="serverInfo.authentication_info.callbackUrl" />
+                    </div>
+
+                    <div class="formItem">
+                        <InputUser title="url de deconnexion" id="logoutUrl"
+                            v-model="serverInfo.authentication_info.logoutUrl" />
+                    </div>
+
+                </div>
+
             </div>
 
             <div class="validation-btn">
@@ -136,6 +185,12 @@ import { validationMixin } from "vuelidate";
 import { required, email, minLength, numeric } from "vuelidate/lib/validators";
 import { mapActions, mapGetters } from "vuex";
 
+const connection_methods = [
+    { name: "saml", value: "saml" },
+    { name: "oauth2", value: "oauth2" },
+    { name: "openid connect", value: "openid connect" }
+];
+
 export default {
     name: "ServerList",
     mixins: [validationMixin],
@@ -159,10 +214,8 @@ export default {
 
     },
     data() {
-        this.connectionMethods = [
-            { name: "saml", value: "saml" },
-            { name: "oauth2", value: "oauth2" }
-        ]
+        this.connectionMethods = connection_methods;
+
         return {
             serverInfo: {
                 name: "",
@@ -185,7 +238,7 @@ export default {
             authentication_method: {
                 required,
                 format: (value) => {
-                    return ["saml", "oauth2"].some(el => el == value);
+                    return connection_methods.some(el => el.value.toLowerCase() == value.toLowerCase());
                 }
             }
         },
@@ -228,6 +281,43 @@ export default {
                 name: this.serverInfo.name
             }
             return this.editServer({ serverId: this.$route.query.id, server: editValue });
+        },
+
+        _getSamlDefaultValue() {
+            return {
+                issuer: "",
+                entryPoint: "",
+                cert: "",
+                callbackUrl: "",
+                logoutUrl: "",
+                serverEntityId: ""
+            }
+        },
+
+        _getOauth2DefaultValue() {
+            return {
+                clientId: "",
+                clientSecret: "",
+                callbackUrl: "",
+                endpoint: "",
+                logoutUrl: "",
+                grant_type: "",
+                scopes: "",
+                tokenUrl: ""
+            }
+        },
+
+        _getOpenIdDefaultValue() {
+            return {
+                issuer: "",
+                authorizationUrl: "",
+                tokenUrl: "",
+                userInfoUrl: "",
+                clientId: "",
+                clientSecret: "",
+                callbackUrl: "",
+                scopes: "",
+            }
         }
     },
 
@@ -241,26 +331,20 @@ export default {
                 return;
             }
 
-            if (this.serverInfo.authentication_method === 'saml') {
-                this.serverInfo.authentication_info = {
-                    issuer: "",
-                    entryPoint: "",
-                    cert: "",
-                    callbackUrl: "",
-                    logoutUrl: "",
-                    serverEntityId: ""
-                }
-            } else if (this.serverInfo.authentication_method === 'oauth2') {
-                this.serverInfo.authentication_info = {
-                    clientId: "",
-                    clientSecret: "",
-                    callbackUrl: "",
-                    endpoint: "",
-                    logoutUrl: "",
-                    grant_type: "",
-                    scopes: "",
-                    tokenUrl
-                }
+            switch (this.serverInfo.authentication_method) {
+                case "saml":
+                    this.serverInfo.authentication_info = this._getSamlDefaultValue();
+                    break;
+                case "oauth2":
+                    this.serverInfo.authentication_info = this._getOauth2DefaultValue();
+                    break;
+
+                case "openid connect":
+                    this.serverInfo.authentication_info = this._getOpenIdDefaultValue();
+                    break;
+
+                default:
+                    break;
             }
         }
     }

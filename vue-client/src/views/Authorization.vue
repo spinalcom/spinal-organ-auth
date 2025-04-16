@@ -11,19 +11,48 @@
         </v-card-title>
 
         <v-card-text class="loginCardContent">
-          <v-alert v-show="!hide && showError" dense outlined type="error">
-            incorrect login and/or password !
-          </v-alert>
 
-          <v-text-field outlined height="35" autocomplete="username" dense label="Login" name="userName"
-            v-model="credential.userName" required></v-text-field>
+          <div class="externalLogin" v-if="externalServers.length > 0">
+            <!-- <form v-for="(server, index) in externalServers" :key="index" method="post"
+              :action="`/login/${platformId}/${server.id}`"> -->
+            <v-btn class="ma-2 connectionBtn" outlined rounded block v-for="(server, index) in externalServers"
+              :key="index" @click="connectWithExternalServer(server)">
+              Login with {{ server.name }}
+            </v-btn>
+            <!-- </form> -->
+          </div>
 
-          <v-text-field outlined name="password" v-model="credential.password" height="35" dense label="Password"
-            required :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" :type="showPassword ? 'text' : 'password'"
-            class="input-group--focused" @click:append="showPassword = !showPassword"></v-text-field>
+          <div class="divider" v-if="localServers.length > 0 && externalServers.length > 0">
+            <v-row>
+              <v-col cols="4" class="text-center dividerBar">
+                <v-divider />
+              </v-col>
 
-          <v-text-field v-for="key in hiddenKeys" :key="key" style="display: none" :name="key" type="hidden"
-            v-model="hidenData[key]"></v-text-field>
+              <v-col cols="4" class="text-center class dividerText"> or connect with </v-col>
+
+              <v-col cols="4" class="text-center dividerBar">
+                <v-divider />
+              </v-col>
+            </v-row>
+          </div>
+
+          <div class="localLogin" v-if="localServers.length > 0">
+            <div class="alertDiv" :class="{ 'hide': !showError }">
+              incorrect login and/or password !
+            </div>
+
+            <v-text-field outlined height="35" autocomplete="username" dense label="Username" name="username"
+              v-model="credential.username" required></v-text-field>
+
+            <v-text-field outlined name="password" v-model="credential.password" height="35" dense label="Password"
+              required :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              :type="showPassword ? 'text' : 'password'" class="input-group--focused"
+              @click:append="showPassword = !showPassword"></v-text-field>
+
+            <v-text-field v-for="key in hiddenKeys" :key="key" style="display: none" :name="key" type="hidden"
+              v-model="hiddenData[key]"></v-text-field>
+          </div>
+
         </v-card-text>
 
         <v-card-actions class="loginCardAction">
@@ -47,46 +76,81 @@ export default {
       showPassword: false,
       showError: false,
       hide: true,
-      hidenData: undefined,
+      hiddenData: undefined,
       hiddenKeys: [],
+      externalServers: [],
+      localServers: [],
       credential: {
-        userName: "",
+        username: "",
         password: "",
-        client_id: this.$route.query.client_id,
-        redirect_uri: this.$route.query.redirect_uri,
-        state: this.$route.query.state,
-        response_type: this.$route.query.response_type,
-        code_challenge: this.$route.query.code_challenge,
-        code_challenge_method: this.$route.query.code_challenge_method,
       },
     };
   },
-  created() { },
-  mounted() {
-    this.hidenData = this.$route.query;
-    this.hiddenKeys = Object.keys(this.hidenData);
-    if (this.$route.query.error) {
+  async created() { },
+
+  async mounted() {
+    this.hiddenData = this.$route.query;
+
+    Object.entries(this.hiddenData).forEach(([key, value]) => {
+      this.credential[key] = value;
+    });
+
+    this.hiddenKeys = Object.keys(this.hiddenData).filter((key) => key !== "username" && key !== "password");
+
+    if (this.hiddenData.error) {
       this.showError = true;
-      this.hide = false;
     }
+
+    await this.setServers();
+
   },
   methods: {
-    ...mapActions({ authorize: "authorization/authorize" }),
-    // async login() {
-    //   const data = Object.assign(this.$route.query, this.credential);
-    //   this.authorize(data).then((res) => {
-    //     if (res) {
-    //       console.log(res);
-    //     } else {
-    //       this.showError = true;
-    //     }
-    //   });
-    // },
+    ...mapActions({ authorize: "authorization/authorize", getServers: "authorization/getServers" }),
+
+    async setServers() {
+      const servers = await this.getServers(this.credential.client_id);
+      const { localServers, externalServers } = this.getLocalAndExternalServer(servers);
+
+      this.localServers = localServers;
+      this.externalServers = externalServers;
+    },
+
+    getLocalAndExternalServer(servers) {
+      return servers.reduce((obj, server) => {
+        if (server.type === "INTERNAL_SERVER") obj.localServers.push(server);
+        else obj.externalServers.push(server);
+
+        return obj;
+      }, { localServers: [], externalServers: [] });
+    },
+
+    connectWithExternalServer(server) {
+      const platformId = this.credential.client_id;
+      const method = server.authentication_method;
+      const endpoint = this.getAuthEndpoint(method);
+
+      this.$router.push({ path: endpoint, query: { platformId, serverId: server.id } }, () => location.reload());
+      // console.log(server);
+      // this.$router.push({ name: "ExternalServer", params: { platformId: this.credential.client_id, serverId: server.id } });
+    },
+
+    getAuthEndpoint(authentication_method) {
+      console.log(authentication_method);
+      switch (authentication_method.toLowerCase()) {
+        case "saml":
+          return "saml/login";
+        case "oauth2":
+          return "oauth2/login";
+        case "openid connect":
+          return "openid/login";
+      }
+    }
+
   },
   watch: {
     credential: {
       handler() {
-        this.hide = true;
+        this.showError = false;
       },
       deep: true,
     },
@@ -96,8 +160,8 @@ export default {
 
 <style scoped>
 .loginAppContainer {
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -127,7 +191,7 @@ export default {
 
 .loginCardTitle .logoImg {
   width: 100%;
-  height: 200px;
+  height: 150px;
 }
 
 .loginCardTitle .logoImg .logo {
@@ -145,5 +209,45 @@ export default {
   word-break: keep-all;
   text-align: justify;
   font-size: 0.7em;
+}
+
+.localLogin {
+  width: 100%;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}
+
+.externalLogin {
+  width: 100%;
+  min-height: 50px;
+  padding: 5px;
+}
+
+.connectionBtn {
+  margin-bottom: 10px;
+}
+
+.divider {
+  margin: 15px 0;
+}
+
+.dividerBar {
+  display: flex;
+  align-items: center;
+}
+
+.dividerText {
+  text-transform: capitalize;
+}
+
+.alertDiv {
+  display: block;
+  color: red;
+}
+
+.alertDiv.hide {
+  display: none !important;
 }
 </style>

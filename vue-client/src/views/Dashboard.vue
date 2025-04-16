@@ -26,7 +26,7 @@
           <div class="menu-administraton">
             <hr style="min-width: 1100px;" class="line-division">
             <div class="container-cardmenu">
-              <CardMenu :icon="'mdi-shield-crown'" :verif="filtersData.search" :link="'platforms'"
+              <CardMenu :icon="'mdi-shield-crown'" :verif="filtersData.search" :link="'platformsList'"
                 :title="'PLATEFORMES'" :subtitle="'Configuration des Plateformes'">
               </CardMenu>
 

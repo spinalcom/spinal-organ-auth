@@ -1,32 +1,35 @@
 <template>
-  <v-app class="app">
-    <v-card class="pops" elevation="4">
-      <div class="popup-closebtn">
-        <span>X</span>
-      </div>
-      <p class="mb-12">CONNEXION</p>
-      <v-alert type="error" v-show="displayError">
-        Username and/or password incorrect !
-      </v-alert>
+  <v-app>
+    <div class="app">
 
-      <InputUser
-        v-model="formUser.userName"
-        class="mb-12 mt-6"
-        title="NOM D'UTILISATEUR"
-        :value="''"
-        @input="displayError = false"
-      ></InputUser>
-      <!-- <InputUser v-model="formUser.password" class="mb-12 mt-6" title="MOT DE PASSE" :value="''"></InputUser> -->
-      <InputPass
-        title="MOT DE PASSE"
-        id="clientSecret"
-        v-model="formUser.password"
-        @input="displayError = false"
-      />
-      <div @click="login()" class="mt-4 ml-1 popup-btn-fermer">
-        <span>VALIDER</span>
-      </div>
-    </v-card>
+
+      <v-card class="pops" elevation="4">
+        <!-- <div class="popup-closebtn">
+        <span>X</span>
+      </div> -->
+        <p class="mb-12 title">CONNEXION</p>
+        <div class="form_div">
+          <v-alert type="error" v-show="displayError">
+            Username and/or password incorrect !
+          </v-alert>
+
+          <div>
+            <InputUser v-model="formUser.userName" class="" title="NOM D'UTILISATEUR" :value="''"
+              @input="displayError = false"></InputUser>
+
+            <!-- <InputUser v-model="formUser.password" class="mb-12 mt-6" title="MOT DE PASSE" :value="''"></InputUser> -->
+            <InputPass title="MOT DE PASSE" id="clientSecret" v-model="formUser.password"
+              @input="displayError = false" />
+          </div>
+
+        </div>
+
+        <div @click="login()" class="mt-4 ml-1 popup-btn-fermer">
+          <span>VALIDER</span>
+        </div>
+
+      </v-card>
+    </div>
   </v-app>
 </template>
 
@@ -65,8 +68,56 @@ export default {
   },
 };
 </script>
-  
+
 <style scoped>
+.app {
+  width: 100vw;
+  height: 100vh;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(121deg, #f8fafa, #d6e2e6) !important;
+}
+
+.app .pops {
+  width: 600px;
+  min-height: 360px;
+  padding: 20px;
+}
+
+.app .pops .title {
+  font-size: 2em !important;
+  text-align: center;
+}
+
+.app .pops .form_div {
+  width: 100%;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
+
+
+
+.popup-btn-fermer {
+  /* right: 20px;
+  bottom: 20px; */
+  width: 145px;
+  height: 40px;
+  float: right;
+  background-color: #14202c;
+  border-radius: 6px !important;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+/*
 .app {
   font: normal normal normal 10px/12px Charlevoix Pro;
   letter-spacing: 1px;
@@ -87,22 +138,6 @@ export default {
   align-items: center;
   font-size: 15px;
   font-family: Arial, Helvetica, sans-serif;
-  cursor: pointer;
-}
-
-.popup-btn-fermer {
-  position: absolute;
-  right: 20px;
-  bottom: 20px;
-  width: 145px;
-  height: 40px;
-
-  background-color: #14202c;
-  border-radius: 6px !important;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   cursor: pointer;
 }
 
@@ -130,6 +165,5 @@ export default {
   top: 50%;
   border-radius: 10px;
   font-family: Arial, Helvetica, sans-serif;
-}
+}*/
 </style>
-  

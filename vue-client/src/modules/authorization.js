@@ -25,6 +25,15 @@ export default {
         commit("SET_STATE", false);
         throw error;
       }
+    },
+    async getServers({ commit }, platformId) {
+      try {
+        const response = await instanceAxios.get(`/platforms/${platformId}/loginServers`);
+
+        return response.data;
+      } catch (error) {
+        return [];
+      }
     }
   }
 };

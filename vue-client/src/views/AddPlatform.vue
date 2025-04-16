@@ -1,11 +1,16 @@
 <template>
   <v-app>
     <v-main>
-      <BackupInformation title="AJOUTER UNE PLATEFORME" class="add_platform_card">
+      <BackupInformation title="" class="add_platform_card">
         <form class="formulaire" novalidate @submit.prevent="validateApp">
+
           <div class="formulaire_info">
+            <div class="title">
+              AJOUTER UNE PLATEFORME
+            </div>
+
             <div class="left_side">
-              <p>Saisissez les informations de la plateforme.</p>
+              <!-- <p>Saisissez les informations de la plateforme.</p> -->
               <InputUser title="NOM DE LA PLATEFORME" id="appName" v-model="formApp.name" />
 
               <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.name.required">Un nom est
@@ -37,6 +42,11 @@
               <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.clientSecret.required">
                 Le mot de passe est nécessaire
               </span>
+
+              <SelectGrant title="GRANT TYPES" id="grant_types" v-model="formApp.grant_types" />
+              <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.grant_types.isValid">Au moins un
+                type
+                d'autorisation est nécessaire</span>
 
               <div class="loginServerContainer">
                 <h5 class="title">Ajouter le(s) serveur(s) d'authentification</h5>
@@ -71,51 +81,12 @@
               </span> -->
             </div>
 
-
-
-
-
-            <!--
-            <div class="right_side" v-if="formApp.authentication_method && formApp.authentication_method !== 'local'">
-              <p>Saisissez les informations de connexion au serveur SSO</p>
-
-              <div class="server_info" v-if="formApp.authentication_method === 'saml'">
-                <InputUser title="Emetteur (Entity ID)" id="issuer" v-model="formApp.authentication_info.issuer" />
-                <InputUser title="url de connexion" id="entryPoint" v-model="formApp.authentication_info.entryPoint" />
-                <InputUser title="url de retour" id="callbackUrl" v-model="formApp.authentication_info.callbackUrl" />
-                <InputUser title="url de deconnexion" id="logoutUrl" v-model="formApp.authentication_info.logoutUrl" />
-                <TextareaUser title="certificat de l'emetteur" id="cert" v-model="formApp.authentication_info.cert" />
-              </div>
-
-              <div class="server_info" v-else-if="formApp.authentication_method === 'oauth2'">
-                <InputUser title="App Client Id" id="appClientId" v-model="formApp.authentication_info.clientId" />
-
-                <InputPass title="App Client Secret" id="appClientSecret"
-                  v-model="formApp.authentication_info.clientSecret" />
-
-                <InputUser title="Scopes (separés par une ',')" id="scopes"
-                  v-model="formApp.authentication_info.scopes" />
-
-
-                <SelectGrant title="GRANT TYPES" id="grant_types" v-model="formApp.authentication_info.grant_types" />
-
-                <InputUser title="url de connexion" id="endpoint" v-model="formApp.authentication_info.endpoint" />
-
-                <InputUser title="url de retour" id="callbackUrl" v-model="formApp.authentication_info.callbackUrl" />
-
-                <InputUser title="url de deconnexion" id="logoutUrl" v-model="formApp.authentication_info.logoutUrl" />
-
-              </div>
+            <div class="d-flex justify-end">
+              <button class="btn-retour" @click="cancelAdd()">RETOUR</button>
+              <button type="submit" class="btn-creer">
+                AJOUTER LA PLATEFORME
+              </button>
             </div>
-            -->
-          </div>
-
-
-          <div class="d-flex justify-end">
-            <button class="btn-retour" @click="cancelAdd()">RETOUR</button>
-            <button type="submit" class="btn-creer">
-              AJOUTER LA PLATEFORME
-            </button>
           </div>
         </form>
       </BackupInformation>
@@ -132,9 +103,8 @@ import BackupInformation from "../Components/BackupInformation.vue";
 import SelectConnectionType from "../Components/SelectPatformConnexionType.vue";
 import SelectGrant from "../Components/SelectGrants.vue";
 import { validationMixin } from "vuelidate";
-import { required, email, minLength, numeric } from "vuelidate/lib/validators";
+import { required, minLength } from "vuelidate/lib/validators";
 import { mapActions, mapGetters } from "vuex";
-import { unlink } from "fs";
 
 export default {
   mixins: [validationMixin],
@@ -150,6 +120,7 @@ export default {
   data() {
     return {
       formApp: {
+        grant_types: [],
         name: null,
         clientId: this.generateRegisterKey(),
         clientSecret: this.generateRegisterKey(),
@@ -200,6 +171,12 @@ export default {
           return regex.test(value);
         },
       },
+      grant_types: {
+        required,
+        format: (value) => {
+          return value.length > 0;
+        },
+      },
 
       // authentication_method: {
       //   required,
@@ -214,7 +191,7 @@ export default {
     ...mapActions({ savePlatform: "platforms/savePlatform", getAllServers: "serverLogin/getAllServers" }),
 
     cancelAdd() {
-      this.$router.push("/Platforms");
+      this.$router.push("/PlatformsList");
     },
     generateRegisterKey() {
       const generator = require("generate-password");
@@ -230,7 +207,7 @@ export default {
       if (!this.$v.$invalid) {
         this.savePlatform(this.formApp)
           .then((result) => {
-            this.$router.push("/Platforms");
+            this.$router.push("/PlatformsList");
           })
           .catch((err) => {
             console.error(err);
@@ -346,15 +323,18 @@ export default {
 }
 
 .formulaire .formulaire_info {
-  width: 100%;
+  width: 70%;
   height: calc(100% - 100px);
+  margin: auto;
   display: flex;
+  flex-direction: column;
   justify-content: space-around;
 }
 
 .formulaire .formulaire_info .left_side,
 .formulaire .formulaire_info .right_side {
-  width: calc(50% - 20px);
+  /* width: calc(50% - 20px); */
+  width: 100%;
   height: 100%;
 }
 
