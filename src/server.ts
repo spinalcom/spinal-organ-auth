@@ -40,6 +40,7 @@ import { LogWithServer, redirectToLoginPage } from "./loginRoute";
 import { RegisterSamlRoutes } from "./SSO/saml/routes";
 import { registerOAuthRoutes } from "./SSO/oauth/routes";
 import { RegisterOpenIdRoutes } from "./SSO/openid/routes";
+import { Z_FIXED } from "zlib";
 
 
 // const jsonFile = require("../build/swagger.json");
@@ -78,14 +79,14 @@ function Server(): express.Express {
 	RegisterOpenIdRoutes(app);
 	RegisterRoutes(app);
 
-	// app.get("/login/:plateformClientId", redirectToLoginPage);
-	// app.post("/login/:platformId/:serverId", LogWithServer);
+	app.get("/login/:plateformClientId", redirectToLoginPage);
+	app.post("/login/:platformId/:serverId", LogWithServer);
 
-	// app.get("/authorize", (req, res) => {
-	// 	const myRelativePath = path.resolve(__dirname, "../authorizationPage", "index.ejs");
-	// 	console.log(myRelativePath)
-	// 	res.render(myRelativePath, { name: "Moussa" })
-	// });
+	app.get("/authorize", (req, res) => {
+		const myRelativePath = path.resolve(__dirname, "../authorizationPage", "index.ejs");
+		console.log(myRelativePath)
+		res.render(myRelativePath, { name: "Moussa" })
+	});
 
 	app.get("/*", (req, res) => res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html")));
 

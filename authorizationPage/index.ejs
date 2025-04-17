@@ -52,6 +52,7 @@
                 </v-card-title>
 
                 <v-card-text class="loginCardContent">
+                    <div class="description_text">Consultez toutes les données de vos bâtiments connectés.</div>
 
                     <div class="externalLogin" v-if="externalServers.length > 0">
                         <form v-for="(server,index) in externalServers" :key="index" method="post"

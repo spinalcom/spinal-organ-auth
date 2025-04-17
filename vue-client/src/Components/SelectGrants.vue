@@ -79,7 +79,7 @@ export default {
   position: relative;
   width: 100%;
   user-select: none;
-  z-index: 999999;
+  /* z-index: 99; */
 }
 
 .select-container {
@@ -128,7 +128,7 @@ export default {
   border: 1px solid #e3e7e8;
   background: white;
   overflow: hidden;
-  z-index: 1;
+  /* z-index: 1; */
   max-height: 200px;
   transition: all 0.3s ease;
 }

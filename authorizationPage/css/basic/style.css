@@ -1,93 +1,95 @@
 .container {
-    width: 100vw;
-    height: 100vh;
+	width: 100vw;
+	height: 100vh;
 }
 
 .loginAppContainer {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .loginAppContainer .loginCardTitle,
 .loginAppContainer .loginCardContent,
 .loginAppContainer .loginCardAction {
-    padding: unset !important;
+	padding: unset !important;
 }
 
 .loginAppContainer .loginCard {
-    width: 450px;
-    padding: 18px;
+	width: 450px;
+	padding: 18px;
 }
 
 .loginAppContainer .loginCardAction {
-    height: 40px;
-    margin-top: 10px;
-    display: flex;
-    justify-content: flex-end;
+	height: 40px;
+	margin-top: 10px;
+	display: flex;
+	justify-content: flex-end;
 }
 
 .loginCardTitle {
-    margin-bottom: 40px;
+	margin-bottom: 40px;
 }
 
 .loginCardTitle .logoImg {
-    width: 100%;
-    height: 150px;
+	width: 100%;
+	height: 150px;
 }
 
 .loginCardTitle .logoImg .logo {
-    width: 100%;
-    height: 100%;
+	width: 100%;
+	height: 100%;
 }
 
 .loginCardTitle .logoImg .logo .img {
-    width: 100%;
-    height: 100%;
+	width: 100%;
+	height: 100%;
 }
 
 .loginCardTitle .description {
-    line-height: 25px;
-    word-break: keep-all;
-    text-align: justify;
-    font-size: 0.7em;
+	line-height: 25px;
+	word-break: keep-all;
+	text-align: justify;
+	font-size: 0.7em;
 }
 
-
-
 .localLogin {
-    width: 100%;
-    min-height: 180px;
-    display: flex;
-    flex-direction: column;
-    padding: 5px;
+	width: 100%;
+	min-height: 180px;
+	display: flex;
+	flex-direction: column;
+	padding: 5px;
 }
 
 .externalLogin {
-    width: 100%;
-    min-height: 50px;
-    padding: 5px;
+	width: 100%;
+	min-height: 50px;
+	padding: 5px;
 }
 
 .connectionBtn {
-    margin-bottom: 10px;
+	margin-bottom: 10px;
 }
 
 .divider {
-    margin: 15px 0;
+	margin: 15px 0;
 }
 
 .dividerBar {
-    display: flex;
-    align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 .dividerText {
-    text-transform: capitalize;
+	text-transform: capitalize;
 }
 
 .alertDiv {
-    color: red !important;
+	color: red !important;
+}
+
+.loginAppContainer .loginCard .description_text {
+	margin-bottom: 10px;
 }

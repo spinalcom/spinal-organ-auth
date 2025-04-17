@@ -123,7 +123,7 @@ export default {
   border: 1px solid #E3E7E8;
   background: white;
   overflow: hidden;
-  z-index: 1;
+  /* z-index: 1; */
   max-height: 200px;
   transition: all 0.3s ease;
 }

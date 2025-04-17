@@ -23,6 +23,7 @@
                     PLATFORME</button>
             </div>
         </div>
+
         <div v-if="types == 'app'">
             <div v-for="(item, index) in nbPlatform" :key="item" class="ajout-platform"
                 :style="disableobjet[index].plat == true ? 'background : #e6f3ed' : ''" :id="index">

@@ -1,5 +1,5 @@
 <template>
-  <div class="custom-select" >
+  <div class="custom-select">
     <label class="title-input">{{ title }}</label>
     <div class="select-container">
       <div class="select-trigger" @click="toggleOptions">
@@ -17,7 +17,7 @@
 
 <script>
 export default {
-  name: "select-user",  
+  name: "select-user",
   props: ['tab', 'title', 'value', 'disabled'],
   data() {
     return {
@@ -42,7 +42,7 @@ export default {
     toggleOptions() {
       if (!this.isDisabled) {
         this.showOptions = !this.showOptions
-        this.rotateArrow = !this.rotateArrow; 
+        this.rotateArrow = !this.rotateArrow;
       }
     }
   },
@@ -108,7 +108,7 @@ export default {
   border: 1px solid #E3E7E8;
   background: white;
   overflow: hidden;
-  z-index: 1;
+  /* z-index: 1; */
   max-height: 200px;
   transition: all 0.3s ease;
 }
@@ -170,6 +170,7 @@ export default {
   border-radius: 5px;
   z-index: 1;
 }
+
 .arrow-rotate {
   transform: rotate(135deg);
 }
