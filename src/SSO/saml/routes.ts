@@ -3,6 +3,7 @@ import spinalPassportSaml from ".";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 import { IPlatform, ISAMLAuthenticationInfo } from "../../routes/platform/platform.model";
 import { formatResponseHtml } from "../../utilities/formatResponseHtml";
+import { convertSSOData } from "../utils";
 
 
 export function RegisterSamlRoutes(app: express.Application) {
@@ -26,7 +27,7 @@ export function RegisterSamlRoutes(app: express.Application) {
 			}
 
 			try {
-				const resData: any = await spinalPassportSaml.authUser(data.user, data.platform);
+				const resData: any = await convertSSOData(data.user, data.platform);
 				const html = formatResponseHtml(data.platform.redirectUrl, resData);
 				res.status(HttpStatusCode.OK).send(html);
 			} catch (error) {

@@ -2,13 +2,9 @@ import { AuthenticateCallback, AuthenticateOptions, Authenticator, DoneCallback 
 import * as express from "express";
 import { Strategy as SamlStrategy, MultiSamlStrategy } from "passport-saml";
 import { Profile } from "passport-saml";
-import { IPlatform, ISAMLAuthenticationInfo } from "../../routes/platform/platform.model";
-import { TokensService } from "../../routes/tokens/tokenService";
-import { SpinalNode } from "spinal-model-graph";
-import { USER_TYPE } from "../../constant";
+import { ISAMLAuthenticationInfo } from "../../routes/platform/platform.model";
 import loginService from "../../routes/loginServer/loginServerService";
 import { PlatformService } from "../../routes/platform/platformServices";
-import { IUserType } from "../../routes/authUser/user.model";
 import * as xml2js from "xml2js";
 
 class SpinalPassportSaml extends Authenticator {
@@ -40,26 +36,6 @@ class SpinalPassportSaml extends Authenticator {
 		return this.authenticate(strategy, options, callback);
 	}
 
-	public async authUser(profile: any, platform: IPlatform) {
-		const profileId = Array.isArray(profile.groups) ? profile.groups[0] : profile.groups;
-
-		const userProfile = await PlatformService.getInstance().getUserProfile(platform.id, profileId);
-
-		if (!userProfile) throw new Error(`No profil found for ${profileId}`);
-
-		const tokenData = this._getTokenData(platform.id, profile, userProfile);
-
-		const tokenNode = await TokensService.getInstance().createSamlToken(tokenData, platform);
-
-		return {
-			name: tokenNode.getName().get(),
-			token: tokenNode.info.token.get(),
-			createdToken: tokenNode.info.createdToken.get(),
-			expieredToken: tokenNode.info.expieredToken.get(),
-			userId: tokenNode.info.userId?.get(),
-			platformList: tokenNode.info.platformList?.get() || [],
-		}
-	}
 
 	private async _getSamlOptions(req: express.Request, done: DoneCallback) {
 
@@ -127,27 +103,7 @@ class SpinalPassportSaml extends Authenticator {
 		return data;
 	}
 
-	private _getTokenData(platformId: string, profile: any, userProfile: SpinalNode) {
-		return {
-			userId: profile.nameID,
-			platformId: platformId,
-			profile: {
-				userProfileName: userProfile.getName().get(),
-				userProfileBosConfigId: userProfile.info.userProfileId?.get()
-			},
-			userInfo: {
-				id: profile.nameID,
-				type: USER_TYPE,
-				name: profile.name || profile.nameID,
-				userName: profile.nameID,
-				// password: profile.info.password.get(),
-				email: profile.nameID,
-				telephone: "",
-				info: "",
-				userType: IUserType["Simple User"],
-			}
-		}
-	}
+
 
 	private async _useSamlResponse(samlResponse: string, done: DoneCallback) {
 		try {

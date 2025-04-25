@@ -33,7 +33,7 @@ import ConfigFile from "spinal-lib-organ-monitoring";
 class SpinalMiddleware {
 	static instance: SpinalMiddleware = null;
 	conn: spinal.FileSystem;
-	configFilePath: string = "/__users__/admin/ADMIN_config";
+	configFilePath: string = "/__users__/admin/ADMIN_config_SSO";
 	iteratorGraph = this.geneGraph();
 
 	static getInstance() {

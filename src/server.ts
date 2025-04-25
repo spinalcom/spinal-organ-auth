@@ -82,16 +82,21 @@ function Server(): express.Express {
 	app.get("/login/:plateformClientId", redirectToLoginPage);
 	app.post("/login/:platformId/:serverId", LogWithServer);
 
+
+	// Page to authorize the client
 	app.get("/authorize", (req, res) => {
 		const myRelativePath = path.resolve(__dirname, "../authorizationPage", "index.ejs");
 		console.log(myRelativePath)
 		res.render(myRelativePath, { name: "Moussa" })
 	});
 
+	// client Page
 	app.get("/*", (req, res) => res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html")));
 
 	app.use(errorHandler);
 
+
+	// launch the server
 	if (process.env.SERVER_PROTOCOL === "https") {
 		const sslOptions = { key: fs.readFileSync(process.env.SSL_KEY_PATH), cert: fs.readFileSync(process.env.SSL_CERT_PATH) };
 		https.createServer(sslOptions, app).listen(config.api.port, () => console.log(`app listening at https://localhost:${config.api.port} ....`));
