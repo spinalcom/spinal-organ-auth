@@ -9,8 +9,9 @@ import { formatResponseHtml } from '../../utilities/formatResponseHtml';
 export function RegisterOpenIdRoutes(app: express.Application) {
 
     app.get("/openid/login/", async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        const { platformId, serverId } = req.query;
+
         try {
-            const { platformId, serverId } = req.query;
 
             if (!platformId) throw new Error("no platform specified");
             if (!serverId) throw new Error("no authentication server specified");
@@ -23,7 +24,8 @@ export function RegisterOpenIdRoutes(app: express.Application) {
 
             return authenticate(req, res, next);
         } catch (error) {
-            return res.status(HttpStatusCode.BAD_REQUEST).send({ message: error.message });
+            return res.status(HttpStatusCode.MOVED_PERMANENTLY).redirect(`/login/${platformId}?error=true&error_description=${error.message}`);
+            // return res.status(HttpStatusCode.BAD_REQUEST).send({ message: error.message });
         }
     });
 
@@ -38,7 +40,9 @@ export function RegisterOpenIdRoutes(app: express.Application) {
                     const html = formatResponseHtml(platform.redirectUrl, resData);
                     res.status(HttpStatusCode.OK).send(html);
                 } catch (error) {
-                    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({ status: HttpStatusCode.INTERNAL_SERVER_ERROR, message: error.message });
+                    return res.status(HttpStatusCode.MOVED_PERMANENTLY).redirect(`/login/${platform.id}?error=true&error_description=${error.message}`);
+
+                    // return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({ status: HttpStatusCode.INTERNAL_SERVER_ERROR, message: error.message });
                 }
 
             })
@@ -46,6 +50,8 @@ export function RegisterOpenIdRoutes(app: express.Application) {
             return authenticate(req, res, next);
 
         } catch (error) {
+            // return res.status(HttpStatusCode.MOVED_PERMANENTLY).redirect(`/login/${platformId}?error=true&error_description=${error.message}`);
+
             return res.status(HttpStatusCode.BAD_REQUEST).send({ status: HttpStatusCode.BAD_REQUEST, message: error.message })
         }
     });

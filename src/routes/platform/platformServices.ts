@@ -69,12 +69,17 @@ export class PlatformService {
 		return appProfiles.find((profile) => profile.info.appProfileId.get() === profileIdBosConfig);
 	}
 
-	public async getUserProfile(platformId: string, profileIdBosConfig: string) {
+	public async getUserProfile(platformId: string, profileIdBosConfig: string, useName: boolean = false) {
 		const [platform] = await this.getPlatformsNodes(platformId);
 		if (!platform) return;
 
 		const appProfiles = await platform.getChildren(AUTH_SERVICE_USER_PROFILE_RELATION_NAME);
-		return appProfiles.find((profile) => profile.info.userProfileId.get() === profileIdBosConfig);
+		return appProfiles.find((profile) => {
+			if (profile.info.userProfileId.get() === profileIdBosConfig) return true;
+			if (useName && profile.getName().get() === profileIdBosConfig) return true;
+
+			return false;
+		});
 	}
 
 	public async createPlateform(platformCreationParms: IPlateformCreationParams): Promise<IPlatform> {

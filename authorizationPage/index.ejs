@@ -49,10 +49,15 @@
                             <img class="img" alt="logo" src="/auth_static/css/assets/logo1.jpg" />
                         </div>
                     </div>
+
+                    <div class="description_text">Consultez toutes les données de vos bâtiments connectés.</div>
                 </v-card-title>
 
                 <v-card-text class="loginCardContent">
-                    <div class="description_text">Consultez toutes les données de vos bâtiments connectés.</div>
+
+                    <v-alert v-show="!hide && showError" dense outlined class="alertDiv">
+                        {{ errorMessage }}
+                    </v-alert>
 
                     <div class="externalLogin" v-if="externalServers.length > 0">
                         <form v-for="(server,index) in externalServers" :key="index" method="post"
@@ -82,9 +87,6 @@
 
                     <form class="localLogin" v-if="localServers.length > 0" method="post"
                         :action="`/login/${platformId}/${localServers[0].id}`">
-                        <v-alert v-show="!hide && showError" dense outlined class="alertDiv">
-                            incorrect login and/or password !
-                        </v-alert>
 
                         <v-text-field outlined height="35" autocomplete="username" dense label="Login" name="userName"
                             v-model="credential.userName" required></v-text-field>

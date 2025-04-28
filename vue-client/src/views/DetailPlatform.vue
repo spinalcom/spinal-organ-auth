@@ -17,7 +17,7 @@
               <span class="bar-sub-title">CLIENT SECRET</span>
               <span class="bar-information">{{
                 this.platform.clientSecret
-              }}</span>
+                }}</span>
             </div>
             <div class="d-flex flex-column mr-16">
               <span class="bar-sub-title">STATUT</span>
@@ -33,6 +33,12 @@
           </div>
 
           <div class="d-flex flex-column bar-bloc-right justify-center" style="width: 10%; height: 100%">
+
+            <button tile class="d-flex align-center pl-1 blue-btn" color="success" @click="">
+              <v-icon class="mx-1" dark>mdi-sync</v-icon>
+              <span style="width: 56%">METTRE A JOUR</span>
+            </button>
+
             <!-- class="d-flex align-center pl-1 blue-btn" -->
             <button tile class="d-flex align-center pl-1 blue-btn" color="success" @click="goToEditPlatform">
               <v-icon class="mx-1" dark>mdi-pencil-outline</v-icon>

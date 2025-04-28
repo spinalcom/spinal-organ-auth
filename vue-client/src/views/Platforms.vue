@@ -27,6 +27,11 @@
         <div class="sub-division">
           <span class="subtitle-backbar">Nom</span>
         </div>
+
+        <div class="sub-division">
+          <span class="subtitle-backbar">Id client</span>
+        </div>
+
         <div class="sub-division">
           <span class="subtitle-backbar">Nombre d'organe</span>
         </div>
@@ -55,6 +60,12 @@
             <div class="btn-valider-user rounded-l-lg">
               <!-- <StateButton :obj="'bos'" :content1="item.name" :icon="'mdi-chip'" /> -->
               {{ item.name }}
+            </div>
+          </div>
+
+          <div class="d-flex flex-column platformColumn">
+            <div class="btn-valider-user">
+              <span>{{ item.clientId }}</span>
             </div>
           </div>
 

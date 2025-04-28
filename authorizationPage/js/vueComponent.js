@@ -15,9 +15,9 @@ new Vue({
         this.localServers = local;
         this.externalServers = external;
 
-        const queries = this.getQueries();
+        this.queries = this.getQueries();
 
-        if (queries.error) {
+        if (this.queries.error) {
             this.hide = false;
             this.showError = true;
         }
@@ -28,6 +28,11 @@ new Vue({
         //     this.showError = true;
         //     this.hide = false;
         // }
+    },
+    computed: {
+        errorMessage() {
+            return this.queries.error_description || "incorrect login and/or password !"
+        }
     },
     data() {
         return {
@@ -47,7 +52,7 @@ new Vue({
                 // code_challenge: this.$route.query.code_challenge,
                 // code_challenge_method: this.$route.query.code_challenge_method,
             },
-
+            queries: [],
             localServers: [],
             externalServers: []
         }

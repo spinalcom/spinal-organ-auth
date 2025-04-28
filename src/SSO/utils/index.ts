@@ -11,7 +11,7 @@ import { ISSOUser } from "../interfaces/ISSOUser";
 export async function convertSSOData(userData: ISSOUser, platform: IPlatform) {
     const profileId = Array.isArray(userData.groups) ? userData.groups[0] : userData.groups;
 
-    const userProfile = await PlatformService.getInstance().getUserProfile(platform.id, profileId);
+    const userProfile = await PlatformService.getInstance().getUserProfile(platform.id, profileId, true);
 
     if (!userProfile) throw new Error(`No profil found for ${profileId}`);
 
