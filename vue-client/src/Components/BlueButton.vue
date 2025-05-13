@@ -5,6 +5,7 @@
             <v-icon class="mx-1" dark>{{ icon }}</v-icon>
             <span style="width: 56%;">{{ title }}</span>
         </button>
+
         <button tile v-if="val.toUpperCase() == 'RED'" class=" d-flex align-center justify-start pl-1 red-btn"
             color="success">
             <v-icon class="mx-1" color="orange darken-2" dark>{{ icon }}</v-icon>
@@ -19,8 +20,8 @@ export default {
     props: ['icon', 'title', 'val'],
 };
 </script>
-  
-<style >
+
+<style>
 .blue-btn {
     margin: 5px;
     min-width: 153px;
@@ -33,7 +34,7 @@ export default {
     letter-spacing: 1.1px;
     background: #14202C;
     color: white;
-    
+
 }
 
 .red-btn {
@@ -48,7 +49,7 @@ export default {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-.red-btn:hover{
+.red-btn:hover {
     background: rgb(245, 245, 245);
 }
 </style>

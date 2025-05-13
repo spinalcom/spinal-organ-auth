@@ -1,10 +1,10 @@
 <template>
   <v-app>
     <v-main>
-      <InformationBar :btn="'off'" v-on:btn2="displayEdit()" v-on:btn3="deletePlatformItem()" title="INFORMATION DU BOS"
-        :title2="this.platform.name" :icon="require('../assets/image/BOS_icon.svg')" class="header-bar">
-        <div class="d-flex platform-information-bar">
-          <div class="d-flex bar-bloc-left" style="width: 89%">
+      <InformationBar :btn="'off'" v-on:btn2="displayEdit()" v-on:btn3="deletePlatformItem()"
+        :title="this.platform.name" :icon="require('../assets/image/BOS_icon.svg')" class="header-bar">
+        <div class="platformInfo">
+          <div class="d-flex platform-information-bar">
             <div class="d-flex flex-column mr-16">
               <span class="bar-sub-title">URL</span>
               <span class="bar-information">{{ this.platform.url }}</span>
@@ -17,40 +17,36 @@
               <span class="bar-sub-title">CLIENT SECRET</span>
               <span class="bar-information">{{
                 this.platform.clientSecret
-                }}</span>
+              }}</span>
             </div>
             <div class="d-flex flex-column mr-16">
               <span class="bar-sub-title">STATUT</span>
               <StatutButton :val="getStatus(platform.statusPlatform)" :title="platform.statusPlatform || 'unknown'">
               </StatutButton>
             </div>
-            <!-- <div style="max-width: 500px" class="d-flex flex-column mr-16">
-              <span class="bar-sub-title">TOKEN</span>
-              <span class="bar-information">{{
-                this.platform.TokenBosAdmin
-              }}</span>
-            </div> -->
           </div>
 
-          <div class="d-flex flex-column bar-bloc-right justify-center" style="width: 10%; height: 100%">
+          <div class="platform-action">
 
-            <button tile class="d-flex align-center pl-1 blue-btn" color="success" @click="">
+            <v-btn outlined color="success" @click="syncData">
               <v-icon class="mx-1" dark>mdi-sync</v-icon>
-              <span style="width: 56%">METTRE A JOUR</span>
-            </button>
+              METTRE A JOUR
+            </v-btn>
 
-            <!-- class="d-flex align-center pl-1 blue-btn" -->
-            <button tile class="d-flex align-center pl-1 blue-btn" color="success" @click="goToEditPlatform">
+            <!--  -->
+            <v-btn outlined color="orange" @click="goToEditPlatform">
               <v-icon class="mx-1" dark>mdi-pencil-outline</v-icon>
-              <span style="width: 56%">EDITER</span>
-            </button>
+              EDITER
+            </v-btn>
 
-            <button tile class="d-flex align-center pl-1 red-btn" color="red" @click="deletePlatform">
+            <v-btn outlined color="red" @click="deletePlatform">
               <v-icon class="mx-1" color="orange darken-2" dark>mdi-close</v-icon>
-              <span style="width: 56%">SUPPRIMER</span>
-            </button>
+              SUPPRIMER
+            </v-btn>
           </div>
         </div>
+
+
       </InformationBar>
 
       <BackupInformation style="max-height: 70%; min-height: 70%" title="INFORMATION DE LA PLATFORME">
@@ -262,6 +258,10 @@ export default {
         this.$router.push({ name: "Platforms" });
       }
     },
+
+    syncData() {
+      this.$store.dispatch("platforms/syncData", { paltformId: this.platform.id })
+    },
   },
   computed: {
     ...mapGetters({
@@ -271,12 +271,15 @@ export default {
       userListLinkPlatform: "platforms/userListLinkPlatform",
       loginServerList: "platforms/loginServerList"
     }),
+
     formattedLogList() {
       return this.logList.map((log) => {
         log.date = new Date(log.date).toLocaleString();
         return log;
       });
     },
+
+
   },
 
   async created() {
@@ -353,8 +356,28 @@ export default {
   padding-left: 8px;
 }
 
+.platformInfo {
+  width: 100%;
+  height: 150px;
+  display: flex;
+}
+
 .platform-information-bar {
   /* background: rgb(214, 33, 33); */
   height: 100%;
+  width: 70%;
+  display: flex;
+  align-items: center;
+  /* background: red; */
+}
+
+.platform-action {
+  width: 30%;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  /* background: green; */
 }
 </style>

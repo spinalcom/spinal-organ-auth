@@ -55,7 +55,7 @@ Vue.use(Router);
 
 const routes = [
   { path: "/", name: "Dashboard", component: Dashboard },
-  { path: "/Users", name: "Users", component: Users },
+  { path: "/UsersList", name: "Users", component: Users },
   { path: "/DetailUser", name: "DetailUser", component: DetailUser },
   { path: "/PlatformsList", name: "Platforms", component: Platforms },
   { path: "/AddPlatform", name: "AddPlatform", component: AddPlatform },
@@ -67,7 +67,7 @@ const routes = [
   { path: "/EditApp", name: "EditApp", component: EditApp },
   { path: "/EditUser", name: "EditUser", component: EditUser },
   { path: "/EditPlatform", name: "EditPlatform", component: EditPlatform },
-  { path: "/Logs", name: "Logs", component: Logs },
+  { path: "/LogsList", name: "Logs", component: Logs },
   { path: "/Login", name: "Login", component: Login },
   { path: "/authorize", name: "Authorize", component: Authorization },
   { path: "/Servers", name: "Servers", component: ServerList },

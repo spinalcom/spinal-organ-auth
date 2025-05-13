@@ -42,7 +42,7 @@ export default {
     return {
       menuList: ['TOUTE L’ADMINISTRATION', 'GESTION UTILISATEUR', 'GESTION APPLICATION', 'GESTION PLATFORME', 'GESTION SERVEUR', 'LOGS'],
       iconList: ['mdi-chart-tree', 'mdi-cog', 'mdi-cog', 'mdi-cog', 'mdi-server-security', 'mdi-chart-timeline-variant-shimmer'],
-      routeList: ['', 'users', 'Application', 'platforms', 'Servers', 'Logs'],
+      routeList: ['', 'usersList', 'Application', 'platforms', 'Servers', 'LogsList'],
       menuIsOpen: false,
       menu2IsOpen: false,
       selectionMenu: false,
@@ -63,7 +63,7 @@ export default {
     },
 
     checkroute() {
-      if (this.$route.path == '/DetailUser' || this.$route.path == '/users' || this.$route.path == '/AddUser' || this.$route.path == '/EditUser') {
+      if (this.$route.path == '/DetailUser' || this.$route.path == '/UsersList' || this.$route.path == '/AddUser' || this.$route.path == '/EditUser') {
         this.selectionMenu = 1
       } else if (this.$route.path == '/Application' || this.$route.path == '/DetailApp' || this.$route.path == '/AddApp' || this.$route.path == '/EditApp') {
         this.selectionMenu = 2

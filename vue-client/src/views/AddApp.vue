@@ -122,7 +122,7 @@ export default {
 
   methods: {
     cancelAdd() {
-      this.$router.push("/Users");
+      this.$router.push("/UsersList");
     },
     generateRegisterKey() {
       const generator = require("generate-password");

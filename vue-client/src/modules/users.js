@@ -40,7 +40,7 @@ export default {
         }
       });
       if (rep) {
-        router.push("/Users");
+        router.push("/UsersList");
       }
     },
 
@@ -50,7 +50,7 @@ export default {
       const userExists = getters.getUserById(user.id);
       if (!userExists) {
         alert("The user you want to delete does not exist!");
-        router.push("/Users");
+        router.push("/UsersList");
         return;
       }
 
@@ -70,7 +70,7 @@ export default {
               "x-access-token": localStorage.getItem("token"),
             }
           });
-          router.push("/Users");
+          router.push("/UsersList");
         }
       }
     }
@@ -90,11 +90,11 @@ export default {
         }
       );
       if (rep) {
-        router.push("/Users");
+        router.push("/UsersList");
       }
     },
 
-    async updateUserPassword({ commit }, {userId, body}) {
+    async updateUserPassword({ commit }, { userId, body }) {
 
       const rep = await instanceAxios.instanceAxios.put(
         `/users/${userId}/updatePassword`,
@@ -107,7 +107,7 @@ export default {
         }
       );
       if (rep) {
-        router.push("/Users");
+        router.push("/UsersList");
       }
     },
 
@@ -216,7 +216,7 @@ export default {
   },
   mutations: {
     setUserList: (state, userlist) => (
-      state.userlist = userlist
+      state.userlist = userlist.filter(user => user.userName.toLowerCase() !== "authadmin")
     ),
     setDetailUser: (state, detailUser) => (
       state.detailUser = detailUser

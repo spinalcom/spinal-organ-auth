@@ -1,27 +1,19 @@
 <template>
   <v-app>
     <v-main>
+
+      <!-- Modal 1, Autoriser une plateforme -->
       <div v-if="show" class="popup_platform">
         <v-card class="popup">
           <div @click="show = false" class="popup-closebtn">
             <span>X</span>
           </div>
-          <p class="mb-6">AJOUTER À UNE PLATFORME</p>
+          <p class="mb-6">AUTORISER UNE PLATFORME</p>
           <div class="choix_platform">
-            <SelectUser
-              style="z-index: 99"
-              v-model="formPlatformObject.platform"
-              @select="getuserfromplatform()"
-              title="PLATFORME"
-              id="userType"
-              :tab="platformList"
-            />
-            <SelectUser
-              v-model="formPlatformObject.userProfileValue"
-              :tab="userProfileList"
-              title="PROFILE D'UTILISATEUR"
-              id="userType"
-            />
+            <SelectUser style="z-index: 99" v-model="formPlatformObject.platform" @select="getuserfromplatform()"
+              title="PLATFORME" id="userType" :tab="platformList" />
+            <SelectUser v-model="formPlatformObject.userProfileValue" :tab="userProfileList"
+              title="PROFILE D'UTILISATEUR" id="userType" />
           </div>
           <div @click="editUserPlatform()" class="mt-4 ml-1 popup-btn-ajouter">
             <span>AJOUTER</span>
@@ -31,6 +23,9 @@
           </div>
         </v-card>
       </div>
+
+
+      <!-- Modal 2, Modifier le mot de passe -->
       <div v-if="showrestpass" class="popup_platform">
         <v-card class="popup">
           <div class="mb-3">MODIFIER LE MOT DE PASSE</div>
@@ -39,32 +34,11 @@
             {{ passwordErrorMessages[passwordError] }}
           </v-alert>
 
-          <InputPass
-            :required="true"
-            v-model="old_password"
-            class="entrance"
-            title="ANCIEN MOT DE PASSE"
-            id="password"
-            @input="passwordError = null"
-          />
+          <InputPass :required="true" v-model="old_password" class="entrance" title="MOT DE PASSE DE l'ADMINISTRATEUR"
+            id="password" @input="passwordError = null" />
 
-          <InputPass
-            :required="true"
-            :generate="true"
-            v-model="password"
-            class="entrance"
-            title="NOUVEAU MOT DE PASSE"
-            id="password"
-            @input="passwordError = null"
-            @generate="generatePassword"
-          />
-          <!-- <button @click="generatePassword" type="mt-2 ml-1" class="btn-creer">
-            GENERER UN MOT DE PASSE
-          </button> -->
-
-          <!-- <div @click="copiepass()" class="mt-2 ml-1 popup-btn-copier">
-            <span>COPIER</span>
-          </div> -->
+          <InputPass :required="true" :generate="true" v-model="password" class="entrance" title="NOUVEAU MOT DE PASSE"
+            id="password" @input="passwordError = null" @generate="generatePassword" />
 
           <div @click="editUserPassWord" class="mt-2 ml-1 popup-btn-ajouter">
             <span>MODIFIER</span>
@@ -76,106 +50,69 @@
         </v-card>
       </div>
 
-      <InformationBar
-        v-on:btn1="showplatform()"
-        v-on:btn2="displayEditUser()"
-        v-on:btn3="deletebtn()"
-        title="INFORMATION DE L'UTILISATEUR"
-        :title2="this.detailUser.userName"
-        :icon="require('../assets/image/USE_icon.svg')"
-      >
-        <div class="d-flex">
-          <div class="d-flex flex-column mr-16">
-            <span class="bar-sub-title">USER ID</span>
-            <span class="bar-information">{{ this.detailUser.id }}</span>
+      <!-- Fin des modals -->
+
+      <InformationBar v-on:btn1="showplatform()" v-on:btn2="displayEditUser()" v-on:btn3="deletebtn()"
+        v-on:btn4="showrestpass = true" :title="this.detailUser.userName"
+        :icon="require('../assets/image/USE_icon.svg')">
+        <div class="d-flex flex-column">
+          <div class="textDiv d-flex  mr-16">
+            <span class="bar-sub-title">NOM D'UTILISATEUR</span>
+            <span class="bar-information">{{ this.detailUser.userName || "-" }}</span>
           </div>
-          <div class="d-flex flex-column mr-16">
+          <div class="textDiv d-flex  mr-16" :title="this.detailUser.email">
             <span class="bar-sub-title">EMAIL</span>
-            <span class="bar-information">{{ this.detailUser.email }}</span>
+            <span class="bar-information">{{ this.detailUser.email || "-" }}</span>
           </div>
-          <div class="d-flex flex-column mr-16">
+          <!-- <div class="d-flex flex-column mr-16" :title="this.detailUser.email">
             <span class="bar-sub-title">TYPE</span>
             <span class="bar-information">{{ this.detailUser.type }}</span>
-          </div>
-          <div class="d-flex flex-column mr-16">
+          </div> -->
+          <div class="textDiv d-flex  mr-16" :title="this.detailUser.telephone">
             <span class="bar-sub-title">TELEPHONE</span>
-            <span class="bar-information">{{ this.detailUser.telephone }}</span>
+            <span class="bar-information">{{ this.detailUser.telephone || "-" }}</span>
           </div>
-          <div class="d-flex flex-column mr-16">
-            <BlueButton
-              style="transform: translate(0, -10%)"
-              @click.native="showrestpass = true"
-              :icon="'mdi-lock-reset'"
-              title="Modifier le mot de passe "
-              :val="'blue'"
-            />
-          </div>
+
         </div>
-        <div class="d-flex flex-column mr-16">
+        <!-- <div class="d-flex flex-column mr-16">
           <span class="bar-sub-title">INFO</span>
           <span class="bar-information">{{ this.detailUser.info }}</span>
-        </div>
+        </div> -->
       </InformationBar>
 
-      <BackupInformation
-        style="max-height: 70%; min-height: 70%"
-        title="DÉTAIL PROFIL D'UTILISATEUR"
-      >
+      <BackupInformation class="backupInfo" title="DÉTAIL PROFIL D'UTILISATEUR">
         <Tabs :items="items">
           <v-tab-item>
             <v-card style="background-color: #f7f7f7">
               <div @click="affichage()">
-                <v-data-table
-                  fixed-header
-                  style="background-color: #f7f7f7"
-                  :footer-props="{
-                    'items-per-page-options': [10, -1],
-                  }"
-                  :items-per-page="30"
-                  height="45vh"
-                  :headers="headers1"
-                  :items="this.platformObjectList"
-                  :search="search"
-                >
+                <v-data-table fixed-header style="background-color: #f7f7f7" :footer-props="{
+                  'items-per-page-options': [10, -1],
+                }" :items-per-page="30" height="45vh" :headers="headers1" :items="this.platformObjectList"
+                  :search="search">
                 </v-data-table>
               </div>
             </v-card>
           </v-tab-item>
           <v-tab-item>
-            <v-card style="background-color: #f7f7f7">
-              <div @click="affichage()">
-                <v-card-title>
-                  <v-text-field
-                    v-model="search"
-                    append-icon="mdi-magnify"
-                    label="Rechercher"
-                    single-line
-                    hide-details
-                  >
-                  </v-text-field>
-                </v-card-title>
-                <v-data-table
-                  fixed-header
-                  style="background-color: #f7f7f7"
-                  :footer-props="{
-                    'items-per-page-options': [10, -1],
-                  }"
-                  :items-per-page="30"
-                  height="45vh"
-                  :headers="headers"
-                  :items="this.formattedLogList"
-                  :search="search"
-                >
-                </v-data-table>
-              </div>
-            </v-card>
+            <!-- <v-card style="background-color: #f7f7f7"> -->
+            <div @click="affichage()">
+              <v-card-title>
+                <v-text-field v-model="search" append-icon="mdi-magnify" label="Rechercher" outlined hide-details>
+                </v-text-field>
+              </v-card-title>
+              <v-data-table fixed-header :footer-props="{
+                'items-per-page-options': [10, -1],
+              }" :items-per-page="30" height="45vh" :headers="headers" :items="this.formattedLogList" :search="search">
+              </v-data-table>
+            </div>
+            <!-- </v-card> -->
           </v-tab-item>
         </Tabs>
       </BackupInformation>
     </v-main>
   </v-app>
 </template>
-  
+
 <script>
 import InformationBar from "../Components/InformationBar.vue";
 import BackupInformation from "../Components/BackupInformation.vue";
@@ -422,8 +359,8 @@ export default {
   },
 };
 </script>
-  
-<style scoped >
+
+<style scoped>
 *:focus {
   outline: none;
 }
@@ -442,7 +379,12 @@ export default {
   min-width: 980px;
 }
 
-.v-data-table >>> td {
+.textDiv {
+  display: flex;
+  justify-content: space-between;
+}
+
+.v-data-table>>>td {
   background-color: white;
   border-top: 10px solid #f7f7f7;
   border-bottom: solid 0px black !important;
@@ -450,39 +392,16 @@ export default {
   font-size: 11px !important;
 }
 
-#content
-  > div
-  > main
-  > div
-  > div.d-flex.flex-column.rounded-lg.backup-bar.v-card.v-sheet.theme--light.elevation-2
-  > div.v-tabs.v-tabs--grow.theme--light
-  > div.v-window.v-item-group.theme--light.v-tabs-items
-  > div
-  > div.v-window-item.v-window-item--active
-  > div
-  > div
-  > div.v-card__title
-  > div {
+#content>div>main>div>div.d-flex.flex-column.rounded-lg.backup-bar.v-card.v-sheet.theme--light.elevation-2>div.v-tabs.v-tabs--grow.theme--light>div.v-window.v-item-group.theme--light.v-tabs-items>div>div.v-window-item.v-window-item--active>div>div>div.v-card__title>div {
   margin-top: 0;
   padding-top: 0;
 }
 
-.v-data-table >>> th {
+.v-data-table>>>th {
   background: #f7f7f7 !important;
 }
 
-#content
-  > div
-  > main
-  > div
-  > div.d-flex.flex-column.rounded-lg.backup-bar.v-card.v-sheet.theme--light.elevation-2
-  > div.v-tabs.v-tabs--grow.theme--light
-  > div.v-window.v-item-group.theme--light.v-tabs-items
-  > div
-  > div.v-window-item.v-window-item--active
-  > div
-  > div
-  > div.v-card__title {
+#content>div>main>div>div.d-flex.flex-column.rounded-lg.backup-bar.v-card.v-sheet.theme--light.elevation-2>div.v-tabs.v-tabs--grow.theme--light>div.v-window.v-item-group.theme--light.v-tabs-items>div>div.v-window-item.v-window-item--active>div>div>div.v-card__title {
   padding: 10px;
   background-color: white;
   border: 1px solid #e3e7e8;
@@ -499,15 +418,18 @@ export default {
   color: #949da6;
   margin-bottom: 6px;
   font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-  font-size: 11px;
-  letter-spacing: 1.1px;
+  font-size: 1em;
+  margin-right: 30px;
+}
+
+.backupInfo {
+  height: calc(100% - 350px) !important;
 }
 
 .bar-information {
   margin-bottom: 10px;
   font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-  letter-spacing: 1.3px;
-  font-size: 11px;
+  font-size: 1em;
   color: #14202c;
 }
 
@@ -639,9 +561,4 @@ export default {
   z-index: 99;
   backdrop-filter: blur(5px);
 }
-</style><Tabs :items="items">
-    <v-tab-item>
-        <v-card style="background-color: #F7F7F7;">
-            <div @click="affichage()">
-                <v-data-table fixed-header style="background-color: #F7F7F7;" :footer-props="{
-           
+</style>

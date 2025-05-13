@@ -36,7 +36,7 @@ import { TokensService } from "../tokens/tokenService";
 const { setEnvValue } = require("../../../whriteToenvFile");
 import { isLocalAuthenticationInfo, isOAuthAuthenticationInfo, isSAMLAuthenticationInfo } from "./utils";
 import loginService from "../loginServer/loginServerService";
-
+import axios from "axios";
 
 export class PlatformService {
 	static instance: PlatformService;
@@ -316,7 +316,9 @@ export class PlatformService {
 
 			platform.info.mod_attr("lastSyncTime", Date.now());
 			// platform.info.idPlatformOfAdmin.set(updateParams.idPlatformOfAdmin);
-			platform.info.TokenAdminBos.set(updateParams.TokenAdminBos);
+			if (updateParams.TokenAdminBos && !platform.info?.TokenAdminBos?.get()) // if the token is not already set
+				await this.updateTokenAdminBosInGraph(platform, updateParams.TokenAdminBos);
+
 			await LogsService.getInstance().createLog(platform, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.PUSH_DATA, EVENTS_REQUEST_NAMES.PUSH_DATA, "Push Data Valid ");
 			return;
 		}
@@ -324,6 +326,45 @@ export class PlatformService {
 		await LogsService.getInstance().createLog(platform, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.PUSH_DATA, EVENTS_REQUEST_NAMES.PUSH_DATA_NOT_VALID, "Push Data Not Valid Empty Json Data");
 		throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 	}
+
+
+	public sendTokenAdminBosUpdatingRequest(platformId: string) {
+
+	}
+
+	public async sendUpdatePlatformDataRequest(plateformId: string) {
+		const [plateform] = await this.getPlatformsNodes(plateformId);
+		const token = plateform?.info?.TokenAdminBos?.get();
+		let url = plateform?.info?.url?.get();
+
+		if (!token || !url) {
+			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+		}
+
+		url += url.endsWith("/") ? "api/v1/pam/update_data" : "/api/v1/pam/update_data";
+
+		return axios.put(url, {}, { headers: { Authorization: `Bearer ${token}` } }).then((result) => {
+			plateform.info.mod_attr("lastSyncTime", Date.now());
+			return plateform.info.get();
+		})
+
+	}
+
+
+	// update the token in graph
+	public async updateTokenAdminBosInGraph(platform: string | SpinalNode, token: string): Promise<string> {
+		if (typeof platform === "string") {
+			const [platformNode] = await this.getPlatformsNodes(platform);
+			platform = platformNode;
+		}
+		if (!token) return "";
+
+		platform.info.mod_attr("TokenAdminBos", token.trim());
+		return token;
+	}
+
+
+
 
 	public async getPlateformLogs(id: string): Promise<IPlatformLogs[]> {
 		try {

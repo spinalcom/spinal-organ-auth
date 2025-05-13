@@ -23,7 +23,53 @@ with this file. If not, see
 -->
 
 <template>
-  <v-app class="app">
+
+  <v-card class="userListCard" elevation="4">
+
+    <div class="addUserBtn">
+
+      <v-btn color="#14202C" dark large @click.native="adduser()">
+        <v-icon left>
+          mdi-plus
+        </v-icon>
+        AJOUTER UN UTILISATEUR
+      </v-btn>
+    </div>
+
+
+    <!-- <v-data-table class="tableContent" :headers="headers" :items="searched" disable-pagination hide-default-footer> -->
+    <v-data-table class="tableContent" :headers="headers" :items="userList" disable-pagination hide-default-footer>
+
+      <template v-slot:item.platformList="{ item }">
+        {{ item.platformList.length }}
+      </template>
+
+      <template v-slot:item.actions="{ item }">
+        <div class="actions">
+          <div class="btn-valider-user rounded-r-lg pr-2 hover">
+            <button @click="deletebtn(item)" title="Supprimer">
+              <v-icon>mdi-trash-can-outline</v-icon>
+            </button>
+          </div>
+
+          <div class="btn-valider-user rounded-r-lg pr-2 hover">
+            <button @click="goToEdit(item)" title="Modifier">
+              <v-icon>mdi-pencil</v-icon>
+            </button>
+          </div>
+
+          <div class="btn-valider-user rounded-r-lg pr-2 hover">
+            <button @click="displayDetail(item)" title="Détails">
+              <v-icon>mdi-arrow-right</v-icon>
+            </button>
+          </div>
+        </div>
+
+      </template>
+    </v-data-table>
+  </v-card>
+
+  <!-- <v-app class="app">
 
     <div class="d-flex justify-end" style="width: 100%; min-width: 980px">
       <v-card class="
@@ -65,7 +111,7 @@ with this file. If not, see
         </div>
       </div>
     </BackupInformation>
-  </v-app>
+  </v-app> -->
 </template>
 
 <script>
@@ -73,6 +119,7 @@ import BlueButton from "../Components/BlueButton.vue";
 import BackupInformation from "../Components/BackupInformation.vue";
 import StateButton from "../Components/StateButton.vue";
 import { mapActions, mapGetters } from "vuex";
+// import test from "./test";
 
 
 export default {
@@ -85,9 +132,17 @@ export default {
   data: () => ({
     display: false,
     token: "",
+    // searched: test,
+    headers: [
+      { text: "Nom d'utilisateur", value: "userName" },
+      { text: "Nombre de plateforme autorisés", value: "platformList" },
+      { text: "", value: "actions", width: "200px" }
+    ]
   }),
   methods: {
-    showapplist(){
+    ...mapActions({ deleteUser: "users/deleteUser" }),
+
+    showapplist() {
       console.log(this.userList);
     },
     updateUserlist() {
@@ -103,6 +158,18 @@ export default {
       this.$router.push("/AddUser");
     },
 
+    goToEdit(item) {
+      this.$router.push({ name: "EditUser", query: { id: item.id } });
+    },
+
+    deletebtn(item) {
+      var user = {
+        id: item.id,
+        name: item.userName,
+      };
+      this.deleteUser(user);
+    },
+
   },
   computed: {
     ...mapGetters({ userList: 'users/userList' }),
@@ -115,7 +182,53 @@ export default {
 </script>
 
 <style scoped>
-.app {
+.userListCard {
+  width: calc(100% - 30px);
+  margin: auto;
+  height: calc(100vh - 100px);
+  background: transparent !important;
+}
+
+.addUserBtn {
+  width: 100%;
+  height: 70px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+}
+
+.tableContent {
+  max-height: calc(100% - 70px);
+  overflow-y: auto;
+  background: transparent;
+}
+
+
+
+.btn-valider-user {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  min-height: 50px;
+  padding-left: 10px;
+  font: normal normal normal 12px/14px Charlevoix Pro;
+  letter-spacing: 1.2px;
+  margin: 1px;
+}
+
+.hover:hover {
+  background: rgb(228, 228, 228);
+  transition: 0.3s;
+}
+
+/* .app {
   font: normal normal normal 10px/12px Charlevoix Pro;
   letter-spacing: 1px;
   background: #eeeeee00;
@@ -142,5 +255,14 @@ export default {
 .stateButton-container {
   width: 100%;
   display: flex;
+} */
+</style>
+
+<style>
+.tableContent th {
+  text-align: left;
+  /* white-space: nowrap; */
+  /* overflow: hidden; */
+  /* text-overflow: ellipsis; */
 }
 </style>

@@ -272,6 +272,18 @@ export default {
           }
         }
       );
+    },
+    async syncData({ commit }, { paltformId }) {
+      const rep = await instanceAxios.instanceAxios.post(
+        `/platforms/updatePlatformData/${paltformId}`, {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": localStorage.getItem("token")
+          }
+        }
+      );
+      commit("updateSyncDate", { platformId: paltformId, date: rep.data.lastSyncTime });
     }
   },
   mutations: {
@@ -289,6 +301,22 @@ export default {
     setuserListLinkPlatform: (state, userListLinkPlatform) =>
       (state.userListLinkPlatform = userListLinkPlatform),
 
-    setPlatformServerList: (state, servers) => (state.loginServerList = servers)
+    setPlatformServerList: (state, servers) => (state.loginServerList = servers),
+    updateSyncDate: (state, { platformId, date }) => {
+      let i = -1;
+      const platform = state.platformlist.find((p, index) => {
+        if (p.id === platformId) {
+          i = index;
+          return true;
+        }
+        return false;
+      });
+
+      if (platform) {
+        platform.lastSyncTime = date;
+        state.platformlist.splice(i, 1, platform);
+      }
+
+    }
   }
 };

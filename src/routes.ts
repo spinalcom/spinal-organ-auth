@@ -139,7 +139,7 @@ const models: TsoaRoute.Models = {
             "email": {"dataType":"string"},
             "telephone": {"dataType":"string"},
             "info": {"dataType":"string"},
-            "userType": {"ref":"IUserType","required":true},
+            "userType": {"ref":"IUserType"},
             "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}},"required":true},"platformId":{"dataType":"string","required":true}}}},
         },
         "additionalProperties": false,
@@ -154,7 +154,7 @@ const models: TsoaRoute.Models = {
             "telephone": {"dataType":"string"},
             "info": {"dataType":"string"},
             "userType": {"ref":"IUserType"},
-            "grant_types": {"dataType":"array","array":{"dataType":"string"},"required":true},
+            "grant_types": {"dataType":"array","array":{"dataType":"string"}},
             "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileName":{"dataType":"string","required":true},"userProfileBosConfigId":{"dataType":"string","required":true},"userProfileAdminId":{"dataType":"string","required":true}},"required":true},"platformName":{"dataType":"string","required":true},"platformId":{"dataType":"string","required":true}}}},
         },
         "additionalProperties": false,
@@ -1635,6 +1635,32 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.updatePlatformToken.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/platforms/updatePlatformData/:platformId',
+            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
+            ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.sendUpdatePlatformDataRequest)),
+
+            function PlatformsController_sendUpdatePlatformDataRequest(request: any, response: any, next: any) {
+            const args = {
+                    platformId: {"in":"path","name":"platformId","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new PlatformsController();
+
+
+              const promise = controller.sendUpdatePlatformDataRequest.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

@@ -4,13 +4,14 @@
             <div @click="affichage()">
                 <div class="titlelog">LISTE DES LOGS</div>
                 <v-card-title>
-                    <v-text-field v-model="search" append-icon="mdi-magnify" label="Rechercher" single-line
-                        hide-details>
+                    <v-text-field class="search" v-model="search" append-icon="mdi-magnify" outlined
+                        placeholder="Rechercher" label="Rechercher" hide-details>
                     </v-text-field>
                 </v-card-title>
                 <v-data-table fixed-header style="background-color: #F7F7F7;" :footer-props="{
                     'items-per-page-options': [10, -1]
-                }" :items-per-page="30" height="70vh" :headers="headers" :items="this.formattedLogList" :search="search">
+                }" :items-per-page="30" height="70vh" :headers="headers" :items="this.formattedLogList"
+                    :search="search">
                 </v-data-table>
             </div>
         </v-card>
@@ -20,7 +21,7 @@
 <script>
 import BackupInformation from "../Components/BackupInformation.vue"
 import FiltreBar from "../Components/FiltreBar.vue"
-import { mapActions, mapGetters } from "vuex";
+import { mapGetters } from "vuex";
 
 export default {
     name: "App",
@@ -52,7 +53,7 @@ export default {
         },
         affichage() {
             var a = document.querySelector("#app > div.v-menu__content.theme--light.menuable__content__active");
-            if (a != null){
+            if (a != null) {
                 a.style.position = "fixed";
             }
         }
@@ -74,11 +75,12 @@ export default {
 
 
 </script>
-  
+
 <style scoped>
 .app {
     background: #eeeeee00;
 }
+
 
 .sub-division {
     display: flex;

@@ -63,7 +63,7 @@ export interface IUserCreationParams {
 	email?: string;
 	telephone?: string;
 	info?: string; // champs libre optionnel
-	userType: IUserType;
+	userType?: IUserType;
 	platformList?: {
 		platformId: string;
 		userProfile: {
@@ -85,7 +85,7 @@ export interface IUserUpdateParams {
 	telephone?: string;
 	info?: string; // champs libre optionnel
 	userType?: IUserType;
-	grant_types: string[];
+	grant_types?: string[];
 	platformList?: {
 		platformId: string;
 		platformName: string;

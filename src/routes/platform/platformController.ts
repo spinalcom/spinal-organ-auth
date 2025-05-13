@@ -196,4 +196,17 @@ export class PlatformsController extends Controller {
 			return { code, error: error.message };
 		}
 	}
+
+	@Security("jwt", ["authAdmin:write"])
+	@Post("/updatePlatformData/{platformId}")
+	public async sendUpdatePlatformDataRequest(@Path() platformId: string) {
+		try {
+			const data = await PlatformService.getInstance().sendUpdatePlatformDataRequest(platformId);
+			this.setStatus(HttpStatusCode.OK);
+			return data;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
 }

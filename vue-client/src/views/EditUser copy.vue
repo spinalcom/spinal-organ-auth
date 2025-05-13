@@ -150,11 +150,11 @@ export default {
         // },
 
         cancelAdd() {
-            this.$router.push("/Users");
+            this.$router.push("/UsersList");
         },
 
         async updateUserform() {
-            
+
             await this.$store.dispatch('users/getUser', this.$route.query.id);
             this.formUser.userName = this.detailUser.name;
             this.formUser.telephone = this.detailUser.telephone;
@@ -204,24 +204,24 @@ export default {
                 //         })
                 //     };
                 // } else {
-                    var objectBody = {
-                        userName: this.formUser.userName,
-                        email: this.formUser.email,
-                        telephone: this.formUser.telephone,
-                        info: this.formUser.info,
-                        userType: this.formUser.userType.name,
-                        platformList: this.platformObjectList.map(el => {
-                            return {
-                                platformId: el.platformId,
-                                platformName: el.platformName,
-                                userProfile: {
-                                    userProfileAdminId: el.userProfile.userProfileAdminId,
-                                    userProfileBosConfigId: el.userProfile.userProfileBosConfigId,
-                                    userProfileName: el.userProfile.userProfileName
-                                }
-                            };
-                        })
-                    };
+                var objectBody = {
+                    userName: this.formUser.userName,
+                    email: this.formUser.email,
+                    telephone: this.formUser.telephone,
+                    info: this.formUser.info,
+                    userType: this.formUser.userType.name,
+                    platformList: this.platformObjectList.map(el => {
+                        return {
+                            platformId: el.platformId,
+                            platformName: el.platformName,
+                            userProfile: {
+                                userProfileAdminId: el.userProfile.userProfileAdminId,
+                                userProfileBosConfigId: el.userProfile.userProfileBosConfigId,
+                                userProfileName: el.userProfile.userProfileName
+                            }
+                        };
+                    })
+                };
                 // }
 
                 var profile = [objectBody, this.$route.query.id];
@@ -245,7 +245,7 @@ export default {
 
 }
 </script>
-  
+
 <style scoped>
 .v-application {
     background-color: #d6e2e600;

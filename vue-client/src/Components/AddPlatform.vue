@@ -1,27 +1,33 @@
 <template>
-    <div>
-        <div v-if="types == 'user'">
-
-            <div v-for="(item, index) in nbPlatform" :key="item" class="ajout-platform"
-                :style="disableobjet[index] ? disableobjet[index].plat == true ? 'background : #e6f3ed' : '' : ''"
-                :id="index">
-                <div @click="setplatform()" class="selector">
-                    <SelectUser :id=index class="platform" @select="getuserfromplatform" :tab="platformList"
-                        v-model="formPlatformObject.platform" title="PLATFORM"
-                        :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false" />
-                    <SelectUser @change.native="" :id=index class="profilut"
-                        :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false"
-                        :tab="userProfileList" v-model="formPlatformObject.userProfileValue"
-                        title="PROFIL UTILISATEUR" />
+    <div class="authorizePlatform">
+        <div v-if="types == 'user'" class="userAccess">
+            <div class="accessheader">
+                <div>Autoriser l'accès aux plateformes</div>
+                <div>
+                    <v-btn @click="addplatform()" outlined>
+                        <v-icon>mdi-plus</v-icon>
+                        AJOUTER UNE PLATFORME
+                    </v-btn>
                 </div>
-                <button @click="deletePlatformObjectitem(index)" type="button" class="red-cross">X</button>
             </div>
 
-
-            <div class="d-flex justify-end">
-                <button @click="addplatform()" type="button" class="btn-ajout-platform">+ AJOUT D'UNE
-                    PLATFORME</button>
+            <div class="platContainer">
+                <div v-for="(item, index) in nbPlatform" :key="item" class="ajout-platform"
+                    :style="disableobjet[index] ? disableobjet[index].plat == true ? 'background : #e6f3ed' : '' : ''"
+                    :id="index">
+                    <div @click="setplatform()" class="selector">
+                        <SelectUser :id=index class="platform" @select="getuserfromplatform" :tab="platformList"
+                            v-model="formPlatformObject.platform" title="PLATFORM"
+                            :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false" />
+                        <SelectUser @change.native="" :id=index class="profilut"
+                            :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false"
+                            :tab="userProfileList" v-model="formPlatformObject.userProfileValue"
+                            title="PROFIL UTILISATEUR" />
+                    </div>
+                    <button @click="deletePlatformObjectitem(index)" type="button" class="red-cross">X</button>
+                </div>
             </div>
+
         </div>
 
         <div v-if="types == 'app'">
@@ -325,6 +331,31 @@ export default {
 </script>
 
 <style>
+.authorizePlatform {
+    width: 100%;
+    height: 100%;
+}
+
+.authorizePlatform .userAccess {
+    width: 100%;
+    height: 100%;
+}
+
+.authorizePlatform .userAccess .accessheader {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.authorizePlatform .userAccess .platContainer {
+    width: 100%;
+    height: calc(100% - 50px);
+    overflow-y: auto;
+}
+
+
 .platform {
     z-index: 99;
 }
@@ -419,12 +450,10 @@ export default {
     background: #ebf0ea;
     font-family: Arial, Helvetica, sans-serif;
     letter-spacing: 1.3px;
-    /* font-siplatform_copiee: 10px; */
     transition: 0.2s;
 }
 
 .btn-ajout-platform:hover {
     background-color: rgb(189, 189, 189);
-    /* color: white; */
 }
 </style>

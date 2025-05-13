@@ -30,10 +30,10 @@
                 :title="'PLATEFORMES'" :subtitle="'Configuration des Plateformes'">
               </CardMenu>
 
-              <CardMenu :icon="'mdi-view-list'" :verif="filtersData.search" :link="'Logs'" :title="'LOGS'"
+              <CardMenu :icon="'mdi-view-list'" :verif="filtersData.search" :link="'LogsList'" :title="'LOGS'"
                 :subtitle="'Connexions et utilisations du logiciel'"></CardMenu>
 
-              <CardMenu :icon="'mdi-account'" :verif="filtersData.search" :link="'users'" :title="'UTILISATEURS'"
+              <CardMenu :icon="'mdi-account'" :verif="filtersData.search" :link="'usersList'" :title="'UTILISATEURS'"
                 :subtitle="'Gestion des utilisateurs'">
               </CardMenu>
 

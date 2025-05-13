@@ -83,9 +83,7 @@
 
             <div class="d-flex justify-end">
               <button class="btn-retour" @click="cancelAdd()">RETOUR</button>
-              <button type="submit" class="btn-creer">
-                AJOUTER LA PLATEFORME
-              </button>
+              <button type="submit" class="btn-creer">AJOUTER LA PLATEFORME </button>
             </div>
           </div>
         </form>
