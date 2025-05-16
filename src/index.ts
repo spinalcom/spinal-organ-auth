@@ -26,7 +26,7 @@ import { initAllContexts } from "./services/authGraphService";
 import { TokensService } from "./tokens/tokenService";
 import Server from "./server";
 import SpinalMiddleware from "./spinalMiddleware";
-import { createOrGetRegisterKey, initLogsService, initPlatformService, initTokenService, initUserService } from "./utilities/initialisation";
+import { createOrGetRegisterKey, initLogsService, initPlatformService, initTokenService, initUserService, initUniqueCodeService } from "./utilities/initialisation";
 import * as cron from "node-cron";
 
 async function main() {
@@ -35,7 +35,13 @@ async function main() {
 
 	const contexts = await initAllContexts(graph);
 
-	return Promise.all([initLogsService(contexts), initTokenService(contexts), initUserService(contexts), initPlatformService()]).then(async () => {
+	return Promise.all([
+		initLogsService(contexts),
+		initTokenService(contexts),
+		initUserService(contexts),
+		initPlatformService(),
+		initUniqueCodeService(graph)
+	]).then(async () => {
 		await createOrGetRegisterKey(contexts);
 		cron.schedule("30 */10 * * *", async () => {
 			console.log("purge invalid token");

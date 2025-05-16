@@ -20,6 +20,8 @@ import { RegisterKeyController } from './platform/registerKeyController';
 import { RegisterController } from './register/registerController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { TokensController } from './tokens/tokenController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { UniqueCodeController } from './uniqueCode/codeController';
 import { expressAuthentication } from './security/index';
 // @ts-ignore - no great way to install types from subpackage
 const promiseAny = require('promise.any');
@@ -396,6 +398,39 @@ const models: TsoaRoute.Models = {
             "userType": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IUserProfileBase": {
+        "dataType": "refObject",
+        "properties": {
+            "userProfileId": {"dataType":"string","required":true},
+            "platformId": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IAppProfileBase": {
+        "dataType": "refObject",
+        "properties": {
+            "appProfileId": {"dataType":"string","required":true},
+            "platformId": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IProfile": {
+        "dataType": "refAlias",
+        "type": {"dataType":"union","subSchemas":[{"ref":"IUserProfileBase"},{"ref":"IAppProfileBase"}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ICode": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"profiles":{"dataType":"union","subSchemas":[{"ref":"IProfile"},{"dataType":"array","array":{"dataType":"refAlias","ref":"IProfile"}}],"required":true},"usedAt":{"dataType":"double","required":true},"createdAt":{"dataType":"double","required":true},"used":{"dataType":"boolean","required":true},"code":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ICodeResponse": {
+        "dataType": "refAlias",
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"ICode"},{"dataType":"nestedObjectLiteral","nestedProperties":{"id":{"dataType":"string","required":true}}}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
@@ -1588,6 +1623,135 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.verifyToken.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/codes',
+            authenticateMiddleware([{"jwt":["authAdmin"]}]),
+            ...(fetchMiddlewares<RequestHandler>(UniqueCodeController)),
+            ...(fetchMiddlewares<RequestHandler>(UniqueCodeController.prototype.getAllCode)),
+
+            function UniqueCodeController_getAllCode(request: any, response: any, next: any) {
+            const args = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new UniqueCodeController();
+
+
+              const promise = controller.getAllCode.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/codes/create',
+            authenticateMiddleware([{"jwt":["authAdmin"]}]),
+            ...(fetchMiddlewares<RequestHandler>(UniqueCodeController)),
+            ...(fetchMiddlewares<RequestHandler>(UniqueCodeController.prototype.generateCode)),
+
+            function UniqueCodeController_generateCode(request: any, response: any, next: any) {
+            const args = {
+                    body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"count":{"dataType":"double"},"profiles":{"dataType":"union","subSchemas":[{"ref":"IProfile"},{"dataType":"array","array":{"dataType":"refAlias","ref":"IProfile"}}],"required":true}}},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new UniqueCodeController();
+
+
+              const promise = controller.generateCode.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/codes/getcode/:code',
+            authenticateMiddleware([{"jwt":["authAdmin"]}]),
+            ...(fetchMiddlewares<RequestHandler>(UniqueCodeController)),
+            ...(fetchMiddlewares<RequestHandler>(UniqueCodeController.prototype.getCode)),
+
+            function UniqueCodeController_getCode(request: any, response: any, next: any) {
+            const args = {
+                    code: {"in":"path","name":"code","required":true,"dataType":"any"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new UniqueCodeController();
+
+
+              const promise = controller.getCode.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.delete('/codes/delete/:code',
+            authenticateMiddleware([{"jwt":["authAdmin"]}]),
+            ...(fetchMiddlewares<RequestHandler>(UniqueCodeController)),
+            ...(fetchMiddlewares<RequestHandler>(UniqueCodeController.prototype.removeCode)),
+
+            function UniqueCodeController_removeCode(request: any, response: any, next: any) {
+            const args = {
+                    code: {"in":"path","name":"code","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new UniqueCodeController();
+
+
+              const promise = controller.removeCode.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.delete('/codes/delete',
+            authenticateMiddleware([{"jwt":["authAdmin"]}]),
+            ...(fetchMiddlewares<RequestHandler>(UniqueCodeController)),
+            ...(fetchMiddlewares<RequestHandler>(UniqueCodeController.prototype.removeCodes)),
+
+            function UniqueCodeController_removeCodes(request: any, response: any, next: any) {
+            const args = {
+                    data: {"in":"body","name":"data","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"codes":{"dataType":"array","array":{"dataType":"string"},"required":true}}},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new UniqueCodeController();
+
+
+              const promise = controller.removeCodes.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

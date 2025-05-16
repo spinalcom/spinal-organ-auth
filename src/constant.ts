@@ -22,7 +22,7 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-// Type
+// Types
 export const AUTH_SERVICE_RELATION_TYPE_PTR_LST = "PtrLst";
 export const AUTH_SERVICE_RELATION_TYPE_LST_PTR = "LstPtr";
 export const USER_TYPE = "AuthServiceUser";
@@ -50,10 +50,11 @@ export const USER_REQUEST_EVENT_LOG_TYPE = "AuthServiceUserRequestEventLog";
 export const APPLICATION_REQUEST_EVENT_LOG_TYPE = "AuthServiceApplicationRequestEventLog";
 export const PLATFORM_REQUEST_EVENT_LOG_TYPE = "AuthServicePlatformRequestEventLog";
 export const ADMIN_REQUEST_EVENT_LOG_TYPE = "AuthServiceAdminRequestEventLog";
-
+export const UNIQUE_CODE_TYPE = "AuthServiceUniqueCode";
+export const UNIQUE_CODE_CONTEXT_TYPE = "AuthServiceUniqueCodeContext";
 export const USER_LOG_TYPE = "AuthServiceUserLog";
 
-// RelationName
+// RelationNames
 export const AUTH_SERVICE_PLATFORM_RELATION_NAME = "HasPlatform";
 export const AUTH_SERVICE_NOTIFICATION_RELATION_NAME = "HasNotification";
 export const AUTH_SERVICE_ORGAN_RELATION_NAME = "HasOrgan";
@@ -71,8 +72,10 @@ export const AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME = "HasEventLog";
 export const AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME = "HasEventLog";
 export const AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME = "HasEventLog";
 export const AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME = "HasRequestEventLog";
+export const AUTH_SERVICE_UNIQUE_CODE_RELATION_NAME = "HasUniqueCode";
 
-//ContextName
+
+//ContextNames
 export const PLATFORM_LIST = "platformList";
 export const USER_LIST = "userList";
 export const APPLICATION_LIST = "applicationList";
@@ -80,9 +83,9 @@ export const TOKEN_LIST = "tokenList";
 export const INFO_ADMIN = "infoAdmin";
 export const LOG_LIST = "logList";
 export const NOTIFICATION_LIST = "notificationList";
+export const UNIQUE_CODE_LIST = "uniqueCodeList";
 
 // logs categories
-
 export const USER_LOG_CATEGORY_NAME = "UserLogs";
 export const APPLICATION_LOG_CATEGORY_NAME = "ApplicationLogs";
 export const PLATFORM_LOG_CATEGORY_NAME = "PlatformLogs";

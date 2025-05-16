@@ -1,10 +1,11 @@
 import { SpinalGraphService } from "spinal-env-viewer-graph-service";
-import { SpinalContext } from "spinal-model-graph";
+import { SpinalContext, SpinalGraph } from "spinal-model-graph";
 import { TokensService } from "../tokens/tokenService";
 import { AUTH_SERVICE_INFO_ADMIN_RELATION_NAME, AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, AUTH_SERVICE_USER_RELATION_NAME, INFO_ADMIN, LOG_LIST, TOKEN_LIST, USER_LIST } from "../constant";
 import { LogsService } from "../logs/logService";
 import { UserService } from "../authUser/userService";
 import { PlatformService } from "../platform/platformServices";
+import SpinalUniqueCodeService from "../uniqueCode/codeService";
 
 export async function initTokenService(contexts: SpinalContext[]) {
 	const context = contexts.find((context) => context.getName().get() === TOKEN_LIST);
@@ -72,4 +73,9 @@ export async function createOrGetRegisterKey(contexts: SpinalContext[]) {
 			}
 		}
 	}
+}
+
+
+export function initUniqueCodeService(graph: SpinalGraph): Promise<SpinalContext> {
+	return SpinalUniqueCodeService.getInstance().init(graph);
 }

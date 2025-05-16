@@ -21,6 +21,9 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
+
+
+
 export interface IUserProfileCreationParams {
   userProfileId: string;
   name: string;

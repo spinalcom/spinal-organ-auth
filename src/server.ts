@@ -36,12 +36,9 @@ import * as swaggerUi from "swagger-ui-express";
 import { ValidateError } from "tsoa";
 import { AuthError } from "./security/AuthError";
 const jsonFile = require("../build/swagger.json");
-var history = require("connect-history-api-fallback");
-/**
- *
- *
- * @return {*}  {express.Express}
- */
+// var history = require("connect-history-api-fallback");
+
+
 function Server(): express.Express {
 	const app = express();
 
@@ -54,14 +51,17 @@ function Server(): express.Express {
 	app.use(express.urlencoded({ extended: true }));
 	// app.use(methodOverride());
 
-	app.use(history());
+	// app.use(history());
 
 	app.use(express.static(path.resolve(__dirname, "../vue-client/dist")));
-	app.get("/", function (req, res) {
+
+	RegisterRoutes(app);
+
+	app.get("/*", function (req, res) {
 		res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html"));
 	});
 
-	RegisterRoutes(app);
+
 	app.use(errorHandler);
 
 	app.listen(config.api.port, () => console.log(`app listening at http://localhost:${config.api.port} ....`));
@@ -73,7 +73,6 @@ export default Server;
 
 function errorHandler(err: unknown, req: express.Request, res: express.Response, next: express.NextFunction): express.Response | void {
 	//@ts-ignore
-	console.log("hello from errorHandler");
 	if (err instanceof ValidateError) {
 		return res.status(400).send(_formatValidationError(err));
 	}
