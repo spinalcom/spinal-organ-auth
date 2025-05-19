@@ -29,7 +29,7 @@ import { SpinalContext, SpinalGraph, SpinalNode } from "spinal-env-viewer-graph-
 import { OperationError } from "../utilities/operation-error";
 import { HttpStatusCode } from "../utilities/http-status-code";
 import { IApplication, IApplicationCreationParams, IApplicationUpdateParams, IApplicationLoginParams, IApplicationLogs } from "./application.model";
-import { IApplicationToken } from "../tokens/token.model";
+import { IApplicationToken, IAppPlatformProfile } from "../tokens/token.model";
 import SpinalMiddleware from "../spinalMiddleware";
 import { LogsService } from "../logs/logService";
 import { PlatformService } from "../platform/platformServices";
@@ -250,7 +250,7 @@ export class ApplicationService {
 		};
 	}
 
-	private _formatPlatForms(platformList: { platform: SpinalNode; profile: SpinalNode }[]) {
+	private _formatPlatForms(platformList: { platform: SpinalNode; profile: SpinalNode }[]): IAppPlatformProfile[] {
 		return platformList.map(({ platform, profile }) => ({
 			platformId: platform.getId().get(),
 			platformName: platform.getName().get(),

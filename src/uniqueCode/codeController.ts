@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Path, Post, Route, Security } from "tsoa
 import SpinalUniqueCodeService from "./codeService";
 import { ICodeResponse, IProfile } from "./code.model";
 import { HttpStatusCode } from "../utilities/http-status-code";
+import { ICodeToken } from "../tokens/token.model";
 
 
 const spinalUniqueCodeService = SpinalUniqueCodeService.getInstance();
@@ -10,15 +11,29 @@ const spinalUniqueCodeService = SpinalUniqueCodeService.getInstance();
 export class UniqueCodeController extends Controller {
 
 
+    @Security("all")
+    @Post("consume/{code}")
+    public async consumeCode(@Path() code: string): Promise<ICodeToken | { error: string }> {
+        try {
+            const token = await spinalUniqueCodeService.consumeCode(code);
+            this.setStatus(HttpStatusCode.OK);
+            return token;
+        } catch (error) {
+            this.setStatus(error.code || HttpStatusCode.INTERNAL_SERVER_ERROR);
+            return { error: error.message };
+        }
+    }
+
+
     @Security("jwt", ["authAdmin"])
     @Get()
     public async getAllCode(): Promise<ICodeResponse[] | { error: string }> {
         try {
             const codes = await spinalUniqueCodeService.getAllCodes();
             this.setStatus(HttpStatusCode.OK);
-            return spinalUniqueCodeService.formatCodeNode(codes);
+            return codes.map((code) => spinalUniqueCodeService.formatCodeNode(code));
         } catch (error) {
-            this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+            this.setStatus(error.code || HttpStatusCode.INTERNAL_SERVER_ERROR);
             return { error: error.message };
         }
     }
@@ -33,12 +48,12 @@ export class UniqueCodeController extends Controller {
                 return { error: "Missing parameters profiles" };
             }
 
-            const code = await spinalUniqueCodeService.generateCode(profiles, count);
+            const codes = await spinalUniqueCodeService.generateCode(profiles, count);
             this.setStatus(HttpStatusCode.CREATED);
-            return spinalUniqueCodeService.formatCodeNode(code);
+            return codes.map(code => spinalUniqueCodeService.formatCodeNode(code));
 
         } catch (error) {
-            this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+            this.setStatus(error.code || HttpStatusCode.INTERNAL_SERVER_ERROR);
             return { error: error.message };
         }
     }
@@ -54,10 +69,9 @@ export class UniqueCodeController extends Controller {
             }
 
             this.setStatus(HttpStatusCode.OK);
-            const codeFormatted = spinalUniqueCodeService.formatCodeNode(codeNode);
-            return codeFormatted[0];
+            return spinalUniqueCodeService.formatCodeNode(codeNode);
         } catch (error) {
-            this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+            this.setStatus(error.code || HttpStatusCode.INTERNAL_SERVER_ERROR);
             return { error: error.message };
         }
     }
@@ -73,11 +87,10 @@ export class UniqueCodeController extends Controller {
             }
 
             this.setStatus(HttpStatusCode.OK);
-            const codeFormatted = spinalUniqueCodeService.formatCodeNode(removed);
-            return codeFormatted[0];
+            return spinalUniqueCodeService.formatCodeNode(removed);
 
         } catch (error) {
-            this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+            this.setStatus(error.code || HttpStatusCode.INTERNAL_SERVER_ERROR);
             return { error: error.message };
         }
     }
@@ -88,12 +101,11 @@ export class UniqueCodeController extends Controller {
         try {
             const removed = await spinalUniqueCodeService.removeSeveralCodes(data.codes);
 
-            const codeFormatted = spinalUniqueCodeService.formatCodeNode(removed);
             this.setStatus(HttpStatusCode.OK);
-            return codeFormatted;
+            return removed.map(el => spinalUniqueCodeService.formatCodeNode(el));
 
         } catch (error) {
-            this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+            this.setStatus(error.code || HttpStatusCode.INTERNAL_SERVER_ERROR);
             return { error: error.message };
         }
     }

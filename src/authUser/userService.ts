@@ -28,7 +28,7 @@ import { SpinalGraphService, SpinalGraph, SpinalContext, SpinalNode } from "spin
 import { OperationError } from "../utilities/operation-error";
 import { HttpStatusCode } from "../utilities/http-status-code";
 import { IUser, IUserCreationParams, IUserUpdateParams, IAuthAdminUpdateParams, IUserLoginParams, IUserType, IUserLogs, IUpdateUserPassword } from "./user.model";
-import { IUserToken } from "../tokens/token.model";
+import { IUserPlatformProfile, IUserToken } from "../tokens/token.model";
 import SpinalMiddleware from "../spinalMiddleware";
 import { LogsService } from "../logs/logService";
 import data from "./profileUserListData";
@@ -419,7 +419,7 @@ export class UserService {
 		};
 	}
 
-	private _formatPlatForms(platformList: { platform: SpinalNode; profile: SpinalNode }[]) {
+	private _formatPlatForms(platformList: { platform: SpinalNode; profile: SpinalNode }[]): IUserPlatformProfile[] {
 		return platformList.map(({ platform, profile }) => ({
 			platformId: platform.getId().get(),
 			platformName: platform.getName().get(),

@@ -69,19 +69,37 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IApplicationToken": {
+    "IToken": {
         "dataType": "refObject",
         "properties": {
-            "name": {"dataType":"string"},
+            "id": {"dataType":"string"},
+            "name": {"dataType":"string","required":true},
             "type": {"dataType":"string"},
-            "token": {"dataType":"string"},
+            "token": {"dataType":"string","required":true},
             "createdToken": {"dataType":"double"},
             "expieredToken": {"dataType":"double"},
-            "applicationId": {"dataType":"string"},
-            "applicationProfileList": {"dataType":"array","array":{"dataType":"string"}},
-            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfileName":{"dataType":"string","required":true},"appProfileBosConfigId":{"dataType":"string","required":true},"appProfileAdminId":{"dataType":"string","required":true}},"required":true},"idPlatformOfAdmin":{"dataType":"string","required":true},"platformName":{"dataType":"string","required":true},"platformId":{"dataType":"string","required":true}}}},
         },
         "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IPlatform": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"idPlatformOfAdmin":{"dataType":"string","required":true},"platformName":{"dataType":"string","required":true},"platformId":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IAppProfile": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"appProfileName":{"dataType":"string","required":true},"appProfileBosConfigId":{"dataType":"string","required":true},"appProfileAdminId":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IAppPlatformProfile": {
+        "dataType": "refAlias",
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"IPlatform"},{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfile":{"ref":"IAppProfile","required":true}}}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IApplicationToken": {
+        "dataType": "refAlias",
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"IToken"},{"dataType":"nestedObjectLiteral","nestedProperties":{"platformList":{"dataType":"array","array":{"dataType":"refAlias","ref":"IAppPlatformProfile"}},"applicationProfileList":{"dataType":"array","array":{"dataType":"string"}},"applicationId":{"dataType":"string"}}}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IApplicationLoginParams": {
@@ -178,21 +196,19 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IUserProfile": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileName":{"dataType":"string","required":true},"userProfileBosConfigId":{"dataType":"string","required":true},"userProfileAdminId":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IUserPlatformProfile": {
+        "dataType": "refAlias",
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"IPlatform"},{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfile":{"ref":"IUserProfile","required":true}}}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IUserToken": {
-        "dataType": "refObject",
-        "properties": {
-            "name": {"dataType":"string"},
-            "type": {"dataType":"string"},
-            "token": {"dataType":"string"},
-            "createdToken": {"dataType":"double"},
-            "expieredToken": {"dataType":"double"},
-            "userId": {"dataType":"string"},
-            "userType": {"dataType":"string"},
-            "userProfile": {"dataType":"string"},
-            "serverId": {"dataType":"string"},
-            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileName":{"dataType":"string","required":true},"userProfileBosConfigId":{"dataType":"string","required":true},"userProfileAdminId":{"dataType":"string","required":true}},"required":true},"idPlatformOfAdmin":{"dataType":"string","required":true},"platformName":{"dataType":"string","required":true},"platformId":{"dataType":"string","required":true}}}},
-        },
-        "additionalProperties": false,
+        "dataType": "refAlias",
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"IToken"},{"dataType":"nestedObjectLiteral","nestedProperties":{"platformList":{"dataType":"array","array":{"dataType":"refAlias","ref":"IUserPlatformProfile"}},"serverId":{"dataType":"string"},"userProfile":{"dataType":"string"},"userType":{"dataType":"string"},"userId":{"dataType":"string"}}}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IUserLoginParams": {
@@ -285,22 +301,6 @@ const models: TsoaRoute.Models = {
         "enums": ["online","fail","stop"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IPlatform": {
-        "dataType": "refObject",
-        "properties": {
-            "id": {"dataType":"string","required":true},
-            "name": {"dataType":"string","required":true},
-            "type": {"dataType":"string","required":true},
-            "statusPlatform": {"ref":"statusPlatform","required":true},
-            "url": {"dataType":"string","required":true},
-            "address": {"dataType":"string"},
-            "TokenBosAdmin": {"dataType":"string"},
-            "TokenAdminBos": {"dataType":"string"},
-            "idPlatformOfAdmin": {"dataType":"string"},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IPlatformUpdateParams": {
         "dataType": "refObject",
         "properties": {
@@ -309,30 +309,6 @@ const models: TsoaRoute.Models = {
             "url": {"dataType":"string"},
             "address": {"dataType":"string"},
             "TokenBosAdmin": {"dataType":"string"},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IUserProfile": {
-        "dataType": "refObject",
-        "properties": {
-            "id": {"dataType":"string","required":true},
-            "userProfileId": {"dataType":"string","required":true},
-            "name": {"dataType":"string","required":true},
-            "type": {"dataType":"string","required":true},
-            "platformId": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IAppProfile": {
-        "dataType": "refObject",
-        "properties": {
-            "id": {"dataType":"string"},
-            "appProfileId": {"dataType":"string","required":true},
-            "name": {"dataType":"string"},
-            "type": {"dataType":"string"},
-            "platformId": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -385,19 +361,19 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IToken": {
-        "dataType": "refObject",
-        "properties": {
-            "id": {"dataType":"string","required":true},
-            "name": {"dataType":"string","required":true},
-            "type": {"dataType":"string","required":true},
-            "token": {"dataType":"string","required":true},
-            "createdToken": {"dataType":"double"},
-            "expieredToken": {"dataType":"double"},
-            "userId": {"dataType":"string"},
-            "userType": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
+    "ICodeToken": {
+        "dataType": "refAlias",
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"IToken"},{"dataType":"nestedObjectLiteral","nestedProperties":{"platformList":{"dataType":"array","array":{"dataType":"union","subSchemas":[{"ref":"IAppPlatformProfile"},{"ref":"IUserPlatformProfile"}]}},"applicationProfileList":{"dataType":"array","array":{"dataType":"string"}},"userId":{"dataType":"string"},"applicationId":{"dataType":"string"}}}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ICodeBase": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"usedAt":{"dataType":"double","required":true},"createdAt":{"dataType":"double","required":true},"used":{"dataType":"boolean","required":true},"code":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ICodeResponse": {
+        "dataType": "refAlias",
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"ICodeBase"},{"dataType":"nestedObjectLiteral","nestedProperties":{"profiles":{"dataType":"array","array":{"dataType":"union","subSchemas":[{"ref":"IAppPlatformProfile"},{"ref":"IUserPlatformProfile"}]},"required":true},"id":{"dataType":"string","required":true}}}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IUserProfileBase": {
@@ -421,16 +397,6 @@ const models: TsoaRoute.Models = {
     "IProfile": {
         "dataType": "refAlias",
         "type": {"dataType":"union","subSchemas":[{"ref":"IUserProfileBase"},{"ref":"IAppProfileBase"}],"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "ICode": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"profiles":{"dataType":"union","subSchemas":[{"ref":"IProfile"},{"dataType":"array","array":{"dataType":"refAlias","ref":"IProfile"}}],"required":true},"usedAt":{"dataType":"double","required":true},"createdAt":{"dataType":"double","required":true},"used":{"dataType":"boolean","required":true},"code":{"dataType":"string","required":true}},"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "ICodeResponse": {
-        "dataType": "refAlias",
-        "type": {"dataType":"intersection","subSchemas":[{"ref":"ICode"},{"dataType":"nestedObjectLiteral","nestedProperties":{"id":{"dataType":"string","required":true}}}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
@@ -1623,6 +1589,32 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.verifyToken.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/codes/consume/:code',
+            authenticateMiddleware([{"all":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(UniqueCodeController)),
+            ...(fetchMiddlewares<RequestHandler>(UniqueCodeController.prototype.consumeCode)),
+
+            function UniqueCodeController_consumeCode(request: any, response: any, next: any) {
+            const args = {
+                    code: {"in":"path","name":"code","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new UniqueCodeController();
+
+
+              const promise = controller.consumeCode.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

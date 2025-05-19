@@ -23,7 +23,7 @@
  */
 
 import { Model, Ptr, spinalCore, FileSystem } from "spinal-core-connectorjs_type";
-import { TOKEN_TYPE, AUTH_SERVICE_TOKEN_RELATION_NAME, TOKEN_LIST, AUTH_SERVICE_RELATION_TYPE_PTR_LST, USER_TOKEN_CATEGORY_TYPE, APPLICATION_TOKEN_CATEGORY_TYPE, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME } from "../constant";
+import { TOKEN_TYPE, AUTH_SERVICE_TOKEN_RELATION_NAME, TOKEN_LIST, AUTH_SERVICE_RELATION_TYPE_PTR_LST, USER_TOKEN_CATEGORY_TYPE, APPLICATION_TOKEN_CATEGORY_TYPE, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, CODE_TOKEN_CATEGORY_TYPE } from "../constant";
 import { SPINAL_RELATION_PTR_LST_TYPE } from "spinal-env-viewer-graph-service";
 import { SpinalGraphService, SpinalGraph, SpinalContext, SpinalNode } from "spinal-env-viewer-graph-service";
 import { OperationError } from "../utilities/operation-error";
@@ -33,6 +33,8 @@ import SpinalMiddleware from "../spinalMiddleware";
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 import jwt_decode from "jwt-decode";
+import { ITokenActor } from "./token.model";
+import { getToken } from "../security";
 const generator = require("generate-password");
 const { setEnvValue } = require("../../whriteToenvFile");
 
@@ -64,9 +66,9 @@ export class TokensService {
 		return key;
 	}
 
-	public async createToken(node: SpinalNode, tokenData: any, platformList: any[], actor: "user" | "application") {
+	public async createToken(node: SpinalNode, tokenData: any, platformList: any[], actor: ITokenActor) {
 		const secret = this.generateTokenKey();
-		let token = jwt.sign(tokenData, secret, { expiresIn: "24h" });
+		let token = jwt.sign(tokenData, secret, { expiresIn: this._getTokenExpirationTime(actor) });
 		let decodedToken: any = jwt_decode(token);
 
 		const tokenNode = new SpinalNode(`token_${node.getName().get()}`, TOKEN_TYPE);
@@ -81,14 +83,15 @@ export class TokensService {
 
 		const context = await this.getTokenListContext();
 		let tokenCategory = await this.getTokenCategory(actor);
-
+		await node.addChild(tokenNode, AUTH_SERVICE_TOKEN_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
 		return tokenCategory.addChildInContext(tokenNode, AUTH_SERVICE_TOKEN_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
 	}
 
-	public async getTokenCategory(actor: "user" | "application"): Promise<SpinalNode> {
+	public async getTokenCategory(actor: ITokenActor): Promise<SpinalNode> {
 		const context = await this.getTokenListContext();
 		const categoriesToken = await context.getChildren(AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME);
-		const type = actor === "user" ? USER_TOKEN_CATEGORY_TYPE : APPLICATION_TOKEN_CATEGORY_TYPE;
+		const type = this._getTokenCategoryType(actor);
+
 		return categoriesToken.find((el) => el.getType().get() === type);
 	}
 
@@ -97,6 +100,7 @@ export class TokensService {
 
 		let userTokenCategory = categoryNodes?.find((el) => el.getType().get() === USER_TOKEN_CATEGORY_TYPE);
 		let appTokenCategory = categoryNodes?.find((el) => el.getType().get() === APPLICATION_TOKEN_CATEGORY_TYPE);
+		let codeTokenCategory = categoryNodes?.find((el) => el.getType().get() === CODE_TOKEN_CATEGORY_TYPE);
 
 		if (!userTokenCategory) {
 			let node = new SpinalNode("User Token", USER_TOKEN_CATEGORY_TYPE);
@@ -108,7 +112,12 @@ export class TokensService {
 			appTokenCategory = await context.addChildInContext(node, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
 		}
 
-		return [userTokenCategory, appTokenCategory];
+		if (!codeTokenCategory) {
+			let node = new SpinalNode("Code Token", CODE_TOKEN_CATEGORY_TYPE);
+			codeTokenCategory = await context.addChildInContext(node, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+		}
+
+		return [userTokenCategory, appTokenCategory, codeTokenCategory];
 	}
 
 	// public async verify(): Promise<any[]> {
@@ -256,6 +265,27 @@ export class TokensService {
 			userType: token.info?.userType?.get(),
 			applicationId: token.info?.applicationId?.get(),
 		};
+	}
+
+	private _getTokenCategoryType(actor: ITokenActor): string {
+		switch (actor) {
+			case "user":
+				return USER_TOKEN_CATEGORY_TYPE;
+			case "application":
+				return APPLICATION_TOKEN_CATEGORY_TYPE;
+			case "code":
+				return CODE_TOKEN_CATEGORY_TYPE;
+		}
+	}
+
+	private _getTokenExpirationTime(actor: ITokenActor): string {
+		switch (actor) {
+			case "user":
+			case "application":
+				return "24h";
+			case "code":
+				return "1000y";
+		}
 	}
 }
 

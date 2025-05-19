@@ -30,6 +30,8 @@ export const NOTIFICATION_TYPE = "AuthServiceNotification";
 export const USER_TOKEN_CATEGORY_TYPE = "AuthServiceUserCategory";
 export const APPLICATION_TYPE = "AuthServiceApplication";
 export const APPLICATION_TOKEN_CATEGORY_TYPE = "AuthServiceApplicationCategory";
+export const CODE_TOKEN_CATEGORY_TYPE = "AuthServiceCodeCategory";
+
 export const PLATFORM_TYPE = "AuthServicePlatform";
 export const ORGAN_TYPE = "AuthServiceOrgan";
 export const USER_PROFILE_TYPE = "AuthServiceUserProfile";

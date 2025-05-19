@@ -12,9 +12,11 @@ export async function initTokenService(contexts: SpinalContext[]) {
 	if (context) {
 		SpinalGraphService._addNode(context);
 		const childsContext = await context.getChildren(AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME);
-		if (childsContext.length !== 2) { // 2 is the number of token category (appCategory, userCategory)
-			return TokensService.getInstance().createTokenTree(childsContext);
-		}
+		return TokensService.getInstance().createTokenTree(childsContext);
+
+		// if (childsContext.length !== 3) { // 2 is the number of token category (appCategory, userCategory)
+		// 	return TokensService.getInstance().createTokenTree(childsContext);
+		// }
 	}
 }
 

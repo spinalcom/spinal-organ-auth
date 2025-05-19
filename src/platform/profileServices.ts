@@ -29,11 +29,12 @@ import { IUserProfileCreationParams, IUserProfileUpdateParams, IUserProfile } fr
 import { IAppProfileCreationParams, IAppProfileUpdateParams, IAppProfile } from "./appProfile.model";
 import SpinalMiddleware from "../spinalMiddleware";
 import { PlatformService } from "./platformServices";
+import { IAppPlatformProfile, IUserPlatformProfile } from "../tokens/token.model";
 
 export class ProfileServices {
 	static instance: ProfileServices;
 
-	private constructor() {}
+	private constructor() { }
 
 	static getInstance(): ProfileServices {
 		if (this.instance === undefined) {
@@ -84,8 +85,10 @@ export class ProfileServices {
 		};
 	}
 
-	public async getUserProfileService(platformId: string): Promise<IUserProfile[]> {
+	public async getUserProfileService(platformId: string): Promise<(IUserProfile & { platform?: any })[]> {
 		const [platform] = await PlatformService.getInstance().getPlatformsNodes(platformId);
+
+		if (!platform) [];
 
 		const userProfileList = await platform.getChildren(AUTH_SERVICE_USER_PROFILE_RELATION_NAME);
 
@@ -95,11 +98,13 @@ export class ProfileServices {
 			name: userProfile.getName().get(),
 			userProfileId: userProfile.info.userProfileId.get(),
 			platformId: userProfile.info.platformId.get(),
+			platform: platform?.info?.get()
 		}));
 	}
 
-	public async getAppProfileService(platformId: string): Promise<IAppProfile[]> {
+	public async getAppProfileService(platformId: string): Promise<(IAppProfile & { platform?: any })[]> {
 		const [platform] = await PlatformService.getInstance().getPlatformsNodes(platformId);
+		if (!platform) return [];
 
 		const appProfileList = await platform.getChildren(AUTH_SERVICE_APP_PROFILE_RELATION_NAME);
 
@@ -109,6 +114,48 @@ export class ProfileServices {
 			name: appProfile.getName().get(),
 			appProfileId: appProfile.info.appProfileId.get(),
 			platformId: appProfile.info.platformId.get(),
+			platform: platform?.info?.get()
 		}));
+	}
+
+	public async findUserProfile(platformId: string, userProfileId: string): Promise<IUserPlatformProfile> {
+		const profiles = await this.getUserProfileService(platformId);
+		const found = profiles.find((profile) => profile.userProfileId === userProfileId);
+		if (!found) return null;
+
+		return {
+			platformId: found?.platform.id,
+			platformName: found?.platform.name,
+			idPlatformOfAdmin: found?.platform.idPlatformOfAdmin,
+			userProfile: {
+				userProfileAdminId: found.id,
+				userProfileBosConfigId: found.userProfileId,
+				userProfileName: found.name
+			}
+		}
+	}
+
+	public async findAppProfile(platformId: string, appProfileId: string): Promise<IAppPlatformProfile> {
+		const profiles = await this.getAppProfileService(platformId);
+		const found = profiles.find((profile) => profile.appProfileId === appProfileId);
+		if (!found) return null;
+
+		return {
+			platformId: found.platform.id,
+			platformName: found.platform.name,
+			idPlatformOfAdmin: found.platform.info.idPlatformOfAdmin,
+			appProfile: {
+				appProfileAdminId: found.id,
+				appProfileBosConfigId: found.appProfileId,
+				appProfileName: found.name,
+			},
+		}
+	}
+
+	public async findProfile(platformId: string, profileId: string): Promise<IUserPlatformProfile | IAppPlatformProfile> {
+		const userProfile = await this.findUserProfile(platformId, profileId);
+		if (userProfile) return userProfile;
+
+		return this.findAppProfile(platformId, profileId);
 	}
 }
