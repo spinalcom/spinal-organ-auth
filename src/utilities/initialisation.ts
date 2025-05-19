@@ -1,5 +1,5 @@
 import { SpinalGraphService } from "spinal-env-viewer-graph-service";
-import { SpinalContext } from "spinal-model-graph";
+import { SpinalContext, SpinalGraph } from "spinal-model-graph";
 import { TokensService } from "../routes/tokens/tokenService";
 import { AUTH_SERVICE_INFO_ADMIN_RELATION_NAME, AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, AUTH_SERVICE_USER_RELATION_NAME, INFO_ADMIN, LOG_LIST, LOGIN_SERVER_CONTEXT_NAME, TOKEN_LIST, USER_LIST } from "../constant";
 import { LogsService } from "../routes/logs/logService";
@@ -8,16 +8,18 @@ import { PlatformService } from "../routes/platform/platformServices";
 import { RefreshTokenService } from "../routes/tokens/refreshTokenService";
 import { AuthorizationCodeService } from "../routes/tokens/AuthorizationCodeService";
 import loginService from "../routes/loginServer/loginServerService";
+import SpinalUniqueCodeService from "../routes/uniqueCode/codeService";
 
 export async function initAllServices(contexts: SpinalContext[]) {
 	const promises = [
 		AuthorizationCodeService.getInstance().init(),
 		RefreshTokenService.getInstance().init(),
+		SpinalUniqueCodeService.getInstance().init(),
 		initLogsService(contexts),
 		initTokenService(contexts),
 		initUserService(contexts),
 		initPlatformService(),
-		initLoginServer(contexts)
+		initLoginServer(contexts),
 	]
 	return Promise.all(promises);
 }
@@ -27,9 +29,11 @@ export async function initTokenService(contexts: SpinalContext[]) {
 	if (context) {
 		SpinalGraphService._addNode(context);
 		const childsContext = await context.getChildren(AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME);
-		if (childsContext.length === 0) {
-			return TokensService.getInstance().createTokenTree();
-		}
+		return TokensService.getInstance().createTokenTree();
+
+		// if (childsContext.length !== 3) { // 2 is the number of token category (appCategory, userCategory)
+		// 	return TokensService.getInstance().createTokenTree(childsContext);
+		// }
 	}
 }
 

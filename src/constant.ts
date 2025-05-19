@@ -30,6 +30,8 @@ export const NOTIFICATION_TYPE = "AuthServiceNotification";
 export const USER_TOKEN_CATEGORY_TYPE = "AuthServiceUserCategory";
 export const APPLICATION_TYPE = "AuthServiceApplication";
 export const APPLICATION_TOKEN_CATEGORY_TYPE = "AuthServiceApplicationCategory";
+export const CODE_TOKEN_CATEGORY_TYPE = "AuthServiceCodeCategory";
+
 export const PLATFORM_TYPE = "AuthServicePlatform";
 export const ORGAN_TYPE = "AuthServiceOrgan";
 export const USER_PROFILE_TYPE = "AuthServiceUserProfile";
@@ -57,6 +59,9 @@ export const AUTHORIZATION_CODE_CONTEXT_TYPE = "AuthorizationCodesContext";
 export const AUTHORIZATION_CODE_TYPE = "AuthorizationCode";
 export const LOGIN_SERVER_CONTEXT_TYPE = "LoginServerList";
 export const LOGIN_SERVER_TYPE = "LoginServer";
+export const UNIQUE_CODE_TYPE = "AuthServiceUniqueCode";
+export const UNIQUE_CODE_CONTEXT_TYPE = "AuthServiceUniqueCodeContext";
+
 
 // RelationName
 export const AUTH_SERVICE_PLATFORM_RELATION_NAME = "HasPlatform";
@@ -80,6 +85,8 @@ export const REFRESH_TOKEN_CONTEXT_TO_NODE_RELATION_NAME = "HasRefreshToken";
 export const AUTHORIZATION_CODE_CONTEXT_TO_NODE_RELATION_NAME = "HasAuthorizationCode";
 export const LOGIN_SERVER_RELATION_NAME = "HasLoginServer";
 export const PLATFORM_TO_LOGIN_SERVER = "PlatformHasLoginServer";
+export const AUTH_SERVICE_UNIQUE_CODE_RELATION_NAME = "HasUniqueCode";
+
 
 //ContextName
 export const PLATFORM_LIST = "platformList";
@@ -92,6 +99,8 @@ export const NOTIFICATION_LIST = "notificationList";
 export const REFRESH_TOKEN_CONTEXT_NAME = "RefreshToken";
 export const AUTHORIZATION_CODE_CONTEXT_NAME = "AuthorizationCodes";
 export const LOGIN_SERVER_CONTEXT_NAME = "LoginServerList";
+export const UNIQUE_CODE_LIST = "uniqueCodeList";
+
 
 // logs categories
 

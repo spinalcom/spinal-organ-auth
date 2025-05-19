@@ -1,6 +1,6 @@
 {
 	"name": "spinal-organ-auth",
-	"version": "2.3.3",
+	"version": "2.4.4",
 	"description": "",
 	"main": "dist/index.js",
 	"directories": {
@@ -69,6 +69,7 @@
 		"express-oauth-server": "^2.0.0",
 		"express-session": "^1.18.1",
 		"generate-password": "^1.7.0",
+		"generate-unique-id": "^2.0.3",
 		"jsonwebtoken": "^8.5.1",
 		"jwt-decode": "^3.1.2",
 		"method-override": "^3.0.0",

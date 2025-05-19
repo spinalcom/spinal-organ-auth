@@ -30,65 +30,65 @@
  */
 
 export interface IToken {
-  id: string;
+  id?: string;
   name: string;
-  type: string;
+  type?: string;
   token: string;
   createdToken?: number;
   expieredToken?: number;
-  userId?: string;
-  userType: string;
 }
-export interface IUserToken {
-  name?: string;
-  type?: string;
-  token?: string;
-  createdToken?: number;
-  expieredToken?: number;
+export type IUserToken = IToken & {
   userId?: string;
   userType?: string;
   userProfile?: string;
   serverId?: string;
-  platformList?: {
-    platformId: string;
-    platformName: string;
-    idPlatformOfAdmin: string;
-    userProfile: {
-      userProfileAdminId: string;
-      userProfileBosConfigId: string;
-      userProfileName: string;
-    };
-  }[];
+  platformList?: IUserPlatformProfile[];
 }
 
-export interface IApplicationToken {
-  name?: string;
-  type?: string;
-  token?: string;
-  createdToken?: number;
-  expieredToken?: number;
+export type IApplicationToken = IToken & {
   applicationId?: string;
   applicationProfileList?: string[];
-  platformList?: {
-    platformId: string;
-    platformName: string;
-    idPlatformOfAdmin: string;
-    appProfile: {
-      appProfileAdminId: string;
-      appProfileBosConfigId: string;
-      appProfileName: string;
-    };
-  }[];
-
+  platformList?: IAppPlatformProfile[];
 }
 
-
-export interface ITokenInfo {
-  token: string;
-  createdToken: number;
-  expieredToken: number;
-  actor: "application" | "user";
-  userId?: string;
+export type ICodeToken = IToken & {
   applicationId?: string;
-  scope?: string[];
+  userId?: string;
+  applicationProfileList?: string[];
+  platformList?: (IAppPlatformProfile | IUserPlatformProfile)[];
 }
+
+
+
+export type IUserPlatformProfile = IPlatform & {
+  userProfile: IUserProfile;
+}
+
+
+export type IAppPlatformProfile = IPlatform & {
+  appProfile: IAppProfile;
+}
+
+
+
+export type ITokenActor = "user" | "application" | "app" | "code";
+
+/////////////////////////////////////////////////////////////
+
+type IPlatform = {
+  platformId: string;
+  platformName: string;
+  idPlatformOfAdmin: string;
+}
+
+type IUserProfile = {
+  userProfileAdminId: string;
+  userProfileBosConfigId: string;
+  userProfileName: string;
+}
+
+type IAppProfile = {
+  appProfileAdminId: string;
+  appProfileBosConfigId: string;
+  appProfileName: string;
+};
