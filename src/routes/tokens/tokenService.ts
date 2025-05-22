@@ -78,9 +78,9 @@ export class TokensService {
 	}
 
 
-	public generateToken(tokenData: any) {
+	public generateToken(tokenData: any, actor: ITokenActor = "application") {
 		const secret = this.generateTokenKey();
-		return jwt.sign(tokenData, secret, { expiresIn: "24h" });
+		return jwt.sign(tokenData, secret, { expiresIn: this._getTokenExpirationTime(actor) });
 
 	}
 
@@ -94,7 +94,7 @@ export class TokensService {
 
 
 	public async createToken(node: SpinalNode, tokenData: any, platformList: any[], actor: ITokenActor) {
-		const token = this.generateToken(tokenData);
+		const token = this.generateToken(tokenData, actor);
 		let decodedToken: any = jwt_decode(token);
 
 		const tokenNode = new SpinalNode(`token_${node.getName().get()}`, TOKEN_TYPE);

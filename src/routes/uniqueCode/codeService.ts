@@ -181,7 +181,7 @@ export default class SpinalUniqueCodeService {
         let generatedCount = 0;
 
         while (generatedCount < count) {
-            const code = generateUniqueId({ length: 10, useLetters: false, useNumbers: true });
+            const code = generateUniqueId({ length: 12, useLetters: true, useNumbers: true });
 
             if (!codesAlreadyGenerated[code] && !newCodes[code]) {
                 newCodes[code] = true;

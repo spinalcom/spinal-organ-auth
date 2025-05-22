@@ -35,7 +35,9 @@
           <InputUser title="INFO" id="info" v-model="formUser.info" />
           <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.info.required">Une information est
             requise</span>
-          <SelectUser title="TYPE D'UTILISATEUR" id="userType" :tab="userType" v-model="formUser.userType" />
+          <SelectUser title="TYPE D'UTILISATEUR" id="userType" :tab="userType" v-model="formUser.userType"
+            :value="formUser.userType" />
+
           <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.userType.required">
             The user type is required
           </span>

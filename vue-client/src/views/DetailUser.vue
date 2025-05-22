@@ -11,9 +11,10 @@
           <p class="mb-6">AUTORISER UNE PLATFORME</p>
           <div class="choix_platform">
             <SelectUser style="z-index: 99" v-model="formPlatformObject.platform" @select="getuserfromplatform()"
-              title="PLATFORME" id="userType" :tab="platformList" />
+              title="PLATFORME" id="userType" :tab="platformList" :value="formPlatformObject.platform" />
+
             <SelectUser v-model="formPlatformObject.userProfileValue" :tab="userProfileList"
-              title="PROFILE D'UTILISATEUR" id="userType" />
+              title="PROFILE D'UTILISATEUR" id="userType" :value="formPlatformObject.userProfileValue" />
           </div>
           <div @click="editUserPlatform()" class="mt-4 ml-1 popup-btn-ajouter">
             <span>AJOUTER</span>

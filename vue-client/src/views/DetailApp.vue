@@ -8,10 +8,12 @@
                     </div>
                     <p class="mb-6">AJOUTER À UNE PLATFORME</p>
                     <div class="choix_platform">
-                        <SelectUser style="z-index: 99;" v-model="formPlatformObjectapp.platform" @select="getAppProfileList()"
-                            title="PLATFORM" id="userType" :tab="platformList" />
+                        <SelectUser style="z-index: 99;" v-model="formPlatformObjectapp.platform"
+                            @select="getAppProfileList()" title="PLATFORM" id="userType" :tab="platformList"
+                            :value="formPlatformObjectapp.platform" />
+
                         <SelectUser v-model="formPlatformObjectapp.appProfileValue" title="APPLICATION" id="userType"
-                            :tab="appProfileList" />
+                            :tab="appProfileList" :value="formPlatformObjectapp.appProfileValue" />
                     </div>
                     <div @click="addAppPlatform()" class="mt-4 ml-1 popup-btn-ajouter">
                         <span>AJOUTER</span>
@@ -64,8 +66,8 @@
                                 </v-card-title>
                                 <v-data-table fixed-header style="background-color:#F7F7F7;" :footer-props="{
                                     'items-per-page-options': [10, -1]
-                                }" :items-per-page="30" height="47.5vh" :headers="headers" :items="this.formattedLogList"
-                                    :search="search">
+                                }" :items-per-page="30" height="47.5vh" :headers="headers"
+                                    :items="this.formattedLogList" :search="search">
                                 </v-data-table>
                             </div>
                         </v-card>
@@ -75,7 +77,7 @@
         </v-main>
     </v-app>
 </template>
-  
+
 <script>
 import InformationBar from "../Components/InformationBar.vue";
 import BachupInformation from "../Components/BackupInformation.vue";
@@ -127,13 +129,13 @@ export default {
 
         ...mapActions({ updateAppPlatform: 'applications/updateApp' }),
         addAppPlatform() {
-            console.log('app1',this.app);
+            console.log('app1', this.app);
             // this.newapp = this.app;
             this.newapp = JSON.parse(JSON.stringify(this.app));
             delete this.newapp.type;
             delete this.newapp.id;
 
-            console.log('app2',this.app);
+            console.log('app2', this.app);
             // console.log('newapp:',this.newapp);
             this.newapp.platformList.forEach(platform => {
                 delete platform.idPlatformOfAdmin;
@@ -217,7 +219,7 @@ export default {
             this.appProfileList = await this.$store.dispatch('applications/getAppProfileList', id);
         },
         getDataFromStore() {
-            
+
             this.$store.dispatch('users/getplatformList');
         },
 
@@ -243,7 +245,7 @@ export default {
     }
 }
 </script>
-  
+
 <style scoped>
 .v-application {
     background-color: #d6e2e600;
@@ -337,12 +339,12 @@ export default {
 }
 
 .v-data-table>>>th {
-    background: #F7F7F7!important;
-    
+    background: #F7F7F7 !important;
+
 }
 
 #content>div>main>div>div.d-flex.flex-column.rounded-lg.backup-bar.v-card.v-sheet.theme--light.elevation-2>div.v-tabs.v-tabs--grow.theme--light>div.v-window.v-item-group.theme--light.v-tabs-items>div>div.v-window-item.v-window-item--active>div>div>div.v-card__title {
-    padding: 10px; 
+    padding: 10px;
     background-color: rgb(255, 255, 255);
     border: 1px solid #babbbb;
     border-left: 0px;
@@ -366,7 +368,7 @@ export default {
 }
 
 .bar-sub-title {
-    
+
     color: #949DA6;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 11px;

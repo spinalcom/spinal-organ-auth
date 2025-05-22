@@ -37,7 +37,8 @@
       <!-- <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.email.required">Un Email est
         requis</span> -->
 
-      <SelectUser title="TYPE D'UTILISATEUR" id="userType" :tab="userType" v-model="formUser.userType" />
+      <SelectUser title="TYPE D'UTILISATEUR" id="userType" :tab="userType" v-model="formUser.userType"
+        :value="formUser.userType" />
       <!-- <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.userType.required">
         The user type is required
       </span> -->
@@ -58,7 +59,8 @@
       </div> -->
 
       <div class="platformsAuthorized">
-        <AddPlatform :types="'user'" ref="refplatform" @maFonction="validateUser" />
+        <!-- <AddPlatform :types="'user'" ref="refplatform" @maFonction="validateUser" /> -->
+        <AddPlatform :types="'user'" @change="setPlatformList" />
         <span style="position: absolute; margin-top: -45px" class="errors" :class="{ showspan: !error_platform }">
           Les accès aux utilisateurs sont incorrects.
         </span>
@@ -180,6 +182,7 @@ export default {
         },
       ],
       conf_pass: false,
+      platformList: [],
     };
   },
 
@@ -222,16 +225,30 @@ export default {
 
     ...mapActions({ saveUser: "users/saveUser" }),
 
+    setPlatformList(list) {
+      this.platformList = list.map(({ platformSelected, profileSelected }) => {
+        return {
+          platformId: platformSelected.id,
+          platformName: platformSelected.name,
+          userProfile: {
+            name: profileSelected.name,
+            userProfileId: profileSelected.userProfileId
+
+          }
+        }
+      });
+    },
     async validateUser() {
-      await this.$refs.refplatform.maFonction();
+      // await this.$refs.refplatform.maFonction();
+
+      if (this.platformList.length == 0) {
+        this.error_platform = true;
+        return;
+      }
 
       this.$v.$touch();
-      console.log("inside validateUser");
-      if (
-        !this.$v.$invalid &&
-        this.formUser.confirm_password == this.formUser.password
-      ) {
-        console.log("yes it is valid");
+
+      if (!this.$v.$invalid && this.formUser.confirm_password == this.formUser.password) {
         var objectBody = {
           userName: this.formUser.userName,
           password: this.formUser.password,
@@ -239,15 +256,17 @@ export default {
           telephone: this.formUser.telephone,
           info: this.formUser.info,
           userType: this.formUser.userType.name || "Simple User",
-          platformList: this.platformObjectList.map((el) => {
-            return {
-              platformId: el.platformId,
-              userProfile: {
-                name: el.userProfile.name,
-                userProfileId: el.userProfile.userProfileId,
-              },
-            };
-          }),
+          platformList: this.platformList
+
+          // platformList: this.platformObjectList.map((el) => {
+          //   return {
+          //     platformId: el.platformId,
+          //     userProfile: {
+          //       name: el.userProfile.name,
+          //       userProfileId: el.userProfile.userProfileId,
+          //     },
+          //   };
+          // }),
         };
 
         this.saveUser(objectBody);

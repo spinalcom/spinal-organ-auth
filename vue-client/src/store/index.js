@@ -32,6 +32,7 @@ import platforms from "../modules/platforms";
 import logs from "../modules/logs";
 import authorization from "../modules/authorization";
 import serverLogin from "../modules/serverLogin";
+import codeUnique from "../modules/codeUnique";
 
 Vue.use(Vuex);
 
@@ -49,6 +50,7 @@ export default new Vuex.Store({
     platforms,
     logs,
     authorization,
-    serverLogin
+    serverLogin,
+    codeUnique
   }
 });

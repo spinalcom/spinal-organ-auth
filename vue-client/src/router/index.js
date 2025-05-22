@@ -44,6 +44,7 @@ import Authorization from "@/views/Authorization";
 import AddServer from "@/views/AddServer";
 import ServerDetail from "@/views/ServerDetail";
 import ServerList from "@/views/ServerList";
+import CodeUnique from '@/views/CodeUnique';
 
 
 import { isAuthenticate } from "./genToken";
@@ -74,6 +75,7 @@ const routes = [
   { path: "/EditServer", name: "EditServer", component: AddServer },
   { path: "/AddServer", name: "AddServer", component: AddServer },
   { path: "/ServerDetail", name: "ServerDetail", component: ServerDetail },
+  { path: '/CodeUnique', name: 'CodeUnique', component: CodeUnique },
 ];
 
 
@@ -83,11 +85,11 @@ const router = new Router({
 });
 
 router.beforeEach(async (to, from, next) => {
-  // const isAuth = await isAuthenticate();
-  // if (to.name === "Login" && isAuth) return next({ name: "Dashboard" });
-  // if (!isAuth && !["Login", "Authorize"].includes(to.name)) {
-  //   return next({ name: "Login" });
-  // }
+  const isAuth = await isAuthenticate();
+  if (to.name === "Login" && isAuth) return next({ name: "Dashboard" });
+  if (!isAuth && !["Login", "Authorize"].includes(to.name)) {
+    return next({ name: "Login" });
+  }
 
   return next();
 });

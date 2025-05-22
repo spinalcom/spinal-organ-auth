@@ -42,6 +42,9 @@
 
               <CardMenu :icon="'mdi-server-security'" :verif="filtersData.search" :link="'Servers'"
                 :title="'SERVEUR D\'AUTHENTIFICATION'" :subtitle="'Gestion de serveur d\'authentification'"></CardMenu>
+
+              <CardMenu :icon="'mdi-key'" :verif="filtersData.search" :link="'CodeUnique'" :title="'CLÉS UNIQUE'"
+                :subtitle="'Gestion de clés uniques'"></CardMenu>
             </div>
           </div>
         </div>

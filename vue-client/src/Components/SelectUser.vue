@@ -30,11 +30,15 @@ export default {
     tab: function (newValue, oldValue) {
       // Réinitialiser la selectedValue lorsque tab change
       this.selectedValue = null;
+    },
+    value: function (newValue) {
+      // Mettre à jour selectedValue lorsque la valeur change
+      this.selectedValue = newValue;
     }
   },
   methods: {
     selectItem(item) {
-      this.selectedValue = item
+      // this.selectedValue = item
       this.$emit("input", item)
       this.$emit("select", item) // émettre l'événement 'select'
       this.showOptions = false

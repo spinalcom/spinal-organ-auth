@@ -41,7 +41,7 @@
             >Le type d'application est nécessaire</span
           > -->
           <p class="mt-6">Sélectionnez les accès de plateformes.</p>
-          <AddPlatform :types="'app'" ref="refplatform" />
+          <AddPlatform :types="'app'" @change="setPlatformList" />
           <span style="position: absolute; margin-top: -45px" class="errors" :class="{ showspan: !error_platform }">
             Les accès aux utilisateurs sont incorrects.
           </span>
@@ -84,6 +84,8 @@ export default {
         appType: null,
         grant_types: [],
       },
+      platformList: [],
+
       iserrors: true,
       error_platform: false,
     };
@@ -124,6 +126,21 @@ export default {
     cancelAdd() {
       this.$router.push("/UsersList");
     },
+
+    setPlatformList(list) {
+      this.platformList = list.map(({ platformSelected, profileSelected }) => {
+        return {
+          platformId: platformSelected.id,
+          platformName: platformSelected.name,
+          appProfile: {
+            name: profileSelected.name,
+            appProfileId: profileSelected.appProfileId
+
+          }
+        }
+      });
+    },
+
     generateRegisterKey() {
       const generator = require("generate-password");
       var registerKey = generator.generate({
@@ -135,7 +152,13 @@ export default {
     ...mapActions({ saveApp: "applications/saveApp" }),
 
     async validateApp() {
-      await this.$refs.refplatform.maFonction();
+      // await this.$refs.refplatform.maFonction();
+
+      if (this.platformList.length == 0) {
+        this.error_platform = true;
+        return;
+      }
+
       if (!this.$v.$invalid) {
         var objectBody = {
           name: this.formApp.appName,
@@ -144,15 +167,16 @@ export default {
           grant_types: this.formApp.grant_types,
           // appType: this.formApp.appType,
           redirectUri: this.formApp.redirectUri,
-          platformList: this.platformObjectList.map((el) => {
-            return {
-              platformId: el.platformId,
-              appProfile: {
-                name: el.appProfile.name,
-                appProfileId: el.appProfile.appProfileId,
-              },
-            };
-          }),
+          platformList: this.platformList
+          // platformList: this.platformObjectList.map((el) => {
+          //   return {
+          //     platformId: el.platformId,
+          //     appProfile: {
+          //       name: el.appProfile.name,
+          //       appProfileId: el.appProfile.appProfileId,
+          //     },
+          //   };
+          // }),
         };
         this.saveApp(objectBody);
       } else {
