@@ -4,14 +4,14 @@
             <BackupInformation title="AJOUTER UNE APPLICATION">
                 <form class="formulaire" novalidate @submit.prevent="validateApp">
                     <p>Rentrez les informations de l’application.</p>
-                    
+
                     <InputUser title="NOM DE L'APPLICATION" id="appName" v-model="formApp.appName" />
                     <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formApp.appName.minLength">Nom
                         invalide</span>
                     <span class="errors" :class="{ 'showspan': iserrors }" v-else-if="!$v.formApp.appName.required">Un
                         nom d'application est requis</span>
-                    
-                    
+
+
                     <InputPass title="CLIENT ID" id="clientId" v-model="formApp.clientId" />
                     <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formApp.clientId.required">un id
                         client est requis</span>
@@ -25,14 +25,16 @@
                     <InputUser title="TYPE D’APPLICATION" id="appType" v-model="formApp.appType" />
                     <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formApp.appType.required">Le type
                         d'application est nécessaire</span>
+
+
+
                     <p class="mt-6">Sélectionnez les accès de plateformes.</p>
-
-
-                    <AddPlatform :types="'app'" ref="refplatform" />
-                    <span style="position: absolute;margin-top:-45px;" class="errors"
-                        :class="{ 'showspan': !error_platform }">
+                    <AddPlatform :types="'app'" @change="setPlatformList" />
+                    <span style="position: absolute; margin-top: -45px" class="errors"
+                        :class="{ showspan: !error_platform }">
                         Les accès aux utilisateurs sont incorrects.
                     </span>
+
                     <div class="d-flex justify-end">
                         <button class="btn-retour" @click="cancelAdd()">RETOUR</button>
                         <button type="submit" class="btn-creer">CRÉER L’APPLICATION</button>
@@ -42,7 +44,7 @@
         </v-main>
     </v-app>
 </template>
-  
+
 <script>
 import InputUser from "../Components/InputUser";
 import InputPass from "../Components/InputPassword";
@@ -68,6 +70,9 @@ export default {
                 clientSecret: this.generateRegisterKey(),
                 appType: "WEB",
             },
+
+            platformList: [],
+
             iserrors: true,
             error_platform: false,
         };
@@ -105,8 +110,28 @@ export default {
         },
         ...mapActions({ saveApp: 'applications/saveApp' }),
 
+        setPlatformList(list) {
+            this.platformList = list.map(({ platformSelected, profileSelected }) => {
+                return {
+                    platformId: platformSelected.id,
+                    platformName: platformSelected.name,
+                    appProfile: {
+                        name: profileSelected.name,
+                        appProfileId: profileSelected.appProfileId
+
+                    }
+                }
+            });
+        },
+
         async validateApp() {
-            await this.$refs.refplatform.maFonction();
+            // await this.$refs.refplatform.maFonction();
+
+            if (this.platformList.length == 0) {
+                this.error_platform = true;
+                return;
+            }
+
             this.$v.$touch();
             if (!this.$v.$invalid) {
                 var objectBody = {

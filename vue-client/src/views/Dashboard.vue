@@ -26,16 +26,25 @@
           <div class="menu-administraton">
             <hr style="min-width: 1100px;" class="line-division">
             <div class="container-cardmenu">
-              <CardMenu :icon="'mdi-shield-crown'" :verif="filtersData.search" :link="'platforms'" :title="'PLATEFORMES'"
-                :subtitle="'Configuration des Plateformes'">
+              <CardMenu :icon="'mdi-shield-crown'" :verif="filtersData.search" :link="'platformsList'"
+                :title="'PLATEFORMES'" :subtitle="'Configuration des Plateformes'">
               </CardMenu>
-              <CardMenu :icon="'mdi-view-list'" :verif="filtersData.search" :link="'Logs'" :title="'LOGS'"
+
+              <CardMenu :icon="'mdi-view-list'" :verif="filtersData.search" :link="'LogsList'" :title="'LOGS'"
                 :subtitle="'Connexions et utilisations du logiciel'"></CardMenu>
-              <CardMenu :icon="'mdi-account'" :verif="filtersData.search" :link="'users'" :title="'UTILISATEURS'"
+
+              <CardMenu :icon="'mdi-account'" :verif="filtersData.search" :link="'usersList'" :title="'UTILISATEURS'"
                 :subtitle="'Gestion des utilisateurs'">
               </CardMenu>
+
               <CardMenu :icon="'mdi-apps'" :verif="filtersData.search" :link="'Application'" :title="'APPLICATIONS'"
                 :subtitle="'Gestion des applications'"></CardMenu>
+
+              <CardMenu :icon="'mdi-server-security'" :verif="filtersData.search" :link="'Servers'"
+                :title="'SERVEUR D\'AUTHENTIFICATION'" :subtitle="'Gestion de serveur d\'authentification'"></CardMenu>
+
+              <CardMenu :icon="'mdi-key'" :verif="filtersData.search" :link="'CodeUnique'" :title="'CLÉS UNIQUE'"
+                :subtitle="'Gestion de clés uniques'"></CardMenu>
             </div>
           </div>
         </div>
@@ -49,8 +58,13 @@
             <div class="container-cardmenu">
               <CardMenu :icon="'mdi-account'" :verif="filtersData.search" :link="'AddUser'"
                 :title="'AJOUTER UN UTILISATEUR'" :subtitle="'Créer un utilisateur'"></CardMenu>
-              <CardMenu :icon="'mdi-apps'" :verif="filtersData.search" :link="'AddApp'" :title="'AJOUTER UNE APPLICATION'"
-                :subtitle="'Créer une application'"></CardMenu>
+
+              <CardMenu :icon="'mdi-apps'" :verif="filtersData.search" :link="'AddApp'"
+                :title="'AJOUTER UNE APPLICATION'" :subtitle="'Créer une application'"></CardMenu>
+
+              <CardMenu :icon="'mdi-server-security'" :verif="filtersData.search" :link="'AddServer'"
+                :title="'AJOUTER UN SERVER D\'AUTHENTIFICATION'" :subtitle="'Créer un serveur d\'authentification'">
+              </CardMenu>
             </div>
           </div>
         </div>
@@ -159,10 +173,11 @@ export default {
 }
 
 .container-cardmenu {
-  display: flex;
   position: relative;
   width: 100%;
   min-height: 100px;
+  display: flex !important;
+  flex-wrap: wrap;
 }
 
 .menu-administraton {

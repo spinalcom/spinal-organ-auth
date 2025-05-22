@@ -10,12 +10,12 @@
             requis</span>
           <span class="errors" :class="{ 'showspan': iserrors }" v-else-if="!$v.formUser.userName.minLength">Le nom est
             invalide</span>
-          
+
           <InputUser title="EMAIL" id="Email" v-model="formUser.email" />
           <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formUser.email.required">Un Email est
             requis</span>
-          
-          
+
+
           <SelectUser title="TYPE D'UTILISATEUR" id="userType" :tab="userType" v-model="formUser.userType" />
 
 
@@ -25,22 +25,22 @@
           <span class="errors" :class="{ 'showspan': iserrors }" v-else-if="!$v.formUser.telephone.minLength">Le numero
             de telephone est invalide</span>
 
-            <InputPass title="MOT DE PASSE" id="password" v-model="formUser.password" />
+          <InputPass title="MOT DE PASSE" id="password" v-model="formUser.password" />
           <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formUser.password.required">Le mot de passe
             est obligatoire.</span>
           <span class="errors" :class="{ 'showspan': iserrors }" v-else-if="!$v.formUser.password.minLength">Mot de
             passe invalide</span>
-          
+
           <InputPass title="CONFIRMER MOT DE PASSE" id="confirmPassword" v-model="formUser.confirm_password" />
           <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formUser.confirm_password.required">La
             confirmation de mot de passe est obligatoire.</span>
-            <span class="errors" :class="{ 'showspan': iserrors }" v-if="conf_pass">
-              La confirmation de mot de passe est incorrect.
+          <span class="errors" :class="{ 'showspan': iserrors }" v-if="conf_pass">
+            La confirmation de mot de passe est incorrect.
           </span>
           <span class="errors" :class="{ 'showspan': iserrors }" v-else-if="!$v.formUser.confirm_password.minLength">Mot
             de passe invalide</span>
-            
-          
+
+
           <TextareaUser title="INFORMATION" id="information" v-model="formUser.info" />
           <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formUser.userType.required">
             The user type is required
@@ -48,11 +48,16 @@
           <div class="mt-6">
             <span> Sélectionner les accès de l'utilisateur</span>
           </div>
-          
-          <AddPlatform :types="'user'" ref="refplatform" @maFonction="validateUser" />
-          <span style="position: absolute;margin-top:-45px;" class="errors" :class="{ 'showspan': !error_platform }">
-            Les accès aux utilisateurs sont incorrects.
-          </span>
+
+          <div class="platformsAuthorized">
+            <!-- <AddPlatform :types="'user'" ref="refplatform" @maFonction="validateUser" /> -->
+            <AddPlatform :types="'user'" @change="setPlatformList" />
+            <span style="position: absolute; margin-top: -45px" class="errors" :class="{ showspan: !error_platform }">
+              Les accès aux utilisateurs sont incorrects.
+            </span>
+          </div>
+
+
           <div class="d-flex justify-end">
             <button class="btn-retour" @click="cancelAdd()">RETOUR</button>
             <button type="submit" class="btn-creer">CRÉER L'UTILISATEUR</button>
@@ -63,7 +68,7 @@
   </v-app>
 </template>
 
-<script >
+<script>
 import InputUser from "../Components/InputUser";
 import SelectUser from "../Components/SelectUser.vue";
 import TextareaUser from "../Components/TextareaUser.vue";
@@ -96,17 +101,20 @@ export default {
         info: "",
         userType: null,
       },
+
       error_platform: false,
       iserrors: true,
       userType: [
         {
           name: "Simple User",
-      },
-      {
+        },
+        {
           name: "Super User",
         },
       ],
       conf_pass: false,
+      platformList: [],
+
     };
   },
 
@@ -149,9 +157,28 @@ export default {
 
     ...mapActions({ saveUser: 'users/saveUser' }),
 
-    async validateUser() {
-      await this.$refs.refplatform.maFonction();
 
+    setPlatformList(list) {
+      this.platformList = list.map(({ platformSelected, profileSelected }) => {
+        return {
+          platformId: platformSelected.id,
+          platformName: platformSelected.name,
+          userProfile: {
+            name: profileSelected.name,
+            userProfileId: profileSelected.userProfileId
+
+          }
+        }
+      });
+    },
+
+    async validateUser() {
+      // await this.$refs.refplatform.maFonction();
+
+      if (this.platformList.length == 0) {
+        this.error_platform = true;
+        return;
+      }
 
       this.$v.$touch();
 
@@ -178,9 +205,9 @@ export default {
         this.saveUser(objectBody);
       } else {
         this.iserrors = false;
-        if(this.formUser.confirm_password != this.formUser.password){
+        if (this.formUser.confirm_password != this.formUser.password) {
           this.conf_pass = true;
-        }else{
+        } else {
           this.conf_pass = false;
         }
       }

@@ -35,10 +35,10 @@ import router from "../router";
 instanceAxios.interceptors.response.use((response) => {
   return response;
 }, (error) => {
-  
+
   // if (error?.response?.status === 401) {
-    // localStorage.removeItem('token');
-    // router.push("/Login");
+  // localStorage.removeItem('token');
+  // router.push("/Login");
   // }
   if (error.response && error.response.data) {
     return Promise.reject(error.response.data);
@@ -46,3 +46,11 @@ instanceAxios.interceptors.response.use((response) => {
 
   return Promise.reject(error.message);
 });
+
+
+export function getAxiosHeader() {
+  return {
+    "Content-Type": "application/json",
+    "x-access-token": localStorage.getItem("token")
+  }
+}

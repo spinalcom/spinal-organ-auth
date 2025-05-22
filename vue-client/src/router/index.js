@@ -37,84 +37,90 @@ import EditApp from '@/views/EditApp';
 import EditUser from '@/views/EditUser';
 import Logs from '@/views/Logs';
 import Login from '@/views/Login';
-import EditPlatform from '@/views/EditPlatform'
+import EditPlatform from '@/views/EditPlatform';
+import CodeUnique from '@/views/CodeUnique';
+
 import { isAuthenticate } from './genToken';
 
 Vue.use(Router);
 
 
 const routes = [
-    {
-      path: '/',
-      name: 'Dashboard',
-      component: Dashboard
-    },
-    {
-      path: '/Users',
-      name: 'Users',
-      component: Users
-    },
-    {
-      path: '/DetailUser',
-      name: 'DetailUser',
-      component: DetailUser
-    },
-    {
-      path: '/Platforms',
-      name: 'Platforms',
-      component: Platforms
-    },
-    {
-      path: '/DetailPlatform',
-      name: 'DetailPlatform',
-      component: DetailPlatform
-    },
-    {
-      path: '/Application',
-      name: 'Application',
-      component: Application
-    },
-    {
-      path: '/DetailApp',
-      name: 'DetailApp',
-      component: DetailApp
-    }, {
-      path: '/AddUser',
-      name: 'AddUser',
-      component: AddUser
-    },
-    {
-      path: '/AddApp',
-      name: 'AddApp',
-      component: AddApp
-    },
-    {
-      path: '/EditApp',
-      name: 'EditApp',
-      component: EditApp
-    },
-    {
-      path: '/EditUser',
-      name: 'EditUser',
-      component: EditUser
-    },
-    {
-      path: '/EditPlatform',
-      name: 'EditPlatform',
-      component: EditPlatform
-    },
-    {
-      path: '/Logs',
-      name: 'Logs',
-      component: Logs
-    },
-    {
-      path: '/Login',
-      name: 'Login',
-      component: Login
-    },
-    
-  ]
+  {
+    path: '/',
+    name: 'Dashboard',
+    component: Dashboard
+  },
+  {
+    path: '/Users',
+    name: 'Users',
+    component: Users
+  },
+  {
+    path: '/DetailUser',
+    name: 'DetailUser',
+    component: DetailUser
+  },
+  {
+    path: '/Platforms',
+    name: 'Platforms',
+    component: Platforms
+  },
+  {
+    path: '/DetailPlatform',
+    name: 'DetailPlatform',
+    component: DetailPlatform
+  },
+  {
+    path: '/Application',
+    name: 'Application',
+    component: Application
+  },
+  {
+    path: '/DetailApp',
+    name: 'DetailApp',
+    component: DetailApp
+  }, {
+    path: '/AddUser',
+    name: 'AddUser',
+    component: AddUser
+  },
+  {
+    path: '/AddApp',
+    name: 'AddApp',
+    component: AddApp
+  },
+  {
+    path: '/EditApp',
+    name: 'EditApp',
+    component: EditApp
+  },
+  {
+    path: '/EditUser',
+    name: 'EditUser',
+    component: EditUser
+  },
+  {
+    path: '/EditPlatform',
+    name: 'EditPlatform',
+    component: EditPlatform
+  },
+  {
+    path: '/Logs',
+    name: 'Logs',
+    component: Logs
+  },
+  {
+    path: '/Login',
+    name: 'Login',
+    component: Login
+  },
+  {
+    path: '/CodeUnique',
+    name: 'CodeUnique',
+    component: CodeUnique
+  },
+]
 
 const router = new Router({
   routes,
@@ -126,7 +132,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.name === 'Login' && isAuth) return next({ name: 'Dashboard' });
   if (!isAuth && to.name !== 'Login') return next({ name: 'Login' });
   return next();
- });
+});
 
 export default router;
-export {router}
+export { router }

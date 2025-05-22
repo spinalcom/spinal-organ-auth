@@ -30,14 +30,17 @@ import users from '../modules/users'
 import applications from '../modules/applications'
 import platforms from '../modules/platforms'
 import logs from '../modules/logs'
+import codeUnique from "../modules/codeUnique";
+
+
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    count : 2
+    count: 2
   },
   mutations: {},
   actions: {
   },
-  modules: { module,login,users,applications,platforms,logs},
+  modules: { module, login, users, applications, platforms, logs, codeUnique },
 })

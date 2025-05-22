@@ -1,45 +1,92 @@
 <template>
-    <div>
-        <div v-if="types == 'user'">
-            
-            <div v-for="(item, index) in nbPlatform" :key="item" class="ajout-platform"
-                :style="disableobjet[index] ? disableobjet[index].plat == true ? 'background : #e6f3ed' : '' : ''"
-                :id="index">
-                <div @click="setplatform()" class="selector">
-                    <SelectUser :id=index class="platform" @select="getuserfromplatform" :tab="platformList"
-                        v-model="formPlatformObject.platform" title="PLATFORM"
-                        :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false" />
-                    <SelectUser @change.native="" :id=index class="profilut"
-                        :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false"
-                        :tab="userProfileList" v-model="formPlatformObject.userProfileValue" title="PROFIL UTILISATEUR" />
+    <div class="authorizePlatform">
+        <div class="userAccess">
+
+            <div class="accessheader">
+                <div>Autoriser l'accès aux plateformes</div>
+                <div>
+                    <v-btn @click="addPlatform" outlined>
+                        <v-icon>mdi-plus</v-icon>
+                        AJOUTER UNE PLATFORME
+                    </v-btn>
                 </div>
-                <button @click="deletePlatformObjectitem(index)" type="button" class="red-cross">X</button>
             </div>
 
+            <div class="platContainer">
+                <div v-for="(item, index) in platformToSelect" :key="item" class="ajout-platform" :id="index">
+                    <div class="selector">
+                        <SelectUser :id="index" class="platform" @select="setItemProfileList(item, index)"
+                            :tab="platformList" v-model="item.platformSelected" title="PLATFORM"
+                            :value="item.platformSelected" />
 
-            <div class="d-flex justify-end">
-                <button @click="addplatform()" type="button" class="btn-ajout-platform">+ AJOUT D'UNE
-                    PLATFORME</button>
-            </div>
-        </div>
-        <div v-if="types == 'app'">
-            <div v-for="(item, index) in nbPlatform" :key="item" class="ajout-platform"
-                :style="disableobjet[index].plat == true ? 'background : #e6f3ed' : ''" :id="index">
-                <div class="selector">
-                    <SelectUser :id=index class="platform" @select="getAppProfileList()" :tab="platformList"
-                        v-model="formPlatformObjectapp.platform" title="PLATFORM"
-                        :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false" />
-                    <SelectUser @change.native="" :id=index class="profilut"
-                        :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false"
-                        :tab="appProfileList" v-model="formPlatformObjectapp.appProfileValue" title="PROFIL APPLICATION" />
+                        <SelectUser :id="index" class="profilut" :tab="item.profiles" v-model="item.profileSelected"
+                            @select="sendChangeEvent" :value="item.profileSelected" title="PROFIL" />
+                    </div>
+                    <button v-if="index > 0" @click="deletePlatformObjectitemapp(item, index)" type="button"
+                        class="red-cross">X</button>
                 </div>
-                <button @click="deletePlatformObjectitemapp(index)" type="button" class="red-cross">X</button>
-            </div>
-            <div class="d-flex justify-end">
-                <button @click="addplatformapp()" type="button" class="btn-ajout-platform">+ AJOUT D'UNE
-                    PLATFORME</button>
             </div>
         </div>
+
+
+        <!-- <div v-if="types == 'user'" class="userAccess">
+            <div class="accessheader">
+                <div>Autoriser l'accès aux plateformes</div>
+                <div>
+                    <v-btn @click="addplatform()" outlined>
+                        <v-icon>mdi-plus</v-icon>
+                        AJOUTER UNE PLATFORME
+                    </v-btn>
+                </div>
+            </div>
+
+            <div class="platContainer">
+                <div v-for="(item, index) in nbPlatform" :key="item" class="ajout-platform"
+                    :style="disableobjet[index] ? disableobjet[index].plat == true ? 'background : #e6f3ed' : '' : ''"
+                    :id="index">
+                    <div @click="setplatform()" class="selector">
+                        <SelectUser :id=index class="platform" @select="getuserfromplatform" :tab="platformList"
+                            v-model="formPlatformObject.platform" title="PLATFORM"
+                            :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false" />
+                        <SelectUser :id=index class="profilut"
+                            :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false"
+                            :tab="userProfileList" v-model="formPlatformObject.userProfileValue"
+                            title="PROFIL UTILISATEUR" />
+                    </div>
+                    <button @click="deletePlatformObjectitem(index)" type="button" class="red-cross">X</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div v-if="types == 'app'" class="userAccess">
+
+            <div class="accessheader">
+                <div>Autoriser l'accès aux plateformes</div>
+                <div>
+                    <v-btn @click="addplatformapp()" outlined>
+                        <v-icon>mdi-plus</v-icon>
+                        AJOUTER UNE PLATFORME
+                    </v-btn>
+                </div>
+            </div>
+
+            <div class="platContainer">
+                <div v-for="(item, index) in nbPlatform" :key="item" class="ajout-platform"
+                    :style="disableobjet[index].plat == true ? 'background : #e6f3ed' : ''" :id="index">
+                    <div class="selector">
+                        <SelectUser :id=index class="platform" @select="getAppProfileList()" :tab="platformList"
+                            v-model="formPlatformObjectapp.platform" title="PLATFORM"
+                            :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false" />
+                        <SelectUser :id=index class="profilut"
+                            :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false"
+                            :tab="appProfileList" v-model="formPlatformObjectapp.appProfileValue"
+                            title="PROFIL APPLICATION" />
+                    </div>
+                    <button @click="deletePlatformObjectitemapp(index)" type="button" class="red-cross">X</button>
+                </div>
+            </div>
+        </div> -->
     </div>
 </template>
 
@@ -54,6 +101,9 @@ export default {
     props: ['types', 'tab', 'sendplatform'],
     data() {
         return {
+            platformToSelect: [this._getNewPlatform()],
+
+            /*
             platformsend: [],
             nbPlatform: 1,
             formPlatformObject: {
@@ -74,11 +124,80 @@ export default {
             ],
             userList: [],
             platformObjectList: [],
+            */
         };
     },
     methods: {
-        detailPlatform(tab) {
-            // console.log(tab);
+        ...mapActions({
+            lafonction: 'users/lafonction',
+            lafonctionapp: 'applications/lafonctionapp'
+        }),
+
+        getDataFromStore() {
+            this.$store.dispatch('users/getplatformList');
+        },
+
+        addPlatform() {
+            this.platformToSelect = [...this.platformToSelect, this._getNewPlatform()];
+        },
+
+        _getNewPlatform() {
+            return {
+                profiles: [],
+                platformSelected: null,
+                profileSelected: null,
+            }
+        },
+
+        getProfileList(platformId) {
+            if (this.types == 'user') {
+                return this.getuserProfiles(platformId);
+            } else if (this.types == 'app') {
+                return this.getAppProfileList(platformId);
+            }
+
+            return [];
+        },
+
+
+        async getuserProfiles(platformId) {
+            return this.$store.dispatch('users/getUserProfileList', platformId);
+        },
+
+
+        async getAppProfileList(platformId) {
+            return this.$store.dispatch('applications/getAppProfileList', platformId);
+        },
+
+
+        async setItemProfileList(item, index) {
+
+            let firstIndex = this.platformToSelect.findIndex((el) => el.platformSelected.id === item.platformSelected.id);
+            if (firstIndex !== -1 && firstIndex !== index) {
+                // Si la plateforme est déjà sélectionnée dans un autre élément
+                alert("vous ne pouvez pas sélectionner la même plateforme deux fois");
+                item.platformSelected = null;
+                item.profileSelected = null;
+                return;
+            }
+            const platformId = item.platformSelected.id;
+            item.profiles = await this.getProfileList(platformId);
+            item.profileSelected = null;
+        },
+
+        deletePlatformObjectitemapp(item, index) {
+            this.platformToSelect = this.platformToSelect.slice(0, index).concat(this.platformToSelect.slice(index + 1));
+            this.sendChangeEvent(); // Emit the change event after deletion;
+        },
+
+
+        sendChangeEvent() {
+            const data = this.platformToSelect.filter((item) => item.platformSelected && item.profileSelected);
+            this.$emit("change", data);
+        },
+
+
+        /*detailPlatform(tab) {
             if (this.types == 'user') {
                 this.nbPlatform = tab.length
             } else {
@@ -97,26 +216,17 @@ export default {
                 }
             }
         },
-        ...mapActions({
-            lafonction: 'users/lafonction',
-            lafonctionapp: 'applications/lafonctionapp'
-        }),
+        
 
 
         addplatform() {
-            // if (this.formPlatformObject.userProfileValue.userProfileId) {
-
-
-            //if this.platformObjectList est superieur a 0 et tant que this.platformObjectList.toutlesobjet si this.platformObjectList.appprofil.appprofilID == undefined alerte vous ne pouvez pas ajouter de platformvide supprime l element en question
 
             var test = true;
             var plat = true;
-            console.log(this.platformObjectList.length);
 
 
 
 
-            console.log(this.platformObjectList);//prend l object
             for (const platformObject of this.platformObjectList) {
                 if (platformObject.platformId === this.formPlatformObject.platform.id) {//verification unicité
                     alert("you cannot select platform even twice");
@@ -144,9 +254,7 @@ export default {
 
             if (this.platformObjectList.length > 0) {
                 this.platformObjectList.forEach((element, index) => {
-                    console.log(element.userProfile.userProfileId);
                     if (element.userProfile.userProfileId == undefined) {
-                        console.log('un unedefined');
                         alert("platform vide");
                         // this.nbPlatform--;
                         //  this.disableobjet.splice(-1, 1);
@@ -155,7 +263,6 @@ export default {
                         this.platformObjectList.splice(index, 1); // Supprimer l'élément
                         return;
                     }
-                    console.log(this.platformObjectList);
                 });
             }
             if (plat == true) {
@@ -165,7 +272,6 @@ export default {
                     plat: false,
                 })
             }
-            console.log('log' + this.platformObjectList);
             this.lafonction(this.platformObjectList);
 
 
@@ -186,10 +292,9 @@ export default {
             // if (this.formPlatformObjectapp.appProfileValue.appProfileId) {
             var test = true;
             var plat = true;
-            // console.log(this.formPlatformObjectapp);
-            console.log('log' + this.platformObjectList);
 
-            
+
+
 
 
             //if this.platformObjectList est superieur a 0 et tant que this.platformObjectList.toutlesobjet si this.platformObjectList.appprofil.appprofilID == undefined alerte vous ne pouvez pas ajouter de platformvide supprime l element en question
@@ -220,9 +325,7 @@ export default {
             }
             if (this.platformObjectList.length > 0) {
                 this.platformObjectList.forEach((element, index) => {
-                    console.log(element.appProfile.appProfileId);
                     if (element.appProfile.appProfileId == undefined) {
-                        console.log('un unedefined');
                         alert("platform vide");
                         // this.nbPlatform--;
                         //  this.disableobjet.splice(-1, 1);
@@ -231,7 +334,6 @@ export default {
                         this.platformObjectList.splice(index, 1); // Supprimer l'élément
                         return;
                     }
-                    console.log(this.platformObjectList);
                 });
             }
 
@@ -280,7 +382,6 @@ export default {
         },
 
         async getuserfromplatform() {
-            console.log(this.formPlatformObject.platform);
             var id = this.formPlatformObject.platform.id
             this.userProfileList = await this.$store.dispatch('users/getUserProfileList', id);
         },
@@ -291,9 +392,7 @@ export default {
             this.appProfileList = await this.$store.dispatch('applications/getAppProfileList', id);
         },
 
-        getDataFromStore() {
-            this.$store.dispatch('users/getplatformList');
-        },
+        
 
 
         setplatform() {
@@ -315,25 +414,61 @@ export default {
             // console.log("laa");
             // this.nbPlatform = this.sendplatform.length
 
-        }
+        }*/
     },
     computed: {
         ...mapGetters({
             platformList: 'users/platformList',
-
         }),
 
     },
     mounted() {
         this.getDataFromStore();
-        this.setplatform();
+        // this.setplatform();
     },
+
+    watch: {
+        types: function () {
+            this.platformToSelect = [this._getNewPlatform()];
+        },
+        // "formPlatformObject.userProfileValue": function (newVal) {
+        //     this.$emit("change", this.platformObjectList);
+        // },
+        // "formPlatformObjectapp.appProfileValue": function (newVal) {
+        //     this.$emit("change", this.platformObjectList);
+        // }
+    }
 
 
 };
 </script>
-  
+
 <style>
+.authorizePlatform {
+    width: 100%;
+    height: 100%;
+}
+
+.authorizePlatform .userAccess {
+    width: 100%;
+    height: 100%;
+}
+
+.authorizePlatform .userAccess .accessheader {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.authorizePlatform .userAccess .platContainer {
+    width: 100%;
+    height: calc(100% - 50px);
+    overflow-y: auto;
+}
+
+
 .platform {
     z-index: 99;
 }
@@ -428,12 +563,10 @@ export default {
     background: #ebf0ea;
     font-family: Arial, Helvetica, sans-serif;
     letter-spacing: 1.3px;
-    font-siplatform_copiee: 10px;
     transition: 0.2s;
 }
 
 .btn-ajout-platform:hover {
     background-color: rgb(189, 189, 189);
-    /* color: white; */
 }
 </style>

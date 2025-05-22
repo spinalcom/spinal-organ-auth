@@ -18,15 +18,14 @@
         <div v-on:mouseleave="menuIsOpen = false" @click="menuIsOpen ? menuIsOpen = false : menuIsOpen = true"
           :style="menuIsOpen ? 'border : 1px solid black' : ''" class="navBarSelector">
           <span class="mt-1">
-            <v-icon class="mr-2" color="black">{{ iconList[selectionMenu] }}</v-icon>
-            {{ menuList[selectionMenu] }}
+            <v-icon class="mr-2" color="black">{{ itemSelected.icon }}</v-icon>
+            {{ itemSelected.name }}
           </span>
           <div class="navBarSelectorTitle">APPLICATION</div>
           <div v-if="menuIsOpen" class="navBarItemSelection">
-            <div @click="gotoView(index)" v-for="(item, index) in menuList" :key="item.menuList"
-              class="navBarItemElement">
-              <v-icon class="mr-2" color="black">{{ iconList[index] }}</v-icon>
-              {{ item }}
+            <div @click="gotoView(item)" v-for="(item, index) in menuList" :key="index" class="navBarItemElement">
+              <v-icon class="mr-2" color="black">{{ item.icon }}</v-icon>
+              {{ item.name }}
             </div>
           </div>
         </div>
@@ -39,13 +38,32 @@ import { mapActions } from 'vuex';
 export default {
 
   data() {
+    this.names = {
+      adminstration: 'TOUTE L’ADMINISTRATION',
+      gestionUtilisateur: 'GESTION UTILISATEUR',
+      gestionApplication: 'GESTION APPLICATION',
+      gestionPlateforme: 'GESTION PLATFORME',
+      gestionServeur: 'GESTION SERVEUR',
+      logs: 'LOGS',
+      codeUnique: 'CLÉ UNIQUE',
+    }
     return {
-      menuList: ['TOUTE L’ADMINISTRATION', 'GESTION UTILISATEUR', 'GESTION APPLICATION', 'GESTION PLATFORME', 'LOGS'],
-      iconList: ['mdi-chart-tree', 'mdi-cog', 'mdi-cog', 'mdi-cog', 'mdi-chart-timeline-variant-shimmer'],
-      routeList: ['', 'users', 'Application', 'platforms', 'Logs'],
+      // menuList: ['TOUTE L’ADMINISTRATION', 'GESTION UTILISATEUR', 'GESTION APPLICATION', 'GESTION PLATFORME', 'GESTION SERVEUR', 'LOGS'],
+      // iconList: ['mdi-chart-tree', 'mdi-cog', 'mdi-cog', 'mdi-cog', 'mdi-server-security', 'mdi-chart-timeline-variant-shimmer',],
+      // routeList: ['', 'usersList', 'Application', 'platforms', 'Servers', 'LogsList'],
+      menuList: [
+        { name: this.names.adminstration, icon: "mdi-chart-tree", route: "" },
+        { name: this.names.gestionUtilisateur, icon: "mdi-cog", route: "usersList" },
+        { name: this.names.gestionApplication, icon: "mdi-cog", route: "Application" },
+        { name: this.names.gestionPlateforme, icon: "mdi-cog", route: "platforms" },
+        { name: this.names.gestionServeur, icon: "mdi-server-security", route: "Servers" },
+        { name: this.names.logs, icon: "mdi-chart-timeline-variant-shimmer", route: "LogsList" },
+        { name: this.names.codeUnique, icon: "mdi-key", route: "CodeUnique" },
+      ],
+
       menuIsOpen: false,
       menu2IsOpen: false,
-      selectionMenu: false,
+      itemSelected: false,
       currentRoute: ''
     };
   },
@@ -54,27 +72,56 @@ export default {
   },
   methods: {
 
-    gotoView(page) {
+    gotoView(item) {
       let currentPath = this.$route.path;
-      if (currentPath != "/" + this.routeList[page]) {
-        this.$router.push("/" + this.routeList[page]);
-        this.selectionMenu = page;
+      if (currentPath != "/" + item.route) {
+        this.$router.push("/" + item.route);
+        this.itemSelected = item;
       }
     },
 
     checkroute() {
-      if (this.$route.path == '/DetailUser' || this.$route.path == '/users'|| this.$route.path == '/AddUser' || this.$route.path == '/EditUser' ) {
-        this.selectionMenu = 1
-      } else if (this.$route.path == '/Application' || this.$route.path == '/DetailApp' || this.$route.path == '/AddApp'|| this.$route.path == '/EditApp') {
-        this.selectionMenu = 2
-      } else if (this.$route.path == '/platforms' || this.$route.path == '/DetailPlatform') {
-        this.selectionMenu = 3
-      } else if(this.$route.path == '/'){
-        this.selectionMenu = 0
+      const path = this.$route.path;
+      switch (path) {
+        case '/DetailUser':
+        case '/UsersList':
+        case '/AddUser':
+        case '/EditUser':
+          this.itemSelected = this.menuList.find(item => item.name == this.names.gestionUtilisateur);
+          break;
+
+        case "/Application":
+        case "/DetailApp":
+        case "/AddApp":
+        case "/EditApp":
+          this.itemSelected = this.menuList.find(item => item.name == this.names.gestionApplication);
+          break;
+
+        case '/PlatformsList':
+        case '/ DetailPlatform':
+          this.itemSelected = this.menuList.find(item => item.name == this.names.gestionPlateforme);
+          break;
+        case '/':
+        case '':
+          this.itemSelected = this.menuList.find(item => item.name == this.names.adminstration);
+          break;
+
+        default:
+          this.itemSelected = this.menuList.find(item => "/" + item.route.toLowerCase() == path.toLowerCase());
+          break;
       }
-      else {
-        this.selectionMenu = 4
-      }
+      // if (this.$route.path == '/DetailUser' || this.$route.path == '/UsersList' || this.$route.path == '/AddUser' || this.$route.path == '/EditUser') {
+      //   this.itemSelected = 1
+      // } else if (this.$route.path == '/Application' || this.$route.path == '/DetailApp' || this.$route.path == '/AddApp' || this.$route.path == '/EditApp') {
+      //   this.selectionMenu = 2
+      // } else if (this.$route.path == '/PlatformsList' || this.$route.path == '/DetailPlatform') {
+      //   this.selectionMenu = 3
+      // } else if (this.$route.path == '/') {
+      //   this.selectionMenu = 0
+      // }
+      // else {
+      //   this.selectionMenu = 4
+      // }
     },
     ...mapActions({
       logout: 'login/logout'
@@ -91,7 +138,7 @@ export default {
 }
 </script>
 
-<style scoped >
+<style scoped>
 .v-application {
   position: fixed;
   z-index: 99;
