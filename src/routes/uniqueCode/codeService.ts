@@ -39,7 +39,7 @@ export default class SpinalUniqueCodeService {
 
 
     async consumeCode(code: string): Promise<ICodeToken> {
-        const codeNode = await this.getCode(code);
+        const codeNode = await this.getCode(code, true);
         if (!codeNode) throw new AuthError(HttpStatusCode.NOT_FOUND, `Code not found`);
         if (codeNode.info.used.get()) throw new AuthError(HttpStatusCode.BAD_REQUEST, `Code already used`);
 
@@ -94,10 +94,12 @@ export default class SpinalUniqueCodeService {
         return this.context.getChildren(AUTH_SERVICE_UNIQUE_CODE_RELATION_NAME);
     }
 
-    async getCode(code: string): Promise<SpinalNode> {
+    async getCode(code: string, useCodeOnly: boolean = false): Promise<SpinalNode> {
         const codes = await this.getAllCodes();
         return codes.find((codeNode) => {
             const info = codeNode.info.get();
+            if (useCodeOnly) return info.code == code;
+
             return info.code == code || info.id == code || info.name == code;
         });
     }
