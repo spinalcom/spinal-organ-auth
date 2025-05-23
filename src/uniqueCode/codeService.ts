@@ -39,7 +39,7 @@ export default class SpinalUniqueCodeService {
     async consumeCode(code: string): Promise<ICodeToken> {
         const codeNode = await this.getCode(code, true);
         if (!codeNode) throw new AuthError(HttpStatusCode.NOT_FOUND, `Code not found`);
-        // if (codeNode.info.used.get()) throw new AuthError(HttpStatusCode.BAD_REQUEST, `Code already used`);
+        if (codeNode.info.used.get()) throw new AuthError(HttpStatusCode.BAD_REQUEST, `Code already used`);
 
 
         const codeFormatted = this.formatCodeNode(codeNode);
