@@ -58,7 +58,7 @@ export class UniqueCodeController extends Controller {
         }
     }
 
-    @Security("jwt", ["authAdmin"])
+    @Security("jwt", ["ownData"])
     @Get("/getcode/{code}")
     public async getCode(@Path() code): Promise<ICodeResponse | { error: string }> {
         try {

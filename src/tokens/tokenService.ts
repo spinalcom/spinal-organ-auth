@@ -78,6 +78,8 @@ export class TokensService {
 			expieredToken: decodedToken.exp,
 			...(actor === "application" && { applicationId: node.getId().get() }),
 			...(actor === "user" && { userId: node.getId().get() }),
+			...(actor === "code" && { userId: node.getId().get(), applicationId: node.getId().get() }),
+
 			platformList: platformList || [],
 		});
 
@@ -144,9 +146,17 @@ export class TokensService {
 		return appTokens.map(this._formatToken);
 	}
 
-	public async verifyToken(tokenParam: string, actor: string) {
-		const tokens = await (actor === "user" ? this._getUserTokensNode() : this._getApplicationTokensNode());
+	public async getCodeTokens() {
+		const appTokens = await this._getCodeTokensNode();
+		return appTokens.map(this._formatToken);
+	}
+
+	public async verifyToken(tokenParam: string, actor: ITokenActor) {
+		const type = this._getTokenCategoryType(actor);
+
+		let tokens = type ? await this.getTokenByCategoryType(type) : await this.getAllTokensNode();
 		const token = tokens.find((el) => el.info?.token?.get() === tokenParam);
+
 		if (!token) throw new OperationError("UNKNOWN_TOKEN", HttpStatusCode.UNAUTHORIZED);
 
 		const expirationDate = token.info.expieredToken.get() * 1000;
@@ -201,6 +211,27 @@ export class TokensService {
 		};
 	}
 
+	public async getCodeProfileByToken(Token: string, platformId: string) {
+		const tokens = await this._getCodeTokensNode();
+		const token = tokens.find((el) => el.info?.token.get() === Token);
+		if (!token || !token.info?.platformList) return;
+		const platforms = token.info.platformList.get();
+		const platform = platforms.find((el) => el.platformId === platformId);
+		if (!platform) return;
+		return {
+			token: Token,
+			platformId: platformId,
+			...(platform.userProfile && {
+				userProfileName: platform.userProfile.userProfileName,
+				userProfileBosConfigId: platform.userProfile.userProfileBosConfigId
+			}),
+			...(platform.appProfile && {
+				appProfileName: platform.appProfile.appProfileName,
+				appProfileBosConfigId: platform.appProfile.appProfileBosConfigId,
+			})
+		};
+	}
+
 	public async removeToken(token: string | SpinalNode): Promise<boolean> {
 		try {
 			token = token instanceof SpinalNode ? token : (await this.getAllTokensNode(token))[0];
@@ -227,30 +258,31 @@ export class TokensService {
 	}
 
 	public getAllTokensNode(token?: string): Promise<SpinalNode[]> {
-		return Promise.all([this._getApplicationTokensNode(), this._getUserTokensNode()]).then((result) => {
+		return Promise.all([this._getApplicationTokensNode(), this._getUserTokensNode(), this._getCodeTokensNode()]).then((result) => {
 			if (!token) return result.flat();
 			return result.flat().filter((el) => el.info?.token?.get() === token);
 		});
 	}
-
-	private async _getUserTokensNode(): Promise<SpinalNode[]> {
+	async getTokenByCategoryType(categoryType: string): Promise<SpinalNode[]> {
 		const graph = await SpinalMiddleware.getInstance().getGraph();
 		const context = await graph.getContext(TOKEN_LIST);
 		const categoriesToken = await context.getChildren(AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME);
-		const userTokenCategory = categoriesToken.find((el) => el.getName().get() === "User Token");
-		if (!userTokenCategory) return [];
+		const categoryNode = categoriesToken.find((el) => el.getType().get() === categoryType);
+		if (!categoryNode) return [];
 
-		return userTokenCategory.getChildren(AUTH_SERVICE_TOKEN_RELATION_NAME);
+		return categoryNode.getChildren(AUTH_SERVICE_TOKEN_RELATION_NAME);
 	}
 
-	private async _getApplicationTokensNode() {
-		const graph = await SpinalMiddleware.getInstance().getGraph();
-		const context = await graph.getContext(TOKEN_LIST);
-		const categoriesToken = await context.getChildren(AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME);
-		const applicationTokenCategory = categoriesToken.find((el) => el.getName().get() === "Application Token");
-		if (!applicationTokenCategory) return [];
+	private async _getUserTokensNode(): Promise<SpinalNode[]> {
+		return this.getTokenByCategoryType(USER_TOKEN_CATEGORY_TYPE)
+	}
 
-		return applicationTokenCategory.getChildren(AUTH_SERVICE_TOKEN_RELATION_NAME);
+	private async _getApplicationTokensNode(): Promise<SpinalNode[]> {
+		return this.getTokenByCategoryType(APPLICATION_TOKEN_CATEGORY_TYPE)
+	}
+
+	private async _getCodeTokensNode(): Promise<SpinalNode[]> {
+		return this.getTokenByCategoryType(CODE_TOKEN_CATEGORY_TYPE)
 	}
 
 	private _formatToken(token: SpinalNode) {

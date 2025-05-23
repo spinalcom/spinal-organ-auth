@@ -1,6 +1,6 @@
 {
 	"name": "spinal-organ-auth",
-	"version": "1.7.5",
+	"version": "1.8.5",
 	"description": "",
 	"main": "dist/index.js",
 	"directories": {
