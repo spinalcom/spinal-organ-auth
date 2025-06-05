@@ -42,6 +42,7 @@ export interface IApplication {
 			appProfileId: string;
 		};
 	}[];
+	grant_types?: string[];
 }
 
 /**
@@ -86,6 +87,7 @@ export interface IApplicationUpdateParams {
 			appProfileName: string;
 		};
 	}[];
+	grant_types?: string[];
 }
 
 /**

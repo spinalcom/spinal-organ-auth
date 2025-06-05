@@ -116,7 +116,7 @@ export class TokensService {
 
 	}
 
-	public async createSamlToken(tokenData: any, platform: IPlatform) {
+	public async createSSOToken(tokenData: any, platform: IPlatform) {
 
 		const token = this.generateToken(tokenData);
 		let decodedToken: any = jwt_decode(token);
@@ -131,10 +131,14 @@ export class TokensService {
 			userId: tokenData.userId,
 			platformList: [
 				{
-					userProfileId: tokenData.profile.userProfileBosConfigId,
 					platformId: platform.id,
-					type: USER_PROFILE_TYPE,
-					name: tokenData.userInfo.name
+					platformName: platform.name,
+					idPlatformOfAdmin: platform.idPlatformOfAdmin,
+					userProfile: tokenData.profile
+					// userProfileId: tokenData.profile.userProfileBosConfigId,
+					// platformId: platform.id,
+					// type: USER_PROFILE_TYPE,
+					// name: tokenData.userInfo.name
 				}
 			],
 		})

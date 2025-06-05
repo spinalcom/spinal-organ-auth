@@ -148,7 +148,7 @@ export class ApplicationService {
 		const keys = ["name", "clientId", "clientSecret", "appType", "grant_types"];
 
 		for (const key of keys) {
-			if (requestBody[key] !== undefined) {
+			if (requestBody[key] !== undefined && app.info[key] !== undefined) {
 				app.info[key].set(requestBody[key]);
 			}
 		}

@@ -17,7 +17,7 @@ export async function convertSSOData(userData: ISSOUser, platform: IPlatform) {
 
     const tokenData = _getTokenData(platform.id, userData, userProfile);
 
-    const tokenNode = await TokensService.getInstance().createSamlToken(tokenData, platform);
+    const tokenNode = await TokensService.getInstance().createSSOToken(tokenData, platform);
 
     return {
         name: tokenNode.getName().get(),

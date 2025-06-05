@@ -76,7 +76,7 @@ export class ApplicationsController extends Controller {
 	@Delete("{applicationId}")
 	public async deleteApplication(@Path() applicationId: string): Promise<void | { message?: string; error?: string }> {
 		try {
-			const app = applicationService.deleteApplication(applicationId);
+			const app = await applicationService.deleteApplication(applicationId);
 			this.setStatus(HttpStatusCode.OK);
 			return { message: "Application deleted" };
 		} catch (error) {
@@ -89,7 +89,7 @@ export class ApplicationsController extends Controller {
 	@Put("{applicationId}")
 	public async updateApplication(@Path() applicationId: string, @Body() requestBody: IApplicationUpdateParams): Promise<IApplication | { error: string }> {
 		try {
-			const updated = applicationService.updateApplication(applicationId, requestBody);
+			const updated = await applicationService.updateApplication(applicationId, requestBody);
 
 			this.setStatus(HttpStatusCode.OK);
 			return updated;
