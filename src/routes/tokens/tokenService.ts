@@ -311,7 +311,7 @@ export class TokensService {
 
 	public async getAppProfileByToken(token: string, platformId: string) {
 		const tokenNode = await this.getTokenNode(token);
-		if (!tokenNode || tokenNode.info?.platformList) return;
+		if (!tokenNode || !tokenNode.info?.platformList) return;
 
 		const platforms = tokenNode.info.platformList.get();
 

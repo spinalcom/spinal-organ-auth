@@ -42,6 +42,7 @@ export interface IOAuthAuthenticationInfo {
 	endpoint?: string;
 	logoutUrl?: string;
 	scopes?: string | string[];
+	profileClassifyByPriority?: string[];
 }
 
 export interface IOpenIdAuthenticationInfo {
@@ -53,6 +54,7 @@ export interface IOpenIdAuthenticationInfo {
 	clientSecret: string;
 	callbackUrl: string;
 	scope: string[];
+	profileClassifyByPriority?: string[];
 }
 
 export interface ILocalAuthenticationInfo {
@@ -75,6 +77,7 @@ export interface IPlatform {
 	clientSecret?: string;
 	redirectUrl: string;
 	grant_types: string | string[];
+	profileClassifyByPriority?: string[];
 	// authentication_method: CONNECTION_METHODS;
 	// authentication_info?: ISAMLAuthenticationInfo | IOAuthAuthenticationInfo | ILocalAuthenticationInfo;
 }

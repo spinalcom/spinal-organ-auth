@@ -8,6 +8,7 @@ export interface ISAMLAuthenticationInfo {
     callbackUrl: string;
     logoutUrl?: string;
     serverEntityId?: string;
+    profileClassifyByPriority?: string;
 }
 
 export interface IOpenIdAuthenticationInfo {
@@ -20,6 +21,7 @@ export interface IOpenIdAuthenticationInfo {
     callbackUrl: string;
     scopes: string | string[];
     logoutUrl?: string;
+    profileClassifyByPriority?: string;
 }
 
 export interface IOAuthAuthenticationInfo {
@@ -31,6 +33,7 @@ export interface IOAuthAuthenticationInfo {
     logoutUrl?: string;
     scopes?: string;
     tokenUrl: string;
+    profileClassifyByPriority?: string;
 }
 
 export interface ILocalAuthenticationInfo {

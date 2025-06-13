@@ -67,6 +67,7 @@ export class SpinalOpenIDServer extends Authenticator {
                 firstName: info_decoded.given_name,
                 lastName: info_decoded.family_name,
                 groups: info_decoded.droit_jul || info_decoded.groups,
+                profileClassifyByPriority: params.profileClassifyByPriority,
             }
 
             done(null, platform, userinfo);
@@ -93,9 +94,12 @@ export class SpinalOpenIDServer extends Authenticator {
             clientID: serverInfo.clientId,
             clientSecret: serverInfo.clientSecret,
             callbackURL: serverInfo.callbackUrl,
-            scope: (serverInfo as any).scopes
+            scope: (serverInfo as any).scopes,
+            profileClassifyByPriority: (serverInfo as any).profileClassifyByPriority
         }
     }
+
+
 
 }
 

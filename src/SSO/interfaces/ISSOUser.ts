@@ -6,4 +6,5 @@ export type ISSOUser = {
     firstName?: string;
     lastName?: string;
     groups: string | string[];
+    profileClassifyByPriority: string | string[];
 };

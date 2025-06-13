@@ -56,6 +56,12 @@
                             v-model="serverInfo.authentication_info.logoutUrl" />
                     </div>
 
+                    <div class="formItem">
+                        <InputUser title="Saisissez les profiles par priorité (Le plus priotitaire en premier)"
+                            id="profileClassifyByPriority"
+                            v-model="serverInfo.authentication_info.profileClassifyByPriority" />
+                    </div>
+
 
                     <div class="formItem">
                         <TextareaUser title="certificat de l'emetteur" id="cert"
@@ -106,6 +112,12 @@
                             v-model="serverInfo.authentication_info.grant_type" />
                     </div>
 
+                    <div class="formItem">
+                        <InputUser title="Saisissez les profiles par priorité (Le plus priotitaire en premier)"
+                            id="profileClassifyByPriority"
+                            v-model="serverInfo.authentication_info.profileClassifyByPriority" />
+                    </div>
+
                 </div>
 
                 <div class="server_info" v-else-if="serverInfo.authentication_method === 'openid connect'">
@@ -153,6 +165,12 @@
                     <div class="formItem">
                         <InputUser title="url de deconnexion" id="logoutUrl"
                             v-model="serverInfo.authentication_info.logoutUrl" />
+                    </div>
+
+                    <div class="formItem">
+                        <InputUser title="Saisissez les profiles par priorité (Le plus priotitaire en premier)"
+                            id="profileClassifyByPriority"
+                            v-model="serverInfo.authentication_info.profileClassifyByPriority" />
                     </div>
 
                 </div>
@@ -290,7 +308,8 @@ export default {
                 cert: "",
                 callbackUrl: "",
                 logoutUrl: "",
-                serverEntityId: ""
+                serverEntityId: "",
+                profileClassifyByPriority: "",
             }
         },
 
@@ -303,7 +322,8 @@ export default {
                 logoutUrl: "",
                 grant_type: "",
                 scopes: "",
-                tokenUrl: ""
+                tokenUrl: "",
+                profileClassifyByPriority: "",
             }
         },
 
@@ -317,6 +337,7 @@ export default {
                 clientSecret: "",
                 callbackUrl: "",
                 scopes: "",
+                profileClassifyByPriority: "",
             }
         }
     },

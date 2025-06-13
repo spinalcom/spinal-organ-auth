@@ -5,11 +5,13 @@ import { IPlatform } from "../../routes/platform/platform.model";
 import { PlatformService } from "../../routes/platform/platformServices";
 import { TokensService } from "../../routes/tokens/tokenService";
 import { ISSOUser } from "../interfaces/ISSOUser";
+import { response } from "express";
 
 
 
 export async function convertSSOData(userData: ISSOUser, platform: IPlatform) {
-    const profileId = Array.isArray(userData.groups) ? userData.groups[0] : userData.groups;
+    // const profileId = Array.isArray(userData.groups) ? userData.groups[0] : userData.groups;
+    const profileId = _getUserProfile(userData.groups, userData.profileClassifyByPriority);
 
     const userProfile = await PlatformService.getInstance().getUserProfile(platform.id, profileId, true);
 
@@ -27,6 +29,31 @@ export async function convertSSOData(userData: ISSOUser, platform: IPlatform) {
         userId: tokenNode.info.userId?.get(),
         platformList: tokenNode.info.platformList?.get() || [],
     }
+}
+
+function _getUserProfile(responseProfiles: string | string[], profilesClassified: string | string[] = "") {
+    if (!Array.isArray(responseProfiles)) responseProfiles = responseProfiles.split(" ");
+    // if (responseProfiles.length === 0) return;
+    // if (!Array.isArray(responseProfiles)) return responseProfiles;
+    // if (responseProfiles.length === 1) return responseProfiles[0];
+
+    // if (!profilesClassified || profilesClassified.length === 0) return responseProfiles[0];
+
+    const classifiedProfiles = formatProfileClassifyByPriority(profilesClassified);
+    const profilesPriority = responseProfiles.map(profile => classifiedProfiles[profile]);
+    const minPriorityIndex = profilesPriority.indexOf(Math.min(...profilesPriority));
+    return responseProfiles[minPriorityIndex];
+}
+
+
+function formatProfileClassifyByPriority(profile: string | string[] = "") {
+    profile = Array.isArray(profile) ? profile : profile.split(" ");
+    let order = 0;
+    return profile.reduce((object, item) => {
+        object[item] = order;
+        order++;
+        return object;
+    }, {});
 }
 
 
