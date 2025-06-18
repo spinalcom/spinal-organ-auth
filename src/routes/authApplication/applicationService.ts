@@ -130,7 +130,7 @@ export class ApplicationService {
 	}
 
 	public async getApplication(id: string): Promise<IApplication> {
-		const [app] = await this.getApplicationNodes();
+		const [app] = await this.getApplicationNodes(id);
 
 		if (!app) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 
