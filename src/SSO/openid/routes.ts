@@ -16,8 +16,7 @@ export function RegisterOpenIdRoutes(app: express.Application) {
             if (!platformId) throw new Error("no platform specified");
             if (!serverId) throw new Error("no authentication server specified");
 
-            // spinalPassportOpenId.auth.bind(spinalPassportOpenId)(req, { failureRedirect: "/error", failureFlash: true })(req, res, next);
-            const authenticate = await spinalPassportOpenId.auth.bind(spinalPassportOpenId)(req, { failureRedirect: "/error", failureFlash: true }, (err) => {
+            const authenticate = await spinalPassportOpenId.auth.bind(spinalPassportOpenId)(req, (err) => {
                 if (err) throw err;
                 next();
             });
@@ -25,14 +24,13 @@ export function RegisterOpenIdRoutes(app: express.Application) {
             return authenticate(req, res, next);
         } catch (error) {
             return res.status(HttpStatusCode.MOVED_PERMANENTLY).redirect(`/login/${platformId}?error=true&error_description=${error.message}`);
-            // return res.status(HttpStatusCode.BAD_REQUEST).send({ message: error.message });
         }
     });
 
 
     app.all("/openid/callback", async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         try {
-            const authenticate = await spinalPassportOpenId.auth.bind(spinalPassportOpenId)(req, { failureRedirect: "/error", failureFlash: true }, async (err, platform, userinfo) => {
+            const authenticate = await spinalPassportOpenId.auth.bind(spinalPassportOpenId)(req, async (err, platform, userinfo) => {
                 try {
                     if (err) throw err;
 
@@ -41,8 +39,6 @@ export function RegisterOpenIdRoutes(app: express.Application) {
                     res.status(HttpStatusCode.OK).send(html);
                 } catch (error) {
                     return res.status(HttpStatusCode.MOVED_PERMANENTLY).redirect(`/login/${platform.id}?error=true&error_description=${error.message}`);
-
-                    // return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({ status: HttpStatusCode.INTERNAL_SERVER_ERROR, message: error.message });
                 }
 
             })
@@ -50,8 +46,6 @@ export function RegisterOpenIdRoutes(app: express.Application) {
             return authenticate(req, res, next);
 
         } catch (error) {
-            // return res.status(HttpStatusCode.MOVED_PERMANENTLY).redirect(`/login/${platformId}?error=true&error_description=${error.message}`);
-
             return res.status(HttpStatusCode.BAD_REQUEST).send({ status: HttpStatusCode.BAD_REQUEST, message: error.message })
         }
     });

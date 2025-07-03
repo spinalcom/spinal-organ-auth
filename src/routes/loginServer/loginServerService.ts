@@ -40,7 +40,7 @@ class LoginServerService {
         const servers = await this.context.getChildren(LOGIN_SERVER_RELATION_NAME);
         if (!serverId) return servers;
 
-        return servers.filter(el => el.getId().get() === serverId);
+        return servers.filter(el => el.getId().get() === serverId || el.info?.authentication_info?.clientId?.get() === serverId);
     }
 
 

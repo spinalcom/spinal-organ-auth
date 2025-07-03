@@ -22,7 +22,8 @@ export class SpinalOpenIDServer extends Authenticator {
         return this._instance;
     }
 
-    public async auth(req: Express.Request, options: AuthenticateOptions, callback?: AuthenticateCallback) {
+    // public async auth(req: Express.Request, options: AuthenticateOptions, callback?: AuthenticateCallback) {
+    public async auth(req: Express.Request, callback?: AuthenticateCallback) {
 
         const { error } = req.query;
         if (error) return callback(new Error(error as string));
@@ -30,19 +31,24 @@ export class SpinalOpenIDServer extends Authenticator {
         let strategy: OpenIDConnectStrategy = await this._getStrategy(req.url, req.query);
         if (!strategy) return callback(new Error("No strategy found"));
 
-        return this.authenticate(strategy.name, options, callback);
+        return this.authenticate(strategy.name, callback);
+        // return this.authenticate(strategy.name, options, callback);
     }
 
-    private async _getStrategy(url: string, query: { iss?: string; platformId?: string; serverId?: string }): OpenIDConnectStrategy {
+    private async _getStrategy(url: string, query: { iss?: string; platformId?: string; serverId?: string, client_id?: string }): OpenIDConnectStrategy {
 
-        if (url.includes("/openid/callback")) {
-            const { iss: issuer } = query;
-            return this.issuerToStrategy.get(issuer as string);
-        }
+        let serverId = (query.serverId || query.client_id) as string;
+        let strategy = this.issuerToStrategy.get(query.iss as string);
 
-        const serverId = query.serverId as string;
+        if (strategy) return strategy;
+        // if (url.includes("/openid/callback")) {
+        //     const { iss: issuer } = query;
+        //     return this.issuerToStrategy.get(issuer as string);
+        // }
+
+        // const serverId = query.serverId as string;
         let serverInfo = await this._getServerInfo(serverId);
-        const strategy = this._getnewStrategy(serverInfo);
+        strategy = this._getnewStrategy(serverInfo);
         this.use(strategy);
 
         this.serverEntityIdToPlatformId[serverInfo.issuer] = query.platformId;
@@ -58,6 +64,7 @@ export class SpinalOpenIDServer extends Authenticator {
 
             const platformNode = await PlatformService.getInstance().getPlateformByClientId(platformId);
             const platform = PlatformService.getInstance()._formatPlatform(platformNode);
+
             const info_decoded: any = jwtDecode(jwtClaims);
 
             const userinfo = {
@@ -95,7 +102,10 @@ export class SpinalOpenIDServer extends Authenticator {
             clientSecret: serverInfo.clientSecret,
             callbackURL: serverInfo.callbackUrl,
             scope: (serverInfo as any).scopes,
-            profileClassifyByPriority: (serverInfo as any).profileClassifyByPriority
+            profileClassifyByPriority: (serverInfo as any).profileClassifyByPriority,
+            // authorizationParams: (options) => {
+            //     return { prompt: "login" }
+            // }
         }
     }
 

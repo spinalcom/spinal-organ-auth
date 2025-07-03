@@ -33,31 +33,23 @@ export async function convertSSOData(userData: ISSOUser, platform: IPlatform) {
 
 function _getUserProfile(responseProfiles: string | string[], profilesClassified: string | string[] = "") {
 
+
     if (responseProfiles.length === 0) return;
     if (!Array.isArray(responseProfiles)) return responseProfiles;
     if (responseProfiles.length === 1) return responseProfiles[0];
 
     if (!profilesClassified || profilesClassified.length === 0) return responseProfiles[0];
 
+    profilesClassified = Array.isArray(profilesClassified) ? profilesClassified : profilesClassified.split(" ");
 
-    const classifiedProfiles = formatProfileClassifyByPriority(profilesClassified); // convert priority string to object
-    const profilesPriority = responseProfiles.map(profile => classifiedProfiles[profile]); // get the priority of each profile
-    const formattedPriority = profilesPriority.map(priority => priority === undefined ? Infinity : priority); // replace undefined with Infinity for comparison
-    const minPriorityIndex = profilesPriority.indexOf(Math.min(...formattedPriority)); // find the index of the minimum priority
+    for (const profile of profilesClassified) {
+        if (responseProfiles.includes(profile)) { // Check if the profile is in the response profiles by order of priority
+            return profile;
+        }
+    }
 
-    return responseProfiles[minPriorityIndex];
 }
 
-
-function formatProfileClassifyByPriority(profile: string | string[] = "") {
-    profile = Array.isArray(profile) ? profile : profile.split(" ");
-    let order = 0;
-    return profile.reduce((object, item) => {
-        object[item] = order;
-        order++;
-        return object;
-    }, {});
-}
 
 
 function _getTokenData(platformId: string, profile: any, userProfile: SpinalNode) {
