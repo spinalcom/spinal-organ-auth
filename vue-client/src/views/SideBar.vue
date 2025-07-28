@@ -55,7 +55,7 @@ export default {
         { name: this.names.adminstration, icon: "mdi-chart-tree", route: "" },
         { name: this.names.gestionUtilisateur, icon: "mdi-cog", route: "usersList" },
         { name: this.names.gestionApplication, icon: "mdi-cog", route: "Application" },
-        { name: this.names.gestionPlateforme, icon: "mdi-cog", route: "platforms" },
+        { name: this.names.gestionPlateforme, icon: "mdi-cog", route: "platformsList" },
         { name: this.names.gestionServeur, icon: "mdi-server-security", route: "Servers" },
         { name: this.names.logs, icon: "mdi-chart-timeline-variant-shimmer", route: "LogsList" },
         { name: this.names.codeUnique, icon: "mdi-key", route: "CodeUnique" },

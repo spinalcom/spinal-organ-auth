@@ -14,7 +14,7 @@ REGISTER_KEY=""
 
 # server info
 REQUESTS_PORT=''
-LIMIT_LOG=""
+LIMIT_LOG="3000"
 
 SERVER_PROTOCOL="http" # https / http
 SSL_CERT_PATH="/home/ubuntu/spinalcom/cert/cert.pem"

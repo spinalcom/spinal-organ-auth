@@ -95,10 +95,23 @@ export class TokensController extends Controller {
 		}
 	}
 
+	@Security("jwt", ["authAdmin:read", "ownData:read"])
+	@Post("/getCodeProfileByToken")
+	public async getCodeProfileByToken(@Body() requestBody: any): Promise<any> {
+		try {
+			const profile = await TokensService.getInstance().getCodeProfileByToken(requestBody.token, requestBody.platformId);
+			this.setStatus(HttpStatusCode.OK);
+			return profile;
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
+
 	@Post("/verifyToken")
 	public async verifyToken(@Body() requestBody: any): Promise<any> {
 		try {
-			const verifiedToken = await TokensService.getInstance().verifyToken(requestBody.tokenParam, requestBody.actor);
+			const verifiedToken = await TokensService.getInstance().verifyToken(requestBody.tokenParam, requestBody.platformId, requestBody.actor);
 			this.setStatus(HttpStatusCode.OK);
 			return verifiedToken;
 		} catch (error) {

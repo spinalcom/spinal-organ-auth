@@ -1879,6 +1879,32 @@ export function RegisterRoutes(app: express.Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/tokens/getCodeProfileByToken',
+            authenticateMiddleware([{"jwt":["authAdmin:read","ownData:read"]}]),
+            ...(fetchMiddlewares<RequestHandler>(TokensController)),
+            ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.getCodeProfileByToken)),
+
+            function TokensController_getCodeProfileByToken(request: any, response: any, next: any) {
+            const args = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new TokensController();
+
+
+              const promise = controller.getCodeProfileByToken.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/tokens/verifyToken',
             ...(fetchMiddlewares<RequestHandler>(TokensController)),
             ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.verifyToken)),

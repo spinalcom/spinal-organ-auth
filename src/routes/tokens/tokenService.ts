@@ -103,6 +103,7 @@ export class TokensService {
 			authType: CONNECTION_METHODS.local,
 			createdToken: decodedToken.iat,
 			expieredToken: decodedToken.exp,
+			actor,
 			platformList: platformList || [],
 			...(actor === "application" && { applicationId: node.getId().get() }),
 			...(actor === "user" && { userId: node.getId().get() }),
@@ -239,7 +240,7 @@ export class TokensService {
 		return appTokens.map(this._formatToken);
 	}
 
-	public async verifyToken(tokenParam: string, actor?: ITokenActor) {
+	public async verifyToken(tokenParam: string, platformId: string, actor?: ITokenActor) {
 		const type = this._getTokenCategoryType(actor);
 
 		let tokens = type ? await this.getTokenByCategoryType(type) : await this.getAllTokensNode();
@@ -250,36 +251,42 @@ export class TokensService {
 		if (!token) throw new OperationError("UNKNOWN_TOKEN", HttpStatusCode.UNAUTHORIZED);
 
 
+		actor = actor || token.info.actor?.get();
+
 		try {
 			const token_secret = this.generateTokenKey();
 			const decoded = jwt.verify(token.info.token.get(), token_secret);
 
+			const { iat, exp, ...copyWithoutIatAndExp } = decoded;
+
 			const copy = Object.assign({
 				createdToken: decoded.iat,
 				expieredToken: decoded.exp,
-				token: tokenParam
-			}, decoded);
+				token: tokenParam,
+				profile: await this._getProfileByActor(tokenParam, actor, platformId)
+			}, copyWithoutIatAndExp);
 
-			delete copy.iat;
-			delete copy.exp;
 
 			return copy;
 		} catch (error) {
 			throw error;
 		}
+	}
 
 
+	private _getProfileByActor(token: string, actor, platformId: string) {
+		switch (actor) {
+			case "user":
+				return this.getUserProfileByToken(token, platformId);
+			case "application":
+			case "app":
+				return this.getAppProfileByToken(token, platformId);
+			case "code":
+				return this.getCodeProfileByToken(token, platformId);
+			default:
+				return {}
+		}
 
-		// const expirationDate = token.info.expieredToken.get() * 1000;
-		// const now = Date.now();
-		// if (Date.now() > expirationDate) throw new OperationError("TOKEN_EXPIRED", HttpStatusCode.UNAUTHORIZED);
-
-		// return {
-		// 	token: token.info.token.get(),
-		// 	createdToken: token.info.createdToken.get(),
-		// 	expieredToken: token.info.expieredToken.get(),
-		// 	status: "token valid",
-		// };
 	}
 
 	public async getTokenInfo(tokenParam: string) {
@@ -323,6 +330,33 @@ export class TokensService {
 			appProfileName: platform.appProfile.appProfileName,
 			appProfileBosConfigId: platform.appProfile.appProfileBosConfigId,
 		};
+	}
+
+	public async getCodeProfileByToken(token: string, platformId: string) {
+		const tokenNode = await this.getTokenNode(token);
+		if (!tokenNode || !tokenNode.info?.platformList) return;
+
+		const platforms = tokenNode.info.platformList.get();
+		const platform = platforms.find((el) => el.platformId === platformId);
+		if (!platform) return;
+
+		let res = {};
+
+		if (platform.appProfile) {
+			res = {
+				appProfileName: platform.appProfile.appProfileName,
+				appProfileBosConfigId: platform.appProfile.appProfileBosConfigId
+			}
+		}
+
+		else if (platform.userProfile) {
+			res = {
+				userProfileName: platform.userProfile.userProfileName,
+				userProfileBosConfigId: platform.userProfile.userProfileBosConfigId
+			}
+		}
+
+		return { token, platformId: platformId, ...res };
 	}
 
 	public async removeToken(token: string | SpinalNode): Promise<boolean> {
