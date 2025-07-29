@@ -22,28 +22,35 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
+export interface IPlatformList {
+	platformId: string;
+	platformName?: string;
+	userProfile: {
+		name: string;
+		userProfileId: string;
+		userProfileAdminId?: string;
+		userProfileBosConfigId?: string;
+		userProfileName?: string;
+	};
+}
+
+
 /**
  * @export
  * @interface User
  */
 export interface IUser {
 	id: string | number;
-	type: string;
-	name: string; //nom du noeud du graph
-	userName: string;
-	password: string;
+	type?: string;
+	name?: string; //nom du noeud du graph
+	userName?: string;
+	password?: string;
 	email?: string;
 	telephone?: string;
 	info?: string; // champs libre optionnel
 	userType: IUserType;
-	grant_types: string[];
-	platformList?: {
-		platformId: string;
-		userProfile: {
-			name: string;
-			userProfileId: string;
-		};
-	}[];
+	grant_types?: string[];
+	platformList?: IPlatformList[];
 }
 
 153624
@@ -53,10 +60,9 @@ export enum IUserType {
 	"Super User" = "Super User",
 	"Simple User" = "Simple User",
 }
-/**
- * @export
- * @interface IUserCreationParams
- */
+
+
+
 export interface IUserCreationParams {
 	userName: string;
 	password: string;
@@ -64,13 +70,7 @@ export interface IUserCreationParams {
 	telephone?: string;
 	info?: string; // champs libre optionnel
 	userType?: IUserType;
-	platformList?: {
-		platformId: string;
-		userProfile: {
-			name: string;
-			userProfileId: string;
-		};
-	}[];
+	platformList?: IPlatformList[];
 }
 
 export interface IUpdateUserPassword {
@@ -86,15 +86,7 @@ export interface IUserUpdateParams {
 	info?: string; // champs libre optionnel
 	userType?: IUserType;
 	grant_types?: string[];
-	platformList?: {
-		platformId: string;
-		platformName: string;
-		userProfile: {
-			userProfileAdminId: string;
-			userProfileBosConfigId: string;
-			userProfileName: string;
-		};
-	}[];
+	platformList?: IPlatformList[];
 }
 export interface IAuthAdminUpdateParams {
 	userName: string;

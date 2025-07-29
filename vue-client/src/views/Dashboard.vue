@@ -26,11 +26,17 @@
           <div class="menu-administraton">
             <hr style="min-width: 1100px;" class="line-division">
             <div class="container-cardmenu">
+
+              <CardMenu v-for="item in menuList" :key="item.name" :icon="item.icon" :verif="filtersData.search"
+                :link="item.route" :title="item.name" :subtitle="item.subtitle">
+              </CardMenu>
+
+              <!--
               <CardMenu :icon="'mdi-shield-crown'" :verif="filtersData.search" :link="'platformsList'"
                 :title="'PLATEFORMES'" :subtitle="'Configuration des Plateformes'">
               </CardMenu>
 
-              <CardMenu :icon="'mdi-view-list'" :verif="filtersData.search" :link="'LogsList'" :title="'LOGS'"
+               <CardMenu :icon="'mdi-view-list'" :verif="filtersData.search" :link="'LogsList'" :title="'LOGS'"
                 :subtitle="'Connexions et utilisations du logiciel'"></CardMenu>
 
               <CardMenu :icon="'mdi-account'" :verif="filtersData.search" :link="'usersList'" :title="'UTILISATEURS'"
@@ -44,7 +50,7 @@
                 :title="'SERVEUR D\'AUTHENTIFICATION'" :subtitle="'Gestion de serveur d\'authentification'"></CardMenu>
 
               <CardMenu :icon="'mdi-key'" :verif="filtersData.search" :link="'CodeUnique'" :title="'CLÉS UNIQUE'"
-                :subtitle="'Gestion de clés uniques'"></CardMenu>
+                :subtitle="'Gestion de clés uniques'"></CardMenu> -->
             </div>
           </div>
         </div>
@@ -77,6 +83,7 @@
 import CardMenu from "../Components/CardMenu";
 import { mapState } from 'vuex'
 import { mapActions } from 'vuex'
+import { menuList } from "../router/microAppsRoutes";
 export default {
   components: {
     CardMenu,
@@ -85,6 +92,7 @@ export default {
     filtersData: {
       search: "",
     },
+    menuList: menuList,
   }),
   computed: {
     ...mapState({

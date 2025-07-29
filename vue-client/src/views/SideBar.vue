@@ -35,30 +35,17 @@
 </template>
 <script>
 import { mapActions } from 'vuex';
+import { menuList } from "../router/microAppsRoutes";
+
+
 export default {
 
   data() {
-    this.names = {
-      adminstration: 'TOUTE L’ADMINISTRATION',
-      gestionUtilisateur: 'GESTION UTILISATEUR',
-      gestionApplication: 'GESTION APPLICATION',
-      gestionPlateforme: 'GESTION PLATFORME',
-      gestionServeur: 'GESTION SERVEUR',
-      logs: 'LOGS',
-      codeUnique: 'CLÉ UNIQUE',
-    }
     return {
-      // menuList: ['TOUTE L’ADMINISTRATION', 'GESTION UTILISATEUR', 'GESTION APPLICATION', 'GESTION PLATFORME', 'GESTION SERVEUR', 'LOGS'],
-      // iconList: ['mdi-chart-tree', 'mdi-cog', 'mdi-cog', 'mdi-cog', 'mdi-server-security', 'mdi-chart-timeline-variant-shimmer',],
-      // routeList: ['', 'usersList', 'Application', 'platforms', 'Servers', 'LogsList'],
+
       menuList: [
-        { name: this.names.adminstration, icon: "mdi-chart-tree", route: "" },
-        { name: this.names.gestionUtilisateur, icon: "mdi-cog", route: "usersList" },
-        { name: this.names.gestionApplication, icon: "mdi-cog", route: "Application" },
-        { name: this.names.gestionPlateforme, icon: "mdi-cog", route: "platformsList" },
-        { name: this.names.gestionServeur, icon: "mdi-server-security", route: "Servers" },
-        { name: this.names.logs, icon: "mdi-chart-timeline-variant-shimmer", route: "LogsList" },
-        { name: this.names.codeUnique, icon: "mdi-key", route: "CodeUnique" },
+        { name: "Toutes les applications", icon: "mdi-chart-tree", route: "", subRoutes: [] },
+        ...menuList
       ],
 
       menuIsOpen: false,
@@ -81,47 +68,19 @@ export default {
     },
 
     checkroute() {
-      const path = this.$route.path;
-      switch (path) {
-        case '/DetailUser':
-        case '/UsersList':
-        case '/AddUser':
-        case '/EditUser':
-          this.itemSelected = this.menuList.find(item => item.name == this.names.gestionUtilisateur);
-          break;
 
-        case "/Application":
-        case "/DetailApp":
-        case "/AddApp":
-        case "/EditApp":
-          this.itemSelected = this.menuList.find(item => item.name == this.names.gestionApplication);
-          break;
+      const path = this.$route.path.replace(/^\//, "");
 
-        case '/PlatformsList':
-        case '/ DetailPlatform':
-          this.itemSelected = this.menuList.find(item => item.name == this.names.gestionPlateforme);
-          break;
-        case '/':
-        case '':
-          this.itemSelected = this.menuList.find(item => item.name == this.names.adminstration);
-          break;
+      const found = this.menuList.find(item => {
+        if (item.route.toLowerCase() == path.toLowerCase()) return true;
+        const subRoute = item.subRoutes.find(subItem => subItem.toLowerCase() == path.toLowerCase());
+        if (subRoute) return true;
+        return false;
+      });
 
-        default:
-          this.itemSelected = this.menuList.find(item => "/" + item.route.toLowerCase() == path.toLowerCase());
-          break;
-      }
-      // if (this.$route.path == '/DetailUser' || this.$route.path == '/UsersList' || this.$route.path == '/AddUser' || this.$route.path == '/EditUser') {
-      //   this.itemSelected = 1
-      // } else if (this.$route.path == '/Application' || this.$route.path == '/DetailApp' || this.$route.path == '/AddApp' || this.$route.path == '/EditApp') {
-      //   this.selectionMenu = 2
-      // } else if (this.$route.path == '/PlatformsList' || this.$route.path == '/DetailPlatform') {
-      //   this.selectionMenu = 3
-      // } else if (this.$route.path == '/') {
-      //   this.selectionMenu = 0
-      // }
-      // else {
-      //   this.selectionMenu = 4
-      // }
+      if (found) this.itemSelected = found;
+      else this.itemSelected = this.menuList[0];
+
     },
     ...mapActions({
       logout: 'login/logout'
