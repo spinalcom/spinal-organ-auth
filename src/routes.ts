@@ -69,7 +69,8 @@ const models: TsoaRoute.Models = {
             "clientId": {"dataType":"string"},
             "clientSecret": {"dataType":"string"},
             "appType": {"dataType":"string"},
-            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfileName":{"dataType":"string","required":true},"appProfileBosConfigId":{"dataType":"string","required":true},"appProfileAdminId":{"dataType":"string","required":true}},"required":true},"platformName":{"dataType":"string","required":true},"platformId":{"dataType":"string","required":true}}}},
+            "redirectUri": {"dataType":"string"},
+            "platformList": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfile":{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfileName":{"dataType":"string","required":true},"appProfileBosConfigId":{"dataType":"string","required":true},"appProfileAdminId":{"dataType":"string","required":true}},"required":true},"platformId":{"dataType":"string","required":true}}}},
             "grant_types": {"dataType":"array","array":{"dataType":"string"}},
         },
         "additionalProperties": false,
@@ -140,7 +141,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "platformId": {"dataType":"string","required":true},
             "platformName": {"dataType":"string"},
-            "userProfile": {"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileName":{"dataType":"string"},"userProfileBosConfigId":{"dataType":"string"},"userProfileAdminId":{"dataType":"string"},"userProfileId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}},"required":true},
+            "userProfile": {"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileName":{"dataType":"string"},"userProfileBosConfigId":{"dataType":"string"},"userProfileAdminId":{"dataType":"string"},"userProfileId":{"dataType":"string"},"name":{"dataType":"string"}},"required":true},
         },
         "additionalProperties": false,
     },
@@ -195,7 +196,7 @@ const models: TsoaRoute.Models = {
     "IUpdateUserPassword": {
         "dataType": "refObject",
         "properties": {
-            "oldPassword": {"dataType":"string","required":true},
+            "authAdminPassword": {"dataType":"string","required":true},
             "newPassword": {"dataType":"string","required":true},
         },
         "additionalProperties": false,

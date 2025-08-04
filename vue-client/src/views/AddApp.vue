@@ -1,9 +1,9 @@
 <template>
   <v-app>
-    <v-main>
-      <BackupInformation title="AJOUTER UNE APPLICATION">
-        <form class="formulaire" novalidate @submit.prevent="validateApp">
-          <p>Rentrez les informations de l’application.</p>
+    <BackupInformation title="">
+      <form class="formulaire" novalidate @submit.prevent="validateApp">
+        <div class="formContainer">
+          <div class="title">Ajouter une application</div>
           <InputUser title="NOM DE L'APPLICATION" id="appName" v-model="formApp.appName" />
           <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.appName.required">le nom de
             l'application est requis</span>
@@ -13,45 +13,43 @@
 
           <InputUser title="URL DE REDIRECTION L'APPLICATION" id="redirectUri" v-model="formApp.redirectUri" />
 
-          <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.redirectUri.required">l'url de
-            redirection d'application est requis</span>
-          <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formApp.redirectUri.invalid">l'url est
-            invalid</span>
+          <!-- <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.redirectUri.required">l'url de
+            redirection d'application est requis</span> -->
+          <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.redirectUri.invalid">
+            l'url est invalid
+          </span>
 
           <InputPass readonly="true" title="CLIENT ID" id="clientId" v-model="formApp.clientId" />
-          <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.clientId.required">un id client est
-            requis</span>
+          <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.clientId.required">
+            un id client est requis
+          </span>
+
           <InputPass readonly="true" title="CLIENT SECRET" id="clientSecret" v-model="formApp.clientSecret" />
-          <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.clientSecret.required">Le mot de passe
+          <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.clientSecret.required">Le mot de
+            passe
             est nécessaire</span>
 
           <SelectGrant title="GRANT TYPES" id="grant_types" v-model="formApp.grant_types" />
           <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.grant_types.isValid">Au moins un type
             d'autorisation est nécessaire</span>
 
-          <!-- <InputUser
-            title="TYPE D’APPLICATION"
-            id="appType"
-            v-model="formApp.appType"
-          /> -->
-          <!-- <span
-            class="errors"
-            :class="{ showspan: iserrors }"
-            v-if="!$v.formApp.appType.required"
-            >Le type d'application est nécessaire</span
-          > -->
-          <p class="mt-6">Sélectionnez les accès de plateformes.</p>
-          <AddPlatform :types="'app'" @change="setPlatformList" />
-          <span style="position: absolute; margin-top: -45px" class="errors" :class="{ showspan: !error_platform }">
-            Les accès aux utilisateurs sont incorrects.
-          </span>
-          <div class="d-flex justify-end">
-            <button class="btn-retour" @click="cancelAdd()">RETOUR</button>
-            <button type="submit" class="btn-creer">CRÉER L’APPLICATION</button>
+          <div class="accessList">
+            <!-- <p class="mt-6">Sélectionnez les accès de plateformes.</p> -->
+            <span style="position: absolute; margin-top: -45px" class="errors" :class="{ showspan: !error_platform }">
+              Les accès aux utilisateurs sont incorrects.
+            </span>
+            <AddPlatform :types="'app'" @change="setPlatformList" />
           </div>
-        </form>
-      </BackupInformation>
-    </v-main>
+
+        </div>
+
+
+        <div class="d-flex justify-end">
+          <button class="btn-retour" @click="cancelAdd()">RETOUR</button>
+          <button type="submit" class="btn-creer">CRÉER L’APPLICATION</button>
+        </div>
+      </form>
+    </BackupInformation>
   </v-app>
 </template>
 
@@ -77,11 +75,11 @@ export default {
   data() {
     return {
       formApp: {
-        appName: null,
-        redirectUri: null,
+        appName: "",
+        redirectUri: "",
         clientId: this.generateRegisterKey(),
         clientSecret: this.generateRegisterKey(),
-        appType: null,
+        appType: "app",
         grant_types: [],
       },
       platformList: [],
@@ -98,8 +96,8 @@ export default {
         minLength: minLength(3),
       },
       redirectUri: {
-        required,
         invalid(value) {
+          if (!value) return true; // If no value, skip validation
           const regex =
             /https?:\/\/(?:w{1,3}\.)?[^\s.]+(?:\.[a-z]+)*(?::\d+)?(?![^<]*(?:<\/\w+>|\/?>))/gm;
           return regex.test(value);
@@ -124,14 +122,15 @@ export default {
 
   methods: {
     cancelAdd() {
-      this.$router.push("/UsersList");
+      // this.$router.push("/UsersList");
+      this.$router.go("-1");
     },
 
     setPlatformList(list) {
       this.platformList = list.map(({ platformSelected, profileSelected }) => {
         return {
           platformId: platformSelected.id,
-          platformName: platformSelected.name,
+          // platformName: platformSelected.name,
           appProfile: {
             name: profileSelected.name,
             appProfileId: profileSelected.appProfileId
@@ -149,6 +148,7 @@ export default {
       });
       return registerKey;
     },
+
     ...mapActions({ saveApp: "applications/saveApp" }),
 
     async validateApp() {
@@ -240,14 +240,31 @@ export default {
   display: none;
 }
 
-.v-application {
-  background-color: #21435300;
-}
 
 .formulaire {
-  padding-left: 25%;
-  padding-right: 25%;
-  padding-bottom: 20px;
-  font-size: 14px;
+  width: 50%;
+  height: 100%;
+  margin: auto;
+}
+
+.formulaire .formContainer {
+  width: 100%;
+  height: calc(100% - 100px);
+  overflow: auto;
+  padding: 20px;
+}
+
+
+.formulaire .footer {
+  width: 100%;
+  height: 100px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.accessList {
+  width: 100%;
+  /* min-height: 200px; */
 }
 </style>

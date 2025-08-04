@@ -3,67 +3,72 @@
   <v-card class="userListCard" elevation="4">
 
     <form class="formulaire" novalidate @submit.prevent="validateUser">
-
-      <div class="formTitle">
-        AJOUTER UN UTILISATEUR
-      </div>
-      <!-- <p style="margin: 0">Saisissez les informations de l’utilisateur.</p>
+      <div class="formContainer">
+        <div class="formTitle">
+          AJOUTER UN UTILISATEUR
+        </div>
+        <!-- <p style="margin: 0">Saisissez les informations de l’utilisateur.</p>
       <p style="margin: 0">Un e-mail lui sera envoyé pour confirmer son inscription. </p> -->
 
 
-      <InputUser title="NOM DE L'UTILISATEUR" id="userName" v-model="formUser.userName" />
-      <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.userName.required">Un nom est
-        requis</span>
-      <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formUser.userName.minLength">Le nom
-        d'utilisateur contenir au moins 3 caractères.
-      </span>
+        <InputUser title="NOM DE L'UTILISATEUR" id="userName" v-model="formUser.userName" />
+        <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.userName.required">Un nom est
+          requis</span>
+        <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formUser.userName.minLength">Le nom
+          d'utilisateur contenir au moins 3 caractères.
+        </span>
 
-      <InputPass title="MOT DE PASSE" id="password" v-model="formUser.password" />
-      <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.password.required">Le mot de passe est
-        obligatoire.</span>
-      <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formUser.password.minLength">Mot de passe
-        doit contenir au moins 8 caractères</span>
+        <InputPass title="MOT DE PASSE" id="password" v-model="formUser.password" />
+        <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.password.required">Le mot de passe est
+          obligatoire.</span>
+        <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formUser.password.minLength">Mot de passe
+          doit contenir au moins 8 caractères</span>
 
-      <InputPass title="CONFIRMER MOT DE PASSE" id="confirmPassword" v-model="formUser.confirm_password" />
-      <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.confirm_password.required">La
-        confirmation de mot de passe est obligatoire.</span>
-      <span class="errors" :class="{ showspan: iserrors }" v-if="conf_pass">
-        La confirmation de mot de passe doit être identique au mot de passe.
-      </span>
-      <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formUser.confirm_password.minLength">Mot
-        de passe doit contenir au moins 8 caractères</span>
+        <InputPass title="CONFIRMER MOT DE PASSE" id="confirmPassword" v-model="formUser.confirm_password" />
+        <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.confirm_password.required">La
+          confirmation de mot de passe est obligatoire.</span>
+        <span class="errors" :class="{ showspan: iserrors }" v-if="conf_pass">
+          La confirmation de mot de passe doit être identique au mot de passe.
+        </span>
+        <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formUser.confirm_password.minLength">Mot
+          de passe doit contenir au moins 8 caractères</span>
 
-      <InputUser title="EMAIL" id="Email" v-model="formUser.email" />
-      <!-- <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.email.required">Un Email est
-        requis</span> -->
 
-      <SelectUser title="TYPE D'UTILISATEUR" id="userType" :tab="userType" v-model="formUser.userType"
-        :value="formUser.userType" />
-      <!-- <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.userType.required">
+        <SelectUser title="TYPE D'UTILISATEUR" id="userType" :tab="userType" v-model="formUser.userType"
+          :value="formUser.userType" />
+        <!-- <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.userType.required">
         The user type is required
       </span> -->
 
-      <InputUser title="TELEPHONE" id="telephone" v-model="formUser.telephone" />
-      <!-- <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.telephone.numeric">Le numéro de
+
+        <InputUser title="EMAIL" id="Email" v-model="formUser.email" />
+        <!-- <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.email.required">Un Email est
+        requis</span> -->
+
+
+
+        <InputUser title="TELEPHONE" id="telephone" v-model="formUser.telephone" />
+        <!-- <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.telephone.numeric">Le numéro de
         téléphone doit être composé uniquement de
         chiffre.</span>
       <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formUser.telephone.minLength">Le numero de
         telephone doit contenir au moins 8 caractères</span> -->
 
 
-      <TextareaUser title="INFORMATION" id="information" v-model="formUser.info" />
+        <TextareaUser title="INFORMATION" id="information" v-model="formUser.info" />
 
 
-      <!-- <div class="mt-6">
+        <!-- <div class="mt-6">
         <span> Sélectionner les accès de l'utilisateur</span>
       </div> -->
 
-      <div class="platformsAuthorized">
-        <!-- <AddPlatform :types="'user'" ref="refplatform" @maFonction="validateUser" /> -->
-        <AddPlatform :types="'user'" @change="setPlatformList" />
-        <span style="position: absolute; margin-top: -45px" class="errors" :class="{ showspan: !error_platform }">
-          Les accès aux utilisateurs sont incorrects.
-        </span>
+        <div class="platformsAuthorized">
+          <!-- <AddPlatform :types="'user'" ref="refplatform" @maFonction="validateUser" /> -->
+          <AddPlatform :types="'user'" @change="setPlatformList" />
+          <span style="position: absolute; margin-top: -45px" class="errors" :class="{ showspan: !error_platform }">
+            Les accès aux utilisateurs sont incorrects.
+          </span>
+        </div>
       </div>
 
       <div class="buttons">
@@ -74,68 +79,6 @@
 
   </v-card>
 
-  <!-- <v-app>
-    <v-main>
-      <BachupInformation style="max-height: 87vh" title="AJOUTER UN UTILISATEUR">
-        <form class="formulaire" novalidate @submit.prevent="validateUser">
-          <p style="margin: 0">Rentrez les informations de l’utilisateur.</p>
-          <p style="margin: 0">
-            Un e-mail lui sera envoyé pour confirmer son inscription.
-          </p>
-          <InputUser title="NOM DE L'UTILISATEUR" id="userName" v-model="formUser.userName" />
-          <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.userName.required">Un nom est
-            requis</span>
-          <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formUser.userName.minLength">Le nom
-            d'utilisateur contenir au moins 3 caractères.
-          </span>
-          <InputPass title="MOT DE PASSE" id="password" v-model="formUser.password" />
-          <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.password.required">Le mot de passe est
-            obligatoire.</span>
-          <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formUser.password.minLength">Mot de passe
-            doit contenir au moins 8 caractères</span>
-          <InputPass title="CONFIRMER MOT DE PASSE" id="confirmPassword" v-model="formUser.confirm_password" />
-          <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.confirm_password.required">La
-            confirmation de mot de passe est obligatoire.</span>
-          <span class="errors" :class="{ showspan: iserrors }" v-if="conf_pass">
-            La confirmation de mot de passe doit être identique au mot de passe.
-          </span>
-          <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formUser.confirm_password.minLength">Mot
-            de passe doit contenir au moins 8 caractères</span>
-          <InputUser title="EMAIL" id="Email" v-model="formUser.email" />
-          <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.email.required">Un Email est
-            requis</span>
-
-          <SelectUser title="TYPE D'UTILISATEUR" id="userType" :tab="userType" v-model="formUser.userType" />
-          <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.userType.required">
-            The user type is required
-          </span>
-
-          <InputUser title="TELEPHONE" id="telephone" v-model="formUser.telephone" />
-          <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.telephone.numeric">Le numéro de
-            téléphone doit être composé uniquement de
-            chiffre.</span>
-          <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formUser.telephone.minLength">Le numero de
-            telephone doit contenir au moins 8 caractères</span>
-
-
-          <TextareaUser title="INFORMATION" id="information" v-model="formUser.info" />
-
-
-          <div class="mt-6">
-            <span> Sélectionner les accès de l'utilisateur</span>
-          </div>
-          <AddPlatform :types="'user'" ref="refplatform" @maFonction="validateUser" />
-          <span style="position: absolute; margin-top: -45px" class="errors" :class="{ showspan: !error_platform }">
-            Les accès aux utilisateurs sont incorrects.
-          </span>
-          <div class="d-flex justify-end">
-            <button class="btn-retour" @click="cancelAdd()">RETOUR</button>
-            <button type="submit" class="btn-creer">CRÉER L'UTILISATEUR</button>
-          </div>
-        </form>
-      </BachupInformation>
-    </v-main>
-  </v-app> -->
 </template>
 
 <script>
@@ -255,7 +198,7 @@ export default {
           email: this.formUser.email,
           telephone: this.formUser.telephone,
           info: this.formUser.info,
-          userType: this.formUser.userType.name || "Simple User",
+          userType: this.getUserType(this.formUser.userType) || "Simple User",
           platformList: this.platformList
 
           // platformList: this.platformObjectList.map((el) => {
@@ -279,6 +222,12 @@ export default {
         }
       }
     },
+
+    getUserType(userType) {
+      if (!userType) return 'Simple User';
+      if (userType.name) return userType.name;
+      return userType;
+    }
   },
   computed: {
     ...mapGetters({
@@ -300,16 +249,31 @@ export default {
 
 .formulaire {
   width: 50%;
+  height: 100%;
   margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.formContainer {
+  width: 100%;
+  height: calc(100% - 100px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: auto;
 }
 
 .formTitle {
   font-size: 1.5em;
   margin-bottom: 10px;
   margin-top: 10px;
+  text-align: center;
 }
 
 .platformsAuthorized {
+  min-height: 300px;
   height: 350px;
   overflow: auto;
 }
@@ -329,10 +293,11 @@ export default {
 }
 
 .buttons {
+  width: 100%;
+  height: 100px;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  width: 100%;
 }
 
 .btn-retour {

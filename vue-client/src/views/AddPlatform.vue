@@ -3,7 +3,6 @@
     <v-main>
       <BackupInformation title="" class="add_platform_card">
         <form class="formulaire" novalidate @submit.prevent="validateApp">
-
           <div class="formulaire_info">
             <div class="title">
               AJOUTER UNE PLATEFORME
@@ -18,7 +17,8 @@
               <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formApp.name.minLength">Le doit
                 contenir au moins 2 caractères</span>
 
-              <InputUser title="L'URL DE MIS A JOUR DE LA PLATEFORME" id="appName" v-model="formApp.url" />
+              <InputUser title="L'URL DE MIS A JOUR DE LA PLATEFORME" id="appName" v-model="formApp.url"
+                :placeholder="'http://lienApi/api/v1/update_data'" />
 
               <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.url.required">L'url de mis à jour
                 est requis</span>
@@ -26,7 +26,8 @@
               <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.url.format">l'url de mis à jour est
                 invalide</span>
 
-              <InputUser title="L'URL DE REDIRECTION DE LA PLATEFORME" id="appName" v-model="formApp.redirectUrl" />
+              <InputUser title="L'URL DE REDIRECTION DE LA PLATEFORME" id="appName" v-model="formApp.redirectUrl"
+                :placeholder="'http://lienApi/callback'" />
 
               <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.redirectUrl.required">L'url de
                 redirection est requis</span>
@@ -64,7 +65,7 @@
 
 
                   <button type="button" class="serverBtn delete" v-if="isLinked(item)" @click="unlinkItem(item)">
-                    <v-icon>mdi-trash-can-outline</v-icon>
+                    <v-icon color="red">mdi-trash-can-outline</v-icon>
                   </button>
 
                   <button type="button" class="serverBtn add" v-else @click="linkItem(item)">
@@ -80,11 +81,11 @@
                 Le mode d'authentification est obligatoire
               </span> -->
             </div>
+          </div>
 
-            <div class="d-flex justify-end">
-              <button class="btn-retour" @click="cancelAdd()">RETOUR</button>
-              <button type="submit" class="btn-creer">AJOUTER LA PLATEFORME </button>
-            </div>
+          <div class="footer">
+            <button class="btn-retour" @click="cancelAdd()">RETOUR</button>
+            <button type="submit" class="btn-creer">AJOUTER LA PLATEFORME </button>
           </div>
         </form>
       </BackupInformation>
@@ -260,6 +261,10 @@ export default {
 </script>
 
 <style scoped>
+.add_platform_card {
+  height: calc(100% - 150px) !important;
+}
+
 .btn-retour {
   border: 1px solid #14202c;
   border-radius: 6px;
@@ -312,26 +317,33 @@ export default {
 }
 
 .formulaire {
-  /* padding-left: 25%;
-  padding-right: 25%;
-  padding-bottom: 20px; */
-  width: 100%;
+  width: 50%;
   height: 100%;
   font-size: 14px;
+  margin: auto;
 }
 
 .formulaire .formulaire_info {
-  width: 70%;
-  height: calc(100% - 100px);
+  width: 100%;
+  height: calc(100% - 160px);
   margin: auto;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: space-around;
+}
+
+
+.formulaire .footer {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: flex-end;
+  align-content: center;
 }
 
 .formulaire .formulaire_info .left_side,
 .formulaire .formulaire_info .right_side {
-  /* width: calc(50% - 20px); */
   width: 100%;
   height: 100%;
 }

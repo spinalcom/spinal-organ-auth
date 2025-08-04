@@ -393,17 +393,18 @@ export default {
 }
 
 .validation-btn {
+    height: 60px;
     display: flex;
     justify-content: flex-end;
 }
 
 .formulaire .formulaire_info {
     width: 100%;
-    min-height: 100px;
-    /* height: calc(100% - 100px); */
+    height: calc(100% - 100px);
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    /* justify-content: space-around; */
+    overflow: auto;
 }
 
 .formulaire .formItem {

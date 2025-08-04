@@ -1,47 +1,75 @@
 <template>
     <v-app>
-        <v-main>
-            <BachupInformation title="EDIT APP">
-                <form class="formulaire" novalidate @submit.prevent="validateApp">
-                    <InputUser title="NOM DE L'APPLICATION" id="telephone" v-model="formApp.appName" />
-                    <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formApp.appName.minLength">Nom
-                        invalide</span>
-                    <span class="errors" :class="{ 'showspan': iserrors }" v-else-if="!$v.formApp.appName.required">Un
-                        nom d'application est requis</span>
-                    <InputPass readonly="true" title="ID DU CLIENT" id="clientId" v-model="formApp.clientId" />
-                    <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formApp.clientId.required">un id
-                        client est requis</span>
-                    <InputPass readonly="true" title="SECRET CLIENT" id="clientSecret" v-model="formApp.clientSecret" />
-                    <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formApp.clientSecret.required">Le
-                        mot de passe est nécessaire</span>
-                    <InputUser title="TYPE D'APPLICATION" id="type" v-model="formApp.appType" />
-                    <span class="errors" :class="{ 'showspan': iserrors }" v-if="!$v.formApp.appType.required">Le Type
-                        d'appication est nécessaire</span>
-                    <div v-for="(platform, index) in newappplatform" class="mt-5 platform-valid">
-                        <div class="selector">
-                            <InputUser :readonly="true" title="PLATEFORME" id="telephone" :value="platform.platformName" />
-                            <InputUser :readonly="true" title="PROFIL D'UTILISATEUR" id="telephone"
-                                :value="platform.appProfile.appProfileName" />
+        <BackupInformation title="">
+            <form class="formulaire" novalidate @submit.prevent="validateApp">
+                <div class="formContainer">
+                    <div class="title">Modifier une application</div>
+                    <InputUser title="NOM DE L'APPLICATION" id="appName" v-model="formApp.appName" />
+                    <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.appName.required">le nom
+                        de
+                        l'application est requis</span>
+
+                    <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formApp.appName.minLength">Le
+                        nom doit
+                        contenir au moins 3 caractères</span>
+
+                    <InputUser title="URL DE REDIRECTION L'APPLICATION" id="redirectUri"
+                        v-model="formApp.redirectUri" />
+
+                    <!-- <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.redirectUri.required">l'url de
+            redirection d'application est requis</span> -->
+                    <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.redirectUri.invalid">
+                        l'url est invalid
+                    </span>
+
+                    <InputPass readonly="true" title="CLIENT ID" id="clientId" v-model="formApp.clientId" />
+                    <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.clientId.required">
+                        un id client est requis
+                    </span>
+
+                    <InputPass readonly="true" title="CLIENT SECRET" id="clientSecret" v-model="formApp.clientSecret" />
+                    <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.clientSecret.required">Le
+                        mot de
+                        passe
+                        est nécessaire</span>
+
+                    <SelectGrant title="GRANT TYPES" id="grant_types" v-model="formApp.grant_types" />
+                    <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.grant_types.isValid">Au
+                        moins un type
+                        d'autorisation est nécessaire</span>
+
+                    <div class="accessList">
+                        <div v-for="(platform, index) in newappplatform" class="mt-5 platform-valid">
+                            <div class="selector">
+                                <InputUser :readonly="true" title="PLATEFORME" id="telephone"
+                                    :value="platform.platformName" />
+                                <InputUser :readonly="true" title="PROFIL D'UTILISATEUR" id="telephone"
+                                    :value="platform.appProfile.appProfileName" />
+                            </div>
+                            <button @click="deletePlatformObjectitem(index)" type="button" class="red-cross">X</button>
                         </div>
-                        <button @click="deletePlatformObjectitem(index)" type="button" class="red-cross">X</button>
                     </div>
-                    <div class="d-flex justify-end">
-                        <div class="btn-retour" @click="cancelAdd()">RETOUR</div>
-                        <button type="submit" class="btn-creer">MODIFIER L'UTILISATEUR</button>
-                    </div>
-                </form>
-            </BachupInformation>
-        </v-main>
+
+                </div>
+
+
+                <div class="d-flex justify-end">
+                    <button class="btn-retour" @click="cancelAdd()">RETOUR</button>
+                    <button type="submit" class="btn-creer">Modifier L’APPLICATION</button>
+                </div>
+            </form>
+        </BackupInformation>
     </v-app>
 </template>
+
 
 <script>
 import BachupInformation from "../Components/BackupInformation.vue";
 import InputUser from "../Components/InputUser";
 import InputPass from "../Components/InputPassword";
 import AddPlatform from "../Components/AddPlatform";
-import { validationMixin } from "vuelidate";
-import { required, email, minLength, numeric } from "vuelidate/lib/validators";
+import SelectGrant from "../Components/SelectGrants.vue";
+import { required, minLength } from "vuelidate/lib/validators";
 import { mapActions, mapGetters } from "vuex";
 
 export default {
@@ -51,15 +79,18 @@ export default {
         InputUser,
         InputPass,
         AddPlatform,
+        SelectGrant
     },
     data() {
         return {
             newappplatform: {},
             formApp: {
-                appName: null,
-                clientId: 'this.generateRegisterKey()',
-                clientSecret: 'this.generateRegisterKey()',
-                appType: null
+                appName: "",
+                redirectUri: "",
+                clientId: "",
+                clientSecret: "",
+                appType: "app",
+                grant_types: [],
             },
             iserrors: true,
             error_platform: false,
@@ -78,9 +109,20 @@ export default {
             clientSecret: {
                 required,
             },
-            appType: {
-                required,
+            redirectUri: {
+                invalid(value) {
+                    if (!value) return true; // If no value, skip validation
+                    const regex =
+                        /https?:\/\/(?:w{1,3}\.)?[^\s.]+(?:\.[a-z]+)*(?::\d+)?(?![^<]*(?:<\/\w+>|\/?>))/gm;
+                    return regex.test(value);
+                },
             },
+            grant_types: {
+                isValid(value) {
+                    return value.length > 0;
+                },
+            },
+
         }
     },
     methods: {
@@ -90,7 +132,8 @@ export default {
             }
         },
         cancelAdd() {
-            this.$router.push("/Application");
+            this.$router.go(-1);
+            // this.$router.push("/Application");
         },
 
         async updateAppForm() {
@@ -98,8 +141,9 @@ export default {
             this.formApp.appName = this.detailApp.name;
             this.formApp.clientId = this.detailApp.clientId;
             this.formApp.clientSecret = this.detailApp.clientSecret;
-            this.formApp.appType = this.detailApp.appType;
-            this.newappplatform = this.detailApp.platformList
+            this.formApp.redirectUri = this.detailApp.redirectUri;
+            this.formApp.grant_types = this.detailApp.grant_types;
+            this.newappplatform = this.detailApp.platformList;
         },
 
         ...mapActions({ updateApp: 'applications/updateApp' }),
@@ -111,11 +155,13 @@ export default {
                     name: this.formApp.appName,
                     clientId: this.formApp.clientId,
                     clientSecret: this.formApp.clientSecret,
-                    appType: this.formApp.appType,
+                    grant_types: this.formApp.grant_types,
+                    // appType: this.formApp.appType,
+                    redirectUri: this.formApp.redirectUri,
                     platformList: this.newappplatform.map(el => {
                         return {
                             platformId: el.platformId,
-                            platformName: el.platformName,
+                            // platformName: el.platformName,
                             appProfile: {
                                 appProfileAdminId: el.appProfile.appProfileAdminId,
                                 appProfileBosConfigId: el.appProfile.appProfileBosConfigId,
@@ -141,7 +187,7 @@ export default {
     }
 }
 </script>
-  
+
 <style scoped>
 .v-application {
     background-color: #d6e2e600;

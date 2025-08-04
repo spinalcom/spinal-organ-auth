@@ -17,7 +17,7 @@
               <span class="bar-sub-title">CLIENT SECRET</span>
               <span class="bar-information">{{
                 this.platform.clientSecret
-              }}</span>
+                }}</span>
             </div>
             <div class="d-flex flex-column mr-16">
               <span class="bar-sub-title">STATUT</span>
@@ -30,10 +30,9 @@
 
             <v-btn outlined color="success" @click="syncData">
               <v-icon class="mx-1" dark>mdi-sync</v-icon>
-              METTRE A JOUR
+              Synchroniser les données
             </v-btn>
 
-            <!--  -->
             <v-btn outlined color="orange" @click="goToEditPlatform">
               <v-icon class="mx-1" dark>mdi-pencil-outline</v-icon>
               EDITER
@@ -329,7 +328,8 @@ export default {
 }
 
 .bar-sub-title {
-  color: #949da6;
+  /* color: #949da6; */
+  color: #000;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 11px;
   margin-bottom: 10px;

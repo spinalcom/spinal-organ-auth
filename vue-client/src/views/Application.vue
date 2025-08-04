@@ -1,11 +1,18 @@
 <template>
   <v-app class="app">
     <div class="d-flex justify-end" style="min-width: 980px;">
-      <v-card class="d-flex flex-column ml-2 pl-1 pt-1 pb-1 pr-1 justify-center rounded-lg" elevation="2">
-        <BlueButton @click.native="displayAdd()" :icon="'mdi-plus'" title="AJOUTER UNE APPLICATION" :val="'blue'" />
-      </v-card>
+      <div class="d-flex flex-column ml-2 pl-1 pt-1 pb-1 pr-1 justify-center rounded-lg" elevation="2">
+        <!-- <BlueButton @click.native="displayAdd()" :icon="'mdi-plus'" title="AJOUTER UNE APPLICATION" :val="'blue'" /> -->
+
+        <v-btn color="#14202C" dark large @click.native="displayAdd()">
+          <v-icon left>
+            mdi-plus
+          </v-icon>
+          AJOUTER UNE APPLICATION
+        </v-btn>
+      </div>
     </div>
-    <BachupInformation  title="TABLE DES APPLICATIONS">
+    <BachupInformation title="TABLE DES APPLICATIONS">
       <div class="d-flex mb-2 mt-4">
         <div style="width: 22%;">Nom d'utilisateur</div>
         <div style="width: 78%">État</div>
@@ -15,8 +22,10 @@
           <div style="width: 22%;" class="content-list rounded-l-lg pl-10">{{ item.name }}</div>
           <div style="width: 78% ;" class="content-list">
             <div v-for="(platform, index) in item.platformList" class="d-flex" style="width: 100%">
-              <StateButton :obj="'bos'" :content1="item.platformList[index].platformName" :content2="''" :icon="'mdi-chip'" />
-              <StateButton :obj="'app'" :content1="item.platformList[index].appProfile.appProfileName"  :icon="'mdi-apps'" />
+              <StateButton :obj="'bos'" :content1="item.platformList[index].platformName" :content2="''"
+                :icon="'mdi-chip'" />
+              <StateButton :obj="'app'" :content1="item.platformList[index].appProfile.appProfileName"
+                :icon="'mdi-apps'" />
             </div>
           </div>
           <div class="content-list rounded-r-lg hover">
@@ -51,7 +60,7 @@ export default {
   }),
 
   methods: {
-    
+
 
     updateAppList() {
       this.$store.dispatch('applications/getApplist')
@@ -63,7 +72,7 @@ export default {
     },
     displayAdd() {
       this.$router.push("/AddApp");
-      
+
     },
   },
   computed: {
@@ -95,6 +104,7 @@ export default {
   flex-wrap: wrap;
   margin: 1px;
 }
+
 .hover:hover {
   background: rgb(228, 228, 228);
   transition: 0.3s;

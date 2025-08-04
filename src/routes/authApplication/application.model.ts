@@ -78,9 +78,10 @@ export interface IApplicationUpdateParams {
 	clientId?: string;
 	clientSecret?: string;
 	appType?: string;
+	redirectUri?: string;
 	platformList?: {
 		platformId: string;
-		platformName: string;
+		// platformName: string;
 		appProfile: {
 			appProfileAdminId: string;
 			appProfileBosConfigId: string;

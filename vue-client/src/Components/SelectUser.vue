@@ -3,7 +3,7 @@
     <label class="title-input">{{ title }}</label>
     <div class="select-container">
       <div class="select-trigger" @click="toggleOptions">
-        {{ selectedValue ? selectedValue.name : '' }}
+        {{ getValueSelected() }}
         <span class="arrow" :class="{ 'arrow-rotate': rotateArrow }"></span>
       </div>
       <div class="options" v-show="showOptions">
@@ -37,6 +37,12 @@ export default {
     }
   },
   methods: {
+
+    getValueSelected() {
+      if (!this.selectedValue) return '';
+      return this.selectedValue.name || this.selectedValue;
+    },
+
     selectItem(item) {
       // this.selectedValue = item
       this.$emit("input", item)
@@ -59,7 +65,7 @@ export default {
 </script>
 
 
-<style>
+<style scoped>
 .custom-select {
   position: relative;
   width: 100%;
@@ -67,7 +73,9 @@ export default {
 }
 
 .select-container {
+  border: 1px solid #000;
   position: relative;
+  border-radius: 6px;
 }
 
 .select-trigger {
@@ -100,21 +108,22 @@ export default {
 }
 
 .options {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12px;
-  letter-spacing: 2.1px;
-  z-index: 99;
-  position: absolute;
+  max-height: 200px;
   top: 100%;
   left: 0;
   right: 0;
-  border-radius: 6px;
-  border: 1px solid #E3E7E8;
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  letter-spacing: 2.1px;
+  position: absolute;
+  border: 1px solid #e3e7e8;
+  border: 1px solid #000;
+  padding: 5px 0;
   background: white;
-  overflow: hidden;
   /* z-index: 1; */
-  max-height: 200px;
   transition: all 0.3s ease;
+  overflow: hidden;
+  z-index: 99;
 }
 
 .option {
@@ -165,14 +174,14 @@ export default {
   user-select: none;
   position: relative;
   top: 9px;
-  margin-left: 5px;
+  margin-left: 15px;
+  padding: 0 5px;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 2.1px;
   color: #000000;
-  background-color: rgba(253, 253, 253, 0.658);
+  background-color: #fff !important;
   border-radius: 5px;
-  z-index: 1;
 }
 
 .arrow-rotate {

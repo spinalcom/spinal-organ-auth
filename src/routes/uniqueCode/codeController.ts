@@ -31,7 +31,14 @@ export class UniqueCodeController extends Controller {
         try {
             const codes = await spinalUniqueCodeService.getAllCodes();
             this.setStatus(HttpStatusCode.OK);
-            return codes.map((code) => spinalUniqueCodeService.formatCodeNode(code));
+            return codes.reduce((items, code) => {
+                if (!code.info.used.get()) { // Only return codes that are not used
+                    const codeformatted = spinalUniqueCodeService.formatCodeNode(code)
+                    items.push(codeformatted);
+                }
+
+                return items;
+            }, []);
         } catch (error) {
             this.setStatus(error.code || HttpStatusCode.INTERNAL_SERVER_ERROR);
             return { error: error.message };

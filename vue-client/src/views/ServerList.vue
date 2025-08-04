@@ -1,10 +1,16 @@
 <template>
     <div class="div_content">
-        <div class="header">
-            <v-card class="creationCard" elevation="2">
-                <BlueButton @click.native="goToCreationPage()" :icon="'mdi-plus'" title="AJOUTER UN SERVEUR"
-                    :val="'blue'" />
-            </v-card>
+        <div class="server_header">
+            <!-- <BlueButton @click.native="goToCreationPage()" :icon="'mdi-plus'" title="AJOUTER UN SERVEUR"
+                    :val="'blue'" /> -->
+
+            <v-btn color="#14202C" dark large @click.native="goToCreationPage()">
+                <v-icon left>
+                    mdi-plus
+                </v-icon>
+                AJOUTER UN SERVEUR
+            </v-btn>
+
         </div>
 
         <v-card class="serverListContent d-flex flex-column rounded-lg backup-bar" color="#F7F7F7" elevation="4">
@@ -63,65 +69,6 @@
                     </tbody>
                 </template>
             </v-simple-table>
-
-            <!--
-            <div class="d-flex mt-2">
-                <div class="sub-division">
-                    <span class="subtitle-backbar">Nom</span>
-                </div>
-
-                <div class="sub-division">
-                    <span class="subtitle-backbar">Type de serveur</span>
-                </div>
-
-                <div class="sub-division">
-                    <span class="subtitle-backbar">methode d'authentification</span>
-                </div>
-
-                <div class="sub-division">
-                    <span class="subtitle-backbar"></span>
-                </div>
-            </div>
-            
-        <div v-for="item in servers" :key="item.id">
-                <div class="d-flex mb-2">
-                    <div class="d-flex flex-column serverColumn ">
-                        <div class="btn-valider-user rounded-l-lg">
-                            {{ item.name }}
-                        </div>
-                    </div>
-
-                    <div class="d-flex flex-column serverColumn">
-                        <div class="btn-valider-user">
-                            <span>{{ item.type | formatType }}</span>
-                        </div>
-                    </div>
-
-                    <div class="d-flex flex-column serverColumn">
-                        <div class="btn-valider-user">
-                            <span>{{ item.authentication_method }}</span>
-                        </div>
-                    </div>
-
-                    <div class="d-flex serverColumn actions">
-                        <div class="btn-valider-user rounded-r-lg pr-2 hover">
-                            <button @click="deleteServer(item)">
-                                <v-icon>mdi-trash-can-outline</v-icon>
-                            </button>
-                        </div>
-
-                        <div class="btn-valider-user rounded-r-lg pr-2 hover">
-                            <button @click="displayDetail(item)">
-                                <v-icon>mdi-arrow-right</v-icon>
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-            </div>    
-
--->
-
         </v-card>
     </div>
 </template>
@@ -193,16 +140,16 @@ export default {
     height: calc(100vh - 100px) !important;
 }
 
-.div_content .header {
+.div_content .server_header {
     width: 100%;
     height: 70px;
     display: flex;
     justify-content: flex-end;
 }
 
-.div_content .header .creationCard {
+.div_content .server_header .creationCard {
+    /* width: 200px; */
     height: 60px;
-    width: 200px;
     display: flex;
     align-items: center;
     justify-content: center;

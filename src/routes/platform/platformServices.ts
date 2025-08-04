@@ -341,7 +341,7 @@ export class PlatformService {
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 		}
 
-		url += url.endsWith("/") ? "api/v1/pam/update_data" : "/api/v1/pam/update_data";
+		// url += url.endsWith("/") ? "api/v1/pam/update_data" : "/api/v1/pam/update_data";
 
 		return axios.put(url, {}, { headers: { Authorization: `Bearer ${token}` } }).then((result) => {
 			plateform.info.mod_attr("lastSyncTime", Date.now());

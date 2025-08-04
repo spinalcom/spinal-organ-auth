@@ -35,7 +35,7 @@
             {{ passwordErrorMessages[passwordError] }}
           </v-alert>
 
-          <InputPass :required="true" v-model="old_password" class="entrance" title="MOT DE PASSE DE l'ADMINISTRATEUR"
+          <InputPass :required="true" v-model="auth_password" class="entrance" title="MOT DE PASSE DE l'ADMINISTRATEUR"
             id="password" @input="passwordError = null" />
 
           <InputPass :required="true" :generate="true" v-model="password" class="entrance" title="NOUVEAU MOT DE PASSE"
@@ -138,22 +138,22 @@ export default {
   data() {
     this.passwordErrorTypes = {
       minLength: "minLength",
-      oldPassword: "oldPassword",
+      authPassword: "authPassword",
     };
 
     this.passwordErrorMessages = {
       [this.passwordErrorTypes.minLength]:
         "Le mot de passe doit contenir au moins 8 caractères.",
 
-      [this.passwordErrorTypes.oldPassword]:
-        "L'ancien mot de passe est incorrect.",
+      [this.passwordErrorTypes.authPassword]:
+        "Le mot de passe de l'admin est incorrect.",
     };
 
     return {
       passwordError: null,
       newuser: {},
       password: "",
-      old_password: "",
+      auth_password: "",
 
       formPlatformObject: {
         platform: [],
@@ -198,27 +198,32 @@ export default {
     },
 
     editUserPassWord() {
-      if (this.old_password.length >= 8 && this.password.length >= 8) {
+      if (this.auth_password.length >= 8 && this.password.length >= 8) {
         const body = {
-          oldPassword: this.old_password,
+          authAdminPassword: this.auth_password,
           newPassword: this.password,
         };
 
         const userId = this.$route.query.id;
-        this.$store;
+
         return this.updateUserPassWord({ userId, body })
-          .then(() => (this.passwordError = null))
+          .then(() => {
+            this.passwordError = null;
+            this.showrestpass = false;
+          })
           .catch((error) => {
-            this.passwordError = this.passwordErrorTypes.oldPassword;
+            this.passwordError = this.passwordErrorTypes.authPassword;
             console.log(error);
           });
+
+      } else {
+        this.passwordError = this.passwordErrorTypes.minLength;
       }
 
-      this.passwordError = this.passwordErrorTypes.minLength;
     },
 
     editUser() {
-      if (this.old_password.length > 8 && this.password.length > 8) {
+      if (this.auth_password.length > 8 && this.password.length > 8) {
         this.newuser = this.detailUser;
         this.newuser.password = this.password;
         this.formateduser();

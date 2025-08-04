@@ -11,20 +11,25 @@
                 </div>
 
                 <div>
+
                     <v-text-field v-model="textSearched" append-icon="mdi-magnify" outlined label="Search" clearable
                         dense hide-details></v-text-field>
                 </div>
             </div>
 
-            <v-data-table :headers="headers" :items="codesDisplayed" :search="textSearched" class="datatable"
-                hide-default-footer>
+            <v-data-table :headers="headers" :items="codesDisplayed" :search="textSearched" :items-per-page="13"
+                class="datatable" height="calc(100% - 150px)" elevation="0">
+
+                <template v-slot:item.code="{ item }">
+                    {{ item.code.toUpperCase() }}
+                </template>
 
                 <template v-slot:item.used="{ item }">
                     <v-chip class="ma-2" :color="getColor(item.used)" outlined>
                         <v-avatar left>
                             <v-icon>{{ item.used ? 'mdi-check' : "mdi-minus" }}</v-icon>
                         </v-avatar>
-                        {{ item.used ? 'utilisé' : 'Non utilisé' }}
+                        {{ item.useText }}
                     </v-chip>
                 </template>
 
@@ -46,6 +51,13 @@
                         </v-btn>
                     </div>
                 </template>
+
+
+                <template v-slot:bottom="{ pagination, options, updateOptions }">
+                    <v-data-footer :pagination="pagination" :options="options" @update:options="updateOptions"
+                        items-per-page-text="$vuetify.dataTable.itemsPerPageText" />
+                </template>
+
             </v-data-table>
         </div>
     </v-card>
@@ -123,7 +135,12 @@ export default {
     watch: {
         codes: {
             handler(newVal) {
-                this.codesDisplayed = newVal;
+                this.codesDisplayed = newVal.map(code => {
+                    return {
+                        ...code,
+                        useText: code.used ? 'utilisé' : 'Non utilisé'
+                    };
+                });
             },
             immediate: true,
         },
@@ -131,7 +148,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .cardContainer {
     margin: 20px;
     width: calc(100% - 40px);
@@ -158,6 +175,7 @@ export default {
 }
 
 .cardContainer .table .datatable {
+    height: 100%;
     background: transparent !important;
 }
 
@@ -168,5 +186,11 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+}
+</style>
+
+<style>
+.cardContainer .v-data-footer {
+    justify-content: end;
 }
 </style>

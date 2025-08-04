@@ -34,6 +34,12 @@
                         <span class="bar-sub-title">CLIENT ID</span>
                         <span class="bar-information">{{ app.clientId }}</span>
                     </div>
+
+                    <div class="d-flex flex-column mr-16">
+                        <span class="bar-sub-title">CLIENT SECRET</span>
+                        <span class="bar-information">{{ app.clientSecret }}</span>
+                    </div>
+
                     <div class="d-flex flex-column mr-8">
                         <span class="bar-sub-title">TYPE</span>
                         <span class="bar-information">{{ app.type }}</span>

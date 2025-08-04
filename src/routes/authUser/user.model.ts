@@ -26,8 +26,8 @@ export interface IPlatformList {
 	platformId: string;
 	platformName?: string;
 	userProfile: {
-		name: string;
-		userProfileId: string;
+		name?: string;
+		userProfileId?: string;
 		userProfileAdminId?: string;
 		userProfileBosConfigId?: string;
 		userProfileName?: string;
@@ -74,7 +74,7 @@ export interface IUserCreationParams {
 }
 
 export interface IUpdateUserPassword {
-	oldPassword: string;
+	authAdminPassword: string;
 	newPassword: string;
 }
 

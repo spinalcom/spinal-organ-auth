@@ -145,7 +145,7 @@ export class ApplicationService {
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 		}
 
-		const keys = ["name", "clientId", "clientSecret", "appType", "grant_types"];
+		const keys = ["name", "clientId", "clientSecret", "appType", 'redirectUri', "grant_types"];
 
 		for (const key of keys) {
 			if (requestBody[key] !== undefined && app.info[key] !== undefined) {

@@ -98,9 +98,12 @@ export default class SpinalUniqueCodeService {
         const codes = await this.getAllCodes();
         return codes.find((codeNode) => {
             const info = codeNode.info.get();
-            if (useCodeOnly) return info.code == code;
+            let codeIsValid = info.code.toLowerCase() == code.toLowerCase();
+            if (codeIsValid) return true; // if the code matches, return immediately
 
-            return info.code == code || info.id == code || info.name == code;
+            if (useCodeOnly) return false; // if we are only checking the code, do not check the id
+
+            return info.id == code || info.name == code; // also check if the id or name matches (get code by id or name)
         });
     }
 
@@ -183,7 +186,7 @@ export default class SpinalUniqueCodeService {
         let generatedCount = 0;
 
         while (generatedCount < count) {
-            const code = generateUniqueId({ length: 12, useLetters: true, useNumbers: true });
+            const code = generateUniqueId({ length: 5, useLetters: true, useNumbers: true });
 
             if (!codesAlreadyGenerated[code] && !newCodes[code]) {
                 newCodes[code] = true;

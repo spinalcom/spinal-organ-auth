@@ -117,8 +117,8 @@ export class UserService {
 		return context.addChildInContext(userNode, AUTH_SERVICE_USER_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
 	}
 
-	public async getUserByCredentials(userName: string, password: string): Promise<SpinalNode> {
-		const user = await this._findUserByUserName(userName);
+	public async getUserByCredentials(userName: string, password: string, isAuthAdmin: boolean = false): Promise<SpinalNode> {
+		const user = await this._findUserByUserName(userName, isAuthAdmin);
 
 		if (!user) return null;
 
@@ -274,12 +274,13 @@ export class UserService {
 	 * updateUserPassword
 	 */
 	public async updateUserPassword(userId: string, requestBody: IUpdateUserPassword) {
+		const isAuthAdmin = true;
+		const admin = await this.getUserByCredentials(AUTH_ADMIN_NAME, requestBody.authAdminPassword, isAuthAdmin);
+		if (!admin) throw new OperationError("ERROR_PASSWORD", HttpStatusCode.NOT_FOUND);
+
 		const users = await this.getUserNodes(userId);
 		const user = users.find((user) => user.getId().get() === userId);
 		if (!user) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
-
-		const valid = await bcrypt.compare(requestBody.oldPassword, user.info.password.get());
-		if (!valid) throw new OperationError("ERROR_PASSWORD", HttpStatusCode.FORBIDDEN);
 
 		const newPassword = await bcrypt.hash(requestBody.newPassword, 10);
 		user.info.password.set(newPassword);
@@ -488,7 +489,7 @@ export class UserService {
 
 		const users = await this.getUserNodes();
 		const user = users.find((user) => user.info.userName.get() === userName);
-		if (isAuthAdmin && user.info.userName.get() === AUTH_ADMIN_NAME) return user;
+		// if (isAuthAdmin && user.info.userName.get() === AUTH_ADMIN_NAME) return user;
 		return user;
 	}
 

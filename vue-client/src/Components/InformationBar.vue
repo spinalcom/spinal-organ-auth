@@ -1,7 +1,7 @@
 <template>
-  <div class="d-flex header-bar">
+  <div class="header-bar">
     <!-- style="min-width: 800px; width: 100%" -->
-    <v-card class="bar-bloc-left rounded-lg" elevation="4">
+    <v-card class="bar-bloc-left" elevation="4">
       <div class="bar-icon">
         <img :src="icon" alt="person" />
       </div>
@@ -15,16 +15,16 @@
       </div>
     </v-card>
 
-    <v-card v-if="btn != 'off'" class="bar-bloc-right rounded-lg" elevation="4">
+    <v-card v-if="btn != 'off'" class="bar-bloc-right" elevation="4">
 
-      <v-btn @click.native="$emit('btn4')" title="Modifier le mot de passe" depressed dark>
+      <v-btn @click.native="$emit('btn4')" title="Modifier le mot de passe" depressed dark class="actionBtn">
         <v-icon left>
           mdi-security
         </v-icon>
         Modifier le mot de passe
       </v-btn>
 
-      <v-btn @click.native="$emit('btn1')" title="AUTORISER UNE PLATFORME" depressed dark>
+      <v-btn @click.native="$emit('btn1')" title="AUTORISER UNE PLATFORME" depressed dark class="actionBtn">
         <v-icon left>
           mdi-plus
         </v-icon>
@@ -32,7 +32,7 @@
         AUTORISER UNE PLATFORME
       </v-btn>
 
-      <v-btn @click.native="$emit('btn2')" title="EDITER" color="warning" depressed>
+      <v-btn @click.native="$emit('btn2')" title="EDITER" color="warning" depressed class="actionBtn">
         <v-icon left>
           mdi-pencil-outline
         </v-icon>
@@ -40,13 +40,14 @@
       </v-btn>
 
 
-      <v-btn @click.native="$emit('btn3')" title="SUPPRMIER" color="error" class="mb-2" depressed>
+      <v-btn @click.native="$emit('btn3')" title="SUPPRMIER" color="error" depressed class="actionBtn">
         <v-icon left>
           mdi-close
         </v-icon>
         SUPPRMIER
       </v-btn>
     </v-card>
+
   </div>
 </template>
 <script>
@@ -64,22 +65,22 @@ export default {
 <style scoped>
 .header-bar {
   width: 100%;
-  height: 230px;
+  min-height: 230px;
   background: transparent;
   display: flex;
   justify-content: space-between;
 }
 
 .bar-bloc-left {
-  width: 80%;
-  height: 100%;
+  width: calc(100% - 320px);
+  /* height: 100%; */
   background: transparent !important;
   display: flex;
 }
 
 .bar-bloc-right {
-  width: calc(20%- 10px);
-  height: 100%;
+  width: 300px;
+  /* height: 100%; */
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -135,5 +136,9 @@ export default {
 
 .px-3.py-2.total {
   width: calc(100% - 190px) !important;
+}
+
+.actionBtn {
+  margin-bottom: 10px;
 }
 </style>
