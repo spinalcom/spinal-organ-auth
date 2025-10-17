@@ -241,30 +241,32 @@ export class TokensService {
 	}
 
 	public async verifyToken(tokenParam: string, platformId: string, actor?: ITokenActor) {
-		const type = this._getTokenCategoryType(actor);
 
-		let tokens = type ? await this.getTokenByCategoryType(type) : await this.getAllTokensNode();
-
-		if (!tokens) throw new OperationError("UNKNOWN_TOKEN", HttpStatusCode.UNAUTHORIZED);
-
-		const token = tokens.find((el) => el.info?.token?.get() === tokenParam);
-		if (!token) throw new OperationError("UNKNOWN_TOKEN", HttpStatusCode.UNAUTHORIZED);
-
-
-		actor = actor || token.info.actor?.get();
 
 		try {
+			const type = this._getTokenCategoryType(actor);
+
+			let tokens = type ? await this.getTokenByCategoryType(type) : await this.getAllTokensNode();
+
+			if (!tokens) throw new OperationError("INVALID_TOKEN", HttpStatusCode.UNAUTHORIZED);
+
+			const token = tokens.find((el) => el.info?.token?.get() === tokenParam);
+			if (!token) throw new OperationError("INVALID_TOKEN", HttpStatusCode.UNAUTHORIZED);
+
+
+			actor = actor || token.info.actor?.get();
+
 			const token_secret = this.generateTokenKey();
 			const decoded = jwt.verify(token.info.token.get(), token_secret);
 
 			const { iat, exp, ...copyWithoutIatAndExp } = decoded;
 
-			const copy = Object.assign({
+			const copy = Object.assign(copyWithoutIatAndExp, {
 				createdToken: decoded.iat,
 				expieredToken: decoded.exp,
 				token: tokenParam,
 				profile: await this._getProfileByActor(tokenParam, actor, platformId)
-			}, copyWithoutIatAndExp);
+			});
 
 
 			return copy;
@@ -273,8 +275,7 @@ export class TokensService {
 		}
 	}
 
-
-	private _getProfileByActor(token: string, actor, platformId: string) {
+	private _getProfileByActor(token: string, actor: ITokenActor, platformId: string) {
 		switch (actor) {
 			case "user":
 				return this.getUserProfileByToken(token, platformId);
@@ -299,12 +300,21 @@ export class TokensService {
 
 	public async getUserProfileByToken(Token: string, platformId: string) {
 		const token = await this.getTokenNode(Token);
+		const userId = token.info?.userId?.get();
 
 		if (!token || !token.info?.platformList) return;
 
 		const platforms = token.info.platformList.get();
-		const platform = platforms.find((el) => el.platformId === platformId);
-		if (!platform) return;
+		let platform = platforms.find((el) => el.platformId === platformId);
+		if (!platform) {
+			if (!userId) return;
+
+			const userPlatforms = await UserService.getInstance().getUserPlatformList(userId, platformId);
+			platform = (userPlatforms || []).find((el) => el.platformId === platformId);
+			if (!platform) return;
+		}
+
+
 
 		return {
 			token: Token,
@@ -313,8 +323,6 @@ export class TokensService {
 			userProfileBosConfigId: platform.userProfile.userProfileBosConfigId,
 		};
 	}
-
-
 
 	public async getAppProfileByToken(token: string, platformId: string) {
 		const tokenNode = await this.getTokenNode(token);

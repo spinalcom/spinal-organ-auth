@@ -22,11 +22,14 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Res, Route, Security, SuccessResponse } from "tsoa";
 import { IToken, IUserToken, IApplicationToken } from "./token.model";
 import { TokensService } from "./tokenService";
 import { HttpStatusCode } from "../../utilities/http-status-code";
-import { SCOPES } from "../../constant";
+import { createRedirectToBosUrl } from "../../utilities/redirectToBos";
+import { session } from "passport";
+import { formatResponseHtml } from "../../utilities/formatResponseHtml";
+import { Response } from "express";
 
 @Route("tokens")
 export class TokensController extends Controller {
@@ -119,4 +122,39 @@ export class TokensController extends Controller {
 			return { error: error.message };
 		}
 	}
+
+	@Post("/generate_redirect_url")
+	public async createRedirectToBosUrl(@Body() requestBody: { bosurl: string; bosApiUrl: string; token: string; }): Promise<{ sessionId: string } | { error: string }> {
+		try {
+			const sessionId = await createRedirectToBosUrl(requestBody);
+			if (sessionId === null) throw new Error("Failed to create redirect URL");
+
+			this.setStatus(HttpStatusCode.OK);
+			return { sessionId };
+
+		} catch (error) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
+
+	// @Get("/redirect/{sessionId}")
+	// public async redirectToBos(@Path() sessionId: string): Promise<string | { error: string }> {
+	// 	// public async redirectToBos(@Path() sessionId: string, @Res() res: Response): Promise<void> {
+	// 	try {
+	// 		const { callbackUrl, tokenInfo } = await getSessionData(sessionId);
+	// 		const html = formatResponseHtml(callbackUrl, tokenInfo);
+	// 		this.setHeader('Content-Type', 'text/html; charset=utf-8');
+	// 		this.setStatus(HttpStatusCode.OK);
+	// 		return html;
+	// 		// this.setStatus(HttpStatusCode.OK);
+	// 		// res.status(HttpStatusCode.OK).send(html);
+	// 	} catch (error) {
+	// 		this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+	// 		return { error: error.message };
+
+	// 		// const code = error.status || HttpStatusCode.INTERNAL_SERVER_ERROR;
+	// 		// res.status(code).send({ error: error.message });
+	// 	}
+	// }
 }

@@ -41,6 +41,7 @@ import { RegisterSamlRoutes } from "./SSO/saml/routes";
 import { registerOAuthRoutes } from "./SSO/oauth/routes";
 import { RegisterOpenIdRoutes } from "./SSO/openid/routes";
 import { Z_FIXED } from "zlib";
+import { registerRedirectToBosRoute } from "./SSO/redirect/routes";
 
 
 // const jsonFile = require("../build/swagger.json");
@@ -77,7 +78,9 @@ function Server(): express.Express {
 	registerOAuthRoutes(app);
 	RegisterSamlRoutes(app);
 	RegisterOpenIdRoutes(app);
+	registerRedirectToBosRoute(app);
 	RegisterRoutes(app);
+
 
 	app.get("/login/:plateformClientId", redirectToLoginPage);
 	app.post("/login/:platformId/:serverId", LogWithServer);

@@ -1941,6 +1941,31 @@ export function RegisterRoutes(app: express.Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/tokens/generate_redirect_url',
+            ...(fetchMiddlewares<RequestHandler>(TokensController)),
+            ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.createRedirectToBosUrl)),
+
+            function TokensController_createRedirectToBosUrl(request: any, response: any, next: any) {
+            const args = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"token":{"dataType":"string","required":true},"bosApiUrl":{"dataType":"string","required":true},"bosurl":{"dataType":"string","required":true}}},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new TokensController();
+
+
+              const promise = controller.createRedirectToBosUrl.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/codes/consume/:code',
             authenticateMiddleware([{"all":[]}]),
             ...(fetchMiddlewares<RequestHandler>(UniqueCodeController)),

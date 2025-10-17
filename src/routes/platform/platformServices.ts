@@ -136,6 +136,13 @@ export class PlatformService {
 		return found;
 	}
 
+	public async getPlateformByApiUrl(apiUrl: string): Promise<SpinalNode> {
+		const platforms = await this.getPlatformsNodes();
+		const found = platforms.find((platform) => platform.info.redirectUrl?.get().includes(apiUrl));
+
+		return found;
+	}
+
 	public async updatePlateform(id: string, requestBody: IPlatformUpdateParams): Promise<IPlatform> {
 		const [platform] = await this.getPlatformsNodes(id);
 
