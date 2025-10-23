@@ -46,6 +46,8 @@ import { IPlatform } from "../platform/platform.model";
 import { ApplicationService } from "../authApplication/applicationService";
 import { UserService } from "../authUser/userService";
 import { ITokenActor } from "./token.model";
+import { PlatformService } from "../platform/platformServices";
+import { platform } from "os";
 const jwt = require("jsonwebtoken");
 
 export class TokensService {
@@ -117,7 +119,7 @@ export class TokensService {
 
 	}
 
-	public async createSSOToken(tokenData: any, platform: IPlatform) {
+	public async createSSOToken(tokenData: any, platformList: IPlatform[]) {
 
 		const token = this.generateToken(tokenData);
 		let decodedToken: any = jwt_decode(token);
@@ -130,18 +132,21 @@ export class TokensService {
 			createdToken: decodedToken.iat,
 			expieredToken: decodedToken.exp,
 			userId: tokenData.userId,
-			platformList: [
-				{
-					platformId: platform.id,
-					platformName: platform.name,
-					idPlatformOfAdmin: platform.idPlatformOfAdmin,
-					userProfile: tokenData.profile
-					// userProfileId: tokenData.profile.userProfileBosConfigId,
-					// platformId: platform.id,
-					// type: USER_PROFILE_TYPE,
-					// name: tokenData.userInfo.name
-				}
-			],
+			platformList: platformList.map(platform => ({
+				platformId: platform.id,
+				platformName: platform.name,
+				idPlatformOfAdmin: platform.idPlatformOfAdmin,
+				userProfile: tokenData.profile
+			}))
+
+			// platformList: [
+			// 	{
+			// 		platformId: platform.id,
+			// 		platformName: platform.name,
+			// 		idPlatformOfAdmin: platform.idPlatformOfAdmin,
+			// 		userProfile: tokenData.profile
+			// 	}
+			// ],
 		})
 
 		return this.addTokenToContext(tokenNode, "user");
@@ -470,6 +475,20 @@ export class TokensService {
 				return "1000y";
 		}
 	}
+
+	// private async _generatePossiblePlatformList(userProfile: string) {
+	// 	const platforms = await PlatformService.getInstance().getPlateforms();
+
+
+	// 	// platformList: [
+	// 	// 	{
+	// 	// 		platformId: platform.id,
+	// 	// 		platformName: platform.name,
+	// 	// 		idPlatformOfAdmin: platform.idPlatformOfAdmin,
+	// 	// 		userProfile: tokenData.profile
+	// 	// 	}
+	// 	// ],
+	// }
 }
 
 // 'UNKNOWN_TOKEN'

@@ -1,7 +1,7 @@
 import { SPINAL_RELATION_PTR_LST_TYPE, SpinalContext, SpinalGraph, SpinalNode } from "spinal-model-graph";
 import { ILoginServer, ServerType } from "./loginServer.model";
 import { isOAuthAuthenticationInfo, isOpenIdAuthenticationInfo, isSAMLAuthenticationInfo } from "../platform/utils";
-import { CONNECTION_METHODS, LOGIN_SERVER_CONTEXT_NAME, LOGIN_SERVER_CONTEXT_TYPE, LOGIN_SERVER_RELATION_NAME } from "../../constant";
+import { CONNECTION_METHODS, LOGIN_SERVER_CONTEXT_NAME, LOGIN_SERVER_CONTEXT_TYPE, LOGIN_SERVER_RELATION_NAME, PLATFORM_TO_LOGIN_SERVER } from "../../constant";
 import { OperationError } from "../../utilities/operation-error";
 import { Http2ServerRequest } from "http2";
 import { HttpStatusCode } from "../../utilities/http-status-code";
@@ -49,6 +49,11 @@ class LoginServerService {
         return servers.filter(el => serverIds.includes(el.getId().get()));
     }
 
+    public async getServerByIssuer(issuer: string): Promise<SpinalNode> {
+        const servers = await this.getLoginServer();
+        return servers.find(el => el.info?.authentication_info?.issuer?.get() === issuer);
+    }
+
     public async editLoginServer(serverId: string, requestBody: ILoginServer): Promise<SpinalNode> {
         const [server] = await this.getLoginServer(serverId);
         if (!server) throw new OperationError("Server Not Found", HttpStatusCode.NOT_FOUND);
@@ -74,6 +79,16 @@ class LoginServerService {
         return server.removeFromGraph();
     }
 
+
+    public async getPlatformsUsingServer(serverNode: SpinalNode | string): Promise<SpinalNode[]> {
+        if (typeof serverNode === "string") {
+            const [server] = await this.getLoginServer(serverNode);
+            if (!server) throw new OperationError("Server Not Found", HttpStatusCode.NOT_FOUND);
+            serverNode = server;
+        }
+
+        return serverNode.getParents(PLATFORM_TO_LOGIN_SERVER);
+    }
 
 
     public checkExternalServer(serverInfo: ILoginServer): Boolean {

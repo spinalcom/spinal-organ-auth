@@ -5,7 +5,7 @@ import { IPlatform } from "../../routes/platform/platform.model";
 import { PlatformService } from "../../routes/platform/platformServices";
 import { TokensService } from "../../routes/tokens/tokenService";
 import { ISSOUser } from "../interfaces/ISSOUser";
-import { response } from "express";
+import loginService from "../../routes/loginServer/loginServerService";
 
 
 
@@ -13,13 +13,15 @@ export async function convertSSOData(userData: ISSOUser, platform: IPlatform) {
     // const profileId = Array.isArray(userData.groups) ? userData.groups[0] : userData.groups;
     const profileId = _getUserProfile(userData.groups, userData.profileClassifyByPriority);
 
-    const userProfile = await PlatformService.getInstance().getUserProfile(platform.id, profileId, true);
+    const useName = true;
+    const userProfile = await PlatformService.getInstance().getUserProfile(platform.id, profileId, useName);
 
     if (!userProfile) throw new Error(`No profil found for ${profileId}`);
 
+    const plateformList = await getPlatformLinkedToServer(userData.issuer); // get from platform service possible platform list for this user profile
     const tokenData = _getTokenData(platform.id, userData, userProfile);
 
-    const tokenNode = await TokensService.getInstance().createSSOToken(tokenData, platform);
+    const tokenNode = await TokensService.getInstance().createSSOToken(tokenData, plateformList);
 
     return {
         name: tokenNode.getName().get(),
@@ -32,7 +34,6 @@ export async function convertSSOData(userData: ISSOUser, platform: IPlatform) {
 }
 
 function _getUserProfile(responseProfiles: string | string[], profilesClassified: string | string[] = "") {
-
 
     if (responseProfiles.length === 0) return;
     if (!Array.isArray(responseProfiles)) return responseProfiles;
@@ -72,4 +73,13 @@ function _getTokenData(platformId: string, profile: any, userProfile: SpinalNode
             userType: IUserType["Simple User"],
         }
     }
+}
+
+
+async function getPlatformLinkedToServer(issuer: string): Promise<IPlatform[]> {
+    const serverNode = await loginService.getServerByIssuer(issuer);
+    if (!serverNode) return [];
+
+    const platforms = await loginService.getPlatformsUsingServer(serverNode);
+    return platforms.map(el => PlatformService.getInstance()._formatPlatform(el));
 }

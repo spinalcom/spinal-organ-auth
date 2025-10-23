@@ -77,7 +77,7 @@ export class SpinalOpenIDServer extends Authenticator {
                 profileClassifyByPriority: params.profileClassifyByPriority,
             }
 
-            done(null, platform, userinfo);
+            done(null, platform, userinfo, serverInfo);
         });
 
         strategy.name = params.issuer;

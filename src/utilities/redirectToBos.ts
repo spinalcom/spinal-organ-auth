@@ -6,6 +6,7 @@ import { IPlatform } from '../routes/platform/platform.model';
 
 
 export function createRedirectToBosUrl(data: { bosurl: string; bosApiUrl: string; token: string; }): string {
+
     const id = uuidv4();
     globalCache.set(id, data, 30 * 1000); // store for 30 seconds
 
@@ -23,7 +24,9 @@ export async function getSessionData(id: string): Promise<{ callbackUrl: string;
 
     const plateform: IPlatform = plateformNode.info.get();
     const tokenInfo = await TokensService.getInstance().verifyToken(data.token, plateform.clientId, "user");
+
     globalCache.delete(id); // remove after retrieval
+
     return {
         callbackUrl: plateform.redirectUrl,
         tokenInfo: {
