@@ -18,8 +18,8 @@ export async function convertSSOData(userData: ISSOUser, platform: IPlatform) {
 
     if (!userProfile) throw new Error(`No profil found for ${profileId}`);
 
-    const plateformList = await getPlatformLinkedToServer(userData.issuer); // get from platform service possible platform list for this user profile
     const tokenData = _getTokenData(platform.id, userData, userProfile);
+    const plateformList = await getPlatformLinkedToServer(userData.issuer, profileId); // get from platform service possible platform list for this user profile
 
     const tokenNode = await TokensService.getInstance().createSSOToken(tokenData, plateformList);
 
@@ -76,10 +76,25 @@ function _getTokenData(platformId: string, profile: any, userProfile: SpinalNode
 }
 
 
-async function getPlatformLinkedToServer(issuer: string): Promise<IPlatform[]> {
+async function getPlatformLinkedToServer(issuer: string, profileId: string): Promise<(IPlatform & {
+    profile: { userProfileName: string, userProfileBosConfigId: string }
+})[]> {
     const serverNode = await loginService.getServerByIssuer(issuer);
     if (!serverNode) return [];
 
     const platforms = await loginService.getPlatformsUsingServer(serverNode);
-    return platforms.map(el => PlatformService.getInstance()._formatPlatform(el));
+    const promises = platforms.map(async el => {
+        const platform = PlatformService.getInstance()._formatPlatform(el);
+        const useName = true;
+        const profile = await PlatformService.getInstance().getUserProfile(platform.id, profileId, useName);
+        if (!profile) return platform;
+
+        return {
+            ...platform,
+            profile: {
+                userProfileName: profile.getName().get(),
+                userProfileBosConfigId: profile.info.userProfileId?.get()
+            }
+        };
+    });
 }

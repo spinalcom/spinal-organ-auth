@@ -119,7 +119,7 @@ export class TokensService {
 
 	}
 
-	public async createSSOToken(tokenData: any, platformList: IPlatform[]) {
+	public async createSSOToken(tokenData: any, platformList: (IPlatform & { profile: any })[]) {
 
 		const token = this.generateToken(tokenData);
 		let decodedToken: any = jwt_decode(token);
@@ -136,7 +136,7 @@ export class TokensService {
 				platformId: platform.id,
 				platformName: platform.name,
 				idPlatformOfAdmin: platform.idPlatformOfAdmin,
-				userProfile: tokenData.profile
+				userProfile: platform.profile || tokenData.profile
 			}))
 
 			// platformList: [
@@ -287,10 +287,10 @@ export class TokensService {
 			case "application":
 			case "app":
 				return this.getAppProfileByToken(token, platformId);
-			case "code":
-				return this.getCodeProfileByToken(token, platformId);
+			// case "code":
 			default:
-				return {}
+				return this.getCodeProfileByToken(token, platformId);
+			// return {}
 		}
 
 	}
