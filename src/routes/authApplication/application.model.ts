@@ -37,6 +37,7 @@ export interface IApplication {
 	clientSecret: string;
 	platformList?: {
 		platformId: string;
+		platformName?: string;
 		appProfile: {
 			name: string;
 			appProfileId: string;
@@ -59,6 +60,7 @@ export interface IApplicationCreationParams {
 	redirectUri?: string;
 	grant_types?: string[];
 	platformList?: {
+		platformName?: string;
 		platformId: string;
 		appProfile: {
 			name: string;
@@ -81,7 +83,7 @@ export interface IApplicationUpdateParams {
 	redirectUri?: string;
 	platformList?: {
 		platformId: string;
-		// platformName: string;
+		platformName?: string;
 		appProfile: {
 			appProfileAdminId: string;
 			appProfileBosConfigId: string;

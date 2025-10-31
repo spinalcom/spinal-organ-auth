@@ -97,4 +97,6 @@ async function getPlatformLinkedToServer(issuer: string, profileId: string): Pro
             }
         };
     });
+
+    return Promise.all(promises) as any;
 }
