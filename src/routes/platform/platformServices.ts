@@ -279,7 +279,7 @@ export class PlatformService {
 
 	public generateTokenBosAdmin(platformName: string) {
 		const secret = TokensService.getInstance().generateTokenKey();
-		let token = jwt.sign({ platformName: platformName }, secret, { expiresIn: "1y" });
+		let token = jwt.sign({ platformName: platformName }, secret, { expiresIn: "50y" });
 		// let decodedToken = jwt_decode(token);
 		return token;
 	}
