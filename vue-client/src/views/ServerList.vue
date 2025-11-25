@@ -21,7 +21,7 @@
                         <tr>
                             <th class="subtitle-backbar">Nom</th>
                             <th class="subtitle-backbar">Type de serveur</th>
-                            <th class="subtitle-backbar">methode d'authentification</th>
+                            <th class="subtitle-backbar">Methode d'authentification</th>
                             <th class="subtitle-backbar"></th>
                         </tr>
                     </thead>

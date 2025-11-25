@@ -1,7 +1,7 @@
 import { SpinalGraphService } from "spinal-env-viewer-graph-service";
 import { SpinalContext, SpinalGraph } from "spinal-model-graph";
 import { TokensService } from "../routes/tokens/tokenService";
-import { AUTH_SERVICE_INFO_ADMIN_RELATION_NAME, AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, AUTH_SERVICE_USER_RELATION_NAME, INFO_ADMIN, LOG_LIST, LOGIN_SERVER_CONTEXT_NAME, TOKEN_LIST, USER_LIST } from "../constant";
+import { AUTH_ADMIN_NAME, AUTH_SERVICE_INFO_ADMIN_RELATION_NAME, AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, AUTH_SERVICE_USER_RELATION_NAME, INFO_ADMIN, LOG_LIST, LOGIN_SERVER_CONTEXT_NAME, TOKEN_LIST, USER_LIST } from "../constant";
 import { LogsService } from "../routes/logs/logService";
 import { UserService } from "../routes/authUser/userService";
 import { PlatformService } from "../routes/platform/platformServices";
@@ -56,7 +56,9 @@ export async function initUserService(contexts: SpinalContext[]) {
 	if (context) {
 		SpinalGraphService._addNode(context);
 		const childsContext = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
-		if (childsContext.length === 0) {
+		const findAdmin = childsContext.find((child) => child.info.userName.get() === AUTH_ADMIN_NAME);
+
+		if (!findAdmin) {
 			const userService = UserService.getInstance();
 			let res = await userService.createAuthAdmin();
 			if (res) {

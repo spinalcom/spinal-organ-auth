@@ -41,7 +41,13 @@
             <button type="submit">Se connecter</button>
         </form> -->
 
-        <v-container class="loginAppContainer" fluid>
+        <div class="loading">
+            <!-- <v-progress-circular :size="70" :width="7" color="purple" indeterminate></v-progress-circular> -->
+            <div class="spinner" aria-hidden="true"></div>
+            <div class="sr-only">Chargement…</div>
+        </div>
+
+        <v-container class="loginAppContainer notLoading" fluid>
             <v-card class="loginCard" elevation="4">
                 <v-card-title class="loginCardTitle">
                     <div class="logoImg">
@@ -116,6 +122,13 @@
     <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> -->
     <!-- end of online -->
+
+    <script>
+        window.onload = function() {
+            document.querySelector('.loading').style.display = 'none';
+            document.querySelector('.loginAppContainer').classList.remove('notLoading');
+        }
+    </script>
 
     <!-- offline -->
     <script src="/auth_static/js/jquery.js"></script>
