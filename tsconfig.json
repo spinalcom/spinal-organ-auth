@@ -1,22 +1,16 @@
 {
-  "compileOnSave": true,
-  "compilerOptions": {
-    "target": "es2015",
-    "module": "commonjs",
-    "outDir": "dist",
-    "sourceMap": true,
-    "declaration": true,
-    "experimentalDecorators": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true
-  },
-  "include": [
-    "src/**/*.ts",
-    "public/whriteEnvFile.ts", "whriteToenvFile.ts",
-  ],
-  "exclude": [
-    "node_modules",
-    "!node_modules/@types",
-    "./dist/**/*.d.ts",
-  ]
+	"compileOnSave": true,
+	"compilerOptions": {
+		"target": "es2015",
+		"module": "commonjs",
+		"outDir": "dist",
+		"rootDir": "./src",
+		"sourceMap": true,
+		"declaration": true,
+		"experimentalDecorators": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true
+	},
+	"include": ["src/**/*.ts", "public/whriteEnvFile.ts", "whriteToenvFile.ts"],
+	"exclude": ["node_modules", "!node_modules/@types", "./dist/**/*.d.ts"]
 }
