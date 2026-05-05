@@ -245,24 +245,33 @@ export class TokensService {
 		return appTokens.map(this._formatToken);
 	}
 
+	public decodeToken(token: string, ignoreExpiration: boolean = false) {
+		const secret = this.generateTokenKey();
+		try {
+			return jwt.verify(token, secret, { ignoreExpiration });
+		} catch (error) {
+			throw error;
+		}
+	}
+
 	public async verifyToken(tokenParam: string, platformId: string, actor?: ITokenActor) {
 
 
 		try {
-			const type = this._getTokenCategoryType(actor);
+			// const type = this._getTokenCategoryType(actor);
 
-			let tokens = type ? await this.getTokenByCategoryType(type) : await this.getAllTokensNode();
+			// let tokens = type ? await this.getTokenByCategoryType(type) : await this.getAllTokensNode();
 
-			if (!tokens) throw new OperationError("INVALID_TOKEN", HttpStatusCode.UNAUTHORIZED);
+			// if (!tokens) throw new OperationError("INVALID_TOKEN", HttpStatusCode.UNAUTHORIZED);
 
-			const token = tokens.find((el) => el.info?.token?.get() === tokenParam);
-			if (!token) throw new OperationError("INVALID_TOKEN", HttpStatusCode.UNAUTHORIZED);
+			// const token = tokens.find((el) => el.info?.token?.get() === tokenParam);
+			// if (!token) throw new OperationError("INVALID_TOKEN", HttpStatusCode.UNAUTHORIZED);
 
 
-			actor = actor || token.info.actor?.get();
+			// actor = actor || token.info.actor?.get();
 
 			const token_secret = this.generateTokenKey();
-			const decoded = jwt.verify(token.info.token.get(), token_secret);
+			const decoded = jwt.verify(tokenParam, token_secret);
 
 			const { iat, exp, ...copyWithoutIatAndExp } = decoded;
 
@@ -270,7 +279,7 @@ export class TokensService {
 				createdToken: decoded.iat,
 				expieredToken: decoded.exp,
 				token: tokenParam,
-				profile: await this._getProfileByActor(tokenParam, actor, platformId)
+				profile: await this._getProfileByActor(tokenParam, actor, platformId, decoded)
 			});
 
 
@@ -280,16 +289,16 @@ export class TokensService {
 		}
 	}
 
-	private _getProfileByActor(token: string, actor: ITokenActor, platformId: string) {
+	private _getProfileByActor(token: string, actor: ITokenActor, platformId: string, decoded: any) {
 		switch (actor) {
 			case "user":
-				return this.getUserProfileByToken(token, platformId);
+				return this.getUserProfileByToken(token, platformId, decoded);
 			case "application":
 			case "app":
-				return this.getAppProfileByToken(token, platformId);
+				return this.getAppProfileByToken(token, platformId, decoded);
 			// case "code":
 			default:
-				return this.getCodeProfileByToken(token, platformId);
+				return this.getCodeProfileByToken(token, platformId, decoded);
 			// return {}
 		}
 
@@ -303,89 +312,119 @@ export class TokensService {
 
 	/////////////////////////////// PROFILE //////////////////////////////////////
 
-	public async getUserProfileByToken(Token: string, platformId: string) {
-		const token = await this.getTokenNode(Token);
-		const userId = token.info?.userId?.get();
+	public async getUserProfileByToken(Token: string, platformId: string, decoded?: any) {
+		try {
+			decoded = decoded || this.decodeToken(Token);
+			if (decoded && decoded.profile) return decoded.profile;
 
-		if (!token || !token.info?.platformList) return;
+			const token = await this.getTokenNode(Token);
+			const userId = token?.info?.userId?.get();
 
-		const platforms = token.info.platformList.get();
-		let platform = platforms.find((el) => el.platformId === platformId);
-		if (!platform) {
-			if (!userId) return;
+			if (!token || !token.info?.platformList) return;
 
-			const userPlatforms = await UserService.getInstance().getUserPlatformList(userId, platformId);
-			platform = (userPlatforms || []).find((el) => el.platformId === platformId);
-			if (!platform) return;
-		}
+			const platforms = token.info.platformList.get();
+			let platform = platforms.find((el: any) => el.platformId === platformId);
+			if (!platform) {
+				if (!userId) return;
 
-
-
-		return {
-			token: Token,
-			platformId: platformId,
-			userProfileName: platform.userProfile.userProfileName,
-			userProfileBosConfigId: platform.userProfile.userProfileBosConfigId,
-		};
-	}
-
-	public async getAppProfileByToken(token: string, platformId: string) {
-		const tokenNode = await this.getTokenNode(token);
-		if (!tokenNode || !tokenNode.info?.platformList) return;
-
-		const platforms = tokenNode.info.platformList.get();
-
-		const platform = platforms.find((el) => el.platformId === platformId);
-		if (!platform) return;
-		return {
-			token,
-			platformId: platformId,
-			appProfileName: platform.appProfile.appProfileName,
-			appProfileBosConfigId: platform.appProfile.appProfileBosConfigId,
-		};
-	}
-
-	public async getCodeProfileByToken(token: string, platformId: string) {
-		const tokenNode = await this.getTokenNode(token);
-		if (!tokenNode || !tokenNode.info?.platformList) return;
-
-		const platforms = tokenNode.info.platformList.get();
-		const platform = platforms.find((el) => el.platformId === platformId);
-		if (!platform) return;
-
-		let res = {};
-
-		if (platform.appProfile) {
-			res = {
-				appProfileName: platform.appProfile.appProfileName,
-				appProfileBosConfigId: platform.appProfile.appProfileBosConfigId
+				const userPlatforms = await UserService.getInstance().getUserPlatformList(userId, platformId);
+				platform = (userPlatforms || []).find((el: any) => el.platformId === platformId);
+				if (!platform) return;
 			}
-		}
 
-		else if (platform.userProfile) {
-			res = {
+
+			return {
+				token: Token,
+				platformId: platformId,
 				userProfileName: platform.userProfile.userProfileName,
-				userProfileBosConfigId: platform.userProfile.userProfileBosConfigId
-			}
+				userProfileBosConfigId: platform.userProfile.userProfileBosConfigId,
+			};
+
+		} catch (error) {
+			return;
 		}
 
-		return { token, platformId: platformId, ...res };
+
+
+	}
+
+	public async getAppProfileByToken(token: string, platformId: string, decoded?: any) {
+
+		try {
+
+			decoded = decoded || this.decodeToken(token);
+			if (decoded && decoded.profile) return decoded.profile;
+
+			const tokenNode = await this.getTokenNode(token);
+			if (!tokenNode || !tokenNode.info?.platformList) return;
+
+			const platforms = tokenNode.info.platformList.get();
+
+			const platform = platforms.find((el: any) => el.platformId === platformId);
+			if (!platform) return;
+			return {
+				token,
+				platformId: platformId,
+				appProfileName: platform.appProfile.appProfileName,
+				appProfileBosConfigId: platform.appProfile.appProfileBosConfigId,
+			};
+		} catch (error) {
+			return;
+		}
+
+	}
+
+	public async getCodeProfileByToken(token: string, platformId: string, decoded?: any) {
+		try {
+			decoded = decoded || this.decodeToken(token);
+			if (decoded && decoded.profile) return decoded.profile;
+
+			const tokenNode = await this.getTokenNode(token);
+			if (!tokenNode || !tokenNode.info?.platformList) return;
+
+			const platforms = tokenNode.info.platformList.get();
+			const platform = platforms.find((el: any) => el.platformId === platformId);
+			if (!platform) return;
+
+			let res = {};
+
+			if (platform.appProfile) {
+				res = {
+					appProfileName: platform.appProfile.appProfileName,
+					appProfileBosConfigId: platform.appProfile.appProfileBosConfigId
+				}
+			}
+
+			else if (platform.userProfile) {
+				res = {
+					userProfileName: platform.userProfile.userProfileName,
+					userProfileBosConfigId: platform.userProfile.userProfileBosConfigId
+				}
+			}
+
+			return { token, platformId: platformId, ...res };
+		} catch (error) {
+			return;
+		}
+
 	}
 
 	public async removeToken(token: string | SpinalNode): Promise<boolean> {
 		try {
-			if (!(token instanceof SpinalNode)) token = await this.getTokenNode(token);
+			let tokenNode: SpinalNode | undefined;
 
-			if (!token) return false;
+			if (!(token instanceof SpinalNode)) tokenNode = await this.getTokenNode(token);
 
-			await token.removeFromGraph();
+			if (!tokenNode) return false;
+
+			await tokenNode.removeFromGraph();
 			return true;
 		} catch (error) {
 			return false;
 		}
 	}
 
-	async getTokenNode(token: string): Promise<SpinalNode> {
+	async getTokenNode(token: string): Promise<SpinalNode | undefined> {
 		const tokens = await this.getAllTokensNode(token);
 		return tokens.find((el) => el.info?.token?.get() === token);
 	}
