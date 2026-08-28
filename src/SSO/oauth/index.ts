@@ -9,7 +9,7 @@ import { getTokenFromRequest } from "./utils";
 import loginService from "../../routes/loginServer/loginServerService";
 
 export class SpinalOAuth2Server extends OAuth2Server {
-	constructor(private options: OAuth2Server.ServerOptions) {
+	constructor(public options: OAuth2Server.ServerOptions) {
 		super(options);
 	}
 
