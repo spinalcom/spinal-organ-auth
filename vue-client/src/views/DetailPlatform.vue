@@ -17,7 +17,7 @@
               <span class="bar-sub-title">CLIENT SECRET</span>
               <span class="bar-information">{{
                 this.platform.clientSecret
-                }}</span>
+              }}</span>
             </div>
             <div class="d-flex flex-column mr-16">
               <span class="bar-sub-title">STATUT</span>
@@ -44,7 +44,6 @@
             </v-btn>
           </div>
         </div>
-
 
       </InformationBar>
 
@@ -343,6 +342,7 @@ export default {
 }
 
 .information-backup-bar2 {
+  width: 100%;
   background: rgb(255, 255, 255);
   display: flex;
   align-items: center;

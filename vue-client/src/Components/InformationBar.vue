@@ -1,7 +1,7 @@
 <template>
   <div class="header-bar">
     <!-- style="min-width: 800px; width: 100%" -->
-    <v-card class="bar-bloc-left" elevation="4">
+    <v-card class="bar-bloc-left" :class="{ 'partial': btn != 'off' }" elevation="4">
       <div class="bar-icon">
         <img :src="icon" alt="person" />
       </div>
@@ -72,10 +72,15 @@ export default {
 }
 
 .bar-bloc-left {
-  width: calc(100% - 320px);
-  /* height: 100%; */
+  width: 100%;
   background: transparent !important;
   display: flex;
+}
+
+.bar-bloc-left.partial {
+  width: calc(100% - 320px);
+  /* height: 100%; */
+
 }
 
 .bar-bloc-right {

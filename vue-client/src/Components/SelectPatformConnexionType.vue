@@ -78,7 +78,9 @@ export default {
 }
 
 .select-container {
+  border: 1px solid #000;
   position: relative;
+  border-radius: 6px;
 }
 
 .select-trigger {
@@ -120,7 +122,7 @@ export default {
   left: 0;
   right: 0;
   border-radius: 6px;
-  border: 1px solid #E3E7E8;
+  border: 1px solid #000;
   background: white;
   overflow: hidden;
   /* z-index: 1; */
@@ -176,12 +178,13 @@ export default {
   user-select: none;
   position: relative;
   top: 9px;
-  margin-left: 5px;
+  margin-left: 20px;
+  padding: 0 5px;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 2.1px;
   color: #000000;
-  background-color: rgba(253, 253, 253, 0.658);
+  background-color: #fff;
   border-radius: 5px;
   z-index: 1;
 }

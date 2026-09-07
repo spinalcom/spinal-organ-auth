@@ -57,7 +57,7 @@
                     </div>
 
                     <div class="formItem">
-                        <InputUser title="Saisissez les profiles par priorité (Le plus priotitaire en premier)"
+                        <InputUser title="Saisissez les profils par ordre de priorité, séparés par un espace."
                             id="profileClassifyByPriority"
                             v-model="serverInfo.authentication_info.profileClassifyByPriority" />
                     </div>
@@ -113,7 +113,7 @@
                     </div>
 
                     <div class="formItem">
-                        <InputUser title="Saisissez les profiles par priorité (Le plus priotitaire en premier)"
+                        <InputUser title="Saisissez les profils par ordre de priorité, séparés par un espace."
                             id="profileClassifyByPriority"
                             v-model="serverInfo.authentication_info.profileClassifyByPriority" />
                     </div>
@@ -168,7 +168,7 @@
                     </div>
 
                     <div class="formItem">
-                        <InputUser title="Saisissez les profiles par priorité (Le plus priotitaire en premier)"
+                        <InputUser title="Saisissez les profils par ordre de priorité, séparés par un espace."
                             id="profileClassifyByPriority"
                             v-model="serverInfo.authentication_info.profileClassifyByPriority" />
                     </div>

@@ -139,7 +139,8 @@ export default {
     };
   },
   async mounted() {
-    await this.getAllServers()
+    await this.getAllServers();
+    this.selectLocalServer();
   },
 
   validations: {
@@ -214,6 +215,11 @@ export default {
       } else {
         this.iserrors = false;
       }
+    },
+
+    selectLocalServer() {
+      const found = this.servers.find(server => server.authentication_method === "local");
+      if (found) this.linkItem(found);
     },
 
     isLinked(item) {

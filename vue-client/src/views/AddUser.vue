@@ -248,7 +248,7 @@ export default {
 }
 
 .formulaire {
-  width: 50%;
+  width: 60%;
   height: 100%;
   margin: auto;
   display: flex;
@@ -261,7 +261,8 @@ export default {
   height: calc(100% - 100px);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  padding: 0 10px;
+  /* justify-content: center; */
   overflow: auto;
 }
 

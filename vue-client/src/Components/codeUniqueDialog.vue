@@ -14,13 +14,13 @@
                 <v-container>
                     <v-row>
                         <v-col cols="12">
-                            <v-text-field type="number" label="Nombre de clés" required
-                                v-model="data.count"></v-text-field>
+                            <v-text-field type="number" label="Nombre de clés" required v-model="data.count"
+                                outlined></v-text-field>
                         </v-col>
 
                         <v-col cols="12">
                             <v-select :items="selectItems" label="Selectionner un type de profile" v-model="profileType"
-                                item-text="text" item-value="value"></v-select>
+                                item-text="text" item-value="value" outlined></v-select>
                         </v-col>
 
                         <v-col cols="12" class="colonne">

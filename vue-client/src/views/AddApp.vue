@@ -265,6 +265,7 @@ export default {
 
 .accessList {
   width: 100%;
-  /* min-height: 200px; */
+  height: 230px;
+  overflow: auto;
 }
 </style>
