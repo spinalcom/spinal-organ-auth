@@ -23,7 +23,6 @@
  */
 
 import * as express from "express";
-import * as jwt from "jsonwebtoken";
 import { AuthError } from "./AuthError";
 import { HttpStatusCode } from "../utilities/http-status-code";
 import { TokensService } from "../routes/tokens/tokenService";
@@ -38,7 +37,6 @@ export async function expressAuthentication(request: express.Request, securityNa
 
 		if (securityName !== "jwt") throw new AuthError(HttpStatusCode.UNAUTHORIZED, "Invalid security name");
 
-		return;
 		const token = getToken(request);
 
 		if (!token) throw new Error("No token provided");

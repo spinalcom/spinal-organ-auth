@@ -10,7 +10,7 @@ import { PlatformService } from "../../routes/platform/platformServices";
 
 export class AuthServerModel implements AuthorizationCodeModel, ClientCredentialsModel, PasswordModel, RefreshTokenModel {
 	private static _instance: AuthServerModel;
-	private constructor() { }
+	private constructor() {}
 
 	static get instance(): AuthServerModel {
 		if (!this._instance) {
@@ -34,14 +34,16 @@ export class AuthServerModel implements AuthorizationCodeModel, ClientCredential
 	}
 
 	public saveToken(token: Token, client: Client, user: User): Promise<Token | Falsey> {
-		return TokensService.getInstance().saveOAuthToken(token, client, user)
+		return TokensService.getInstance()
+			.saveOAuthToken(token, client, user)
 			.then(() => {
 				return {
 					...token,
 					client,
 					user,
 				};
-			}).catch((err) => {
+			})
+			.catch((err) => {
 				console.error(err);
 				return null;
 			});
@@ -154,7 +156,6 @@ export class AuthServerModel implements AuthorizationCodeModel, ClientCredential
 		return RefreshTokenService.getInstance().removeRefreshToken(token);
 	}
 
-
 	private _getAllApplications() {
 		const promises = [ApplicationService.getInstance().getApplicationNodes(), PlatformService.getInstance().getPlatformsNodes()];
 		return Promise.allSettled(promises).then((values) => {
@@ -166,5 +167,4 @@ export class AuthServerModel implements AuthorizationCodeModel, ClientCredential
 			}, []);
 		});
 	}
-
 }
