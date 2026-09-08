@@ -40,18 +40,18 @@ import { LogWithServer, redirectToLoginPage } from "./loginRoute";
 import { RegisterSamlRoutes } from "./SSO/saml/routes";
 import { registerOAuthRoutes } from "./SSO/oauth/routes";
 import { RegisterOpenIdRoutes } from "./SSO/openid/routes";
-import { Z_FIXED } from "zlib";
 import { registerRedirectToBosRoute } from "./SSO/redirect/routes";
-
 
 // const jsonFile = require("../build/swagger.json");
 // var history = require("connect-history-api-fallback");
 
-
 function Server(): express.Express {
+	const vueClientPath = path.resolve(__dirname, "../../vue-client/dist");
+	const authorizationPagePath = path.resolve(__dirname, "../authorizationPage");
+
 	const app: any = express();
 
-	app.set('view engine', 'ejs');
+	app.set("view engine", "ejs");
 
 	// enable files upload
 	app.use(fileUpload({ createParentPath: true }));
@@ -64,15 +64,8 @@ function Server(): express.Express {
 	app.use(passport.initialize());
 	app.use(passport.session());
 
-
-	app.use("/auth_static", express.static(path.resolve(__dirname, "../authorizationPage")));
-	app.use(express.static(path.resolve(__dirname, "../vue-client/dist")));
-
-
-	// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(jsonFile));
-
-	// app.get("/", (req, res) => res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html")));
-
+	app.use("/auth_static", express.static(authorizationPagePath));
+	app.use(express.static(vueClientPath));
 
 	// Register routes here !!!!
 	registerOAuthRoutes(app);
@@ -81,23 +74,24 @@ function Server(): express.Express {
 	registerRedirectToBosRoute(app);
 	RegisterRoutes(app);
 
-
 	app.get("/login/:plateformClientId", redirectToLoginPage);
 	app.post("/login/:platformId/:serverId", LogWithServer);
 
-
 	// Page to authorize the client
 	app.get("/authorize", (req, res) => {
-		const myRelativePath = path.resolve(__dirname, "../authorizationPage", "index.ejs");
-		console.log(myRelativePath)
-		res.render(myRelativePath, { name: "Moussa" })
+		try {
+			const myRelativePath = path.resolve(authorizationPagePath, "index.ejs");
+			res.render(myRelativePath, { name: "Moussa" });
+		} catch (error) {
+			console.error(error);
+			res.status(500).send("Internal Server Error");
+		}
 	});
 
 	// client Page
-	app.get("/*", (req, res) => res.sendFile(path.resolve(__dirname, "../vue-client/dist", "index.html")));
+	app.get("/*", (req, res) => res.sendFile(path.resolve(vueClientPath, "index.html")));
 
 	app.use(errorHandler);
-
 
 	// launch the server
 	if (process.env.SERVER_PROTOCOL === "https") {
@@ -111,8 +105,6 @@ function Server(): express.Express {
 }
 
 export default Server;
-
-
 
 function errorHandler(err: unknown, req: express.Request, res: express.Response, next: express.NextFunction): express.Response | void {
 	//@ts-ignore

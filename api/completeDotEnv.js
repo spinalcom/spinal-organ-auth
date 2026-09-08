@@ -1,6 +1,6 @@
 const generator = require('generate-password');
 const dotenv = require('dotenv');
-const { setEnvValue } = require('./whriteToenvFile');
+const { setEnvValue } = require('./writeToenvFile');
 
 dotenv.config();
 generator.generate({ length: 10, numbers: true });

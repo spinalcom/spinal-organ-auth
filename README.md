@@ -1,28 +1,80 @@
-<!-- DO NOT EDIT README.md (It will be overridden by README.hbs) -->
+# Spinal Organ Auth
 
-# spinal-organ-auth
+Spinal Organ Auth is the authentication and authorization layer for SpinalCOM applications.
+It centralizes user and application authentication, access management, and token handling for secure service-to-service and end-user workflows.
 
-Model + service to store values in time to auth.
-The value will be sorted by time etc...
+## Overview
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+This module is designed to manage:
 
-- [Description](#description)
-- [API](#api)
-  - [hello() ⇒ <code>string</code>](#hello-%E2%87%92-codestringcode)
+- User authentication
+- Application authentication
+- Access control and authorization
+- Token issuance and validation
+- Permission and role-based access management
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+It includes both a user interface for managing authentication and authorization, and an API for integrating these capabilities into SpinalCOM applications.
 
-# Description
+## Usage
 
-Model + service to store values in time to auth.
-The value will be sorted by time etc...
+Clone the repository:
 
+```bash
+git clone https://github.com/spinalcom/spinal-organ-auth.git
+cd spinal-organ-auth
+```
 
-# API
+Install dependencies from the repository root:
 
-<a name="hello"></a>
+```bash
+npm run install
+```
 
-## hello() ⇒ <code>string</code>
-**Kind**: global function  
+Alternatively, install dependencies separately in the `api` and `vue-client` folders:
+
+```bash
+cd api && npm i
+cd ../vue-client && npm i
+```
+
+Build the interface and API from the repository root:
+
+```bash
+npm run build
+```
+
+Alternatively, run the same build command in both the `api` and `vue-client` folders.
+
+Create or update `api/.env` using the following environment variables:
+
+```dotenv
+# Hub info
+ORGAN_NAME=""
+SPINAL_USER_ID=''
+SPINALHUB_IP=''
+SPINAL_PASSWORD=''
+SPINALHUB_PORT=''
+
+# Auth info
+TOKEN_SECRET=""
+AUTH_ADMIN_PASSWORD=""
+TOKEN_BOS_ADMIN=""
+REGISTER_KEY=""
+
+# Server info
+REQUESTS_PORT=''
+LIMIT_LOG="3000"
+
+SERVER_PROTOCOL="http" # https / http
+SSL_CERT_PATH=""
+SSL_KEY_PATH=""
+NODE_TLS_REJECT_UNAUTHORIZED=0
+```
+
+Start the application from the repository root:
+
+```bash
+npm run start
+```
+
+Alternatively, run `npm run start` from the `api` folder.

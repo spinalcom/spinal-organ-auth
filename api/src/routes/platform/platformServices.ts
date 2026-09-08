@@ -33,7 +33,7 @@ import { OrganService } from "../organ/organService";
 import jwt = require("jsonwebtoken");
 import { LogsService } from "../logs/logService";
 import { TokensService } from "../tokens/tokenService";
-const { setEnvValue } = require("../../../whriteToenvFile");
+const { setEnvValue } = require("../../../writeToenvFile");
 import { isLocalAuthenticationInfo, isOAuthAuthenticationInfo, isSAMLAuthenticationInfo } from "./utils";
 import loginService from "../loginServer/loginServerService";
 import axios from "axios";
@@ -43,7 +43,7 @@ export class PlatformService {
 	public platFormContext: SpinalContext;
 	public registerKeyContext: SpinalContext;
 
-	private constructor() { }
+	private constructor() {}
 
 	public static getInstance(): PlatformService {
 		if (!this.instance) this.instance = new PlatformService();
@@ -84,7 +84,6 @@ export class PlatformService {
 
 	public async createPlateform(platformCreationParms: IPlateformCreationParams): Promise<IPlatform> {
 		try {
-
 			const _platformCreationParms = this._formatPlatformCreationParams(platformCreationParms);
 
 			// const isValid = this._verifyAuthInfo(platformCreationParms.authentication_method, platformCreationParms.authentication_info);
@@ -168,12 +167,11 @@ export class PlatformService {
 		throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 	}
 
-	public async updatePlatformToken(platformCredential: { clientId: string, token: string }): Promise<string> {
+	public async updatePlatformToken(platformCredential: { clientId: string; token: string }): Promise<string> {
 		const client = await this.getPlatformByClientId(platformCredential.clientId);
 		const lastToken = client?.info?.TokenBosAdmin?.get();
 
-		if (lastToken !== platformCredential.token)
-			throw new OperationError("UNAUTHORIZED", HttpStatusCode.UNAUTHORIZED);
+		if (lastToken !== platformCredential.token) throw new OperationError("UNAUTHORIZED", HttpStatusCode.UNAUTHORIZED);
 
 		const token = this.generateTokenBosAdmin(client.getName().get());
 		client.info.mod_attr("TokenBosAdmin", token);
@@ -323,7 +321,8 @@ export class PlatformService {
 
 			platform.info.mod_attr("lastSyncTime", Date.now());
 			// platform.info.idPlatformOfAdmin.set(updateParams.idPlatformOfAdmin);
-			if (updateParams.TokenAdminBos && !platform.info?.TokenAdminBos?.get()) // if the token is not already set
+			if (updateParams.TokenAdminBos && !platform.info?.TokenAdminBos?.get())
+				// if the token is not already set
 				await this.updateTokenAdminBosInGraph(platform, updateParams.TokenAdminBos);
 
 			await LogsService.getInstance().createLog(platform, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.PUSH_DATA, EVENTS_REQUEST_NAMES.PUSH_DATA, "Push Data Valid ");
@@ -334,10 +333,7 @@ export class PlatformService {
 		throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 	}
 
-
-	public sendTokenAdminBosUpdatingRequest(platformId: string) {
-
-	}
+	public sendTokenAdminBosUpdatingRequest(platformId: string) {}
 
 	public async sendUpdatePlatformDataRequest(plateformId: string) {
 		const [plateform] = await this.getPlatformsNodes(plateformId);
@@ -353,10 +349,8 @@ export class PlatformService {
 		return axios.put(url, {}, { headers: { Authorization: `Bearer ${token}` } }).then((result) => {
 			plateform.info.mod_attr("lastSyncTime", Date.now());
 			return plateform.info.get();
-		})
-
+		});
 	}
-
 
 	// update the token in graph
 	public async updateTokenAdminBosInGraph(platform: string | SpinalNode, token: string): Promise<string> {
@@ -369,9 +363,6 @@ export class PlatformService {
 		platform.info.mod_attr("TokenAdminBos", token.trim());
 		return token;
 	}
-
-
-
 
 	public async getPlateformLogs(id: string): Promise<IPlatformLogs[]> {
 		try {
@@ -414,7 +405,7 @@ export class PlatformService {
 
 	public async addLoginServerToPlatform(platform: SpinalNode, ids: string[] = []): Promise<SpinalNode[]> {
 		const nodes = await loginService.getServeralServersById(ids);
-		const promises = nodes.map(el => platform.addChild(el, PLATFORM_TO_LOGIN_SERVER, SPINAL_RELATION_PTR_LST_TYPE));
+		const promises = nodes.map((el) => platform.addChild(el, PLATFORM_TO_LOGIN_SERVER, SPINAL_RELATION_PTR_LST_TYPE));
 		return Promise.all(promises);
 	}
 
@@ -450,7 +441,6 @@ export class PlatformService {
 		const promises = [this.addLoginServerToPlatform(platform, idsToAdd), this.removeLoginServerFromPlatform(platform, toDelete)];
 
 		return Promise.all(promises);
-
 	}
 
 	public async getLoginServerFromPlatform(platform: string | SpinalNode): Promise<SpinalNode[]> {
@@ -488,7 +478,6 @@ export class PlatformService {
 	}
 
 	private _verifyAuthInfo(authentication_method: CONNECTION_METHODS, authentication_info: ISAMLAuthenticationInfo | IOAuthAuthenticationInfo | ILocalAuthenticationInfo): Boolean {
-
 		switch (authentication_method) {
 			case CONNECTION_METHODS.local:
 				return isLocalAuthenticationInfo(authentication_method);
@@ -514,7 +503,7 @@ export class PlatformService {
 			redirectUrl: platformCreationParms.redirectUrl || platformCreationParms.url,
 			address: platformCreationParms.address || "",
 			statusPlatform: statusPlatform["not connected"],
-			grant_types
+			grant_types,
 			// ...(platformCreationParms.authentication_method === CONNECTION_METHODS.local && {
 			// 	authentication_info: {
 			// 		code_challenge: "sdfsdfsdfsdf", // generate code challenge
@@ -523,7 +512,6 @@ export class PlatformService {
 			// })
 		});
 	}
-
 }
 
 async function updateOrganProfile(oldOrgans: SpinalNode<any>[], platform: SpinalNode<any>, newList: any[]) {

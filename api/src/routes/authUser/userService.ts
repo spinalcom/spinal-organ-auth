@@ -31,16 +31,10 @@ import { IUser, IUserCreationParams, IUserUpdateParams, IAuthAdminUpdateParams, 
 import { IUserToken } from "../tokens/token.model";
 import SpinalMiddleware from "../../spinalMiddleware";
 import { LogsService } from "../logs/logService";
-import data from "./profileUserListData";
 import bcrypt = require("bcrypt");
-import jwt = require("jsonwebtoken");
-import jwt_decode from "jwt-decode";
 import { PlatformService } from "../platform/platformServices";
 import { TokensService } from "../tokens/tokenService";
 import { format } from "path";
-import { platform, userInfo } from "os";
-const generator = require("generate-password");
-const { setEnvValue } = require("../../../whriteToenvFile");
 
 type UserPlatformDetails = {
 	platformId: string;
@@ -62,7 +56,7 @@ export class UserService {
 
 	static instance: UserService;
 
-	private constructor() { }
+	private constructor() {}
 
 	static getInstance(): UserService {
 		if (!this.instance) {
@@ -130,7 +124,6 @@ export class UserService {
 	}
 
 	public async login(userLoginParams: IUserLoginParams, platformId?: string): Promise<IUserToken> {
-
 		const user = await this.getUserByCredentials(userLoginParams.userName, userLoginParams.password);
 
 		if (!user) {
@@ -146,9 +139,6 @@ export class UserService {
 		await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.LOGIN_VALID, EVENTS_REQUEST_NAMES.LOGIN_VALID);
 		return this._getUserTokenResponse(tokenNode, user, platformList);
 	}
-
-
-
 
 	public async loginAuthAdmin(userLoginParams: IUserLoginParams): Promise<IUserToken> {
 		const user = await this._findUserByUserName(userLoginParams.userName, true);
@@ -168,10 +158,9 @@ export class UserService {
 		return this._getUserTokenResponse(tokenNode, user);
 	}
 
-
 	public async getUserPlatformList(user: string | SpinalNode, platformId?: string) {
 		if (typeof user === "string") {
-			const users = await this.getUserNodes(user)
+			const users = await this.getUserNodes(user);
 			user = users[0];
 		}
 
@@ -182,11 +171,10 @@ export class UserService {
 
 		if (!platformId) return platformList;
 
-		return platformList.filter(el => el.platformId === platformId)
+		return platformList.filter((el) => el.platformId === platformId);
 	}
 
 	/////////////////////////////////////
-
 
 	public async getUsers(): Promise<IUser[]> {
 		try {
@@ -221,7 +209,7 @@ export class UserService {
 			const decoded = await TokensService.getInstance().verifyToken(token, "user");
 			const userInfo = decoded.userInfo;
 			if (userInfo) return userInfo;
-		} catch (error) { }
+		} catch (error) {}
 
 		throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 	}
@@ -295,8 +283,6 @@ export class UserService {
 		await LogsService.getInstance().createLog(userFound, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.DELETE, EVENTS_REQUEST_NAMES.DELETE_VALID, EVENTS_REQUEST_NAMES.DELETE_VALID);
 		await userFound.removeFromGraph();
 	}
-
-
 
 	async createAuthAdmin(): Promise<IUser> {
 		try {
@@ -453,7 +439,7 @@ export class UserService {
 		}));
 	}
 
-	private _generateUserAttributes(userCreationParams: IUserCreationParams, hash: any): { [nameAttr: string]: any; } {
+	private _generateUserAttributes(userCreationParams: IUserCreationParams, hash: any): { [nameAttr: string]: any } {
 		return {
 			userType: userCreationParams.userType,
 			userName: userCreationParams.userName,
@@ -474,12 +460,12 @@ export class UserService {
 			...(platform && {
 				profile: {
 					userProfileName: platform.userProfile.userProfileName,
-					userProfileBosConfigId: platform.userProfile.userProfileBosConfigId
+					userProfileBosConfigId: platform.userProfile.userProfileBosConfigId,
 				},
 
-				userInfo: await this.getUser(user.getId().get())
+				userInfo: await this.getUser(user.getId().get()),
 			}),
-			...(!platform && { platformList })
+			...(!platform && { platformList }),
 		};
 		return tokenData;
 	}

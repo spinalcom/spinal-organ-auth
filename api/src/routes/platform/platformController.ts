@@ -81,7 +81,7 @@ export class PlatformsController extends Controller {
 		try {
 			const servers = await PlatformService.getInstance().getLoginServerFromPlatform(platformId);
 			this.setStatus(HttpStatusCode.OK);
-			return servers.map(el => loginService.formatServerNode(el));
+			return servers.map((el) => loginService.formatServerNode(el));
 		} catch (error) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
@@ -100,8 +100,6 @@ export class PlatformsController extends Controller {
 			return { error: error.message };
 		}
 	}
-
-
 
 	@Security("jwt", ["authAdmin:delete"])
 	@Delete("{platformId}")
@@ -180,7 +178,6 @@ export class PlatformsController extends Controller {
 			return { error: error.message };
 		}
 	}
-
 
 	@Security("jwt", ["platform:write"])
 	@Post("/updatePlatformToken")

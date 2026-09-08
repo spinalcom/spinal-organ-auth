@@ -17,6 +17,6 @@ REQUESTS_PORT=''
 LIMIT_LOG="3000"
 
 SERVER_PROTOCOL="http" # https / http
-SSL_CERT_PATH="/home/ubuntu/spinalcom/cert/cert.pem"
-SSL_KEY_PATH="/home/ubuntu/spinalcom/cert/key.pem"
+SSL_CERT_PATH=""
+SSL_KEY_PATH=""
 NODE_TLS_REJECT_UNAUTHORIZED=0

@@ -26,14 +26,41 @@ const os = require('os');
 const path = require('path');
 
 const envFilePath = path.resolve(__dirname, '.env');
+
+const ensureEnvFileExists = () => {
+  if (!fs.existsSync(envFilePath)) {
+    fs.writeFileSync(envFilePath, `  
+# Hub info
+ORGAN_NAME=""
+SPINAL_USER_ID=''
+SPINALHUB_IP=''
+SPINAL_PASSWORD=''
+SPINALHUB_PORT=''
+
+# Auth info
+TOKEN_SECRET=""
+AUTH_ADMIN_PASSWORD=""
+TOKEN_BOS_ADMIN=""
+REGISTER_KEY=""
+
+# Server info
+REQUESTS_PORT=''
+LIMIT_LOG="3000"
+SERVER_PROTOCOL="http" # https / http
+SSL_CERT_PATH=""
+SSL_KEY_PATH=""
+NODE_TLS_REJECT_UNAUTHORIZED=0
+      `);
+  }
+};
+
 // read .env file & convert to array
-const readEnvVars = () => fs.readFileSync(envFilePath, 'utf-8').split(os.EOL);
-/**
- * Finds the key in .env files and returns the corresponding value
- *
- * @param {string} key Key to find
- * @returns {string|null} Value of the key
- */
+const readEnvVars = () => {
+  ensureEnvFileExists();
+  const content = fs.readFileSync(envFilePath, 'utf-8');
+  return content ? content.split(os.EOL) : [];
+};
+
 function getEnvValue(key) {
   // find the line that contains the key (exact match)
   const matchedLine = readEnvVars().find((line) => line.split('=')[0] === key);
@@ -41,14 +68,6 @@ function getEnvValue(key) {
   return matchedLine !== undefined ? matchedLine.split('=')[1] : null;
 }
 
-/**
- * Updates value for existing key or creates a new key=value line
- *
- * This function is a modified version of https://stackoverflow.com/a/65001580/3153583
- *
- * @param {string} key Key to update/insert
- * @param {string} value Value to update/insert
- */
 function setEnvValue(key, value) {
   const envVars = readEnvVars();
   const targetLine = envVars.find((line) => line.split('=')[0] === key);

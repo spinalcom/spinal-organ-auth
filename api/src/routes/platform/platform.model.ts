@@ -22,7 +22,6 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-
 import { CONNECTION_METHODS } from "../../constant";
 
 export interface ISAMLAuthenticationInfo {
@@ -59,7 +58,7 @@ export interface IOpenIdAuthenticationInfo {
 
 export interface ILocalAuthenticationInfo {
 	code_challenge: string;
-	code_challenge_method: "S256"
+	code_challenge_method: "S256";
 }
 
 export interface IPlatform {
@@ -83,7 +82,7 @@ export interface IPlatform {
 }
 
 export interface IPlateformCreationParams extends IPlatform {
-	loginServerIds?: string[]
+	loginServerIds?: string[];
 }
 
 // export interface IPlateformCreationParams {
