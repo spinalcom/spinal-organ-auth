@@ -4,5 +4,6 @@
 		"start": "npm run start --prefix api",
 		"build": "npm run build --prefix api && npm run build --prefix vue-client",
 		"clean": "npm run clean --prefix api && npm run clean --prefix vue-client"
-	}
+	},
+	"version": "0.1.0"
 }
