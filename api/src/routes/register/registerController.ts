@@ -21,14 +21,12 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse, Tags } from "tsoa";
 import { IPlatform, IPlateformCreationParams, IPlatformUpdateParams, IRegisterParams } from "../platform/platform.model";
 import { PlatformService } from "../platform/platformServices";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 
-interface IUpdateParams {
-	platformUpdateParams;
-}
+@Tags("Register")
 @Route("register")
 export class RegisterController extends Controller {
 	@SuccessResponse("201", "Created") // Custom success response
@@ -36,9 +34,9 @@ export class RegisterController extends Controller {
 	public async registerPlatform(@Body() object: IRegisterParams): Promise<any> {
 		try {
 			let platform = await PlatformService.getInstance().registerNewPlatform(object);
-			this.setStatus(HttpStatusCode.OK);
+			this.setStatus(HttpStatusCode.CREATED);
 			return platform;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -46,12 +44,12 @@ export class RegisterController extends Controller {
 
 	@SuccessResponse("201", "Updated") // Custom success response
 	@Put()
-	public async updatePlatform(@Body() object): Promise<any> {
+	public async updatePlatform(@Body() object: IPlatformUpdateParams): Promise<any> {
 		try {
 			let platform = await PlatformService.getInstance().updateNewPlatform(object);
 			this.setStatus(HttpStatusCode.OK);
 			return platform;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}

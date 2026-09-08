@@ -41,6 +41,7 @@ import { RegisterSamlRoutes } from "./SSO/saml/routes";
 import { registerOAuthRoutes } from "./SSO/oauth/routes";
 import { RegisterOpenIdRoutes } from "./SSO/openid/routes";
 import { registerRedirectToBosRoute } from "./SSO/redirect/routes";
+import { initSwagger } from "./initSwagger";
 
 // const jsonFile = require("../build/swagger.json");
 // var history = require("connect-history-api-fallback");
@@ -87,6 +88,9 @@ function Server(): express.Express {
 			res.status(500).send("Internal Server Error");
 		}
 	});
+
+	// Initialize Swagger documentation
+	initSwagger(app);
 
 	// client Page
 	app.get("/*", (req, res) => res.sendFile(path.resolve(vueClientPath, "index.html")));

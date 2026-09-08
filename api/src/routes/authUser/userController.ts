@@ -22,12 +22,13 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse, Tags } from "tsoa";
 import { IUser, IUserCreationParams, IUserUpdateParams, IUserLoginParams, IAuthAdminUpdateParams, IUserLogs, IUpdateUserPassword } from "./user.model";
 import { UserService } from "./userService";
 import { IUserToken } from "../tokens/token.model";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 
+@Tags("Users")
 @Route("users")
 export class UsersController extends Controller {
 	@Security("jwt", ["authAdmin:write"])
@@ -38,7 +39,7 @@ export class UsersController extends Controller {
 			let user = await UserService.getInstance().createUser(requestBody);
 			this.setStatus(HttpStatusCode.CREATED);
 			return user;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -51,7 +52,7 @@ export class UsersController extends Controller {
 			const users = await UserService.getInstance().getUsers();
 			this.setStatus(HttpStatusCode.OK);
 			return users;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -64,7 +65,7 @@ export class UsersController extends Controller {
 			const user = await UserService.getInstance().getUser(userId);
 			this.setStatus(HttpStatusCode.OK);
 			return user;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -77,7 +78,7 @@ export class UsersController extends Controller {
 			const user = await UserService.getInstance().getUserInfoByToken(body.token);
 			this.setStatus(HttpStatusCode.OK);
 			return user;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -90,7 +91,7 @@ export class UsersController extends Controller {
 			await UserService.getInstance().deleteUser(userId);
 			this.setStatus(HttpStatusCode.OK);
 			return { message: "User deleted" };
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -103,7 +104,7 @@ export class UsersController extends Controller {
 			const userUpdated = await UserService.getInstance().updateUser(userId, requestBody);
 			this.setStatus(HttpStatusCode.OK);
 			return userUpdated;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -116,20 +117,20 @@ export class UsersController extends Controller {
 			const userUpdated = await UserService.getInstance().updateUserPassword(userId, requestBody);
 			this.setStatus(HttpStatusCode.OK);
 			return userUpdated;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
 	}
 
-	@Security("jwt", ["authAdmin:write"])
+	@Security("jwt", ["authAdmin:write", "ownData:write"])
 	@Put()
 	public async updateAuthAdmin(@Body() requestBody: IAuthAdminUpdateParams): Promise<IUser | { error: string }> {
 		try {
 			const adminUpdated = await UserService.getInstance().updateAuthAdmin(requestBody);
 			this.setStatus(HttpStatusCode.OK);
 			return adminUpdated;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -142,7 +143,7 @@ export class UsersController extends Controller {
 			const authAdmin = await UserService.getInstance().getAuthAdmin();
 			this.setStatus(HttpStatusCode.OK);
 			return authAdmin;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -155,7 +156,7 @@ export class UsersController extends Controller {
 			const profileList = await UserService.getInstance().userProfilesList();
 			this.setStatus(HttpStatusCode.OK);
 			return profileList;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -168,7 +169,7 @@ export class UsersController extends Controller {
 			const userToken = await UserService.getInstance().login(requestBody);
 			this.setStatus(HttpStatusCode.OK);
 			return userToken;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -181,7 +182,7 @@ export class UsersController extends Controller {
 			const userToken = await UserService.getInstance().loginAuthAdmin(requestBody);
 			this.setStatus(HttpStatusCode.OK);
 			return userToken;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -194,7 +195,7 @@ export class UsersController extends Controller {
 			const roles = await UserService.getInstance().getRoles();
 			this.setStatus(HttpStatusCode.OK);
 			return roles;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -206,7 +207,7 @@ export class UsersController extends Controller {
 			const logs = await UserService.getInstance().getUserLogs(userId);
 			this.setStatus(HttpStatusCode.OK);
 			return logs;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}

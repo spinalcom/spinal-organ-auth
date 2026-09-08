@@ -22,7 +22,7 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse, Tags } from "tsoa";
 import { IPlatform, IPlateformCreationParams, IPlatformUpdateParams, IRegisterKeyObject, IPlatformLogs } from "./platform.model";
 import { IUserProfile } from "./userProfile.model";
 import { IAppProfile } from "./appProfile.model";
@@ -33,17 +33,18 @@ import { SCOPES } from "../../constant";
 import loginService from "../loginServer/loginServerService";
 import data from "../authUser/profileUserListData";
 
+@Tags("Platforms")
 @Route("platforms")
 export class PlatformsController extends Controller {
 	@Security("jwt", ["authAdmin:write"])
 	@SuccessResponse("201", "Created") // Custom success response
 	@Post()
-	public async createPlateform(@Body() requestBody): Promise<any> {
+	public async createPlateform(@Body() requestBody: IPlateformCreationParams): Promise<any> {
 		try {
 			let platform = await PlatformService.getInstance().createPlateform(requestBody);
 			this.setStatus(HttpStatusCode.CREATED);
 			return platform;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -56,7 +57,7 @@ export class PlatformsController extends Controller {
 			const platforms = await PlatformService.getInstance().getPlateforms();
 			this.setStatus(HttpStatusCode.OK);
 			return platforms;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -69,7 +70,7 @@ export class PlatformsController extends Controller {
 			const platform = await PlatformService.getInstance().getPlateform(platformId);
 			this.setStatus(HttpStatusCode.OK);
 			return platform;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -77,12 +78,12 @@ export class PlatformsController extends Controller {
 
 	@Security("all", ["all"])
 	@Get("{platformId}/loginServers")
-	public async getPlateformLoginServers(@Path() platformId: string) {
+	public async getPlateformLoginServers(@Path() platformId: string): Promise<any> {
 		try {
 			const servers = await PlatformService.getInstance().getLoginServerFromPlatform(platformId);
 			this.setStatus(HttpStatusCode.OK);
 			return servers.map((el) => loginService.formatServerNode(el));
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -90,12 +91,12 @@ export class PlatformsController extends Controller {
 
 	@Security("jwt", ["authAdmin:delete"])
 	@Post("{platformId}/loginServers")
-	public async removeLoginServersFromPlateform(@Path() platformId: string, @Body() data: { ids: string[] }) {
+	public async removeLoginServersFromPlateform(@Path() platformId: string, @Body() data: { ids: string[] }): Promise<any> {
 		try {
 			const servers = await PlatformService.getInstance().removeLoginServerFromPlatform(platformId, data.ids);
 			this.setStatus(HttpStatusCode.OK);
 			return servers;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -103,12 +104,12 @@ export class PlatformsController extends Controller {
 
 	@Security("jwt", ["authAdmin:delete"])
 	@Delete("{platformId}")
-	public async deletePlatform(@Path() platformId: string): Promise<void | { message?: string; error?: string }> {
+	public async deletePlatform(@Path() platformId: string): Promise<{ message?: string; error?: string }> {
 		try {
 			await PlatformService.getInstance().deletePlatform(platformId);
 			this.setStatus(HttpStatusCode.OK);
 			return { message: "Platform deleted" };
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -121,7 +122,7 @@ export class PlatformsController extends Controller {
 			const updated = await PlatformService.getInstance().updatePlateform(platformId, requestBody);
 			this.setStatus(HttpStatusCode.OK);
 			return updated;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -134,7 +135,7 @@ export class PlatformsController extends Controller {
 			const userProfile = await ProfileServices.getInstance().getUserProfileService(platformId);
 			this.setStatus(HttpStatusCode.OK);
 			return userProfile;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -147,7 +148,7 @@ export class PlatformsController extends Controller {
 			const appProfile = await ProfileServices.getInstance().getAppProfileService(platformId);
 			this.setStatus(HttpStatusCode.OK);
 			return appProfile;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -160,7 +161,7 @@ export class PlatformsController extends Controller {
 			const plateformLogs = await PlatformService.getInstance().getPlateformLogs(platformId);
 			this.setStatus(HttpStatusCode.OK);
 			return plateformLogs;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -173,7 +174,7 @@ export class PlatformsController extends Controller {
 			const updated = await PlatformService.getInstance().updateRegisterKeyNode();
 			this.setStatus(HttpStatusCode.OK);
 			return updated;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -186,7 +187,7 @@ export class PlatformsController extends Controller {
 			const token = await PlatformService.getInstance().updatePlatformToken(requestBody);
 			this.setStatus(HttpStatusCode.OK);
 			return { code: HttpStatusCode.OK, token };
-		} catch (error) {
+		} catch (error: any) {
 			const code = error.status || HttpStatusCode.INTERNAL_SERVER_ERROR;
 			this.setStatus(code);
 
@@ -201,7 +202,7 @@ export class PlatformsController extends Controller {
 			const data = await PlatformService.getInstance().sendUpdatePlatformDataRequest(platformId);
 			this.setStatus(HttpStatusCode.OK);
 			return data;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}

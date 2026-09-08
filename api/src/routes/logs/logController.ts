@@ -22,22 +22,35 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse, Tags } from "tsoa";
 import { LogsService } from "./logService";
 import { SCOPES } from "../../constant";
+import { HttpStatusCode } from "../../utilities/http-status-code";
+
+@Tags("Logs")
 @Route("logs")
 export class LogsController extends Controller {
 	@Security("jwt", ["authAdmin:read"])
 	@Get()
-	public async getLogs(): Promise<any[]> {
-		this.setStatus(201);
-		return LogsService.getInstance().getLogs();
+	public async getLogs(): Promise<any[] | { error: string }> {
+		try {
+			this.setStatus(HttpStatusCode.OK);
+			return await LogsService.getInstance().getLogs();
+		} catch (error: any) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
 	}
 
 	@Security("jwt", ["authAdmin:read"])
 	@Get("/getPlatformsLogs")
-	public async getPlatformsLogs(): Promise<any[]> {
-		this.setStatus(201);
-		return LogsService.getInstance().getPlatformsLogs();
+	public async getPlatformsLogs(): Promise<any[] | { error: string }> {
+		try {
+			this.setStatus(HttpStatusCode.OK);
+			return await LogsService.getInstance().getPlatformsLogs();
+		} catch (error: any) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
 	}
 }

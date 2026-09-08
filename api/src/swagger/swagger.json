@@ -1,0 +1,4457 @@
+{
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"IApplication": {
+				"properties": {
+					"id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "number",
+								"format": "double"
+							}
+						]
+					},
+					"type": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"appType": {
+						"type": "string"
+					},
+					"clientId": {
+						"type": "string"
+					},
+					"clientSecret": {
+						"type": "string"
+					},
+					"platformList": {
+						"items": {
+							"properties": {
+								"appProfile": {
+									"properties": {
+										"appProfileId": {
+											"type": "string"
+										},
+										"name": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"appProfileId",
+										"name"
+									],
+									"type": "object"
+								},
+								"platformName": {
+									"type": "string"
+								},
+								"platformId": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"appProfile",
+								"platformId"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"grant_types": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"type",
+					"name",
+					"appType",
+					"clientId",
+					"clientSecret"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IApplicationCreationParams": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"clientId": {
+						"type": "string"
+					},
+					"clientSecret": {
+						"type": "string"
+					},
+					"appType": {
+						"type": "string"
+					},
+					"redirectUri": {
+						"type": "string"
+					},
+					"grant_types": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"platformList": {
+						"items": {
+							"properties": {
+								"appProfile": {
+									"properties": {
+										"appProfileId": {
+											"type": "string"
+										},
+										"name": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"appProfileId",
+										"name"
+									],
+									"type": "object"
+								},
+								"platformId": {
+									"type": "string"
+								},
+								"platformName": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"appProfile",
+								"platformId"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"name",
+					"clientId",
+					"clientSecret"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IApplicationUpdateParams": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"clientId": {
+						"type": "string"
+					},
+					"clientSecret": {
+						"type": "string"
+					},
+					"appType": {
+						"type": "string"
+					},
+					"redirectUri": {
+						"type": "string"
+					},
+					"platformList": {
+						"items": {
+							"properties": {
+								"appProfile": {
+									"properties": {
+										"appProfileName": {
+											"type": "string"
+										},
+										"appProfileBosConfigId": {
+											"type": "string"
+										},
+										"appProfileAdminId": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"appProfileName",
+										"appProfileBosConfigId",
+										"appProfileAdminId"
+									],
+									"type": "object"
+								},
+								"platformName": {
+									"type": "string"
+								},
+								"platformId": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"appProfile",
+								"platformId"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"grant_types": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IToken": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"token": {
+						"type": "string"
+					},
+					"createdToken": {
+						"type": "number",
+						"format": "double"
+					},
+					"expieredToken": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"name",
+					"token"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IPlatform": {
+				"properties": {
+					"idPlatformOfAdmin": {
+						"type": "string"
+					},
+					"platformName": {
+						"type": "string"
+					},
+					"platformId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"idPlatformOfAdmin",
+					"platformName",
+					"platformId"
+				],
+				"type": "object"
+			},
+			"IAppProfile": {
+				"properties": {
+					"appProfileName": {
+						"type": "string"
+					},
+					"appProfileBosConfigId": {
+						"type": "string"
+					},
+					"appProfileAdminId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"appProfileName",
+					"appProfileBosConfigId",
+					"appProfileAdminId"
+				],
+				"type": "object"
+			},
+			"IAppPlatformProfile": {
+				"allOf": [
+					{
+						"$ref": "#/components/schemas/IPlatform"
+					},
+					{
+						"properties": {
+							"appProfile": {
+								"$ref": "#/components/schemas/IAppProfile"
+							}
+						},
+						"required": [
+							"appProfile"
+						],
+						"type": "object"
+					}
+				]
+			},
+			"IApplicationToken": {
+				"allOf": [
+					{
+						"$ref": "#/components/schemas/IToken"
+					},
+					{
+						"properties": {
+							"platformList": {
+								"items": {
+									"$ref": "#/components/schemas/IAppPlatformProfile"
+								},
+								"type": "array"
+							},
+							"applicationProfileList": {
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
+							},
+							"applicationId": {
+								"type": "string"
+							}
+						},
+						"type": "object"
+					}
+				]
+			},
+			"IApplicationLoginParams": {
+				"properties": {
+					"clientId": {
+						"type": "string"
+					},
+					"clientSecret": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"clientId",
+					"clientSecret"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IApplicationLogs": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"date": {
+						"type": "string"
+					},
+					"message": {
+						"type": "string"
+					},
+					"actor": {
+						"properties": {
+							"actorName": {
+								"type": "string"
+							},
+							"actorId": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"actorName",
+							"actorId"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"type",
+					"date",
+					"message",
+					"actor"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IUserType": {
+				"enum": [
+					"authAdmin",
+					"Super User",
+					"Simple User"
+				],
+				"type": "string"
+			},
+			"IPlatformList": {
+				"properties": {
+					"platformId": {
+						"type": "string"
+					},
+					"platformName": {
+						"type": "string"
+					},
+					"userProfile": {
+						"properties": {
+							"userProfileName": {
+								"type": "string"
+							},
+							"userProfileBosConfigId": {
+								"type": "string"
+							},
+							"userProfileAdminId": {
+								"type": "string"
+							},
+							"userProfileId": {
+								"type": "string"
+							},
+							"name": {
+								"type": "string"
+							}
+						},
+						"type": "object"
+					}
+				},
+				"required": [
+					"platformId",
+					"userProfile"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IUser": {
+				"properties": {
+					"id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "number",
+								"format": "double"
+							}
+						]
+					},
+					"type": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"userName": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"telephone": {
+						"type": "string"
+					},
+					"info": {
+						"type": "string"
+					},
+					"userType": {
+						"$ref": "#/components/schemas/IUserType"
+					},
+					"grant_types": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"platformList": {
+						"items": {
+							"$ref": "#/components/schemas/IPlatformList"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"userType"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IUserCreationParams": {
+				"properties": {
+					"userName": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"telephone": {
+						"type": "string"
+					},
+					"info": {
+						"type": "string"
+					},
+					"userType": {
+						"$ref": "#/components/schemas/IUserType"
+					},
+					"platformList": {
+						"items": {
+							"$ref": "#/components/schemas/IPlatformList"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"userName",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IUserUpdateParams": {
+				"properties": {
+					"userName": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"telephone": {
+						"type": "string"
+					},
+					"info": {
+						"type": "string"
+					},
+					"userType": {
+						"$ref": "#/components/schemas/IUserType"
+					},
+					"grant_types": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"platformList": {
+						"items": {
+							"$ref": "#/components/schemas/IPlatformList"
+						},
+						"type": "array"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IUpdateUserPassword": {
+				"properties": {
+					"authAdminPassword": {
+						"type": "string"
+					},
+					"userLastPassword": {
+						"type": "string"
+					},
+					"newPassword": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"newPassword"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IAuthAdminUpdateParams": {
+				"properties": {
+					"userName": {
+						"type": "string"
+					},
+					"oldPassword": {
+						"type": "string"
+					},
+					"newPassword": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"telephone": {
+						"type": "string"
+					},
+					"info": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"userName"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IUserProfile": {
+				"properties": {
+					"userProfileName": {
+						"type": "string"
+					},
+					"userProfileBosConfigId": {
+						"type": "string"
+					},
+					"userProfileAdminId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"userProfileName",
+					"userProfileBosConfigId",
+					"userProfileAdminId"
+				],
+				"type": "object"
+			},
+			"IUserPlatformProfile": {
+				"allOf": [
+					{
+						"$ref": "#/components/schemas/IPlatform"
+					},
+					{
+						"properties": {
+							"userProfile": {
+								"$ref": "#/components/schemas/IUserProfile"
+							}
+						},
+						"required": [
+							"userProfile"
+						],
+						"type": "object"
+					}
+				]
+			},
+			"IUserToken": {
+				"allOf": [
+					{
+						"$ref": "#/components/schemas/IToken"
+					},
+					{
+						"properties": {
+							"platformList": {
+								"items": {
+									"$ref": "#/components/schemas/IUserPlatformProfile"
+								},
+								"type": "array"
+							},
+							"serverId": {
+								"type": "string"
+							},
+							"userProfile": {
+								"type": "string"
+							},
+							"userType": {
+								"type": "string"
+							},
+							"userId": {
+								"type": "string"
+							}
+						},
+						"type": "object"
+					}
+				]
+			},
+			"IUserLoginParams": {
+				"properties": {
+					"userName": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"userName",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IUserLogs": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"date": {
+						"type": "string"
+					},
+					"message": {
+						"type": "string"
+					},
+					"actor": {
+						"properties": {
+							"actorName": {
+								"type": "string"
+							},
+							"actorId": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"actorName",
+							"actorId"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"type",
+					"date",
+					"message",
+					"actor"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ServerType": {
+				"enum": [
+					"INTERNAL_SERVER",
+					"EXTERNAL_SERVER"
+				],
+				"type": "string"
+			},
+			"CONNECTION_METHODS": {
+				"enum": [
+					"local",
+					"saml",
+					"oauth2",
+					"openid connect"
+				],
+				"type": "string"
+			},
+			"IOpenIdAuthenticationInfo": {
+				"properties": {
+					"issuer": {
+						"type": "string"
+					},
+					"authorizationUrl": {
+						"type": "string"
+					},
+					"tokenUrl": {
+						"type": "string"
+					},
+					"userInfoUrl": {
+						"type": "string"
+					},
+					"clientId": {
+						"type": "string"
+					},
+					"clientSecret": {
+						"type": "string"
+					},
+					"callbackUrl": {
+						"type": "string"
+					},
+					"scopes": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
+							}
+						]
+					},
+					"logoutUrl": {
+						"type": "string"
+					},
+					"profileClassifyByPriority": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"issuer",
+					"authorizationUrl",
+					"tokenUrl",
+					"userInfoUrl",
+					"clientId",
+					"clientSecret",
+					"callbackUrl",
+					"scopes"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ISAMLAuthenticationInfo": {
+				"properties": {
+					"issuer": {
+						"type": "string"
+					},
+					"entryPoint": {
+						"type": "string"
+					},
+					"cert": {
+						"type": "string"
+					},
+					"callbackUrl": {
+						"type": "string"
+					},
+					"logoutUrl": {
+						"type": "string"
+					},
+					"serverEntityId": {
+						"type": "string"
+					},
+					"profileClassifyByPriority": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"issuer",
+					"entryPoint",
+					"cert",
+					"callbackUrl"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IOAuthAuthenticationInfo": {
+				"properties": {
+					"clientId": {
+						"type": "string"
+					},
+					"clientSecret": {
+						"type": "string"
+					},
+					"callbackUrl": {
+						"type": "string"
+					},
+					"grant_type": {
+						"type": "string"
+					},
+					"endpoint": {
+						"type": "string"
+					},
+					"logoutUrl": {
+						"type": "string"
+					},
+					"scopes": {
+						"type": "string"
+					},
+					"tokenUrl": {
+						"type": "string"
+					},
+					"profileClassifyByPriority": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"clientId",
+					"clientSecret",
+					"tokenUrl"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ILocalAuthenticationInfo": {
+				"properties": {
+					"code_challenge": {
+						"type": "string"
+					},
+					"code_challenge_method": {
+						"type": "string",
+						"enum": [
+							"S256"
+						],
+						"nullable": false
+					}
+				},
+				"required": [
+					"code_challenge",
+					"code_challenge_method"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ILoginServer": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"type": {
+						"$ref": "#/components/schemas/ServerType"
+					},
+					"authentication_method": {
+						"$ref": "#/components/schemas/CONNECTION_METHODS"
+					},
+					"authentication_info": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/IOpenIdAuthenticationInfo"
+							},
+							{
+								"$ref": "#/components/schemas/ISAMLAuthenticationInfo"
+							},
+							{
+								"$ref": "#/components/schemas/IOAuthAuthenticationInfo"
+							},
+							{
+								"$ref": "#/components/schemas/ILocalAuthenticationInfo"
+							}
+						]
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"INotification": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"date": {
+						"type": "string"
+					},
+					"actor": {
+						"properties": {
+							"actorName": {
+								"type": "string"
+							},
+							"actorId": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"actorName",
+							"actorId"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"date"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"INotificationCreationParams": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"date": {
+						"type": "string"
+					},
+					"actor": {
+						"properties": {
+							"actorName": {
+								"type": "string"
+							},
+							"actorId": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"actorName",
+							"actorId"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"name",
+					"date"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"statusOrgan": {
+				"enum": [
+					"online",
+					"fail",
+					"stop"
+				],
+				"type": "string"
+			},
+			"IOrgan": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"statusOrgan": {
+						"$ref": "#/components/schemas/statusOrgan"
+					},
+					"organType": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"platformId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"statusOrgan",
+					"organType",
+					"platformId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IOrganCreationParams": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"organType": {
+						"type": "string"
+					},
+					"statusOrgan": {
+						"type": "string"
+					},
+					"platformId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"name",
+					"organType",
+					"statusOrgan",
+					"platformId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IOrganUpdateParams": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"organType": {
+						"type": "string"
+					},
+					"statusOrgan": {
+						"$ref": "#/components/schemas/statusOrgan"
+					},
+					"platformId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"name",
+					"organType",
+					"statusOrgan",
+					"platformId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IPlateformCreationParams": {
+				"properties": {
+					"idPlatformOfAdmin": {
+						"type": "string"
+					},
+					"platformName": {
+						"type": "string"
+					},
+					"platformId": {
+						"type": "string"
+					},
+					"loginServerIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"idPlatformOfAdmin",
+					"platformName",
+					"platformId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IPlatformUpdateParams": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"redirectUrl": {
+						"type": "string"
+					},
+					"url": {
+						"type": "string"
+					},
+					"address": {
+						"type": "string"
+					},
+					"loginServerIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"grant_types": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IPlatformLogs": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"date": {
+						"type": "string"
+					},
+					"message": {
+						"type": "string"
+					},
+					"actor": {
+						"properties": {
+							"actorName": {
+								"type": "string"
+							},
+							"actorId": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"actorName",
+							"actorId"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"type",
+					"date",
+					"message",
+					"actor"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IRegisterKeyObject": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"value": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"type",
+					"value"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IRegisterParams": {
+				"properties": {
+					"clientId": {
+						"type": "string"
+					},
+					"clientSecret": {
+						"type": "string"
+					},
+					"platformCreationParms": {
+						"$ref": "#/components/schemas/IPlateformCreationParams"
+					}
+				},
+				"required": [
+					"clientId",
+					"clientSecret"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ICodeToken": {
+				"allOf": [
+					{
+						"$ref": "#/components/schemas/IToken"
+					},
+					{
+						"properties": {
+							"platformList": {
+								"items": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IAppPlatformProfile"
+										},
+										{
+											"$ref": "#/components/schemas/IUserPlatformProfile"
+										}
+									]
+								},
+								"type": "array"
+							},
+							"applicationProfileList": {
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
+							},
+							"userId": {
+								"type": "string"
+							},
+							"applicationId": {
+								"type": "string"
+							}
+						},
+						"type": "object"
+					}
+				]
+			},
+			"ICodeBase": {
+				"properties": {
+					"usedAt": {
+						"type": "number",
+						"format": "double"
+					},
+					"createdAt": {
+						"type": "number",
+						"format": "double"
+					},
+					"used": {
+						"type": "boolean"
+					},
+					"code": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"usedAt",
+					"createdAt",
+					"used",
+					"code"
+				],
+				"type": "object"
+			},
+			"ICodeResponse": {
+				"allOf": [
+					{
+						"$ref": "#/components/schemas/ICodeBase"
+					},
+					{
+						"properties": {
+							"profiles": {
+								"items": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IAppPlatformProfile"
+										},
+										{
+											"$ref": "#/components/schemas/IUserPlatformProfile"
+										}
+									]
+								},
+								"type": "array"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"profiles",
+							"id"
+						],
+						"type": "object"
+					}
+				]
+			},
+			"IUserProfileBase": {
+				"properties": {
+					"userProfileId": {
+						"type": "string"
+					},
+					"platformId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"userProfileId",
+					"platformId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IAppProfileBase": {
+				"properties": {
+					"appProfileId": {
+						"type": "string"
+					},
+					"platformId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"appProfileId",
+					"platformId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IProfile": {
+				"anyOf": [
+					{
+						"$ref": "#/components/schemas/IUserProfileBase"
+					},
+					{
+						"$ref": "#/components/schemas/IAppProfileBase"
+					}
+				]
+			}
+		},
+		"securitySchemes": {
+			"jwt": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT"
+			}
+		}
+	},
+	"info": {
+		"title": "Spinal Organ Auth API",
+		"version": "1.0.0",
+		"description": "API for managing authentication and authorization in the Spinal Organ system",
+		"license": {
+			"name": "ISC"
+		},
+		"contact": {
+			"name": "Spinalcom",
+			"email": "developers@spinalcom.com"
+		}
+	},
+	"openapi": "3.0.0",
+	"paths": {
+		"/applications": {
+			"post": {
+				"operationId": "CreateApplication",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IApplication"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Applications"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:write"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IApplicationCreationParams"
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "GetApplications",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/IApplication"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Applications"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/applications/{applicationId}": {
+			"get": {
+				"operationId": "GetApplication",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IApplication"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Applications"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read",
+							"ownData:read"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "applicationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"delete": {
+				"operationId": "DeleteApplication",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"error": {
+											"type": "string"
+										},
+										"message": {
+											"type": "string"
+										}
+									},
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Applications"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:delete"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "applicationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateApplication",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IApplication"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Applications"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:write"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "applicationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IApplicationUpdateParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/applications/login": {
+			"post": {
+				"operationId": "Login",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IApplicationToken"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Applications"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IApplicationLoginParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/applications/{applicationId}/applicationLogs": {
+			"get": {
+				"operationId": "GetApplicationLogs",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/IApplicationLogs"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Applications"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "applicationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/users": {
+			"post": {
+				"operationId": "CreateUser",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IUser"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:write"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IUserCreationParams"
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "GetUsers",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/IUser"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": []
+			},
+			"put": {
+				"operationId": "UpdateAuthAdmin",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IUser"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:write",
+							"ownData:write"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IAuthAdminUpdateParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/users/{userId}": {
+			"get": {
+				"operationId": "GetUser",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IUser"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read",
+							"ownData:read"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"delete": {
+				"operationId": "DeleteUser",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{},
+										{
+											"properties": {
+												"message": {
+													"type": "string"
+												},
+												"error": {
+													"type": "string"
+												}
+											},
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:delete"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateUser",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IUser"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:write"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IUserUpdateParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/users/userInfo": {
+			"post": {
+				"operationId": "GetUserInfoByToken",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IUser"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read",
+							"ownData:read"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"token": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"token"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/users/{userId}/updatePassword": {
+			"put": {
+				"operationId": "UpdateUserPassword",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:write"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IUpdateUserPassword"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/users/getAuthAdmin": {
+			"post": {
+				"operationId": "GetAuthAdmin",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IUser"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/users/userProfilesList": {
+			"post": {
+				"operationId": "UserProfilesList",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:write"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/users/login": {
+			"post": {
+				"operationId": "Login",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IUserToken"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"all": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IUserLoginParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/users/loginAuthAdmin": {
+			"post": {
+				"operationId": "LoginAuthAdmin",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IUserToken"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"all": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IUserLoginParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/users/getRoles": {
+			"post": {
+				"operationId": "GetRoles",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"properties": {
+													"name": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"name"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"all": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/users/{userId}/userLogs": {
+			"get": {
+				"operationId": "GetUserLogs",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/IUserLogs"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/loginserver/create": {
+			"post": {
+				"operationId": "CreateLoginServer",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"LoginServer"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:write"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ILoginServer"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/loginserver/all_servers": {
+			"get": {
+				"operationId": "GetAllLoginServer",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"LoginServer"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/loginserver/{serverId}": {
+			"get": {
+				"operationId": "GetLoginServer",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"LoginServer"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "serverId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/loginserver/update/{serverId}": {
+			"put": {
+				"operationId": "EditLoginServer",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"LoginServer"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:write"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "serverId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ILoginServer"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/loginserver/delete/{serverId}": {
+			"delete": {
+				"operationId": "DeleteLoginServer",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"properties": {
+												"error": {},
+												"message": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"message"
+											],
+											"type": "object"
+										},
+										{
+											"properties": {
+												"message": {},
+												"error": {}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"LoginServer"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:delete"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "serverId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/logs": {
+			"get": {
+				"operationId": "GetLogs",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Logs"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/logs/getPlatformsLogs": {
+			"get": {
+				"operationId": "GetPlatformsLogs",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Logs"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/notification": {
+			"post": {
+				"operationId": "CreateNotification",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/INotification"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Notification"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/INotificationCreationParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/organs/{platformId}": {
+			"post": {
+				"operationId": "CreateOrgan",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IOrgan"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Organs"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:write"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IOrganCreationParams"
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "GetOrgans",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/IOrgan"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Organs"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "platformId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/organs/{organId}": {
+			"put": {
+				"operationId": "UpdatePlateform",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IOrgan"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Organs"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "organId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IOrganUpdateParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/platforms": {
+			"post": {
+				"operationId": "CreatePlateform",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Platforms"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:write"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IPlateformCreationParams"
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "GetPlatforms",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/IPlatform"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Platforms"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/platforms/{platformId}": {
+			"get": {
+				"operationId": "GetPlateform",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IPlatform"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Platforms"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "platformId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"delete": {
+				"operationId": "DeletePlatform",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"error": {
+											"type": "string"
+										},
+										"message": {
+											"type": "string"
+										}
+									},
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Platforms"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:delete"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "platformId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdatePlateform",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IPlatform"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Platforms"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:write"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "platformId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IPlatformUpdateParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/platforms/{platformId}/loginServers": {
+			"get": {
+				"operationId": "GetPlateformLoginServers",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Platforms"
+				],
+				"security": [
+					{
+						"all": [
+							"all"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "platformId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "RemoveLoginServersFromPlateform",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Platforms"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:delete"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "platformId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"ids": {
+										"items": {
+											"type": "string"
+										},
+										"type": "array"
+									}
+								},
+								"required": [
+									"ids"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/platforms/{platformId}/getUserProfileList": {
+			"get": {
+				"operationId": "GetUserProfileList",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/IUserProfile"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Platforms"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "platformId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/platforms/{platformId}/getAppProfileList": {
+			"get": {
+				"operationId": "GetAppProfileService",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/IAppProfile"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Platforms"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "platformId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/platforms/{platformId}/platformLogs": {
+			"get": {
+				"operationId": "GetPlatformLogs",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/IPlatformLogs"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Platforms"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "platformId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/platforms/registerKey": {
+			"post": {
+				"operationId": "UpdateRegisterKeyNode",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IRegisterKeyObject"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Platforms"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:write"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/platforms/updatePlatformToken": {
+			"post": {
+				"operationId": "UpdatePlatformToken",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"error": {
+											"type": "string"
+										},
+										"token": {
+											"type": "string"
+										},
+										"code": {
+											"type": "number",
+											"format": "double"
+										}
+									},
+									"required": [
+										"code"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Platforms"
+				],
+				"security": [
+					{
+						"jwt": [
+							"platform:write"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"token": {
+										"type": "string"
+									},
+									"clientId": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"token",
+									"clientId"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/platforms/updatePlatformData/{platformId}": {
+			"post": {
+				"operationId": "SendUpdatePlatformDataRequest",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Platforms"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:write"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "platformId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/registerKey": {
+			"post": {
+				"operationId": "UpdateRegisterKeyNode",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IRegisterKeyObject"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"RegisterKey"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:write"
+						]
+					}
+				],
+				"parameters": []
+			},
+			"get": {
+				"operationId": "GetRegisterKeyNode",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IRegisterKeyObject"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"RegisterKey"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/register": {
+			"post": {
+				"operationId": "RegisterPlatform",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Register"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IRegisterParams"
+							}
+						}
+					}
+				}
+			},
+			"put": {
+				"operationId": "UpdatePlatform",
+				"responses": {
+					"201": {
+						"description": "Updated",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Register"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IPlatformUpdateParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/tokens": {
+			"get": {
+				"operationId": "GetTokens",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/IToken"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Tokens"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/tokens/UserToken": {
+			"get": {
+				"operationId": "GetUserTokens",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/IToken"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Tokens"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/tokens/ApplicationToken": {
+			"get": {
+				"operationId": "GetApplicationTokens",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/IToken"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Tokens"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/tokens/getUserProfileByToken": {
+			"post": {
+				"operationId": "GetUserProfileByToken",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Tokens"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read",
+							"ownData:read"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/tokens/getAppProfileByToken": {
+			"post": {
+				"operationId": "GetAppProfileByToken",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Tokens"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read",
+							"ownData:read"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/tokens/getCodeProfileByToken": {
+			"post": {
+				"operationId": "GetCodeProfileByToken",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Tokens"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin:read",
+							"ownData:read"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/tokens/verifyToken": {
+			"post": {
+				"operationId": "VerifyToken",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Tokens"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/tokens/generate_redirect_url": {
+			"post": {
+				"operationId": "CreateRedirectToBosUrl",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"properties": {
+												"sessionId": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"sessionId"
+											],
+											"type": "object"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Tokens"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"token": {
+										"type": "string"
+									},
+									"bosApiUrl": {
+										"type": "string"
+									},
+									"bosurl": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"token",
+									"bosApiUrl",
+									"bosurl"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/codes/consume/{code}": {
+			"post": {
+				"operationId": "ConsumeCode",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/ICodeToken"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Codes"
+				],
+				"security": [
+					{
+						"all": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/codes": {
+			"get": {
+				"operationId": "GetAllCode",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/ICodeResponse"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Codes"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/codes/create": {
+			"post": {
+				"operationId": "GenerateCode",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/ICodeResponse"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Codes"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"count": {
+										"type": "number",
+										"format": "double"
+									},
+									"profiles": {
+										"anyOf": [
+											{
+												"$ref": "#/components/schemas/IProfile"
+											},
+											{
+												"items": {
+													"$ref": "#/components/schemas/IProfile"
+												},
+												"type": "array"
+											}
+										]
+									}
+								},
+								"required": [
+									"profiles"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/codes/getcode/{code}": {
+			"get": {
+				"operationId": "GetCode",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/ICodeResponse"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Codes"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/codes/delete/{code}": {
+			"delete": {
+				"operationId": "RemoveCode",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/ICodeResponse"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Codes"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/codes/delete": {
+			"delete": {
+				"operationId": "RemoveCodes",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/ICodeResponse"
+											},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Codes"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"codes": {
+										"items": {
+											"type": "string"
+										},
+										"type": "array"
+									}
+								},
+								"required": [
+									"codes"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}

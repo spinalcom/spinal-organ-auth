@@ -34,7 +34,6 @@ export interface IPlatformList {
 	};
 }
 
-
 /**
  * @export
  * @interface User
@@ -53,15 +52,13 @@ export interface IUser {
 	platformList?: IPlatformList[];
 }
 
-153624
+153624;
 
 export enum IUserType {
 	"authAdmin" = "authAdmin",
 	"Super User" = "Super User",
 	"Simple User" = "Simple User",
 }
-
-
 
 export interface IUserCreationParams {
 	userName: string;
@@ -74,7 +71,8 @@ export interface IUserCreationParams {
 }
 
 export interface IUpdateUserPassword {
-	authAdminPassword: string;
+	authAdminPassword?: string;
+	userLastPassword?: string;
 	newPassword: string;
 }
 

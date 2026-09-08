@@ -3,30 +3,71 @@
 	"noImplicitAdditionalProperties": "throw-on-extras",
 	"controllerPathGlobs": ["src/**/*Controller.ts"],
 	"spec": {
-		"outputDirectory": "./dist",
-		"host": "localhost:3000",
-		"basePath": "/v1",
+		"name": "Spinal Organ Auth API",
+		"description": "API for managing authentication and authorization in the Spinal Organ system",
+		"version": "1.0.0",
+		"tags": [
+			{
+				"name": "Applications",
+				"description": "Manage applications, authentication, and application logs."
+			},
+			{
+				"name": "Users",
+				"description": "Manage users, roles, profiles, and user authentication flows."
+			},
+			{
+				"name": "LoginServer",
+				"description": "Manage login server configuration and connectivity settings."
+			},
+			{
+				"name": "Logs",
+				"description": "Retrieve authentication and platform activity logs."
+			},
+			{
+				"name": "Notification",
+				"description": "Send and manage notification events."
+			},
+			{
+				"name": "Organs",
+				"description": "Manage organs linked to platforms."
+			},
+			{
+				"name": "Platforms",
+				"description": "Manage platforms, platform profiles, keys, and related operations."
+			},
+			{
+				"name": "RegisterKey",
+				"description": "Access and rotate the platform register key node."
+			},
+			{
+				"name": "Register",
+				"description": "Register and update platform onboarding data."
+			},
+			{
+				"name": "Tokens",
+				"description": "Manage and validate authentication tokens and token-based lookups."
+			},
+			{
+				"name": "Codes",
+				"description": "Generate, list, consume, and delete unique access codes."
+			}
+		],
+		"contact": {
+			"name": "Spinalcom",
+			"email": "developers@spinalcom.com"
+		},
+		"outputDirectory": "./src/swagger",
+		"specVersion": 3,
 		"securityDefinitions": {
 			"jwt": {
-				"type": "jwt",
-				"scopes": {
-					"authAdmin": "read your pets",
-					"profile": "profile"
-				}
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT"
 			}
-		},
-		"yaml": true,
-		"specVersion": 3
-	},
-	"swagger": {
-		"outputDirectory": "./dist",
-		"entryFile": "./src/services/server.ts",
-		"host": "localhost:5000",
-		"basePath": "/v1"
+		}
 	},
 	"routes": {
 		"authenticationModule": "./src/security/index.ts",
-		"basePath": "",
 		"entryFile": "./src/index.ts",
 		"middleware": "express",
 		"routesDir": "./src"

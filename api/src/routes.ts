@@ -196,7 +196,8 @@ const models: TsoaRoute.Models = {
     "IUpdateUserPassword": {
         "dataType": "refObject",
         "properties": {
-            "authAdminPassword": {"dataType":"string","required":true},
+            "authAdminPassword": {"dataType":"string"},
+            "userLastPassword": {"dataType":"string"},
             "newPassword": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
@@ -392,6 +393,17 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IPlateformCreationParams": {
+        "dataType": "refObject",
+        "properties": {
+            "idPlatformOfAdmin": {"dataType":"string","required":true},
+            "platformName": {"dataType":"string","required":true},
+            "platformId": {"dataType":"string","required":true},
+            "loginServerIds": {"dataType":"array","array":{"dataType":"string"}},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IPlatformUpdateParams": {
         "dataType": "refObject",
         "properties": {
@@ -425,17 +437,6 @@ const models: TsoaRoute.Models = {
             "name": {"dataType":"string","required":true},
             "type": {"dataType":"string","required":true},
             "value": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IPlateformCreationParams": {
-        "dataType": "refObject",
-        "properties": {
-            "idPlatformOfAdmin": {"dataType":"string","required":true},
-            "platformName": {"dataType":"string","required":true},
-            "platformId": {"dataType":"string","required":true},
-            "loginServerIds": {"dataType":"array","array":{"dataType":"string"}},
         },
         "additionalProperties": false,
     },
@@ -863,7 +864,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/users',
-            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin:write","ownData:write"]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.updateAuthAdmin)),
 
@@ -1332,7 +1333,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function PlatformsController_createPlateform(request: any, response: any, next: any) {
             const args = {
-                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"IPlateformCreationParams"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1744,7 +1745,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function RegisterController_updatePlatform(request: any, response: any, next: any) {
             const args = {
-                    object: {"in":"body","name":"object","required":true,"dataType":"any"},
+                    object: {"in":"body","name":"object","required":true,"ref":"IPlatformUpdateParams"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -2050,7 +2051,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function UniqueCodeController_getCode(request: any, response: any, next: any) {
             const args = {
-                    code: {"in":"path","name":"code","required":true,"dataType":"any"},
+                    code: {"in":"path","name":"code","required":true,"dataType":"string"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

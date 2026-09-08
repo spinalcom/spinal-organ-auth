@@ -22,12 +22,13 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse, Tags } from "tsoa";
 import { IOrganCreationParams, IOrganUpdateParams, IOrgan, statusOrgan } from "./organ.model";
 import { OrganService } from "./organService";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 import { SCOPES } from "../../constant";
 
+@Tags("Organs")
 @Route("organs")
 export class OrgansController extends Controller {
 	@Security("jwt", ["authAdmin:write"])
@@ -38,7 +39,7 @@ export class OrgansController extends Controller {
 			let organ = OrganService.getInstance().createOrgan(requestBody);
 			this.setStatus(HttpStatusCode.CREATED);
 			return organ;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -51,7 +52,7 @@ export class OrgansController extends Controller {
 			const organs = await OrganService.getInstance().getOrgans(platformId);
 			this.setStatus(HttpStatusCode.OK);
 			return organs;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -64,7 +65,7 @@ export class OrgansController extends Controller {
 			const updated = await OrganService.getInstance().updateOrgan(organId, requestBody);
 			this.setStatus(HttpStatusCode.OK);
 			return updated;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}

@@ -22,7 +22,7 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse, Tags } from "tsoa";
 import { IApplication, IApplicationCreationParams, IApplicationUpdateParams, IApplicationLoginParams, IApplicationLogs } from "./application.model";
 import { ApplicationService } from "./applicationService";
 import { IApplicationToken } from "../tokens/token.model";
@@ -30,6 +30,7 @@ import { HttpStatusCode } from "../../utilities/http-status-code";
 
 let applicationService = ApplicationService.getInstance();
 
+@Tags("Applications")
 @Route("applications")
 export class ApplicationsController extends Controller {
 	@Security("jwt", ["authAdmin:write"])
@@ -40,7 +41,7 @@ export class ApplicationsController extends Controller {
 			let application = await applicationService.createApplication(requestBody);
 			this.setStatus(HttpStatusCode.CREATED);
 			return application;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -48,12 +49,12 @@ export class ApplicationsController extends Controller {
 
 	@Security("jwt", ["authAdmin:read"])
 	@Get()
-	public async getApplications(): Promise<any[] | { error: string }> {
+	public async getApplications(): Promise<IApplication[] | { error: string }> {
 		try {
 			const applications = await applicationService.getApplications();
 			this.setStatus(HttpStatusCode.OK);
 			return applications;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -66,7 +67,7 @@ export class ApplicationsController extends Controller {
 			const application = await applicationService.getApplication(applicationId);
 			this.setStatus(HttpStatusCode.OK);
 			return application;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -74,12 +75,12 @@ export class ApplicationsController extends Controller {
 
 	@Security("jwt", ["authAdmin:delete"])
 	@Delete("{applicationId}")
-	public async deleteApplication(@Path() applicationId: string): Promise<void | { message?: string; error?: string }> {
+	public async deleteApplication(@Path() applicationId: string): Promise<{ message?: string; error?: string }> {
 		try {
 			const app = await applicationService.deleteApplication(applicationId);
 			this.setStatus(HttpStatusCode.OK);
 			return { message: "Application deleted" };
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -93,7 +94,7 @@ export class ApplicationsController extends Controller {
 
 			this.setStatus(HttpStatusCode.OK);
 			return updated;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -105,7 +106,7 @@ export class ApplicationsController extends Controller {
 			const appToken = await applicationService.login(requestBody);
 			this.setStatus(HttpStatusCode.OK);
 			return appToken;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -118,7 +119,7 @@ export class ApplicationsController extends Controller {
 			const application = await applicationService.getApplicationLogs(applicationId);
 			this.setStatus(HttpStatusCode.OK);
 			return application;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}

@@ -22,7 +22,7 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Body, Controller, Delete, Get, Path, Post, Put, Query, Res, Route, Security, SuccessResponse } from "tsoa";
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Res, Route, Security, SuccessResponse, Tags } from "tsoa";
 import { IToken, IUserToken, IApplicationToken } from "./token.model";
 import { TokensService } from "./tokenService";
 import { HttpStatusCode } from "../../utilities/http-status-code";
@@ -31,6 +31,7 @@ import { session } from "passport";
 import { formatResponseHtml } from "../../utilities/formatResponseHtml";
 import { Response } from "express";
 
+@Tags("Tokens")
 @Route("tokens")
 export class TokensController extends Controller {
 	@Security("jwt", ["authAdmin:read"])
@@ -40,7 +41,7 @@ export class TokensController extends Controller {
 			const tokens = await TokensService.getInstance().getTokens();
 			this.setStatus(HttpStatusCode.OK);
 			return tokens;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -53,7 +54,7 @@ export class TokensController extends Controller {
 			const userTokens = await TokensService.getInstance().getUserTokens();
 			this.setStatus(HttpStatusCode.OK);
 			return userTokens;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -66,7 +67,7 @@ export class TokensController extends Controller {
 			const applicationTokens = await TokensService.getInstance().getApplicationTokens();
 			this.setStatus(HttpStatusCode.OK);
 			return applicationTokens;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -79,7 +80,7 @@ export class TokensController extends Controller {
 			const profile = await TokensService.getInstance().getUserProfileByToken(requestBody.token, requestBody.platformId);
 			this.setStatus(HttpStatusCode.OK);
 			return profile;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -92,7 +93,7 @@ export class TokensController extends Controller {
 			const profile = await TokensService.getInstance().getAppProfileByToken(requestBody.token, requestBody.platformId);
 			this.setStatus(HttpStatusCode.OK);
 			return profile;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -105,7 +106,7 @@ export class TokensController extends Controller {
 			const profile = await TokensService.getInstance().getCodeProfileByToken(requestBody.token, requestBody.platformId);
 			this.setStatus(HttpStatusCode.OK);
 			return profile;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -117,7 +118,7 @@ export class TokensController extends Controller {
 			const verifiedToken = await TokensService.getInstance().verifyToken(requestBody.tokenParam, requestBody.platformId, requestBody.actor);
 			this.setStatus(HttpStatusCode.OK);
 			return verifiedToken;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -132,7 +133,7 @@ export class TokensController extends Controller {
 			this.setStatus(HttpStatusCode.OK);
 			return { sessionId };
 
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -149,7 +150,7 @@ export class TokensController extends Controller {
 	// 		return html;
 	// 		// this.setStatus(HttpStatusCode.OK);
 	// 		// res.status(HttpStatusCode.OK).send(html);
-	// 	} catch (error) {
+	// 	} catch (error: any) {
 	// 		this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 	// 		return { error: error.message };
 

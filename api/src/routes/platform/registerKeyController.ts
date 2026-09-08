@@ -21,13 +21,14 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse } from "tsoa";
+import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse, Tags } from "tsoa";
 import { IOrgan } from "../organ/organ.model";
 import { IRegisterKeyObject } from "./platform.model";
 import { PlatformService } from "./platformServices";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 import { SCOPES } from "../../constant";
 
+@Tags("RegisterKey")
 @Route("registerKey")
 export class RegisterKeyController extends Controller {
 	@Security("jwt", ["authAdmin:write"])
@@ -37,7 +38,7 @@ export class RegisterKeyController extends Controller {
 			const newRegisterKey = await PlatformService.getInstance().updateRegisterKeyNode();
 			this.setStatus(HttpStatusCode.OK);
 			return newRegisterKey;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
@@ -50,7 +51,7 @@ export class RegisterKeyController extends Controller {
 			const registerKey = await PlatformService.getInstance().getRegisterKeyNode();
 			this.setStatus(HttpStatusCode.OK);
 			return registerKey;
-		} catch (error) {
+		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}

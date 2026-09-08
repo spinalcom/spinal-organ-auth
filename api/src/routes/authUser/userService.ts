@@ -262,18 +262,22 @@ export class UserService {
 	 * updateUserPassword
 	 */
 	public async updateUserPassword(userId: string, requestBody: IUpdateUserPassword) {
-		const isAuthAdmin = true;
-		const admin = await this.getUserByCredentials(AUTH_ADMIN_NAME, requestBody.authAdminPassword, isAuthAdmin);
-		if (!admin) throw new OperationError("ERROR_PASSWORD", HttpStatusCode.NOT_FOUND);
+		const itIsAuthAdmin = requestBody.authAdminPassword ? true : false;
+		const password = itIsAuthAdmin ? requestBody.authAdminPassword : requestBody.userLastPassword;
 
-		const users = await this.getUserNodes(userId);
-		const user = users.find((user) => user.getId().get() === userId);
-		if (!user) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+		let userFound = await this.getUserByCredentials(AUTH_ADMIN_NAME, password || "", itIsAuthAdmin);
+		if (!userFound) throw new OperationError("ERROR_PASSWORD", HttpStatusCode.FORBIDDEN);
+
+		if (itIsAuthAdmin) {
+			const users = await this.getUserNodes(userId);
+			const userFound = users.find((user) => user.getId().get() === userId);
+			if (!userFound) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+		}
 
 		const newPassword = await bcrypt.hash(requestBody.newPassword, 10);
-		user.info.password.set(newPassword);
+		userFound.info.password.set(newPassword);
 
-		return this._formatUser(user);
+		return this._formatUser(userFound);
 	}
 
 	public async deleteUser(userId: string): Promise<void> {
