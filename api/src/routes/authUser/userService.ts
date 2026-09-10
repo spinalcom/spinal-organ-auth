@@ -261,18 +261,20 @@ export class UserService {
 	/**
 	 * updateUserPassword
 	 */
-	public async updateUserPassword(userId: string, requestBody: IUpdateUserPassword) {
-		const itIsAuthAdmin = requestBody.authAdminPassword ? true : false;
-		const password = itIsAuthAdmin ? requestBody.authAdminPassword : requestBody.userLastPassword;
+	public async updateUserPassword(userName: string, requestBody: IUpdateUserPassword) {
+		const itsComeFromAuthAdmin = requestBody.authAdminPassword ? true : false;
+		let userFound: SpinalNode | undefined;
 
-		let userFound = await this.getUserByCredentials(AUTH_ADMIN_NAME, password || "", itIsAuthAdmin);
-		if (!userFound) throw new OperationError("ERROR_PASSWORD", HttpStatusCode.FORBIDDEN);
-
-		if (itIsAuthAdmin) {
-			const users = await this.getUserNodes(userId);
-			const userFound = users.find((user) => user.getId().get() === userId);
-			if (!userFound) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+		if (itsComeFromAuthAdmin) {
+			const authUser = await this.getUserByCredentials(AUTH_ADMIN_NAME, requestBody.authAdminPassword || "", true);
+			if (!authUser) throw new OperationError("ERROR_PASSWORD", HttpStatusCode.FORBIDDEN);
+			const users = await this.getUserNodes(userName);
+			userFound = users[0];
+		} else {
+			userFound = await this.getUserByCredentials(userName, requestBody.userLastPassword || "", false);
 		}
+
+		if (!userFound) throw new OperationError("ERROR_PASSWORD", HttpStatusCode.FORBIDDEN);
 
 		const newPassword = await bcrypt.hash(requestBody.newPassword, 10);
 		userFound.info.password.set(newPassword);

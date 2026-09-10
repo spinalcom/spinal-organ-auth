@@ -22,7 +22,7 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse, Tags } from "tsoa";
-import { IPlatform, IPlateformCreationParams, IPlatformUpdateParams, IRegisterParams } from "../platform/platform.model";
+import { IPlatform, IPlateformCreationParams, IPlatformUpdateParams, IRegisterParams, IplateformUpdate } from "../platform/platform.model";
 import { PlatformService } from "../platform/platformServices";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 
@@ -44,7 +44,7 @@ export class RegisterController extends Controller {
 
 	@SuccessResponse("201", "Updated") // Custom success response
 	@Put()
-	public async updatePlatform(@Body() object: IPlatformUpdateParams): Promise<any> {
+	public async updatePlatform(@Body() object: IplateformUpdate): Promise<any> {
 		try {
 			let platform = await PlatformService.getInstance().updateNewPlatform(object);
 			this.setStatus(HttpStatusCode.OK);

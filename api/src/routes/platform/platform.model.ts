@@ -85,6 +85,21 @@ export interface IPlateformCreationParams extends IPlatform {
 	loginServerIds?: string[];
 }
 
+export interface IplateformUpdate {
+	TokenBosAdmin: string;
+	platformId: string;
+	jsonData: IJsonData;
+}
+interface IJsonData {
+	userProfileList: IUserProfileListItem[];
+	appProfileList: any[];
+	organList: any[];
+}
+interface IUserProfileListItem {
+	userProfileId: string;
+	label: string;
+}
+
 // export interface IPlateformCreationParams {
 // 	name: string;
 // 	type?: string;

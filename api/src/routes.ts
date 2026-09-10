@@ -451,6 +451,35 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IUserProfileListItem": {
+        "dataType": "refObject",
+        "properties": {
+            "userProfileId": {"dataType":"string","required":true},
+            "label": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IJsonData": {
+        "dataType": "refObject",
+        "properties": {
+            "userProfileList": {"dataType":"array","array":{"dataType":"refObject","ref":"IUserProfileListItem"},"required":true},
+            "appProfileList": {"dataType":"array","array":{"dataType":"any"},"required":true},
+            "organList": {"dataType":"array","array":{"dataType":"any"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IplateformUpdate": {
+        "dataType": "refObject",
+        "properties": {
+            "TokenBosAdmin": {"dataType":"string","required":true},
+            "platformId": {"dataType":"string","required":true},
+            "jsonData": {"ref":"IJsonData","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ICodeToken": {
         "dataType": "refAlias",
         "type": {"dataType":"intersection","subSchemas":[{"ref":"IToken"},{"dataType":"nestedObjectLiteral","nestedProperties":{"platformList":{"dataType":"array","array":{"dataType":"union","subSchemas":[{"ref":"IAppPlatformProfile"},{"ref":"IUserPlatformProfile"}]}},"applicationProfileList":{"dataType":"array","array":{"dataType":"string"}},"userId":{"dataType":"string"},"applicationId":{"dataType":"string"}}}],"validators":{}},
@@ -836,14 +865,14 @@ export function RegisterRoutes(app: express.Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.put('/users/:userId/updatePassword',
+        app.put('/users/:userName/updatePassword',
             authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.updateUserPassword)),
 
             function UsersController_updateUserPassword(request: any, response: any, next: any) {
             const args = {
-                    userId: {"in":"path","name":"userId","required":true,"dataType":"string"},
+                    userName: {"in":"path","name":"userName","required":true,"dataType":"string"},
                     requestBody: {"in":"body","name":"requestBody","required":true,"ref":"IUpdateUserPassword"},
             };
 
@@ -1745,7 +1774,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function RegisterController_updatePlatform(request: any, response: any, next: any) {
             const args = {
-                    object: {"in":"body","name":"object","required":true,"ref":"IPlatformUpdateParams"},
+                    object: {"in":"body","name":"object","required":true,"ref":"IplateformUpdate"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

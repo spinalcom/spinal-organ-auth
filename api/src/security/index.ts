@@ -41,11 +41,12 @@ export async function expressAuthentication(request: express.Request, securityNa
 
 		if (!token) throw new Error("No token provided");
 
-		let tokenInfo = await getTokenInfo(token);
-		tokenInfo = await validateAccessToken(tokenInfo);
-		// if (scopes) await verifyScope(tokenInfo, scopes);
+		return token;
+		// let tokenInfo = await getTokenInfo(token);
+		// tokenInfo = await validateAccessToken(tokenInfo);
+		// // if (scopes) await verifyScope(tokenInfo, scopes);
 
-		return tokenInfo;
+		// return tokenInfo;
 	} catch (error) {
 		throw new AuthError(HttpStatusCode.UNAUTHORIZED, error.message);
 	}

@@ -25,7 +25,6 @@ import * as express from "express";
 import * as fileUpload from "express-fileupload";
 import * as cors from "cors";
 import * as morgan from "morgan";
-import * as _ from "lodash";
 import * as passport from "passport";
 import * as session from "express-session";
 import * as https from "https";
@@ -42,6 +41,8 @@ import { registerOAuthRoutes } from "./SSO/oauth/routes";
 import { RegisterOpenIdRoutes } from "./SSO/openid/routes";
 import { registerRedirectToBosRoute } from "./SSO/redirect/routes";
 import { initSwagger } from "./initSwagger";
+import { buildApiErrorResponse, getErrorStatus } from "./utilities/apiErrorResponse";
+import { OperationError } from "./utilities/operation-error";
 
 // const jsonFile = require("../build/swagger.json");
 // var history = require("connect-history-api-fallback");
@@ -111,26 +112,10 @@ function Server(): express.Express {
 export default Server;
 
 function errorHandler(err: unknown, req: express.Request, res: express.Response, next: express.NextFunction): express.Response | void {
-	//@ts-ignore
-	if (err instanceof ValidateError) {
-		return res.status(400).send(_formatValidationError(err));
-	}
-
-	if (err instanceof AuthError) {
-		return res.status(err.code).send({ message: err.message });
-	}
-
-	if (err instanceof Error) {
-		return res.status(500).json({ message: "Internal Server Error" });
+	if (err instanceof ValidateError || err instanceof AuthError || err instanceof OperationError || err instanceof Error) {
+		const status = getErrorStatus(err);
+		return res.status(status).json(buildApiErrorResponse(err, status));
 	}
 
 	next();
-}
-
-function _formatValidationError(err: ValidateError) {
-	err;
-	return {
-		message: "Validation Failed",
-		details: err?.fields,
-	};
 }

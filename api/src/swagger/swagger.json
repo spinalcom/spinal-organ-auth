@@ -1224,6 +1224,67 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"IUserProfileListItem": {
+				"properties": {
+					"userProfileId": {
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"userProfileId",
+					"label"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IJsonData": {
+				"properties": {
+					"userProfileList": {
+						"items": {
+							"$ref": "#/components/schemas/IUserProfileListItem"
+						},
+						"type": "array"
+					},
+					"appProfileList": {
+						"items": {},
+						"type": "array"
+					},
+					"organList": {
+						"items": {},
+						"type": "array"
+					}
+				},
+				"required": [
+					"userProfileList",
+					"appProfileList",
+					"organList"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IplateformUpdate": {
+				"properties": {
+					"TokenBosAdmin": {
+						"type": "string"
+					},
+					"platformId": {
+						"type": "string"
+					},
+					"jsonData": {
+						"$ref": "#/components/schemas/IJsonData"
+					}
+				},
+				"required": [
+					"TokenBosAdmin",
+					"platformId",
+					"jsonData"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"ICodeToken": {
 				"allOf": [
 					{
@@ -2110,7 +2171,7 @@
 				}
 			}
 		},
-		"/users/{userId}/updatePassword": {
+		"/users/{userName}/updatePassword": {
 			"put": {
 				"operationId": "UpdateUserPassword",
 				"responses": {
@@ -2151,7 +2212,7 @@
 				"parameters": [
 					{
 						"in": "path",
-						"name": "userId",
+						"name": "userName",
 						"required": true,
 						"schema": {
 							"type": "string"
@@ -3754,7 +3815,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/IPlatformUpdateParams"
+								"$ref": "#/components/schemas/IplateformUpdate"
 							}
 						}
 					}
@@ -4452,6 +4513,52 @@
 	"servers": [
 		{
 			"url": "/"
+		}
+	],
+	"tags": [
+		{
+			"name": "Applications",
+			"description": "Manage applications, authentication, and application logs."
+		},
+		{
+			"name": "Users",
+			"description": "Manage users, roles, profiles, and user authentication flows."
+		},
+		{
+			"name": "LoginServer",
+			"description": "Manage login server configuration and connectivity settings."
+		},
+		{
+			"name": "Logs",
+			"description": "Retrieve authentication and platform activity logs."
+		},
+		{
+			"name": "Notification",
+			"description": "Send and manage notification events."
+		},
+		{
+			"name": "Organs",
+			"description": "Manage organs linked to platforms."
+		},
+		{
+			"name": "Platforms",
+			"description": "Manage platforms, platform profiles, keys, and related operations."
+		},
+		{
+			"name": "RegisterKey",
+			"description": "Access and rotate the platform register key node."
+		},
+		{
+			"name": "Register",
+			"description": "Register and update platform onboarding data."
+		},
+		{
+			"name": "Tokens",
+			"description": "Manage and validate authentication tokens and token-based lookups."
+		},
+		{
+			"name": "Codes",
+			"description": "Generate, list, consume, and delete unique access codes."
 		}
 	]
 }

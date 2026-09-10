@@ -111,10 +111,10 @@ export class UsersController extends Controller {
 	}
 
 	@Security("jwt", ["authAdmin:write"])
-	@Put("{userId}/updatePassword")
-	public async updateUserPassword(@Path() userId: string, @Body() requestBody: IUpdateUserPassword): Promise<any | { error: string }> {
+	@Put("{userName}/updatePassword")
+	public async updateUserPassword(@Path() userName: string, @Body() requestBody: IUpdateUserPassword): Promise<any | { error: string }> {
 		try {
-			const userUpdated = await UserService.getInstance().updateUserPassword(userId, requestBody);
+			const userUpdated = await UserService.getInstance().updateUserPassword(userName, requestBody);
 			this.setStatus(HttpStatusCode.OK);
 			return userUpdated;
 		} catch (error: any) {
