@@ -22,19 +22,18 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 import { USER_PROFILE_TYPE, AUTH_SERVICE_RELATION_TYPE_PTR_LST, APP_PROFILE_TYPE, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, AUTH_SERVICE_APP_PROFILE_RELATION_NAME } from "../../constant";
-import { SpinalGraphService, SpinalGraph, SpinalContext, SpinalNode } from "spinal-env-viewer-graph-service";
+import { SpinalNode } from "spinal-env-viewer-graph-service";
 
-import { IUserProfileCreationParams, IUserProfileUpdateParams, IUserProfile } from "./userProfile.model";
+import { IUserProfileCreationParams, IUserProfile } from "./userProfile.model";
 
-import { IAppProfileCreationParams, IAppProfileUpdateParams, IAppProfile } from "./appProfile.model";
-import SpinalMiddleware from "../../spinalMiddleware";
+import { IAppProfileCreationParams, IAppProfile } from "./appProfile.model";
 import { PlatformService } from "./platformServices";
 import { IAppPlatformProfile, IUserPlatformProfile } from "../tokens/token.model";
 
 export class ProfileServices {
 	static instance: ProfileServices;
 
-	private constructor() { }
+	private constructor() {}
 
 	static getInstance(): ProfileServices {
 		if (this.instance === undefined) {
@@ -96,8 +95,7 @@ export class ProfileServices {
 			name: userProfile.getName().get(),
 			userProfileId: userProfile.info.userProfileId.get(),
 			platformId: userProfile.info.platformId.get(),
-			platform: platform?.info?.get()
-
+			platform: platform?.info?.get(),
 		}));
 	}
 
@@ -112,13 +110,11 @@ export class ProfileServices {
 			name: appProfile.getName().get(),
 			appProfileId: appProfile.info.appProfileId.get(),
 			platformId: appProfile.info.platformId.get(),
-			platform: platform?.info?.get()
+			platform: platform?.info?.get(),
 		}));
 	}
 
-
-
-	public async findUserProfile(platformId: string, userProfileId: string): Promise<IUserPlatformProfile> {
+	public async findUserProfile(platformId: string, userProfileId: string): Promise<IUserPlatformProfile | null> {
 		const profiles = await this.getUserProfileService(platformId);
 		const found = profiles.find((profile) => profile.userProfileId === userProfileId);
 		if (!found) return null;
@@ -130,33 +126,36 @@ export class ProfileServices {
 			userProfile: {
 				userProfileAdminId: found.id,
 				userProfileBosConfigId: found.userProfileId,
-				userProfileName: found.name
-			}
-		}
+				userProfileName: found.name,
+			},
+		};
 	}
 
-	public async findAppProfile(platformId: string, appProfileId: string): Promise<IAppPlatformProfile> {
+	public async findAppProfile(platformId: string, appProfileId: string): Promise<IAppPlatformProfile | null> {
 		const profiles = await this.getAppProfileService(platformId);
 		const found = profiles.find((profile) => profile.appProfileId === appProfileId);
 		if (!found) return null;
 
+		const appProfileAdminId = String(found.id ?? "");
+		const appProfileBosConfigId = String(found.appProfileId ?? "");
+		const appProfileName = String(found.name ?? "");
+
 		return {
 			platformId: found.platform.id,
 			platformName: found.platform.name,
-			idPlatformOfAdmin: found.platform.info.idPlatformOfAdmin,
+			idPlatformOfAdmin: found.platform.idPlatformOfAdmin,
 			appProfile: {
-				appProfileAdminId: found.id,
-				appProfileBosConfigId: found.appProfileId,
-				appProfileName: found.name,
+				appProfileAdminId,
+				appProfileBosConfigId,
+				appProfileName,
 			},
-		}
+		} as IAppPlatformProfile;
 	}
 
-	public async findProfile(platformId: string, profileId: string): Promise<IUserPlatformProfile | IAppPlatformProfile> {
+	public async findProfile(platformId: string, profileId: string): Promise<IUserPlatformProfile | IAppPlatformProfile | null> {
 		const userProfile = await this.findUserProfile(platformId, profileId);
 		if (userProfile) return userProfile;
 
 		return this.findAppProfile(platformId, profileId);
 	}
-
 }

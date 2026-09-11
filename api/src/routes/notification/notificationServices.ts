@@ -53,6 +53,10 @@ export class NotificationService {
 
 	public async createNotification(notificationCreationParams: INotificationCreationParams): Promise<INotification> {
 		try {
+			if (!notificationCreationParams.actor?.actorId || !notificationCreationParams.actor?.actorName) {
+				throw new OperationError("INVALID_NOTIFICATION_ACTOR", HttpStatusCode.BAD_REQUEST);
+			}
+
 			const context = await this.getNotificationListContext();
 			const notificationNode = new SpinalNode(notificationCreationParams.name, NOTIFICATION_TYPE);
 			notificationNode.info.add_attr({

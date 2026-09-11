@@ -6,138 +6,140 @@ import { OperationError } from "../../utilities/operation-error";
 import { Http2ServerRequest } from "http2";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 
-
 class LoginServerService {
-    public context: SpinalContext;
-    private _localServer: SpinalNode;
-    static instance: LoginServerService;
+	public context: SpinalContext;
+	private _localServer: SpinalNode;
+	static instance: LoginServerService;
 
-    private constructor() { };
+	private constructor() {}
 
-    static getInstance(): LoginServerService {
-        if (!this.instance) this.instance = new LoginServerService();
-        return this.instance;
-    }
+	static getInstance(): LoginServerService {
+		if (!this.instance) this.instance = new LoginServerService();
+		return this.instance;
+	}
 
-    public async init(context: SpinalContext) {
-        this.context = context;
-        this._localServer = await this._getOrCreateLocalServer(this.context);
+	public async init(context: SpinalContext) {
+		this.context = context;
+		this._localServer = await this._getOrCreateLocalServer(this.context);
 
-        return this.context;
-    }
+		return this.context;
+	}
 
-    public async createLoginServer(serverInfo: ILoginServer): Promise<SpinalNode> {
-        const node = new SpinalNode(serverInfo.name, serverInfo.type);
-        node.info.add_attr({
-            authentication_method: serverInfo.authentication_method,
-            ...(serverInfo.authentication_info && { authentication_info: serverInfo.authentication_info })
-        })
+	public async createLoginServer(serverInfo: ILoginServer): Promise<SpinalNode> {
+		const node = new SpinalNode(serverInfo.name, serverInfo.type);
+		node.info.add_attr({
+			authentication_method: serverInfo.authentication_method,
+			...(serverInfo.authentication_info && { authentication_info: serverInfo.authentication_info }),
+		});
 
-        return this.context.addChildInContext(node, LOGIN_SERVER_RELATION_NAME, SPINAL_RELATION_PTR_LST_TYPE, this.context);
-    }
+		return this.context.addChildInContext(node, LOGIN_SERVER_RELATION_NAME, SPINAL_RELATION_PTR_LST_TYPE, this.context);
+	}
 
-    public async getLoginServer(serverId?: string): Promise<SpinalNode[]> {
-        const servers = await this.context.getChildren(LOGIN_SERVER_RELATION_NAME);
-        if (!serverId) return servers;
+	public async getLoginServer(serverId?: string): Promise<SpinalNode[]> {
+		const servers = await this.context.getChildren(LOGIN_SERVER_RELATION_NAME);
+		if (!serverId) return servers;
 
-        return servers.filter(el => el.getId().get() === serverId || el.info?.authentication_info?.clientId?.get() === serverId);
-    }
+		return servers.filter((el) => el.getId().get() === serverId || el.info?.authentication_info?.clientId?.get() === serverId);
+	}
 
+	public async getServeralServersById(serverIds: string[]) {
+		const servers = await this.context.getChildren(LOGIN_SERVER_RELATION_NAME);
+		return servers.filter((el) => serverIds.includes(el.getId().get()));
+	}
 
-    public async getServeralServersById(serverIds: string[]) {
-        const servers = await this.context.getChildren(LOGIN_SERVER_RELATION_NAME);
-        return servers.filter(el => serverIds.includes(el.getId().get()));
-    }
+	public async getServerByIssuer(issuer: string): Promise<SpinalNode> {
+		const servers = await this.getLoginServer();
+		return servers.find((el) => el.info?.authentication_info?.issuer?.get() === issuer);
+	}
 
-    public async getServerByIssuer(issuer: string): Promise<SpinalNode> {
-        const servers = await this.getLoginServer();
-        return servers.find(el => el.info?.authentication_info?.issuer?.get() === issuer);
-    }
+	public async editLoginServer(serverId: string, requestBody: ILoginServer): Promise<SpinalNode> {
+		const [server] = await this.getLoginServer(serverId);
+		if (!server) throw new OperationError("Server Not Found", HttpStatusCode.NOT_FOUND);
 
-    public async editLoginServer(serverId: string, requestBody: ILoginServer): Promise<SpinalNode> {
-        const [server] = await this.getLoginServer(serverId);
-        if (!server) throw new OperationError("Server Not Found", HttpStatusCode.NOT_FOUND);
+		const updatedServerInfo: ILoginServer = {
+			name: requestBody.name ?? server.getName().get(),
+			type: requestBody.type ?? (server.getType().get() as ServerType),
+			authentication_method: requestBody.authentication_method ?? server.info.authentication_method?.get(),
+			authentication_info: requestBody.authentication_info ?? server.info.authentication_info?.get(),
+		};
 
-        for (const key in requestBody) {
-            if (Object.prototype.hasOwnProperty.call(requestBody, key)) {
-                const value = requestBody[key];
-                if (server.info[key]) server.info.mod_attr(key, value);
-            }
-        }
+		if (updatedServerInfo.type === ServerType.EXTERNAL && !this.checkExternalServer(updatedServerInfo)) {
+			throw new OperationError("Invalid Server Info", HttpStatusCode.BAD_REQUEST);
+		}
 
-        return server;
-    }
+		for (const key in requestBody) {
+			if (Object.prototype.hasOwnProperty.call(requestBody, key)) {
+				const value = requestBody[key];
+				if (server.info[key]) server.info.mod_attr(key, value);
+			}
+		}
 
-    public async deleteLoginServer(serverId: string) {
-        const [server] = await this.getLoginServer(serverId);
-        if (!server)
-            throw new OperationError("Server Not Found", HttpStatusCode.NOT_FOUND);
+		return server;
+	}
 
-        if (server.getId().get() === this._localServer.getId().get())
-            throw new OperationError("You cannot delete local server", HttpStatusCode.FORBIDDEN);
+	public async deleteLoginServer(serverId: string) {
+		const [server] = await this.getLoginServer(serverId);
+		if (!server) throw new OperationError("Server Not Found", HttpStatusCode.NOT_FOUND);
 
-        return server.removeFromGraph();
-    }
+		if (server.getId().get() === this._localServer.getId().get()) throw new OperationError("You cannot delete local server", HttpStatusCode.FORBIDDEN);
 
+		return server.removeFromGraph();
+	}
 
-    public async getPlatformsUsingServer(serverNode: SpinalNode | string): Promise<SpinalNode[]> {
-        if (typeof serverNode === "string") {
-            const [server] = await this.getLoginServer(serverNode);
-            if (!server) throw new OperationError("Server Not Found", HttpStatusCode.NOT_FOUND);
-            serverNode = server;
-        }
+	public async getPlatformsUsingServer(serverNode: SpinalNode | string): Promise<SpinalNode[]> {
+		if (typeof serverNode === "string") {
+			const [server] = await this.getLoginServer(serverNode);
+			if (!server) throw new OperationError("Server Not Found", HttpStatusCode.NOT_FOUND);
+			serverNode = server;
+		}
 
-        return serverNode.getParents(PLATFORM_TO_LOGIN_SERVER);
-    }
+		return serverNode.getParents(PLATFORM_TO_LOGIN_SERVER);
+	}
 
+	public checkExternalServer(serverInfo: ILoginServer): Boolean {
+		const base = serverInfo && serverInfo.type === ServerType.EXTERNAL && serverInfo.name && serverInfo.authentication_method;
 
-    public checkExternalServer(serverInfo: ILoginServer): Boolean {
+		if (!base) return false;
 
-        const base = serverInfo && serverInfo.type === ServerType.EXTERNAL && serverInfo.name && serverInfo.authentication_method;
+		switch (serverInfo.authentication_method) {
+			case CONNECTION_METHODS.oauth2:
+				return isOAuthAuthenticationInfo(serverInfo.authentication_info);
+			case CONNECTION_METHODS["openid connect"]:
+				return isOpenIdAuthenticationInfo(serverInfo.authentication_info);
 
-        if (!base) return false;
+			case CONNECTION_METHODS.saml:
+				return isSAMLAuthenticationInfo(serverInfo.authentication_info);
+			default:
+				return false;
+		}
+	}
 
-        switch (serverInfo.authentication_method) {
-            // case CONNECTION_METHODS.oauth2:
-            //     return isOAuthAuthenticationInfo(serverInfo.authentication_info);
-            case CONNECTION_METHODS["openid connect"]:
-                return isOpenIdAuthenticationInfo(serverInfo.authentication_info);
+	public formatServerNode(node: SpinalNode) {
+		return node.info.get();
+	}
 
-            case CONNECTION_METHODS.saml:
-                return isSAMLAuthenticationInfo(serverInfo.authentication_info);
-            default:
-                return false;
-        }
+	private async _getOrCreateContext(graph: SpinalGraph): Promise<SpinalContext> {
+		let context = await graph.getContext(LOGIN_SERVER_CONTEXT_NAME);
+		if (!context) {
+			let _c = new SpinalContext(LOGIN_SERVER_CONTEXT_NAME, LOGIN_SERVER_CONTEXT_TYPE);
+			context = await graph.addContext(_c);
+		}
 
-    }
+		this.context = context;
+		return context;
+	}
 
-    public formatServerNode(node: SpinalNode) {
-        return node.info.get();
-    }
+	private async _getOrCreateLocalServer(context: SpinalContext) {
+		const children = await context.getChildren(LOGIN_SERVER_RELATION_NAME);
+		let localServer = children.find((el) => el.getType().get() === ServerType.INTERNAL);
+		if (!localServer) {
+			const info = { name: "LocalServer", type: ServerType.INTERNAL, authentication_method: CONNECTION_METHODS.local };
 
+			localServer = await this.createLoginServer(info);
+		}
 
-    private async _getOrCreateContext(graph: SpinalGraph): Promise<SpinalContext> {
-        let context = await graph.getContext(LOGIN_SERVER_CONTEXT_NAME);
-        if (!context) {
-            let _c = new SpinalContext(LOGIN_SERVER_CONTEXT_NAME, LOGIN_SERVER_CONTEXT_TYPE);
-            context = await graph.addContext(_c);
-        }
-
-        this.context = context;
-        return context;
-    }
-
-    private async _getOrCreateLocalServer(context: SpinalContext) {
-        const children = await context.getChildren(LOGIN_SERVER_RELATION_NAME);
-        let localServer = children.find(el => el.getType().get() === ServerType.INTERNAL);
-        if (!localServer) {
-            const info = { name: "LocalServer", type: ServerType.INTERNAL, authentication_method: CONNECTION_METHODS.local };
-
-            localServer = await this.createLoginServer(info);
-        }
-
-        return localServer;
-    }
+		return localServer;
+	}
 }
 
 const loginService = LoginServerService.getInstance();

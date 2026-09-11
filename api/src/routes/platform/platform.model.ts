@@ -81,7 +81,15 @@ export interface IPlatform {
 	// authentication_info?: ISAMLAuthenticationInfo | IOAuthAuthenticationInfo | ILocalAuthenticationInfo;
 }
 
-export interface IPlateformCreationParams extends IPlatform {
+export interface IPlatformCreateRequest {
+	name: string;
+	redirectUrl: string;
+	url?: string;
+	address?: string;
+	clientId: string;
+	clientSecret?: string;
+	grant_types?: string | string[];
+	profileClassifyByPriority?: string[];
 	loginServerIds?: string[];
 }
 
@@ -131,7 +139,7 @@ export interface IPlatformUpdateParams {
 export interface IRegisterParams {
 	clientId: string;
 	clientSecret: string;
-	platformCreationParms?: IPlateformCreationParams;
+	platformCreationParms?: IPlatformCreateRequest;
 }
 
 export interface IRegisterKeyObject {

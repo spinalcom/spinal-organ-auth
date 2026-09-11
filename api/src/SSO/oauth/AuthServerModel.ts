@@ -1,4 +1,3 @@
-// import { AuthorizationCode, AuthorizationCodeModel, Client, ClientCredentialsModel, Falsey, PasswordModel, RefreshToken, RefreshTokenModel, Token, User } from "@node-oauth/oauth2-server";
 import { AuthorizationCode, AuthorizationCodeModel, Client, ClientCredentialsModel, Falsey, PasswordModel, RefreshToken, RefreshTokenModel, Token, User } from "@node-oauth/oauth2-server";
 import { ApplicationService } from "../../routes/authApplication/applicationService";
 import { TokensService } from "../../routes/tokens/tokenService";
@@ -7,6 +6,7 @@ import { AuthorizationCodeService } from "../../routes/tokens/AuthorizationCodeS
 import { RefreshTokenService } from "../../routes/tokens/refreshTokenService";
 import { getScope } from "./utils";
 import { PlatformService } from "../../routes/platform/platformServices";
+import { SpinalNode } from "spinal-model-graph";
 
 export class AuthServerModel implements AuthorizationCodeModel, ClientCredentialsModel, PasswordModel, RefreshTokenModel {
 	private static _instance: AuthServerModel;
@@ -22,14 +22,14 @@ export class AuthServerModel implements AuthorizationCodeModel, ClientCredential
 	public async getClient(clientId: string, clientSecret: string): Promise<Client | Falsey> {
 		const applications = await this._getAllApplications();
 
-		const app = applications.find((app) => clientId === app.info.clientId?.get() && (clientSecret === app.info.clientSecret?.get() || !clientSecret));
-		if (!app) return null;
+		const appFound = applications.find((app) => clientId === app.info.clientId?.get() && (clientSecret === app.info.clientSecret?.get() || !clientSecret));
+		if (!appFound) return null;
 
 		return {
-			id: app.getId().get(),
-			client_id: app.info.clientId?.get(),
-			grants: app.info.grant_types?.get() || [],
-			redirectUris: app.info.redirectUri?.get() || app.info.redirectUrl?.get(),
+			id: appFound.getId().get(),
+			client_id: appFound.info.clientId?.get(),
+			grants: appFound.info.grant_types?.get() || [],
+			redirectUris: appFound.info.redirectUri?.get() || appFound.info.redirectUrl?.get(),
 		};
 	}
 
@@ -52,6 +52,7 @@ export class AuthServerModel implements AuthorizationCodeModel, ClientCredential
 	public async getAccessToken(accessToken: string): Promise<Token | Falsey> {
 		const tokens = await TokensService.getInstance().getAllTokensNode();
 		const tokenNode = tokens.find((token) => token.info?.token?.get() === accessToken);
+
 		if (!tokenNode) return null;
 
 		const expireDate = tokenNode.info.expieredToken.get();
@@ -125,21 +126,22 @@ export class AuthServerModel implements AuthorizationCodeModel, ClientCredential
 	}
 
 	public async verifyScope(token: Token, scope: string[]): Promise<boolean> {
-		const t_scope = token.scope || [];
-		for (let s of t_scope) {
-			if (scope.includes(s)) return true;
+		const tokenScope: unknown = (token as any).scope;
+		const grantedScopes = Array.isArray(tokenScope) ? tokenScope : typeof tokenScope === "string" ? tokenScope.split(" ") : [];
+		for (const grantedScope of grantedScopes) {
+			if (scope.includes(grantedScope)) return true;
 		}
 
 		return false;
 	}
 
 	public async validateScope(user: User, client: Client, scope?: string[]): Promise<string[] | Falsey> {
-		const client_type = user.id === client.id ? "client" : "user";
-		const access_scopes = await getScope(client_type, user, client);
+		const clientType = user.id === client.id ? "client" : "user";
+		const accessScopes = await getScope(clientType, user, client);
 
-		if (!scope) return access_scopes;
+		if (!scope) return accessScopes;
 		for (const s of scope) {
-			if (!access_scopes.includes(s)) return null;
+			if (!accessScopes.includes(s)) return null;
 		}
 
 		return scope;
@@ -156,7 +158,7 @@ export class AuthServerModel implements AuthorizationCodeModel, ClientCredential
 		return RefreshTokenService.getInstance().removeRefreshToken(token);
 	}
 
-	private _getAllApplications() {
+	private _getAllApplications(): Promise<SpinalNode[]> {
 		const promises = [ApplicationService.getInstance().getApplicationNodes(), PlatformService.getInstance().getPlatformsNodes()];
 		return Promise.allSettled(promises).then((values) => {
 			return values.reduce((acc, val) => {
@@ -164,7 +166,7 @@ export class AuthServerModel implements AuthorizationCodeModel, ClientCredential
 					acc.push(...val.value);
 				}
 				return acc;
-			}, []);
+			}, [] as SpinalNode[]);
 		});
 	}
 }

@@ -17,26 +17,36 @@
               <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formApp.name.minLength">Le doit
                 contenir au moins 2 caractères</span>
 
-              <InputUser title="L'URL DE MIS A JOUR DE LA PLATEFORME" id="appName" v-model="formApp.url"
+              <InputUser title="L'URL  DE LA PLATEFORME" id="appName" v-model="formApp.url" />
+
+              <span class=" errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.url.required">L'url de mis à jour
+                est requis</span>
+
+              <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.url.format">l'url de mis à jour
+                est
+                invalide</span>
+
+              <!-- <InputUser title="L'URL DE MIS A JOUR DE LA PLATEFORME" id="appName" v-model="formApp.url"
                 :placeholder="'http://lienApi/api/v1/update_data'" />
 
               <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.url.required">L'url de mis à jour
                 est requis</span>
 
               <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.url.format">l'url de mis à jour est
-                invalide</span>
+                invalide</span> -->
 
-              <InputUser title="L'URL DE REDIRECTION DE LA PLATEFORME" id="appName" v-model="formApp.redirectUrl"
+              <!-- <InputUser title="L'URL DE REDIRECTION DE LA PLATEFORME" id="appName" v-model="formApp.redirectUrl"
                 :placeholder="'http://lienApi/callback'" />
 
               <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.redirectUrl.required">L'url de
                 redirection est requis</span>
 
               <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.redirectUrl.format">l'url de
-                redirection est invalide</span>
+                redirection est invalide</span> -->
 
               <InputPass readonly="true" title="CLIENT ID" id="clientId" v-model="formApp.clientId" />
-              <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.clientId.required">un id client est
+              <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.clientId.required">un id client
+                est
                 requis</span>
 
               <InputPass readonly="true" title="CLIENT SECRET" id="clientSecret" v-model="formApp.clientSecret" />
@@ -155,14 +165,14 @@ export default {
       clientSecret: {
         required,
       },
-      redirectUrl: {
+      /*redirectUrl: {
         required,
         format: (value) => {
           const regex =
             /https?:\/\/(?:w{1,3}\.)?[^\s.]+(?:\.[a-z]+)*(?::\d+)?(?![^<]*(?:<\/\w+>|\/?>))/gm;
           return regex.test(value);
         },
-      },
+      },*/
       url: {
         required,
         format: (value) => {
@@ -202,9 +212,24 @@ export default {
       return registerKey;
     },
 
+    cleanUrl(url) {
+      if (!url) return url;
+      let sanitized = url.trim();
+      if (!/^https?:\/\//i.test(sanitized)) {
+        sanitized = `https://${sanitized}`;
+      }
+      sanitized = sanitized.replace(/\/+$/, "");
+      return sanitized;
+    },
+
     async validateApp() {
       this.$v.$touch();
       if (!this.$v.$invalid) {
+
+        this.formApp.url = this.cleanUrl(this.formApp.url);
+        this.formApp.redirectUrl = `${this.formApp.url}/callback`;
+        this.formApp.url = `${this.formApp.url}/api/v1/update_data`;
+
         this.savePlatform(this.formApp)
           .then((result) => {
             this.$router.push("/PlatformsList");

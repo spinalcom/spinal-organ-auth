@@ -47,12 +47,11 @@ export interface IUser {
 	email?: string;
 	telephone?: string;
 	info?: string; // champs libre optionnel
+	mustChangePassword?: boolean;
 	userType: IUserType;
 	grant_types?: string[];
 	platformList?: IPlatformList[];
 }
-
-153624;
 
 export enum IUserType {
 	"authAdmin" = "authAdmin",
@@ -66,6 +65,7 @@ export interface IUserCreationParams {
 	email?: string;
 	telephone?: string;
 	info?: string; // champs libre optionnel
+	mustChangePassword?: boolean;
 	userType?: IUserType;
 	platformList?: IPlatformList[];
 }
@@ -82,6 +82,7 @@ export interface IUserUpdateParams {
 	email?: string;
 	telephone?: string;
 	info?: string; // champs libre optionnel
+	mustChangePassword?: boolean;
 	userType?: IUserType;
 	grant_types?: string[];
 	platformList?: IPlatformList[];

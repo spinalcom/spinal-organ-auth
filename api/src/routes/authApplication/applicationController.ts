@@ -22,18 +22,19 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse, Tags } from "tsoa";
+import { Body, Controller, Delete, Get, Path, Post, Put, Route, Security, SuccessResponse, Tags } from "tsoa";
 import { IApplication, IApplicationCreationParams, IApplicationUpdateParams, IApplicationLoginParams, IApplicationLogs } from "./application.model";
 import { ApplicationService } from "./applicationService";
 import { IApplicationToken } from "../tokens/token.model";
 import { HttpStatusCode } from "../../utilities/http-status-code";
+import { SCOPES } from "../../constant";
 
 let applicationService = ApplicationService.getInstance();
 
 @Tags("Applications")
 @Route("applications")
 export class ApplicationsController extends Controller {
-	@Security("jwt", ["authAdmin:write"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.applicationsCreate])
 	@SuccessResponse("201", "Created") // Custom success response
 	@Post()
 	public async createApplication(@Body() requestBody: IApplicationCreationParams): Promise<IApplication | { error: string }> {
@@ -47,7 +48,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.applicationsRead])
 	@Get()
 	public async getApplications(): Promise<IApplication[] | { error: string }> {
 		try {
@@ -60,7 +61,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read", "ownData:read"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.applicationsRead, SCOPES.selfRead])
 	@Get("{applicationId}")
 	public async getApplication(@Path() applicationId: string): Promise<IApplication | { error: string }> {
 		try {
@@ -73,11 +74,11 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:delete"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.applicationsDelete])
 	@Delete("{applicationId}")
 	public async deleteApplication(@Path() applicationId: string): Promise<{ message?: string; error?: string }> {
 		try {
-			const app = await applicationService.deleteApplication(applicationId);
+			await applicationService.deleteApplication(applicationId);
 			this.setStatus(HttpStatusCode.OK);
 			return { message: "Application deleted" };
 		} catch (error: any) {
@@ -86,7 +87,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:write"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.applicationsUpdate])
 	@Put("{applicationId}")
 	public async updateApplication(@Path() applicationId: string, @Body() requestBody: IApplicationUpdateParams): Promise<IApplication | { error: string }> {
 		try {
@@ -112,7 +113,7 @@ export class ApplicationsController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.applicationsLogsRead])
 	@Get("{applicationId}/applicationLogs")
 	public async getApplicationLogs(@Path() applicationId: string): Promise<IApplicationLogs[] | { error: string }> {
 		try {

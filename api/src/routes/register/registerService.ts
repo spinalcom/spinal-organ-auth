@@ -24,12 +24,12 @@
 
 import { SpinalGraphService, SpinalGraph } from "spinal-env-viewer-graph-service";
 
-import { IPlateformCreationParams, IPlatform } from "../platform/platform.model";
+import { IPlatformCreateRequest } from "../platform/platform.model";
 import { PlatformService } from "../platform/platformServices";
 import SpinalMiddleware from "../../spinalMiddleware";
 
 interface IRegisterParams {
-	platformCreationParms: IPlateformCreationParams;
+	platformCreationParms: IPlatformCreateRequest;
 	registerKey: string;
 }
 

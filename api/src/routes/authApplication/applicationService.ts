@@ -22,9 +22,9 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { APPLICATION_LIST, AUTH_SERVICE_APPLICATION_RELATION_NAME, APPLICATION_TYPE, AUTH_SERVICE_RELATION_TYPE_PTR_LST, TOKEN_TYPE, TOKEN_LIST, AUTH_SERVICE_TOKEN_RELATION_NAME, PLATFORM_TYPE, AUTH_SERVICE_APP_PROFILE_RELATION_NAME, AUTH_SERVICE_LOG_RELATION_NAME, APPLICATION_LOG_CATEGORY_NAME, EVENTS_NAMES, EVENTS_REQUEST_NAMES } from "../../constant";
+import { APPLICATION_LIST, AUTH_SERVICE_APPLICATION_RELATION_NAME, APPLICATION_TYPE, AUTH_SERVICE_RELATION_TYPE_PTR_LST, PLATFORM_TYPE, AUTH_SERVICE_APP_PROFILE_RELATION_NAME, AUTH_SERVICE_LOG_RELATION_NAME, APPLICATION_LOG_CATEGORY_NAME, EVENTS_NAMES, EVENTS_REQUEST_NAMES } from "../../constant";
 
-import { SpinalContext, SpinalGraph, SpinalNode } from "spinal-env-viewer-graph-service";
+import { SpinalContext, SpinalNode } from "spinal-env-viewer-graph-service";
 
 import { OperationError } from "../../utilities/operation-error";
 import { HttpStatusCode } from "../../utilities/http-status-code";
@@ -34,12 +34,13 @@ import SpinalMiddleware from "../../spinalMiddleware";
 import { LogsService } from "../logs/logService";
 import { PlatformService } from "../platform/platformServices";
 import { TokensService } from "../tokens/tokenService";
+import { updateProfileRelations } from "../platform/profileRelations";
 
 export class ApplicationService {
 	public context: SpinalContext;
 	static instance: ApplicationService;
 
-	private constructor() { }
+	private constructor() {}
 
 	static getInstance(): ApplicationService {
 		if (!this.instance) this.instance = new ApplicationService();
@@ -62,10 +63,12 @@ export class ApplicationService {
 	}
 
 	public async createApplication(applicationCreationParams: IApplicationCreationParams): Promise<IApplication> {
+		this._assertApplicationPayload(applicationCreationParams);
+		await this._assertApplicationClientIdUniqueness(applicationCreationParams.clientId);
+
 		const context = await this.getApplicationListContext();
 
 		const applicationObject = {
-			// appType: applicationCreationParams.appType,
 			clientId: applicationCreationParams.clientId,
 			clientSecret: applicationCreationParams.clientSecret,
 			redirectUri: applicationCreationParams.redirectUri || "",
@@ -124,9 +127,7 @@ export class ApplicationService {
 			return this._formatApplication(app, platforms);
 		});
 
-		return Promise.all(promises).then((result) => {
-			return result;
-		});
+		return Promise.all(promises);
 	}
 
 	public async getApplication(id: string): Promise<IApplication> {
@@ -145,7 +146,12 @@ export class ApplicationService {
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 		}
 
-		const keys = ["name", "clientId", "clientSecret", "appType", 'redirectUri', "grant_types"];
+		this._assertApplicationPayload(requestBody, true);
+		if (requestBody.clientId && requestBody.clientId !== app.info.clientId?.get()) {
+			await this._assertApplicationClientIdUniqueness(requestBody.clientId, app.getId().get());
+		}
+
+		const keys = ["name", "clientId", "clientSecret", "appType", "redirectUri", "grant_types"];
 
 		for (const key of keys) {
 			if (requestBody[key] !== undefined && app.info[key] !== undefined) {
@@ -154,10 +160,11 @@ export class ApplicationService {
 		}
 
 		const oldAppProfileList = await app.getChildren(AUTH_SERVICE_APP_PROFILE_RELATION_NAME);
-		const newAppPlatformList = requestBody.platformList;
-		await updateAppProfileList(oldAppProfileList, newAppPlatformList, app);
+		const newAppPlatformList = requestBody.platformList || [];
+		const graph = await SpinalMiddleware.getInstance().getGraph();
+		await updateProfileRelations(graph, app, oldAppProfileList, newAppPlatformList, AUTH_SERVICE_APP_PROFILE_RELATION_NAME, (platform) => platform.appProfile.appProfileAdminId);
 
-		var platformList = await this._getApplicationPlatforms(app);
+		const platformList = await this._getApplicationPlatforms(app);
 
 		await LogsService.getInstance().createLog(app, APPLICATION_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_VALID);
 		return this._formatApplication(app, platformList);
@@ -221,7 +228,7 @@ export class ApplicationService {
 		return Promise.all(promises);
 	}
 
-	private _addAppProfileToApplication(application: SpinalNode, platformList: any[]) {
+	private _addAppProfileToApplication(application: SpinalNode, platformList: any[] = []) {
 		const promises = platformList.map(async (platform) => {
 			const pro = await this.getProfile(platform.platformId, platform.appProfile.appProfileId);
 			return application.addChild(pro, AUTH_SERVICE_APP_PROFILE_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
@@ -276,50 +283,52 @@ export class ApplicationService {
 			},
 		}));
 	}
-}
 
-async function updateAppProfileList(oldAppProfileList: SpinalNode<any>[], newAppPlatformList: any[], app: SpinalNode<any>) {
-	const graph = await SpinalMiddleware.getInstance().getGraph();
-	var arrayDelete = [];
-	var arrayCreate = [];
-	for (const olditem of oldAppProfileList) {
-		const resSome = newAppPlatformList.some((it) => {
-			return it.appProfile.appProfileAdminId === olditem.getId().get();
-		});
-		if (resSome === false) {
-			arrayDelete.push(olditem);
-		}
-	}
-	for (const newItem of newAppPlatformList) {
-		const resSome = oldAppProfileList.some((it) => {
-			return it.getId().get() === newItem.appProfile.appProfileAdminId;
-		});
-		if (resSome === false) {
-			arrayCreate.push(newItem);
-		}
-	}
-	for (const arrdlt of arrayDelete) {
-		await app.removeChild(arrdlt, AUTH_SERVICE_APP_PROFILE_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
-	}
-	for (const arrcrt of arrayCreate) {
-		const realNode = await getrealNodeProfile(arrcrt.appProfile.appProfileAdminId, arrcrt.platformId, graph);
-		await app.addChild(realNode, AUTH_SERVICE_APP_PROFILE_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
-	}
-}
-
-async function getrealNodeProfile(profileId: string, platformId: string, graph: SpinalGraph<any>) {
-	const contexts: SpinalNode<any>[] = await graph.getChildren("hasContext");
-	for (const context of contexts) {
-		const platforms = await context.getChildren("HasPlatform");
-		for (const platform of platforms) {
-			if (platform.getId().get() === platformId) {
-				const profiles = await platform.getChildren(AUTH_SERVICE_APP_PROFILE_RELATION_NAME);
-				for (const profile of profiles) {
-					if (profile.getId().get() === profileId) {
-						return profile;
-					}
-				}
+	private _assertApplicationPayload(payload: IApplicationCreationParams | IApplicationUpdateParams, isUpdate: boolean = false): void {
+		if (!isUpdate || payload.name !== undefined) {
+			if (typeof payload.name !== "string" || payload.name.trim().length === 0) {
+				throw new OperationError("INVALID_APPLICATION_NAME", HttpStatusCode.BAD_REQUEST);
 			}
 		}
+
+		if (!isUpdate || payload.clientId !== undefined) {
+			if (typeof payload.clientId !== "string" || payload.clientId.trim().length === 0) {
+				throw new OperationError("INVALID_CLIENT_ID", HttpStatusCode.BAD_REQUEST);
+			}
+		}
+
+		if (!isUpdate || payload.clientSecret !== undefined) {
+			if (typeof payload.clientSecret !== "string" || payload.clientSecret.trim().length === 0) {
+				throw new OperationError("INVALID_CLIENT_SECRET", HttpStatusCode.BAD_REQUEST);
+			}
+		}
+
+		if (payload.redirectUri !== undefined && payload.redirectUri !== "") {
+			try {
+				new URL(payload.redirectUri);
+			} catch (error) {
+				throw new OperationError("INVALID_REDIRECT_URI", HttpStatusCode.BAD_REQUEST);
+			}
+		}
+
+		if (payload.grant_types !== undefined) {
+			if (!Array.isArray(payload.grant_types)) {
+				throw new OperationError("INVALID_GRANT_TYPES", HttpStatusCode.BAD_REQUEST);
+			}
+
+			const isValid = payload.grant_types.every((grant) => typeof grant === "string" && grant.trim().length > 0);
+			if (!isValid) throw new OperationError("INVALID_GRANT_TYPES", HttpStatusCode.BAD_REQUEST);
+		}
+	}
+
+	private async _assertApplicationClientIdUniqueness(clientId: string, currentAppId?: string): Promise<void> {
+		const applications = await this.getApplicationNodes();
+		const normalizedClientId = clientId.trim();
+		const duplicate = applications.find((application) => {
+			if (currentAppId && application.getId().get() === currentAppId) return false;
+			return String(application.info.clientId?.get() || "").trim() === normalizedClientId;
+		});
+
+		if (duplicate) throw new OperationError("CLIENT_ID_ALREADY_USED", HttpStatusCode.BAD_REQUEST);
 	}
 }

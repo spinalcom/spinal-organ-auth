@@ -22,19 +22,18 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Model, Ptr, spinalCore, FileSystem } from "spinal-core-connectorjs_type";
-import { USER_LIST, AUTH_SERVICE_USER_RELATION_NAME, USER_TYPE, AUTH_SERVICE_RELATION_TYPE_PTR_LST, TOKEN_TYPE, TOKEN_LIST, AUTH_SERVICE_TOKEN_RELATION_NAME, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, PLATFORM_TYPE, AUTH_SERVICE_LOG_RELATION_NAME, EVENTS_NAMES, EVENTS_REQUEST_NAMES, USER_LOG_CATEGORY_NAME, ADMIN_LOG_CATEGORY_NAME, AUTH_ADMIN_NAME, SCOPES } from "../../constant";
-import { SpinalGraphService, SpinalGraph, SpinalContext, SpinalNode } from "spinal-env-viewer-graph-service";
+import { USER_LIST, AUTH_SERVICE_USER_RELATION_NAME, USER_TYPE, AUTH_SERVICE_RELATION_TYPE_PTR_LST, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, PLATFORM_TYPE, AUTH_SERVICE_LOG_RELATION_NAME, EVENTS_NAMES, EVENTS_REQUEST_NAMES, USER_LOG_CATEGORY_NAME, ADMIN_LOG_CATEGORY_NAME, AUTH_ADMIN_NAME, SCOPES } from "../../constant";
+import { SpinalContext, SpinalNode } from "spinal-env-viewer-graph-service";
 import { OperationError } from "../../utilities/operation-error";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 import { IUser, IUserCreationParams, IUserUpdateParams, IAuthAdminUpdateParams, IUserLoginParams, IUserType, IUserLogs, IUpdateUserPassword } from "./user.model";
 import { IUserToken } from "../tokens/token.model";
 import SpinalMiddleware from "../../spinalMiddleware";
 import { LogsService } from "../logs/logService";
-import bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
 import { PlatformService } from "../platform/platformServices";
 import { TokensService } from "../tokens/tokenService";
-import { format } from "path";
+import { updateProfileRelations } from "../platform/profileRelations";
 
 type UserPlatformDetails = {
 	platformId: string;
@@ -52,7 +51,8 @@ type UserPlatformDetails = {
  * @class UserService
  */
 export class UserService {
-	public context: SpinalContext;
+	public context!: SpinalContext;
+	private readonly MIN_PASSWORD_LENGTH = 8;
 
 	static instance: UserService;
 
@@ -82,6 +82,8 @@ export class UserService {
 	}
 
 	public async createUser(userCreationParams: IUserCreationParams): Promise<IUser> {
+		this._assertPasswordCoherence(userCreationParams.password, "password");
+
 		const [user] = await this.getUserNodes(userCreationParams.userName);
 
 		if (user || (userCreationParams.userType === AUTH_ADMIN_NAME && userCreationParams.userName === AUTH_ADMIN_NAME)) {
@@ -91,7 +93,8 @@ export class UserService {
 
 		const userNode = await this.createUserNode(userCreationParams);
 
-		for (const platform of userCreationParams.platformList) {
+		for (const platform of userCreationParams.platformList || []) {
+			if (!platform.platformId || !platform.userProfile?.userProfileId) continue;
 			const pro = await this.getProfile(platform.platformId, platform.userProfile.userProfileId);
 			await userNode.addChild(pro, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
 		}
@@ -111,7 +114,7 @@ export class UserService {
 		return context.addChildInContext(userNode, AUTH_SERVICE_USER_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
 	}
 
-	public async getUserByCredentials(userName: string, password: string, isAuthAdmin: boolean = false): Promise<SpinalNode> {
+	public async getUserByCredentials(userName: string, password: string, isAuthAdmin: boolean = false): Promise<SpinalNode | null> {
 		const user = await this._findUserByUserName(userName, isAuthAdmin);
 
 		if (!user) return null;
@@ -127,12 +130,12 @@ export class UserService {
 		const user = await this.getUserByCredentials(userLoginParams.userName, userLoginParams.password);
 
 		if (!user) {
-			await LogsService.getInstance().createLog(undefined, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.USER_NOT_VALID, EVENTS_REQUEST_NAMES.USER_NOT_VALID);
+			await LogsService.getInstance().createLog(undefined as any, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.USER_NOT_VALID, EVENTS_REQUEST_NAMES.USER_NOT_VALID);
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 		}
 
 		const platformList = await this.getUserPlatformList(user, platformId);
-		const tokenData = await this._generateTokenData(platformList, user, platformId);
+		const tokenData = await this._generateTokenData(platformList, user, platformId || "");
 
 		const tokenNode = await TokensService.getInstance().createToken(user, tokenData, platformList, "user");
 
@@ -152,7 +155,8 @@ export class UserService {
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 		}
 
-		const tokenNode = await TokensService.getInstance().createToken(user, { userId: user.getId().get(), isAuthAdmin: true }, [], "user");
+		const tokenData = { userId: user.getId().get(), ...(user.info?.get() || {}), isAuthAdmin: true };
+		const tokenNode = await TokensService.getInstance().createToken(user, tokenData, [], "user");
 		await LogsService.getInstance().createLog(user, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.CONNECTION_VALID, " Connection Valid");
 
 		return this._getUserTokenResponse(tokenNode, user);
@@ -186,10 +190,6 @@ export class UserService {
 
 			const usersObjectList = await Promise.all(promises);
 
-			if (usersObjectList.length === 0) {
-				return [];
-			}
-
 			return usersObjectList;
 		} catch (error) {
 			return [];
@@ -219,7 +219,7 @@ export class UserService {
 		const user = users.find((user) => user.getId().get() === userId);
 
 		if (!user) {
-			await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID);
+			await LogsService.getInstance().createLog(user as any, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID);
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 		}
 
@@ -235,24 +235,30 @@ export class UserService {
 			throw new OperationError("USERNAME_IS_ALREADY_USED", HttpStatusCode.FORBIDDEN);
 		}
 
-		const keys = ["userName", "userType", "email", "telephone", "info"];
+		this._assertUserUpdatePayload(requestBody);
 
-		for (const key in requestBody) {
-			if (Object.prototype.hasOwnProperty.call(requestBody, key) && keys.includes(key)) {
-				let value = requestBody[key];
-				// if (key === "password") value = await bcrypt.hash(value, 10);
+		const keys: (keyof IUserUpdateParams)[] = ["userName", "userType", "email", "telephone", "info"];
 
-				if (value) user.info[key].set(value);
+		for (const key of keys) {
+			const value = requestBody[key];
+			if (value !== undefined && value !== null) {
+				user.info[key].set(value);
 				if (key === "userName") user.info.name.set(value);
 			}
 		}
 
+		if (typeof requestBody.mustChangePassword === "boolean") {
+			if (user.info.mustChangePassword) user.info.mustChangePassword.set(requestBody.mustChangePassword);
+			else user.info.add_attr("mustChangePassword", requestBody.mustChangePassword);
+		}
+
 		const oldUserProfileList = await user.getChildren(AUTH_SERVICE_USER_PROFILE_RELATION_NAME);
-		const newUserPlatformList = requestBody.platformList;
+		const newUserPlatformList = requestBody.platformList || [];
 
-		await updateUserProfileList(oldUserProfileList, newUserPlatformList, user);
+		const graph = await SpinalMiddleware.getInstance().getGraph();
+		await updateProfileRelations(graph, user, oldUserProfileList, newUserPlatformList, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, (platform) => platform.userProfile.userProfileAdminId || "");
 
-		var platformList = await this._getUserPlatforms(user);
+		const platformList = await this._getUserPlatforms(user);
 
 		await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_VALID);
 		return this._formatUser(user, platformList);
@@ -262,8 +268,10 @@ export class UserService {
 	 * updateUserPassword
 	 */
 	public async updateUserPassword(userName: string, requestBody: IUpdateUserPassword) {
-		const itsComeFromAuthAdmin = requestBody.authAdminPassword ? true : false;
-		let userFound: SpinalNode | undefined;
+		this._assertPasswordCoherence(requestBody.newPassword, "newPassword");
+
+		const itsComeFromAuthAdmin = Boolean(requestBody.authAdminPassword);
+		let userFound: SpinalNode | null | undefined;
 
 		if (itsComeFromAuthAdmin) {
 			const authUser = await this.getUserByCredentials(AUTH_ADMIN_NAME, requestBody.authAdminPassword || "", true);
@@ -278,6 +286,9 @@ export class UserService {
 
 		const newPassword = await bcrypt.hash(requestBody.newPassword, 10);
 		userFound.info.password.set(newPassword);
+
+		if (userFound.info.mustChangePassword) userFound.info.mustChangePassword.set(itsComeFromAuthAdmin);
+		else userFound.info.add_attr("mustChangePassword", itsComeFromAuthAdmin);
 
 		return this._formatUser(userFound);
 	}
@@ -302,8 +313,9 @@ export class UserService {
 				email: "",
 				telephone: "",
 				info: "",
+				mustChangePassword: false,
 				userType: IUserType.authAdmin,
-				scope: [SCOPES["authAdmin:delete"], SCOPES["authAdmin:read"], SCOPES["authAdmin:write"]],
+				scope: [SCOPES.authAdmin],
 			});
 
 			const context = await this.getUserListContext();
@@ -312,12 +324,15 @@ export class UserService {
 			await LogsService.getInstance().createLog(authAdminNode, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.CREATE, EVENTS_REQUEST_NAMES.CREATE_VALID, EVENTS_REQUEST_NAMES.CREATE_VALID);
 			return authAdminNode.info.get();
 		} catch (error) {
-			await LogsService.getInstance().createLog(undefined, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.CREATE, EVENTS_REQUEST_NAMES.CREATE_NOT_VALID, EVENTS_REQUEST_NAMES.CREATE_NOT_VALID);
+			await LogsService.getInstance().createLog(undefined as any, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.CREATE, EVENTS_REQUEST_NAMES.CREATE_NOT_VALID, EVENTS_REQUEST_NAMES.CREATE_NOT_VALID);
 			throw new OperationError("NOT_CREATED", HttpStatusCode.BAD_REQUEST);
 		}
 	}
 
 	public async updateAuthAdmin(requestBody: IAuthAdminUpdateParams): Promise<IUser> {
+		if (!requestBody.newPassword) throw new OperationError("NEW_PASSWORD_REQUIRED", HttpStatusCode.BAD_REQUEST);
+		this._assertPasswordCoherence(requestBody.newPassword, "newPassword");
+
 		const [user] = await this.getUserNodes(requestBody.userName);
 		if (!user) {
 			await LogsService.getInstance().createLog(user, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID);
@@ -334,13 +349,11 @@ export class UserService {
 		const newPassword = await bcrypt.hash(requestBody.newPassword, 10);
 		user.info.password.set(newPassword);
 
-		const keys = ["email", "telephone", "info"];
+		const keys: (keyof IAuthAdminUpdateParams)[] = ["email", "telephone", "info"];
 
-		for (const key in requestBody) {
-			if (Object.prototype.hasOwnProperty.call(requestBody, key) && keys.includes(key)) {
-				const element = requestBody[key];
-				user.info[key].set(element);
-			}
+		for (const key of keys) {
+			const element = requestBody[key];
+			if (element) user.info[key].set(element);
 		}
 
 		await LogsService.getInstance().createLog(user, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_VALID);
@@ -394,7 +407,7 @@ export class UserService {
 		return users.filter((user) => user.info.username?.get() === userId || user.getId().get() === userId);
 	}
 
-	private async _getUserPlatforms(user: SpinalNode): Promise<{ platform: SpinalNode; profile: SpinalNode }[]> {
+	private async _getUserPlatforms(user: SpinalNode): Promise<{ platform: SpinalNode | undefined; profile: SpinalNode }[]> {
 		const profiles = await this._getUserProfile(user);
 		const promises = profiles.map(async (profile) => ({
 			profile,
@@ -408,7 +421,7 @@ export class UserService {
 		return application.getChildren(AUTH_SERVICE_USER_PROFILE_RELATION_NAME);
 	}
 
-	private async _getPlatFormByProfile(profileNode: SpinalNode): Promise<SpinalNode> {
+	private async _getPlatFormByProfile(profileNode: SpinalNode): Promise<SpinalNode | undefined> {
 		const parents = await profileNode.getParents(AUTH_SERVICE_USER_PROFILE_RELATION_NAME);
 		for (const parent of parents) {
 			if (parent.getType().get() === PLATFORM_TYPE) {
@@ -427,20 +440,21 @@ export class UserService {
 			email: userNode.info?.email?.get(),
 			telephone: userNode.info?.telephone?.get(),
 			info: userNode.info?.info?.get(),
+			mustChangePassword: Boolean(userNode.info?.mustChangePassword?.get?.()),
 			userType: userNode.info?.userType?.get(),
 			...((platformList && { platformList: this._formatPlatForms(platformList) }) as any),
 		};
 	}
 
-	private _formatPlatForms(platformList: { platform: SpinalNode; profile: SpinalNode }[]) {
+	private _formatPlatForms(platformList: { platform: SpinalNode | undefined; profile: SpinalNode }[]) {
 		return platformList.map(({ platform, profile }) => ({
-			platformId: platform?.getId().get(),
-			platformName: platform?.getName().get(),
+			platformId: platform?.getId().get() || "",
+			platformName: platform?.getName().get() || "",
 			idPlatformOfAdmin: platform?.info.idPlatformOfAdmin?.get(),
 			userProfile: {
-				userProfileAdminId: profile?.getId().get(),
+				userProfileAdminId: profile?.getId().get() || "",
 				userProfileBosConfigId: profile?.info?.userProfileId?.get(),
-				userProfileName: profile?.getName().get(),
+				userProfileName: profile?.getName().get() || "",
 			},
 		}));
 	}
@@ -452,6 +466,7 @@ export class UserService {
 			email: userCreationParams.email,
 			telephone: userCreationParams.telephone,
 			info: userCreationParams.info,
+			mustChangePassword: true,
 			password: hash,
 		};
 	}
@@ -476,16 +491,15 @@ export class UserService {
 		return tokenData;
 	}
 
-	private async _findUserByUserName(userName: string, isAuthAdmin?: boolean): Promise<SpinalNode> {
+	private async _findUserByUserName(userName: string, isAuthAdmin?: boolean): Promise<SpinalNode | undefined> {
 		if ((isAuthAdmin && userName !== AUTH_ADMIN_NAME) || (!isAuthAdmin && userName === AUTH_ADMIN_NAME)) return undefined;
 
 		const users = await this.getUserNodes();
 		const user = users.find((user) => user.info.userName.get() === userName);
-		// if (isAuthAdmin && user.info.userName.get() === AUTH_ADMIN_NAME) return user;
 		return user;
 	}
 
-	private _getUserTokenResponse(tokenNode: SpinalNode<any>, user: SpinalNode<any>, platformList?: UserPlatformDetails[]): IUserToken | PromiseLike<IUserToken> {
+	private _getUserTokenResponse(tokenNode: SpinalNode<any>, user: SpinalNode<any>, platformList?: UserPlatformDetails[]): IUserToken {
 		return {
 			name: tokenNode.getName().get(),
 			type: tokenNode.getType().get(),
@@ -499,58 +513,38 @@ export class UserService {
 	}
 
 	private getAuthPassword() {
-		// const password = process.env.AUTH_ADMIN_PASSWORD || generator.generate({ length: 10, numbers: true });
 		const password = process.env.AUTH_ADMIN_PASSWORD;
-		// setEnvValue("AUTH_ADMIN_PASSWORD", password);
 		return password;
 	}
-}
 
-async function updateUserProfileList(oldUserProfileList: SpinalNode<any>[], newUserPlatformList: any[], user: SpinalNode<any>) {
-	var arrayDelete = [];
-	var arrayCreate = [];
-	const graph = await SpinalMiddleware.getInstance().getGraph();
+	private _assertPasswordCoherence(password: unknown, fieldName: string): void {
+		if (typeof password !== "string") {
+			throw new OperationError(`${fieldName.toUpperCase()}_INVALID_FORMAT`, HttpStatusCode.BAD_REQUEST);
+		}
 
-	for (const olditem of oldUserProfileList) {
-		const resSome = newUserPlatformList.some((it) => {
-			return it.userProfile.userProfileAdminId === olditem.getId().get();
-		});
-		if (resSome === false) {
-			arrayDelete.push(olditem);
+		if (password.length < this.MIN_PASSWORD_LENGTH) {
+			throw new OperationError("PASSWORD_TOO_SHORT", HttpStatusCode.BAD_REQUEST);
 		}
 	}
 
-	for (const newItem of newUserPlatformList) {
-		const resSome = oldUserProfileList.some((it) => {
-			return it.getId().get() === newItem.userProfile.userProfileAdminId;
-		});
-		if (resSome === false) {
-			arrayCreate.push(newItem);
+	private _assertUserUpdatePayload(requestBody: IUserUpdateParams): void {
+		if (requestBody.userName !== undefined) {
+			if (typeof requestBody.userName !== "string" || requestBody.userName.trim().length === 0) {
+				throw new OperationError("INVALID_USERNAME", HttpStatusCode.BAD_REQUEST);
+			}
 		}
-	}
 
-	for (const arrdlt of arrayDelete) {
-		await user.removeChild(arrdlt, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
-	}
+		if (requestBody.email !== undefined) {
+			const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			if (typeof requestBody.email !== "string" || !emailPattern.test(requestBody.email.trim())) {
+				throw new OperationError("INVALID_EMAIL", HttpStatusCode.BAD_REQUEST);
+			}
+		}
 
-	for (const arrcrt of arrayCreate) {
-		const realNode = await getrealNodeProfile(arrcrt.userProfile.userProfileAdminId, arrcrt.platformId, graph);
-		await user.addChild(realNode, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
-	}
-}
-
-async function getrealNodeProfile(profileId: string, platformId: string, graph: SpinalGraph<any>) {
-	const contexts: SpinalNode<any>[] = await graph.getChildren("hasContext");
-	for (const context of contexts) {
-		const platforms = await context.getChildren("HasPlatform");
-		for (const platform of platforms) {
-			if (platform.getId().get() === platformId) {
-				const profiles = await platform.getChildren(AUTH_SERVICE_USER_PROFILE_RELATION_NAME);
-				for (const profile of profiles) {
-					if (profile.getId().get() === profileId) {
-						return profile;
-					}
-				}
+		if (requestBody.telephone !== undefined) {
+			const phonePattern = /^[0-9+()\-\s]{6,20}$/;
+			if (typeof requestBody.telephone !== "string" || !phonePattern.test(requestBody.telephone.trim())) {
+				throw new OperationError("INVALID_TELEPHONE", HttpStatusCode.BAD_REQUEST);
 			}
 		}
 	}

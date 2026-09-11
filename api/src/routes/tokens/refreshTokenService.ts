@@ -1,13 +1,13 @@
 import { SPINAL_RELATION_PTR_LST_TYPE, SpinalContext, SpinalNode } from "spinal-model-graph";
 import SpinalMiddleware from "../../spinalMiddleware";
-import { AUTHORIZATION_CODE_CONTEXT_TO_NODE_RELATION_NAME, AUTHORIZATION_CODE_TYPE, REFRESH_TOKEN_CONTEXT_NAME, REFRESH_TOKEN_CONTEXT_TO_NODE_RELATION_NAME, REFRESH_TOKEN_CONTEXT_TYPE, REFRESH_TOKEN_TYPE } from "../../constant";
+import { REFRESH_TOKEN_CONTEXT_NAME, REFRESH_TOKEN_CONTEXT_TO_NODE_RELATION_NAME, REFRESH_TOKEN_CONTEXT_TYPE, REFRESH_TOKEN_TYPE } from "../../constant";
 import { Token, Client, User, RefreshToken } from "@node-oauth/oauth2-server";
 
 export class RefreshTokenService {
 	private static _instance: RefreshTokenService;
-	public context: SpinalContext;
+	public context!: SpinalContext;
 
-	private constructor() { }
+	private constructor() {}
 
 	static getInstance(): RefreshTokenService {
 		if (!this._instance) {
@@ -16,14 +16,18 @@ export class RefreshTokenService {
 		return this._instance;
 	}
 
-	public async init() {
+	public async init(): Promise<SpinalContext> {
 		const graph = await SpinalMiddleware.getInstance().getGraph();
 		this.context = await graph.getContext(REFRESH_TOKEN_CONTEXT_NAME);
 		if (!this.context) this.context = await graph.addContext(new SpinalContext(REFRESH_TOKEN_CONTEXT_NAME, REFRESH_TOKEN_CONTEXT_TYPE));
 		return this.context;
 	}
 
-	public saveRefreshToken(token: Token, client: Client, user: User, tokenNode: SpinalNode) {
+	public saveRefreshToken(token: Token, client: Client, user: User) {
+		if (!token.refreshToken || !token.refreshTokenExpiresAt) {
+			throw new Error("Missing refresh token payload");
+		}
+
 		const node = new SpinalNode(`${user.name}_token`, REFRESH_TOKEN_TYPE);
 		node.info.add_attr({
 			refreshToken: token.refreshToken,
@@ -47,7 +51,7 @@ export class RefreshTokenService {
 		}
 	}
 
-	public async getRefreshToken(refreshToken: string): Promise<SpinalNode> {
+	public async getRefreshToken(refreshToken: string): Promise<SpinalNode | undefined> {
 		const nodes = await this.context.getChildren(REFRESH_TOKEN_CONTEXT_TO_NODE_RELATION_NAME);
 		return nodes.find((node) => node.info.refreshToken?.get() === refreshToken);
 	}

@@ -7,6 +7,7 @@
 		"test": "test"
 	},
 	"scripts": {
+		"test": "mocha --require ts-node/register \"test/**/*.test.js\"",
 		"start": "npm run build && node --enable-source-maps index.js",
 		"build": "node completeDotEnv.js && npm run swagger-gen && npm run routes-gen && tsc",
 		"clean": "rimraf dist && rimraf node_modules",

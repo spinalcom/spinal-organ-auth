@@ -22,16 +22,17 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse, Tags } from "tsoa";
+import { Body, Controller, Delete, Get, Path, Post, Put, Route, Security, SuccessResponse, Tags } from "tsoa";
 import { IUser, IUserCreationParams, IUserUpdateParams, IUserLoginParams, IAuthAdminUpdateParams, IUserLogs, IUpdateUserPassword } from "./user.model";
 import { UserService } from "./userService";
 import { IUserToken } from "../tokens/token.model";
 import { HttpStatusCode } from "../../utilities/http-status-code";
+import { SCOPES } from "../../constant";
 
 @Tags("Users")
 @Route("users")
 export class UsersController extends Controller {
-	@Security("jwt", ["authAdmin:write"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.usersCreate])
 	@SuccessResponse("201", "Created") // Custom success response
 	@Post()
 	public async createUser(@Body() requestBody: IUserCreationParams): Promise<IUser | { error: string }> {
@@ -45,7 +46,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.usersRead])
 	@Get()
 	public async getUsers(): Promise<IUser[] | { error: string }> {
 		try {
@@ -58,7 +59,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read", "ownData:read"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.usersRead, SCOPES.selfRead])
 	@Get("{userId}")
 	public async getUser(@Path() userId: string): Promise<IUser | { error: string }> {
 		try {
@@ -71,7 +72,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read", "ownData:read"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.selfRead])
 	@Post("userInfo")
 	public async getUserInfoByToken(@Body() body: { token: string }): Promise<IUser | { error: string }> {
 		try {
@@ -84,7 +85,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:delete"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.usersDelete])
 	@Delete("{userId}")
 	public async deleteUser(@Path() userId: string): Promise<void | { error?: string; message?: string }> {
 		try {
@@ -97,7 +98,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:write"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.usersUpdate])
 	@Put("{userId}")
 	public async updateUser(@Path() userId: string, @Body() requestBody: IUserUpdateParams): Promise<IUser | { error: string }> {
 		try {
@@ -110,7 +111,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:write"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.usersPasswordUpdate, SCOPES.selfPasswordUpdate])
 	@Put("{userName}/updatePassword")
 	public async updateUserPassword(@Path() userName: string, @Body() requestBody: IUpdateUserPassword): Promise<any | { error: string }> {
 		try {
@@ -123,7 +124,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:write", "ownData:write"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.selfUpdate])
 	@Put()
 	public async updateAuthAdmin(@Body() requestBody: IAuthAdminUpdateParams): Promise<IUser | { error: string }> {
 		try {
@@ -136,7 +137,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.usersAdminRead])
 	@Post("/getAuthAdmin")
 	public async getAuthAdmin(): Promise<IUser | { error: string }> {
 		try {
@@ -149,7 +150,7 @@ export class UsersController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:write"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.usersProfilesRead])
 	@Post("/userProfilesList")
 	public async userProfilesList(): Promise<any[] | { error: string }> {
 		try {
@@ -200,7 +201,7 @@ export class UsersController extends Controller {
 			return { error: error.message };
 		}
 	}
-	@Security("jwt", ["authAdmin:read"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.usersLogsRead])
 	@Get("{userId}/userLogs")
 	public async getUserLogs(@Path() userId: string): Promise<IUserLogs[] | { error: string }> {
 		try {

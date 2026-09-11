@@ -21,19 +21,20 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse, Tags } from "tsoa";
+import { Body, Controller, Post, Route, Security, SuccessResponse, Tags } from "tsoa";
 import { INotification, INotificationCreationParams } from "./notification.model";
 import { NotificationService } from "./notificationServices";
 import { HttpStatusCode } from "../../utilities/http-status-code";
+import { SCOPES } from "../../constant";
 
 @Tags("Notification")
 @Route("notification")
 export class NotificationController extends Controller {
 	@SuccessResponse("201", "Created") // Custom success response
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.notificationsCreate])
 	@Post()
 	public async createNotification(@Body() object: INotificationCreationParams): Promise<INotification | { error: string }> {
 		try {
-			// let platform = new PlatformService().registerNewPlatform(object);
 			const notification = await NotificationService.getInstance().createNotification(object);
 			this.setStatus(HttpStatusCode.CREATED);
 			return notification;

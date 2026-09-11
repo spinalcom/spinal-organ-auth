@@ -89,19 +89,19 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IPlatform": {
+    "ITokenPlatform": {
         "dataType": "refAlias",
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"idPlatformOfAdmin":{"dataType":"string","required":true},"platformName":{"dataType":"string","required":true},"platformId":{"dataType":"string","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IAppProfile": {
+    "IAppProfileToken": {
         "dataType": "refAlias",
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"appProfileName":{"dataType":"string","required":true},"appProfileBosConfigId":{"dataType":"string","required":true},"appProfileAdminId":{"dataType":"string","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IAppPlatformProfile": {
         "dataType": "refAlias",
-        "type": {"dataType":"intersection","subSchemas":[{"ref":"IPlatform"},{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfile":{"ref":"IAppProfile","required":true}}}],"validators":{}},
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"ITokenPlatform"},{"dataType":"nestedObjectLiteral","nestedProperties":{"appProfile":{"ref":"IAppProfileToken","required":true}}}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IApplicationToken": {
@@ -157,6 +157,7 @@ const models: TsoaRoute.Models = {
             "email": {"dataType":"string"},
             "telephone": {"dataType":"string"},
             "info": {"dataType":"string"},
+            "mustChangePassword": {"dataType":"boolean"},
             "userType": {"ref":"IUserType","required":true},
             "grant_types": {"dataType":"array","array":{"dataType":"string"}},
             "platformList": {"dataType":"array","array":{"dataType":"refObject","ref":"IPlatformList"}},
@@ -172,6 +173,7 @@ const models: TsoaRoute.Models = {
             "email": {"dataType":"string"},
             "telephone": {"dataType":"string"},
             "info": {"dataType":"string"},
+            "mustChangePassword": {"dataType":"boolean"},
             "userType": {"ref":"IUserType"},
             "platformList": {"dataType":"array","array":{"dataType":"refObject","ref":"IPlatformList"}},
         },
@@ -186,6 +188,7 @@ const models: TsoaRoute.Models = {
             "email": {"dataType":"string"},
             "telephone": {"dataType":"string"},
             "info": {"dataType":"string"},
+            "mustChangePassword": {"dataType":"boolean"},
             "userType": {"ref":"IUserType"},
             "grant_types": {"dataType":"array","array":{"dataType":"string"}},
             "platformList": {"dataType":"array","array":{"dataType":"refObject","ref":"IPlatformList"}},
@@ -216,14 +219,14 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IUserProfile": {
+    "IUserProfileToken": {
         "dataType": "refAlias",
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"userProfileName":{"dataType":"string","required":true},"userProfileBosConfigId":{"dataType":"string","required":true},"userProfileAdminId":{"dataType":"string","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IUserPlatformProfile": {
         "dataType": "refAlias",
-        "type": {"dataType":"intersection","subSchemas":[{"ref":"IPlatform"},{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfile":{"ref":"IUserProfile","required":true}}}],"validators":{}},
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"ITokenPlatform"},{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfile":{"ref":"IUserProfileToken","required":true}}}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IUserToken": {
@@ -300,7 +303,7 @@ const models: TsoaRoute.Models = {
             "clientId": {"dataType":"string","required":true},
             "clientSecret": {"dataType":"string","required":true},
             "callbackUrl": {"dataType":"string"},
-            "grant_type": {"dataType":"string"},
+            "grant_type": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"array","array":{"dataType":"string"}}]},
             "endpoint": {"dataType":"string"},
             "logoutUrl": {"dataType":"string"},
             "scopes": {"dataType":"string"},
@@ -393,13 +396,45 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IPlateformCreationParams": {
+    "IPlatformCreateRequest": {
         "dataType": "refObject",
         "properties": {
-            "idPlatformOfAdmin": {"dataType":"string","required":true},
-            "platformName": {"dataType":"string","required":true},
-            "platformId": {"dataType":"string","required":true},
+            "name": {"dataType":"string","required":true},
+            "redirectUrl": {"dataType":"string","required":true},
+            "url": {"dataType":"string"},
+            "address": {"dataType":"string"},
+            "clientId": {"dataType":"string","required":true},
+            "clientSecret": {"dataType":"string"},
+            "grant_types": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"array","array":{"dataType":"string"}}]},
+            "profileClassifyByPriority": {"dataType":"array","array":{"dataType":"string"}},
             "loginServerIds": {"dataType":"array","array":{"dataType":"string"}},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "statusPlatform": {
+        "dataType": "refEnum",
+        "enums": ["connected","not connected"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IPlatform": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string"},
+            "name": {"dataType":"string","required":true},
+            "type": {"dataType":"string","required":true},
+            "statusPlatform": {"ref":"statusPlatform","required":true},
+            "lastSyncTime": {"dataType":"union","subSchemas":[{"dataType":"double"},{"dataType":"enum","enums":[null]}]},
+            "url": {"dataType":"string","required":true},
+            "address": {"dataType":"string"},
+            "TokenBosAdmin": {"dataType":"string"},
+            "TokenAdminBos": {"dataType":"string"},
+            "idPlatformOfAdmin": {"dataType":"string"},
+            "clientId": {"dataType":"string","required":true},
+            "clientSecret": {"dataType":"string"},
+            "redirectUrl": {"dataType":"string","required":true},
+            "grant_types": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"array","array":{"dataType":"string"}}],"required":true},
+            "profileClassifyByPriority": {"dataType":"array","array":{"dataType":"string"}},
         },
         "additionalProperties": false,
     },
@@ -413,6 +448,30 @@ const models: TsoaRoute.Models = {
             "address": {"dataType":"string"},
             "loginServerIds": {"dataType":"array","array":{"dataType":"string"}},
             "grant_types": {"dataType":"array","array":{"dataType":"string"}},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IUserProfile": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "userProfileId": {"dataType":"string","required":true},
+            "name": {"dataType":"string","required":true},
+            "type": {"dataType":"string","required":true},
+            "platformId": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IAppProfile": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string"},
+            "appProfileId": {"dataType":"string","required":true},
+            "name": {"dataType":"string"},
+            "type": {"dataType":"string"},
+            "platformId": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -446,7 +505,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "clientId": {"dataType":"string","required":true},
             "clientSecret": {"dataType":"string","required":true},
-            "platformCreationParms": {"ref":"IPlateformCreationParams"},
+            "platformCreationParms": {"ref":"IPlatformCreateRequest"},
         },
         "additionalProperties": false,
     },
@@ -478,6 +537,16 @@ const models: TsoaRoute.Models = {
             "jsonData": {"ref":"IJsonData","required":true},
         },
         "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ITokenProfileRequest": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"platformId":{"dataType":"string","required":true},"token":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IVerifyTokenRequest": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"actor":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["user"]},{"dataType":"enum","enums":["application"]},{"dataType":"enum","enums":["app"]},{"dataType":"enum","enums":["code"]}]},"platformId":{"dataType":"string"},"tokenParam":{"dataType":"string","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ICodeToken": {
@@ -529,7 +598,7 @@ export function RegisterRoutes(app: express.Router) {
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
         app.post('/applications',
-            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","applications:create"]}]),
             ...(fetchMiddlewares<RequestHandler>(ApplicationsController)),
             ...(fetchMiddlewares<RequestHandler>(ApplicationsController.prototype.createApplication)),
 
@@ -555,7 +624,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/applications',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","applications:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(ApplicationsController)),
             ...(fetchMiddlewares<RequestHandler>(ApplicationsController.prototype.getApplications)),
 
@@ -580,7 +649,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/applications/:applicationId',
-            authenticateMiddleware([{"jwt":["authAdmin:read","ownData:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","applications:read","self:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(ApplicationsController)),
             ...(fetchMiddlewares<RequestHandler>(ApplicationsController.prototype.getApplication)),
 
@@ -606,7 +675,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/applications/:applicationId',
-            authenticateMiddleware([{"jwt":["authAdmin:delete"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","applications:delete"]}]),
             ...(fetchMiddlewares<RequestHandler>(ApplicationsController)),
             ...(fetchMiddlewares<RequestHandler>(ApplicationsController.prototype.deleteApplication)),
 
@@ -632,7 +701,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/applications/:applicationId',
-            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","applications:update"]}]),
             ...(fetchMiddlewares<RequestHandler>(ApplicationsController)),
             ...(fetchMiddlewares<RequestHandler>(ApplicationsController.prototype.updateApplication)),
 
@@ -684,7 +753,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/applications/:applicationId/applicationLogs',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","applications:logs:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(ApplicationsController)),
             ...(fetchMiddlewares<RequestHandler>(ApplicationsController.prototype.getApplicationLogs)),
 
@@ -710,7 +779,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/users',
-            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","users:create"]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.createUser)),
 
@@ -736,7 +805,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/users',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","users:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getUsers)),
 
@@ -761,7 +830,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/users/:userId',
-            authenticateMiddleware([{"jwt":["authAdmin:read","ownData:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","users:read","self:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getUser)),
 
@@ -787,7 +856,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/users/userInfo',
-            authenticateMiddleware([{"jwt":["authAdmin:read","ownData:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","self:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getUserInfoByToken)),
 
@@ -813,7 +882,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/users/:userId',
-            authenticateMiddleware([{"jwt":["authAdmin:delete"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","users:delete"]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.deleteUser)),
 
@@ -839,7 +908,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/users/:userId',
-            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","users:update"]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.updateUser)),
 
@@ -866,7 +935,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/users/:userName/updatePassword',
-            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","users:password:update","self:password:update"]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.updateUserPassword)),
 
@@ -893,7 +962,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/users',
-            authenticateMiddleware([{"jwt":["authAdmin:write","ownData:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","self:update"]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.updateAuthAdmin)),
 
@@ -919,7 +988,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/users/getAuthAdmin',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","users:admin:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getAuthAdmin)),
 
@@ -944,7 +1013,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/users/userProfilesList',
-            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","users:profiles:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.userProfilesList)),
 
@@ -1046,7 +1115,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/users/:userId/userLogs',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","users:logs:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
             ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getUserLogs)),
 
@@ -1072,7 +1141,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/loginserver/create',
-            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","loginservers:create"]}]),
             ...(fetchMiddlewares<RequestHandler>(LoginServerController)),
             ...(fetchMiddlewares<RequestHandler>(LoginServerController.prototype.createLoginServer)),
 
@@ -1098,7 +1167,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/loginserver/all_servers',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","loginservers:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(LoginServerController)),
             ...(fetchMiddlewares<RequestHandler>(LoginServerController.prototype.getAllLoginServer)),
 
@@ -1123,7 +1192,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/loginserver/:serverId',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","loginservers:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(LoginServerController)),
             ...(fetchMiddlewares<RequestHandler>(LoginServerController.prototype.getLoginServer)),
 
@@ -1149,7 +1218,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/loginserver/update/:serverId',
-            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","loginservers:update"]}]),
             ...(fetchMiddlewares<RequestHandler>(LoginServerController)),
             ...(fetchMiddlewares<RequestHandler>(LoginServerController.prototype.editLoginServer)),
 
@@ -1176,7 +1245,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/loginserver/delete/:serverId',
-            authenticateMiddleware([{"jwt":["authAdmin:delete"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","loginservers:delete"]}]),
             ...(fetchMiddlewares<RequestHandler>(LoginServerController)),
             ...(fetchMiddlewares<RequestHandler>(LoginServerController.prototype.deleteLoginServer)),
 
@@ -1202,7 +1271,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/logs',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","logs:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(LogsController)),
             ...(fetchMiddlewares<RequestHandler>(LogsController.prototype.getLogs)),
 
@@ -1227,7 +1296,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/logs/getPlatformsLogs',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","logs:platforms:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(LogsController)),
             ...(fetchMiddlewares<RequestHandler>(LogsController.prototype.getPlatformsLogs)),
 
@@ -1252,6 +1321,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/notification',
+            authenticateMiddleware([{"jwt":["authAdmin","notifications:create"]}]),
             ...(fetchMiddlewares<RequestHandler>(NotificationController)),
             ...(fetchMiddlewares<RequestHandler>(NotificationController.prototype.createNotification)),
 
@@ -1277,7 +1347,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/organs/:platformId',
-            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","organs:create"]}]),
             ...(fetchMiddlewares<RequestHandler>(OrgansController)),
             ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.createOrgan)),
 
@@ -1303,7 +1373,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/organs/:platformId',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","organs:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(OrgansController)),
             ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.getOrgans)),
 
@@ -1329,7 +1399,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/organs/:organId',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","organs:update"]}]),
             ...(fetchMiddlewares<RequestHandler>(OrgansController)),
             ...(fetchMiddlewares<RequestHandler>(OrgansController.prototype.updatePlateform)),
 
@@ -1356,13 +1426,13 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/platforms',
-            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","platforms:create"]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.createPlateform)),
 
             function PlatformsController_createPlateform(request: any, response: any, next: any) {
             const args = {
-                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"IPlateformCreationParams"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"IPlatformCreateRequest"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1382,7 +1452,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/platforms',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","platforms:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getPlatforms)),
 
@@ -1407,7 +1477,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/platforms/:platformId',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","platforms:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getPlateform)),
 
@@ -1433,7 +1503,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/platforms/:platformId/loginServers',
-            authenticateMiddleware([{"all":["all"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","platforms:loginservers:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getPlateformLoginServers)),
 
@@ -1459,7 +1529,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/platforms/:platformId/loginServers',
-            authenticateMiddleware([{"jwt":["authAdmin:delete"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","platforms:loginservers:update"]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.removeLoginServersFromPlateform)),
 
@@ -1486,7 +1556,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/platforms/:platformId',
-            authenticateMiddleware([{"jwt":["authAdmin:delete"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","platforms:delete"]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.deletePlatform)),
 
@@ -1512,7 +1582,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/platforms/:platformId',
-            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","platforms:update"]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.updatePlateform)),
 
@@ -1539,7 +1609,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/platforms/:platformId/getUserProfileList',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","platforms:profiles:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getUserProfileList)),
 
@@ -1565,7 +1635,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/platforms/:platformId/getAppProfileList',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","platforms:profiles:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getAppProfileService)),
 
@@ -1591,7 +1661,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/platforms/:platformId/platformLogs',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","platforms:logs:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.getPlatformLogs)),
 
@@ -1617,7 +1687,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/platforms/registerKey',
-            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","registerKey:update"]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.updateRegisterKeyNode)),
 
@@ -1642,7 +1712,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/platforms/updatePlatformToken',
-            authenticateMiddleware([{"jwt":["platform:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","platforms:token:update"]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.updatePlatformToken)),
 
@@ -1668,7 +1738,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/platforms/updatePlatformData/:platformId',
-            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","platforms:data:update"]}]),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController)),
             ...(fetchMiddlewares<RequestHandler>(PlatformsController.prototype.sendUpdatePlatformDataRequest)),
 
@@ -1694,7 +1764,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/registerKey',
-            authenticateMiddleware([{"jwt":["authAdmin:write"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","registerKey:update"]}]),
             ...(fetchMiddlewares<RequestHandler>(RegisterKeyController)),
             ...(fetchMiddlewares<RequestHandler>(RegisterKeyController.prototype.updateRegisterKeyNode)),
 
@@ -1719,7 +1789,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/registerKey',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","registerKey:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(RegisterKeyController)),
             ...(fetchMiddlewares<RequestHandler>(RegisterKeyController.prototype.getRegisterKeyNode)),
 
@@ -1794,7 +1864,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/tokens',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","tokens:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(TokensController)),
             ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.getTokens)),
 
@@ -1819,7 +1889,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/tokens/UserToken',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","tokens:users:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(TokensController)),
             ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.getUserTokens)),
 
@@ -1844,7 +1914,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/tokens/ApplicationToken',
-            authenticateMiddleware([{"jwt":["authAdmin:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","tokens:applications:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(TokensController)),
             ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.getApplicationTokens)),
 
@@ -1869,13 +1939,13 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/tokens/getUserProfileByToken',
-            authenticateMiddleware([{"jwt":["authAdmin:read","ownData:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","tokens:profiles:read","self:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(TokensController)),
             ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.getUserProfileByToken)),
 
             function TokensController_getUserProfileByToken(request: any, response: any, next: any) {
             const args = {
-                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"ITokenProfileRequest"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1895,13 +1965,13 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/tokens/getAppProfileByToken',
-            authenticateMiddleware([{"jwt":["authAdmin:read","ownData:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","tokens:profiles:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(TokensController)),
             ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.getAppProfileByToken)),
 
             function TokensController_getAppProfileByToken(request: any, response: any, next: any) {
             const args = {
-                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"ITokenProfileRequest"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1921,13 +1991,13 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/tokens/getCodeProfileByToken',
-            authenticateMiddleware([{"jwt":["authAdmin:read","ownData:read"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","tokens:profiles:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(TokensController)),
             ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.getCodeProfileByToken)),
 
             function TokensController_getCodeProfileByToken(request: any, response: any, next: any) {
             const args = {
-                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"ITokenProfileRequest"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1947,12 +2017,13 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/tokens/verifyToken',
+            authenticateMiddleware([{"jwt":["authAdmin","tokens:verify"]}]),
             ...(fetchMiddlewares<RequestHandler>(TokensController)),
             ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.verifyToken)),
 
             function TokensController_verifyToken(request: any, response: any, next: any) {
             const args = {
-                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"IVerifyTokenRequest"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1972,6 +2043,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/tokens/generate_redirect_url',
+            authenticateMiddleware([{"jwt":["authAdmin","tokens:redirect:create"]}]),
             ...(fetchMiddlewares<RequestHandler>(TokensController)),
             ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.createRedirectToBosUrl)),
 
@@ -2023,7 +2095,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/codes',
-            authenticateMiddleware([{"jwt":["authAdmin"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","codes:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(UniqueCodeController)),
             ...(fetchMiddlewares<RequestHandler>(UniqueCodeController.prototype.getAllCode)),
 
@@ -2048,7 +2120,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/codes/create',
-            authenticateMiddleware([{"jwt":["authAdmin"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","codes:create"]}]),
             ...(fetchMiddlewares<RequestHandler>(UniqueCodeController)),
             ...(fetchMiddlewares<RequestHandler>(UniqueCodeController.prototype.generateCode)),
 
@@ -2074,7 +2146,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/codes/getcode/:code',
-            authenticateMiddleware([{"jwt":["authAdmin"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","codes:read"]}]),
             ...(fetchMiddlewares<RequestHandler>(UniqueCodeController)),
             ...(fetchMiddlewares<RequestHandler>(UniqueCodeController.prototype.getCode)),
 
@@ -2100,7 +2172,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/codes/delete/:code',
-            authenticateMiddleware([{"jwt":["authAdmin"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","codes:delete"]}]),
             ...(fetchMiddlewares<RequestHandler>(UniqueCodeController)),
             ...(fetchMiddlewares<RequestHandler>(UniqueCodeController.prototype.removeCode)),
 
@@ -2126,7 +2198,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/codes/delete',
-            authenticateMiddleware([{"jwt":["authAdmin"]}]),
+            authenticateMiddleware([{"jwt":["authAdmin","codes:delete"]}]),
             ...(fetchMiddlewares<RequestHandler>(UniqueCodeController)),
             ...(fetchMiddlewares<RequestHandler>(UniqueCodeController.prototype.removeCodes)),
 

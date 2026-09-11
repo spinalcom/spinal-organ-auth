@@ -28,7 +28,7 @@ export interface IOAuthAuthenticationInfo {
     clientId: string;
     clientSecret: string;
     callbackUrl?: string;
-    grant_type?: string;
+    grant_type?: string | string[];
     endpoint?: string;
     logoutUrl?: string;
     scopes?: string;

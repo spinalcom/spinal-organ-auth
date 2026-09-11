@@ -3,15 +3,12 @@ import { HttpStatusCode } from "../../utilities/http-status-code";
 import { ILoginServer, ServerType } from "./loginServer.model";
 import { loginService } from "./loginServerService";
 import { OperationError } from "../../utilities/operation-error";
+import { SCOPES } from "../../constant";
 
 @Tags("LoginServer")
 @Route("loginserver")
 export class LoginServerController extends Controller {
-	constructor() {
-		super();
-	}
-
-	@Security("jwt", ["authAdmin:write"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.loginServersCreate])
 	@Post("/create")
 	public async createLoginServer(@Body() serverInfo: ILoginServer) {
 		try {
@@ -29,7 +26,7 @@ export class LoginServerController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.loginServersRead])
 	@Get("/all_servers")
 	public async getAllLoginServer() {
 		try {
@@ -44,7 +41,7 @@ export class LoginServerController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.loginServersRead])
 	@Get("/{serverId}")
 	public async getLoginServer(@Path() serverId: string) {
 		try {
@@ -59,7 +56,7 @@ export class LoginServerController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:write"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.loginServersUpdate])
 	@Put("/update/{serverId}")
 	public async editLoginServer(@Path() serverId: string, @Body() requestBody: ILoginServer) {
 		try {
@@ -72,7 +69,7 @@ export class LoginServerController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:delete"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.loginServersDelete])
 	@Delete("/delete/{serverId}")
 	public async deleteLoginServer(@Path() serverId: string) {
 		try {

@@ -22,8 +22,8 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse, Tags } from "tsoa";
-import { IOrganCreationParams, IOrganUpdateParams, IOrgan, statusOrgan } from "./organ.model";
+import { Body, Controller, Get, Path, Post, Put, Route, Security, SuccessResponse, Tags } from "tsoa";
+import { IOrganCreationParams, IOrganUpdateParams, IOrgan } from "./organ.model";
 import { OrganService } from "./organService";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 import { SCOPES } from "../../constant";
@@ -31,7 +31,7 @@ import { SCOPES } from "../../constant";
 @Tags("Organs")
 @Route("organs")
 export class OrgansController extends Controller {
-	@Security("jwt", ["authAdmin:write"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.organsCreate])
 	@SuccessResponse("201", "Created") // Custom success response
 	@Post("{platformId}")
 	public async createOrgan(@Body() requestBody: IOrganCreationParams): Promise<IOrgan | { error: string }> {
@@ -45,7 +45,7 @@ export class OrgansController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.organsRead])
 	@Get("{platformId}")
 	public async getOrgans(@Path() platformId: string): Promise<IOrgan[] | { error: string }> {
 		try {
@@ -58,7 +58,7 @@ export class OrgansController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.organsUpdate])
 	@Put("{organId}")
 	public async updatePlateform(@Path() organId: string, @Body() requestBody: IOrganUpdateParams): Promise<IOrgan | { error: string }> {
 		try {

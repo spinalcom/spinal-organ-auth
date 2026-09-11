@@ -1,13 +1,13 @@
 import { SPINAL_RELATION_PTR_LST_TYPE, SpinalContext, SpinalNode } from "spinal-model-graph";
 import SpinalMiddleware from "../../spinalMiddleware";
 import { AUTHORIZATION_CODE_CONTEXT_NAME, AUTHORIZATION_CODE_CONTEXT_TO_NODE_RELATION_NAME, AUTHORIZATION_CODE_CONTEXT_TYPE, AUTHORIZATION_CODE_TYPE } from "../../constant";
-import { AuthorizationCode, AuthorizationCodeModel, Client, ClientCredentialsModel, Falsey, PasswordModel, RefreshToken, RefreshTokenModel, Token, User } from "@node-oauth/oauth2-server";
+import { AuthorizationCode, Client, User } from "@node-oauth/oauth2-server";
 
 export class AuthorizationCodeService {
 	private static _instance: AuthorizationCodeService;
-	public context: SpinalContext;
+	public context!: SpinalContext;
 
-	private constructor() { }
+	private constructor() {}
 
 	static getInstance(): AuthorizationCodeService {
 		if (!this._instance) {
@@ -16,7 +16,7 @@ export class AuthorizationCodeService {
 		return this._instance;
 	}
 
-	public async init() {
+	public async init(): Promise<SpinalContext> {
 		const graph = await SpinalMiddleware.getInstance().getGraph();
 		this.context = await graph.getContext(AUTHORIZATION_CODE_CONTEXT_NAME);
 		if (!this.context) this.context = await graph.addContext(new SpinalContext(AUTHORIZATION_CODE_CONTEXT_NAME, AUTHORIZATION_CODE_CONTEXT_TYPE));
@@ -50,7 +50,7 @@ export class AuthorizationCodeService {
 		}
 	}
 
-	public async getAuthorizationCode(authorizationCode: string): Promise<SpinalNode> {
+	public async getAuthorizationCode(authorizationCode: string): Promise<SpinalNode | undefined> {
 		const nodes = await this.context.getChildren(AUTHORIZATION_CODE_CONTEXT_TO_NODE_RELATION_NAME);
 		return nodes.find((node) => node.info?.authorizationCode?.get() === authorizationCode);
 	}

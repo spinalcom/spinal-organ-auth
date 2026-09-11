@@ -22,11 +22,11 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { PLATFORM_LIST, AUTH_SERVICE_PLATFORM_RELATION_NAME, PLATFORM_TYPE, AUTH_SERVICE_RELATION_TYPE_PTR_LST, AUTH_SERVICE_ORGAN_RELATION_NAME, REGISTER_KEY_TYPE, INFO_ADMIN_TYPE, AUTH_SERVICE_INFO_ADMIN_RELATION_NAME, INFO_ADMIN, AUTH_SERVICE_APP_PROFILE_RELATION_NAME, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, AUTH_SERVICE_LOG_RELATION_NAME, EVENTS_NAMES, EVENTS_REQUEST_NAMES, PLATFORM_LOG_CATEGORY_NAME, CONNECTION_METHODS, PLATFORM_TO_LOGIN_SERVER } from "../../constant";
+import { PLATFORM_LIST, AUTH_SERVICE_PLATFORM_RELATION_NAME, PLATFORM_TYPE, AUTH_SERVICE_RELATION_TYPE_PTR_LST, REGISTER_KEY_TYPE, AUTH_SERVICE_INFO_ADMIN_RELATION_NAME, INFO_ADMIN, AUTH_SERVICE_APP_PROFILE_RELATION_NAME, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, AUTH_SERVICE_LOG_RELATION_NAME, EVENTS_NAMES, EVENTS_REQUEST_NAMES, PLATFORM_LOG_CATEGORY_NAME, CONNECTION_METHODS, PLATFORM_TO_LOGIN_SERVER } from "../../constant";
 import { SPINAL_RELATION_PTR_LST_TYPE, SpinalContext, SpinalNode } from "spinal-env-viewer-graph-service";
 import { OperationError } from "../../utilities/operation-error";
 import { HttpStatusCode } from "../../utilities/http-status-code";
-import { IPlatform, IPlateformCreationParams, IPlatformUpdateParams, statusPlatform, IRegisterParams, IRegisterKeyObject, IPlatformLogs, ISAMLAuthenticationInfo, IOAuthAuthenticationInfo, ILocalAuthenticationInfo } from "./platform.model";
+import { IPlatform, IPlatformCreateRequest, IPlatformUpdateParams, statusPlatform, IRegisterParams, IRegisterKeyObject, IPlatformLogs, ISAMLAuthenticationInfo, IOAuthAuthenticationInfo, ILocalAuthenticationInfo } from "./platform.model";
 import SpinalMiddleware from "../../spinalMiddleware";
 import { ProfileServices } from "./profileServices";
 import { OrganService } from "../organ/organService";
@@ -82,8 +82,9 @@ export class PlatformService {
 		});
 	}
 
-	public async createPlateform(platformCreationParms: IPlateformCreationParams): Promise<IPlatform> {
+	public async createPlateform(platformCreationParms: IPlatformCreateRequest): Promise<IPlatform> {
 		try {
+			await this._assertPlatformUniqueness(platformCreationParms);
 			const _platformCreationParms = this._formatPlatformCreationParams(platformCreationParms);
 
 			// const isValid = this._verifyAuthInfo(platformCreationParms.authentication_method, platformCreationParms.authentication_info);
@@ -144,12 +145,15 @@ export class PlatformService {
 
 	public async updatePlateform(id: string, requestBody: IPlatformUpdateParams): Promise<IPlatform> {
 		const [platform] = await this.getPlatformsNodes(id);
+		if (!platform) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 
 		for (const [key, value] of Object.entries(requestBody)) {
-			if (platform.info[key] && value) platform.info.mod_attr(key, value);
+			if (platform.info[key] && value !== undefined && value !== null) platform.info.mod_attr(key, value);
 		}
 
-		await this.editLoginServerLink(platform, requestBody.loginServerIds);
+		if (requestBody.loginServerIds) {
+			await this.editLoginServerLink(platform, requestBody.loginServerIds);
+		}
 
 		await LogsService.getInstance().createLog(platform, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_VALID);
 		return this._formatPlatform(platform);
@@ -177,44 +181,6 @@ export class PlatformService {
 		client.info.mod_attr("TokenBosAdmin", token);
 		return token;
 	}
-
-	// public async createAuthPlateform(): Promise<IPlatform> {
-	// 	try {
-	// 		const context = await this.getContext();
-
-	// 		const platformObject: IPlateformCreationParams = {
-	// 			name: "authenticationPlatform",
-	// 			type: PLATFORM_TYPE,
-	// 			statusPlatform: statusPlatform.online,
-	// 			url: process.env.SPINALHUB_URL,
-	// 			TokenBosAdmin: this.generateTokenBosAdmin("authenticationPlatform"),
-	// 			address: "",
-	// 			TokenAdminBos: "",
-	// 			idPlatformOfAdmin: "",
-	// 		};
-
-	// 		const plateformNode = new SpinalNode("authenticationPlatform", PLATFORM_TYPE);
-
-	// 		for (const [key, value] of Object.entries(platformObject)) {
-	// 			if (plateformNode.info[key]) plateformNode.info[key].set(value);
-	// 			else plateformNode.info.add_attr(key, value);
-	// 		}
-
-	// 		const res = await context.addChildInContext(plateformNode, AUTH_SERVICE_PLATFORM_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
-
-	// 		await LogsService.getInstance().createLog(res, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.REGISTER, EVENTS_REQUEST_NAMES.REGISTER_VALID, "Register Valid AuthPlatform created");
-	// 		return {
-	// 			id: res.getId().get(),
-	// 			type: res.getType().get(),
-	// 			name: res.getName().get(),
-	// 			statusPlatform: res.info.statusPlatform.get(),
-	// 			url: res.info.url.get(),
-	// 		};
-	// 	} catch (error) {
-	// 		await LogsService.getInstance().createLog(undefined, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.REGISTER, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID);
-	// 		throw new OperationError("NOT_CREATED", HttpStatusCode.BAD_REQUEST);
-	// 	}
-	// }
 
 	public async getRegisterKeyContext(): Promise<SpinalContext> {
 		const graph = await SpinalMiddleware.getInstance().getGraph();
@@ -248,7 +214,7 @@ export class PlatformService {
 		if (process.env.REGISTER_KEY) return process.env.REGISTER_KEY;
 
 		const generator = require("generate-password");
-		var registerKey = generator.generate({ length: 20, numbers: true });
+		const registerKey = generator.generate({ length: 20, numbers: true });
 		return registerKey;
 	}
 
@@ -275,9 +241,17 @@ export class PlatformService {
 		};
 	}
 
-	public generateTokenBosAdmin(platformName: string) {
+	public generateTokenBosAdmin(plateformInfo: any) {
 		const secret = TokensService.getInstance().generateTokenKey();
-		let token = jwt.sign({ platformName: platformName }, secret, { expiresIn: "50y" });
+
+		let token = jwt.sign(
+			{
+				...plateformInfo,
+				platformName: plateformInfo.name,
+			},
+			secret,
+			{ expiresIn: "50y" },
+		);
 		// let decodedToken = jwt_decode(token);
 		return token;
 	}
@@ -288,11 +262,6 @@ export class PlatformService {
 			await LogsService.getInstance().createLog(undefined, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.REGISTER, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID, "Invalid ClientId or ClientSecret");
 			throw new OperationError("Invalid ClientId or ClientSecret", HttpStatusCode.BAD_REQUEST);
 		}
-
-		// if (plateform.info.statusPlatform.get() === statusPlatform.connected && plateform.info.TokenBosAdmin?.get()) {
-		// 	await LogsService.getInstance().createLog(plateform, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.REGISTER, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID, "Platform Already Connected");
-		// 	throw new OperationError("Platform Already Connected", HttpStatusCode.BAD_REQUEST);
-		// }
 
 		const plateformName = plateform.getName().get();
 		const tokenBosAdmin = this.generateTokenBosAdmin(plateformName);
@@ -306,21 +275,23 @@ export class PlatformService {
 
 	public async updateNewPlatform(updateParams) {
 		const [platform] = await this.getPlatformsNodes(updateParams.platformId);
+		if (!platform) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 
-		if (platform.info.TokenBosAdmin?.get() === updateParams.TokenBosAdmin && updateParams.jsonData) {
-			//update the old Organ List
+		const jsonData = this._validateRegisterUpdateJsonData(updateParams?.jsonData);
+
+		if (platform.info.TokenBosAdmin?.get() === updateParams.TokenBosAdmin) {
+			// Update existing organ list.
 			const oldOrgans = await platform.getChildren("HasOrgan");
-			await updateOrganProfile(oldOrgans, platform, updateParams.jsonData.organList);
-			// update th old user Profiles
+			await updateOrganProfile(oldOrgans, platform, jsonData.organList);
+			// Update existing user profiles.
 			const oldUserProfileList = await platform.getChildren(AUTH_SERVICE_USER_PROFILE_RELATION_NAME);
-			await updateAppUserProfile(oldUserProfileList, platform, updateParams.jsonData.userProfileList, "userProfile");
+			await updateAppUserProfile(oldUserProfileList, platform, jsonData.userProfileList, "userProfile");
 
-			// update the old app profiles
+			// Update existing app profiles.
 			const oldAppProfileList = await platform.getChildren(AUTH_SERVICE_APP_PROFILE_RELATION_NAME);
-			await updateAppUserProfile(oldAppProfileList, platform, updateParams.jsonData.appProfileList, "appProfile");
+			await updateAppUserProfile(oldAppProfileList, platform, jsonData.appProfileList, "appProfile");
 
 			platform.info.mod_attr("lastSyncTime", Date.now());
-			// platform.info.idPlatformOfAdmin.set(updateParams.idPlatformOfAdmin);
 			if (updateParams.TokenAdminBos && !platform.info?.TokenAdminBos?.get())
 				// if the token is not already set
 				await this.updateTokenAdminBosInGraph(platform, updateParams.TokenAdminBos);
@@ -331,6 +302,20 @@ export class PlatformService {
 
 		await LogsService.getInstance().createLog(platform, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.PUSH_DATA, EVENTS_REQUEST_NAMES.PUSH_DATA_NOT_VALID, "Push Data Not Valid Empty Json Data");
 		throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+	}
+
+	private _validateRegisterUpdateJsonData(jsonData: any): { organList: any[]; userProfileList: any[]; appProfileList: any[] } {
+		if (!jsonData || typeof jsonData !== "object") {
+			throw new OperationError("INVALID_JSON_DATA", HttpStatusCode.BAD_REQUEST);
+		}
+
+		const { organList, userProfileList, appProfileList } = jsonData;
+
+		if (!Array.isArray(organList) || !Array.isArray(userProfileList) || !Array.isArray(appProfileList)) {
+			throw new OperationError("INVALID_JSON_DATA", HttpStatusCode.BAD_REQUEST);
+		}
+
+		return { organList, userProfileList, appProfileList };
 	}
 
 	public sendTokenAdminBosUpdatingRequest(platformId: string) {}
@@ -344,15 +329,12 @@ export class PlatformService {
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 		}
 
-		// url += url.endsWith("/") ? "api/v1/pam/update_data" : "/api/v1/pam/update_data";
-
 		return axios.put(url, {}, { headers: { Authorization: `Bearer ${token}` } }).then((result) => {
 			plateform.info.mod_attr("lastSyncTime", Date.now());
 			return plateform.info.get();
 		});
 	}
 
-	// update the token in graph
 	public async updateTokenAdminBosInGraph(platform: string | SpinalNode, token: string): Promise<string> {
 		if (typeof platform === "string") {
 			const [platformNode] = await this.getPlatformsNodes(platform);
@@ -403,6 +385,11 @@ export class PlatformService {
 		return nodes.find((platform) => platform.info.clientId?.get() === clientId);
 	}
 
+	public async getPlatformsByName(name: string): Promise<SpinalNode[]> {
+		const nodes = await this.getPlatformsNodes();
+		return nodes.filter((platform) => platform.getName()?.get() === name);
+	}
+
 	public async addLoginServerToPlatform(platform: SpinalNode, ids: string[] = []): Promise<SpinalNode[]> {
 		const nodes = await loginService.getServeralServersById(ids);
 		const promises = nodes.map((el) => platform.addChild(el, PLATFORM_TO_LOGIN_SERVER, SPINAL_RELATION_PTR_LST_TYPE));
@@ -445,8 +432,8 @@ export class PlatformService {
 
 	public async getLoginServerFromPlatform(platform: string | SpinalNode): Promise<SpinalNode[]> {
 		if (typeof platform === "string") {
-			let [_n] = await this.getPlatformsNodes(platform);
-			platform = _n;
+			let [platformNode] = await this.getPlatformsNodes(platform);
+			platform = platformNode;
 		}
 
 		let node = platform;
@@ -493,7 +480,7 @@ export class PlatformService {
 		}
 	}
 
-	private _formatPlatformCreationParams(platformCreationParms: IPlateformCreationParams) {
+	private _formatPlatformCreationParams(platformCreationParms: IPlatformCreateRequest) {
 		let grant_types = platformCreationParms.grant_types || [];
 		if (!Array.isArray(grant_types)) grant_types = [grant_types];
 
@@ -511,6 +498,22 @@ export class PlatformService {
 			// 	}
 			// })
 		});
+	}
+
+	private async _assertPlatformUniqueness(platformCreationParms: IPlatformCreateRequest): Promise<void> {
+		const platforms = await this.getPlatformsNodes();
+		const normalizedName = String(platformCreationParms.name || "").trim().toLowerCase();
+		const normalizedClientId = String(platformCreationParms.clientId || "").trim();
+
+		if (!normalizedName || !normalizedClientId) {
+			throw new OperationError("INVALID_PLATFORM_DATA", HttpStatusCode.BAD_REQUEST);
+		}
+
+		const hasSameName = platforms.some((platform) => String(platform.getName()?.get() || "").trim().toLowerCase() === normalizedName);
+		if (hasSameName) throw new OperationError("PLATFORM_NAME_ALREADY_USED", HttpStatusCode.BAD_REQUEST);
+
+		const hasSameClientId = platforms.some((platform) => String(platform.info.clientId?.get() || "").trim() === normalizedClientId);
+		if (hasSameClientId) throw new OperationError("PLATFORM_CLIENT_ID_ALREADY_USED", HttpStatusCode.BAD_REQUEST);
 	}
 }
 

@@ -22,7 +22,7 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse, Tags } from "tsoa";
+import { Controller, Get, Route, Security, Tags } from "tsoa";
 import { LogsService } from "./logService";
 import { SCOPES } from "../../constant";
 import { HttpStatusCode } from "../../utilities/http-status-code";
@@ -30,7 +30,7 @@ import { HttpStatusCode } from "../../utilities/http-status-code";
 @Tags("Logs")
 @Route("logs")
 export class LogsController extends Controller {
-	@Security("jwt", ["authAdmin:read"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.logsRead])
 	@Get()
 	public async getLogs(): Promise<any[] | { error: string }> {
 		try {
@@ -42,7 +42,7 @@ export class LogsController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.logsPlatformsRead])
 	@Get("/getPlatformsLogs")
 	public async getPlatformsLogs(): Promise<any[] | { error: string }> {
 		try {

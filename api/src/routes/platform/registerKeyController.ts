@@ -21,8 +21,7 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-import { Body, Controller, Delete, Get, Path, Post, Put, Query, Route, Security, SuccessResponse, Tags } from "tsoa";
-import { IOrgan } from "../organ/organ.model";
+import { Controller, Get, Post, Route, Security, Tags } from "tsoa";
 import { IRegisterKeyObject } from "./platform.model";
 import { PlatformService } from "./platformServices";
 import { HttpStatusCode } from "../../utilities/http-status-code";
@@ -31,7 +30,7 @@ import { SCOPES } from "../../constant";
 @Tags("RegisterKey")
 @Route("registerKey")
 export class RegisterKeyController extends Controller {
-	@Security("jwt", ["authAdmin:write"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.registerKeyUpdate])
 	@Post()
 	public async updateRegisterKeyNode(): Promise<IRegisterKeyObject | { error: string }> {
 		try {
@@ -44,7 +43,7 @@ export class RegisterKeyController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin:read"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.registerKeyRead])
 	@Get()
 	public async getRegisterKeyNode(): Promise<IRegisterKeyObject | { error: string }> {
 		try {

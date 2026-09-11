@@ -13,203 +13,194 @@ import SpinalMiddleware from "../../spinalMiddleware";
 const generateUniqueId = require("generate-unique-id");
 
 export default class SpinalUniqueCodeService {
-    private static _instance: SpinalUniqueCodeService;
-    private context: SpinalContext;
+	private static _instance: SpinalUniqueCodeService;
+	private context: SpinalContext;
 
-    private constructor() { }
+	private constructor() {}
 
-    static getInstance(): SpinalUniqueCodeService {
-        if (!this._instance) {
-            this._instance = new SpinalUniqueCodeService();
-        }
-        return this._instance;
-    }
+	static getInstance(): SpinalUniqueCodeService {
+		if (!this._instance) {
+			this._instance = new SpinalUniqueCodeService();
+		}
+		return this._instance;
+	}
 
-    async init(): Promise<SpinalContext> {
-        const graph = await SpinalMiddleware.getInstance().getGraph();
-        let context = await graph.getContext(UNIQUE_CODE_LIST);
+	async init(): Promise<SpinalContext> {
+		const graph = await SpinalMiddleware.getInstance().getGraph();
+		let context = await graph.getContext(UNIQUE_CODE_LIST);
 
-        if (!context) {
-            context = await graph.addContext(new SpinalContext(UNIQUE_CODE_LIST, UNIQUE_CODE_CONTEXT_TYPE));
-        }
+		if (!context) {
+			context = await graph.addContext(new SpinalContext(UNIQUE_CODE_LIST, UNIQUE_CODE_CONTEXT_TYPE));
+		}
 
-        this.context = context;
-        return context;
-    }
+		this.context = context;
+		return context;
+	}
 
+	async consumeCode(code: string): Promise<ICodeToken> {
+		const codeNode = await this.getCode(code, true);
+		if (!codeNode) throw new AuthError(HttpStatusCode.NOT_FOUND, `Code not found`);
+		if (codeNode.info.used.get()) throw new AuthError(HttpStatusCode.BAD_REQUEST, `Code already used`);
 
-    async consumeCode(code: string): Promise<ICodeToken> {
-        const codeNode = await this.getCode(code, true);
-        if (!codeNode) throw new AuthError(HttpStatusCode.NOT_FOUND, `Code not found`);
-        if (codeNode.info.used.get()) throw new AuthError(HttpStatusCode.BAD_REQUEST, `Code already used`);
+		const codeFormatted = this.formatCodeNode(codeNode);
+		const platformList = codeFormatted.profiles;
+		const info = {
+			code: codeFormatted.code,
+			id: codeFormatted.id,
+			codeId: codeFormatted.id,
+		};
 
+		const tokenNode = await TokensService.getInstance().createToken(codeNode, info, platformList, "code");
+		await LogsService.getInstance().createLog(codeNode, APPLICATION_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.LOGIN_VALID, EVENTS_REQUEST_NAMES.LOGIN_VALID);
 
-        const codeFormatted = this.formatCodeNode(codeNode);
-        const platformList = codeFormatted.profiles;
-        const info = {
-            code: codeFormatted.code,
-            id: codeFormatted.id,
-        }
+		codeNode.info.mod_attr("used", true);
+		codeNode.info.mod_attr("usedAt", Date.now());
 
+		return {
+			name: tokenNode.getName().get(),
+			type: tokenNode.getType().get(),
+			token: tokenNode.info.token?.get(),
+			createdToken: tokenNode.info.createdToken?.get(),
+			expieredToken: tokenNode.info.expieredToken?.get(),
+			applicationId: codeNode.getId().get(),
+			userId: codeNode.getId().get(),
+			platformList,
+		};
+	}
 
-        const tokenNode = await TokensService.getInstance().createToken(codeNode, info, platformList, "code");
-        await LogsService.getInstance().createLog(codeNode, APPLICATION_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.LOGIN_VALID, EVENTS_REQUEST_NAMES.LOGIN_VALID);
+	async generateCode(profiles: IProfile | IProfile[], count: number = 1) {
+		if (!count || count < 0) count = 1;
+		profiles = Array.isArray(profiles) ? profiles : [profiles];
+		if (profiles.length === 0) throw new Error("No profiles provided");
 
-        codeNode.info.mod_attr("used", true);
-        codeNode.info.mod_attr("usedAt", Date.now());
+		const { invalids, valids } = await this._checkIfProfilesAreValid(profiles);
 
-        return {
-            name: tokenNode.getName().get(),
-            type: tokenNode.getType().get(),
-            token: tokenNode.info.token?.get(),
-            createdToken: tokenNode.info.createdToken?.get(),
-            expieredToken: tokenNode.info.expieredToken?.get(),
-            applicationId: codeNode.getId().get(),
-            userId: codeNode.getId().get(),
-            platformList,
-        };
-    }
+		if (invalids.length > 0) {
+			throw new AuthError(HttpStatusCode.BAD_REQUEST, `Invalid profiles: ${JSON.stringify(invalids)}`);
+		}
 
+		const codesAlreadyGenerated = await this._getCodesGeneratedFromContextInfo(true);
+		const codes = await this._generateUniqueCode(codesAlreadyGenerated, count);
 
-    async generateCode(profiles: IProfile | IProfile[], count: number = 1) {
-        if (!count || count < 0) count = 1;
-        profiles = Array.isArray(profiles) ? profiles : [profiles];
-        if (profiles.length === 0) throw new Error("No profiles provided");
+		const promises = codes.map((code) => this.createCodeNode(code, valids, codesAlreadyGenerated));
 
-        const { invalids, valids } = await this._checkIfProfilesAreValid(profiles);
+		return Promise.all(promises);
+	}
 
-        if (invalids.length > 0) {
-            throw new AuthError(HttpStatusCode.BAD_REQUEST, `Invalid profiles: ${JSON.stringify(invalids)}`);
-        }
+	async getAllCodes(): Promise<SpinalNode[]> {
+		return this.context.getChildren(AUTH_SERVICE_UNIQUE_CODE_RELATION_NAME);
+	}
 
-        const codesAlreadyGenerated = await this._getCodesGeneratedFromContextInfo(true);
-        const codes = await this._generateUniqueCode(codesAlreadyGenerated, count);
+	async getCode(code: string, useCodeOnly: boolean = false): Promise<SpinalNode> {
+		const codes = await this.getAllCodes();
+		return codes.find((codeNode) => {
+			const info = codeNode.info.get();
+			let codeIsValid = info.code.toLowerCase() == code.toLowerCase();
+			if (codeIsValid) return true; // if the code matches, return immediately
 
-        const promises = codes.map((code) => this.createCodeNode(code, valids, codesAlreadyGenerated));
+			if (useCodeOnly) return false; // if we are only checking the code, do not check the id
 
-        return Promise.all(promises);
-    }
+			return info.id == code || info.name == code; // also check if the id or name matches (get code by id or name)
+		});
+	}
 
-    async getAllCodes(): Promise<SpinalNode[]> {
-        return this.context.getChildren(AUTH_SERVICE_UNIQUE_CODE_RELATION_NAME);
-    }
+	async removeCode(code: string): Promise<SpinalNode> {
+		const codeNode = await this.getCode(code);
+		if (!codeNode) return;
 
-    async getCode(code: string, useCodeOnly: boolean = false): Promise<SpinalNode> {
-        const codes = await this.getAllCodes();
-        return codes.find((codeNode) => {
-            const info = codeNode.info.get();
-            let codeIsValid = info.code.toLowerCase() == code.toLowerCase();
-            if (codeIsValid) return true; // if the code matches, return immediately
+		await this.context.removeChild(codeNode, AUTH_SERVICE_UNIQUE_CODE_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+		await this._removeCodesGeneratedFromContextInfo(codeNode.info.code.get());
+		return codeNode;
+	}
 
-            if (useCodeOnly) return false; // if we are only checking the code, do not check the id
+	async removeSeveralCodes(codes: string[]): Promise<SpinalNode[]> {
+		const codeNodes = codes.map((code) => this.removeCode(code));
+		return Promise.all(codeNodes);
+	}
 
-            return info.id == code || info.name == code; // also check if the id or name matches (get code by id or name)
-        });
-    }
+	formatCodeNode(node: SpinalNode): ICodeResponse {
+		return {
+			id: node.getId().get(),
+			code: node.info.code.get(),
+			used: node.info.used.get(),
+			createdAt: node.info.createdAt.get(),
+			usedAt: node.info.usedAt.get(),
+			profiles: node.info.profiles.get(),
+		};
+	}
 
-    async removeCode(code: string): Promise<SpinalNode> {
-        const codeNode = await this.getCode(code);
-        if (!codeNode) return;
+	//////////////////////////////// PRIVATE METHODS ////////////////////////////////
 
+	private async _getCodesGeneratedFromContextInfo(createIt: boolean = false): Promise<spinal.Model> {
+		return new Promise((resolve) => {
+			if (this.context.info.codes) {
+				this.context.info.codes.load((codes) => resolve(codes));
+				return;
+			}
 
-        await this.context.removeChild(codeNode, AUTH_SERVICE_UNIQUE_CODE_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
-        await this._removeCodesGeneratedFromContextInfo(codeNode.info.code.get());
-        return codeNode;
-    }
+			if (!createIt) return resolve(null);
 
-    async removeSeveralCodes(codes: string[]): Promise<SpinalNode[]> {
-        const codeNodes = codes.map(code => this.removeCode(code));
-        return Promise.all(codeNodes);
-    }
+			// If no codes exist, create a new model
+			const codes = new Model({});
+			this.context.info.add_attr({ codes: new Ptr(codes) });
 
-    formatCodeNode(node: SpinalNode): ICodeResponse {
-        return {
-            id: node.getId().get(),
-            code: node.info.code.get(),
-            used: node.info.used.get(),
-            createdAt: node.info.createdAt.get(),
-            usedAt: node.info.usedAt.get(),
-            profiles: node.info.profiles.get()
-        }
-    }
+			return resolve(codes);
+		});
+	}
 
+	private async _removeCodesGeneratedFromContextInfo(code: string): Promise<boolean> {
+		const codes = await this._getCodesGeneratedFromContextInfo();
+		if (codes) {
+			codes.rem_attr(code);
+			return true;
+		}
 
+		return false;
+	}
 
-    //////////////////////////////// PRIVATE METHODS ////////////////////////////////
+	private async createCodeNode(code: string, profiles: any[], codesAlreadyGenerated: spinal.Model): Promise<SpinalNode> {
+		const node = new SpinalNode(code, UNIQUE_CODE_TYPE);
+		node.info.add_attr({
+			code,
+			used: false,
+			createdAt: Date.now(),
+			usedAt: -1,
+			profiles,
+		});
 
-    private async _getCodesGeneratedFromContextInfo(createIt: boolean = false): Promise<spinal.Model> {
-        return new Promise((resolve) => {
+		await this.context.addChildInContext(node, AUTH_SERVICE_UNIQUE_CODE_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, this.context);
+		codesAlreadyGenerated.add_attr({ [code]: new Pbr(node) });
+		return node;
+	}
 
-            if (this.context.info.codes) {
-                this.context.info.codes.load((codes) => resolve(codes));
-                return;
-            }
+	private async _generateUniqueCode(codesAlreadyGenerated: { [key: string]: any }, count: number = 1): Promise<string[]> {
+		const newCodes = {};
+		let generatedCount = 0;
 
-            if (!createIt) return resolve(null);
+		while (generatedCount < count) {
+			const code = generateUniqueId({ length: 5, useLetters: true, useNumbers: true });
 
-            // If no codes exist, create a new model
-            const codes = new Model({});
-            this.context.info.add_attr({ codes: new Ptr(codes) });
+			if (!codesAlreadyGenerated[code] && !newCodes[code]) {
+				newCodes[code] = true;
+				generatedCount++;
+			}
+		}
 
-            return resolve(codes);
-        });
-    }
+		return Object.keys(newCodes);
+	}
 
-    private async _removeCodesGeneratedFromContextInfo(code: string): Promise<boolean> {
-        const codes = await this._getCodesGeneratedFromContextInfo();
-        if (codes) {
-            codes.rem_attr(code);
-            return true;
-        }
+	private async _checkIfProfilesAreValid(profiles: IProfile | IProfile[]): Promise<{ valids: ICodeResponse["profiles"][]; invalids: IProfile[] }> {
+		profiles = Array.isArray(profiles) ? profiles : [profiles];
+		const result = { valids: [], invalids: [] };
 
-        return false;
+		for (const element of profiles) {
+			const profileId = isIUserProfileBase(element) ? element.userProfileId : element.appProfileId;
 
-    }
+			const found = await ProfileServices.getInstance().findProfile(element.platformId, profileId);
+			if (found) result.valids.push(found);
+			else result.invalids.push(element);
+		}
 
-    private async createCodeNode(code: string, profiles: any[], codesAlreadyGenerated: spinal.Model): Promise<SpinalNode> {
-        const node = new SpinalNode(code, UNIQUE_CODE_TYPE);
-        node.info.add_attr({
-            code,
-            used: false,
-            createdAt: Date.now(),
-            usedAt: -1,
-            profiles
-        });
-
-        await this.context.addChildInContext(node, AUTH_SERVICE_UNIQUE_CODE_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, this.context);
-        codesAlreadyGenerated.add_attr({ [code]: new Pbr(node) });
-        return node;
-    }
-
-    private async _generateUniqueCode(codesAlreadyGenerated: { [key: string]: any }, count: number = 1): Promise<string[]> {
-        const newCodes = {};
-        let generatedCount = 0;
-
-        while (generatedCount < count) {
-            const code = generateUniqueId({ length: 5, useLetters: true, useNumbers: true });
-
-            if (!codesAlreadyGenerated[code] && !newCodes[code]) {
-                newCodes[code] = true;
-                generatedCount++;
-            }
-        }
-
-        return Object.keys(newCodes);
-    }
-
-    private async _checkIfProfilesAreValid(profiles: IProfile | IProfile[]): Promise<{ valids: (ICodeResponse["profiles"])[], invalids: IProfile[] }> {
-        profiles = Array.isArray(profiles) ? profiles : [profiles];
-        const result = { valids: [], invalids: [] };
-
-        for (const element of profiles) {
-            const profileId = isIUserProfileBase(element) ? element.userProfileId : element.appProfileId;
-
-            const found = await ProfileServices.getInstance().findProfile(element.platformId, profileId);
-            if (found) result.valids.push(found);
-            else result.invalids.push(element);
-        }
-
-        return result;
-    }
-
+		return result;
+	}
 }

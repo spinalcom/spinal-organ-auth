@@ -3,6 +3,7 @@ import SpinalUniqueCodeService from "./codeService";
 import { ICodeResponse, IProfile } from "./code.model";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 import { ICodeToken } from "../tokens/token.model";
+import { SCOPES } from "../../constant";
 
 const spinalUniqueCodeService = SpinalUniqueCodeService.getInstance();
 
@@ -22,7 +23,7 @@ export class UniqueCodeController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.codesRead])
 	@Get()
 	public async getAllCode(): Promise<ICodeResponse[] | { error: string }> {
 		try {
@@ -43,7 +44,7 @@ export class UniqueCodeController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.codesCreate])
 	@Post("create")
 	public async generateCode(@Body() body: { profiles: IProfile | IProfile[]; count?: number }): Promise<ICodeResponse[] | { error: string }> {
 		try {
@@ -62,7 +63,7 @@ export class UniqueCodeController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.codesRead])
 	@Get("/getcode/{code}")
 	public async getCode(@Path() code: string): Promise<ICodeResponse | { error: string }> {
 		try {
@@ -80,7 +81,7 @@ export class UniqueCodeController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.codesDelete])
 	@Delete("/delete/{code}")
 	public async removeCode(@Path() code: string): Promise<ICodeResponse | { error: string }> {
 		try {
@@ -98,7 +99,7 @@ export class UniqueCodeController extends Controller {
 		}
 	}
 
-	@Security("jwt", ["authAdmin"])
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.codesDelete])
 	@Delete("/delete")
 	public async removeCodes(@Body() data: { codes: string[] }): Promise<ICodeResponse[] | { error: string }> {
 		try {

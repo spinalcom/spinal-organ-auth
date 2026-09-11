@@ -22,19 +22,7 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import {
-	TOKEN_TYPE,
-	AUTH_SERVICE_TOKEN_RELATION_NAME,
-	TOKEN_LIST,
-	AUTH_SERVICE_RELATION_TYPE_PTR_LST,
-	USER_TOKEN_CATEGORY_TYPE,
-	APPLICATION_TOKEN_CATEGORY_TYPE,
-	AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME,
-	APPLICATION_TYPE,
-	CONNECTION_METHODS,
-	USER_PROFILE_TYPE,
-	CODE_TOKEN_CATEGORY_TYPE
-} from "../../constant";
+import { TOKEN_TYPE, AUTH_SERVICE_TOKEN_RELATION_NAME, TOKEN_LIST, AUTH_SERVICE_RELATION_TYPE_PTR_LST, USER_TOKEN_CATEGORY_TYPE, APPLICATION_TOKEN_CATEGORY_TYPE, AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME, APPLICATION_TYPE, CONNECTION_METHODS, CODE_TOKEN_CATEGORY_TYPE } from "../../constant";
 import { SpinalContext, SpinalNode } from "spinal-env-viewer-graph-service";
 import { OperationError } from "../../utilities/operation-error";
 import { HttpStatusCode } from "../../utilities/http-status-code";
@@ -47,14 +35,12 @@ import { ApplicationService } from "../authApplication/applicationService";
 import { UserService } from "../authUser/userService";
 import { ITokenActor } from "./token.model";
 import { PlatformService } from "../platform/platformServices";
-import { platform } from "os";
 const jwt = require("jsonwebtoken");
 
 export class TokensService {
-	context: SpinalContext;
 	static instance: TokensService;
 
-	private constructor() { }
+	private constructor() {}
 
 	static getInstance(): TokensService {
 		if (!this.instance) this.instance = new TokensService();
@@ -75,17 +61,15 @@ export class TokensService {
 	public generateTokenKey() {
 		// let key = process.env.TOKEN_SECRET || generator.generate({ length: 30, numbers: true, uppercase: true, strict: true });
 		let key = process.env.TOKEN_SECRET;
+		if (!key) throw new OperationError("MISSING_TOKEN_SECRET", HttpStatusCode.INTERNAL_SERVER_ERROR);
 		// setEnvValue("TOKEN_SECRET", key);
 		return key;
 	}
 
-
 	public generateToken(tokenData: any, actor: ITokenActor = "application") {
 		const secret = this.generateTokenKey();
 		return jwt.sign(tokenData, secret, { expiresIn: this._getTokenExpirationTime(actor) });
-
 	}
-
 
 	public async addTokenToContext(tokenNode: SpinalNode, actor: ITokenActor) {
 		const context = await this.getTokenListContext();
@@ -93,7 +77,6 @@ export class TokensService {
 
 		return tokenCategory.addChildInContext(tokenNode, AUTH_SERVICE_TOKEN_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
 	}
-
 
 	public async createToken(node: SpinalNode, tokenData: any, platformList: any[], actor: ITokenActor) {
 		const token = this.generateToken(tokenData, actor);
@@ -113,14 +96,11 @@ export class TokensService {
 			...(node.info?.scope && { scope: node.info.scope.get() }),
 		});
 
-
 		await node.addChild(tokenNode, AUTH_SERVICE_TOKEN_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
 		return this.addTokenToContext(tokenNode, actor);
-
 	}
 
 	public async createSSOToken(tokenData: any, platformList: (IPlatform & { profile: any })[]) {
-
 		const token = this.generateToken(tokenData);
 		let decodedToken: any = jwt_decode(token);
 
@@ -132,28 +112,22 @@ export class TokensService {
 			createdToken: decodedToken.iat,
 			expieredToken: decodedToken.exp,
 			userId: tokenData.userId,
-			platformList: platformList.map(platform => ({
+			platformList: platformList.map((platform) => ({
 				platformId: platform.id,
 				platformName: platform.name,
 				idPlatformOfAdmin: platform.idPlatformOfAdmin,
-				userProfile: platform.profile || tokenData.profile
-			}))
-
-			// platformList: [
-			// 	{
-			// 		platformId: platform.id,
-			// 		platformName: platform.name,
-			// 		idPlatformOfAdmin: platform.idPlatformOfAdmin,
-			// 		userProfile: tokenData.profile
-			// 	}
-			// ],
-		})
+				userProfile: platform.profile || tokenData.profile,
+			})),
+		});
 
 		return this.addTokenToContext(tokenNode, "user");
 	}
 
 	public async saveOAuthToken(token: Token, client: Client, user: User) {
 		const actor = user.type === APPLICATION_TYPE ? "application" : "user";
+		if (!token.accessTokenExpiresAt) {
+			throw new OperationError("INVALID_TOKEN", HttpStatusCode.UNAUTHORIZED);
+		}
 
 		const tokenNode = new SpinalNode(`token_${user.name}`, TOKEN_TYPE);
 		tokenNode.info.add_attr({
@@ -164,7 +138,7 @@ export class TokensService {
 			...(actor === "application" && { applicationId: user.id }),
 			...(actor === "user" && { userId: user.id }),
 			...(token.scope && { scope: token.scope }),
-			platformList: await this._getPlatformList(actor, client, user) || [],
+			platformList: (await this._getPlatformList(actor, client, user)) || [],
 			client,
 			user,
 		});
@@ -174,7 +148,7 @@ export class TokensService {
 
 		return tokenCategory.addChildInContext(tokenNode, AUTH_SERVICE_TOKEN_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context).then(async (result) => {
 			if (token.refreshToken && token.refreshTokenExpiresAt) {
-				await RefreshTokenService.getInstance().saveRefreshToken(token, client, user, tokenNode);
+				await RefreshTokenService.getInstance().saveRefreshToken(token, client, user);
 			}
 
 			return result;
@@ -186,8 +160,10 @@ export class TokensService {
 
 		const categoriesToken = await context.getChildren(AUTH_SERVICE_TOKEN_CATEGORY_RELATION_NAME);
 		const type = this._getTokenCategoryType(actor);
+		const category = categoriesToken.find((el) => el.getType().get() === type);
+		if (!category) throw new OperationError("UNKNOWN_TOKEN", HttpStatusCode.NOT_FOUND);
 
-		return categoriesToken.find((el) => el.getType().get() === type);
+		return category;
 	}
 
 	public async createTokenTree(): Promise<SpinalNode[]> {
@@ -216,15 +192,6 @@ export class TokensService {
 		return [userTokenCategory, appTokenCategory, codeTokenCategory];
 	}
 
-	// public async verify(): Promise<any[]> {
-	// 	const tokens = await this.getAllTokensNode();
-	// 	const promises = tokens.map((token) => {
-	// 		if (Math.floor(Date.now() / 1000) > token.info?.expieredToken.get()) return token.removeFromGraph();
-	// 	});
-
-	// 	return Promise.all(promises);
-	// }
-
 	public async getTokens() {
 		const tokens = await this.getAllTokensNode();
 		return tokens.map(this._formatToken);
@@ -241,52 +208,48 @@ export class TokensService {
 	}
 
 	public async getCodeTokens() {
-		const appTokens = await this._getCodeTokensNode();
-		return appTokens.map(this._formatToken);
+		const codeTokens = await this._getCodeTokensNode();
+		return codeTokens.map(this._formatToken);
 	}
 
 	public decodeToken(token: string, ignoreExpiration: boolean = false) {
 		const secret = this.generateTokenKey();
+		return jwt.verify(token, secret, { ignoreExpiration });
+	}
+
+	public async checkIfItsPlatformToken(token: string): Promise<any> {
 		try {
-			return jwt.verify(token, secret, { ignoreExpiration });
+			const plateforms = await PlatformService.getInstance().getPlatformsNodes();
+			const found = plateforms.find((platform) => platform.info.TokenBosAdmin?.get() === token);
+			if (!found) throw new OperationError("INVALID_TOKEN", HttpStatusCode.UNAUTHORIZED);
+
+			return found;
 		} catch (error) {
-			throw error;
+			throw new OperationError("INVALID_TOKEN", HttpStatusCode.UNAUTHORIZED);
 		}
 	}
 
 	public async verifyToken(tokenParam: string, platformId: string, actor?: ITokenActor) {
+		const decoded = await this.decodeToken(tokenParam);
 
+		let tokenIsAlreadyInGraph = await this.getTokenNode(tokenParam);
+		if (!tokenIsAlreadyInGraph) {
+			tokenIsAlreadyInGraph = await this.checkIfItsPlatformToken(tokenParam);
 
-		try {
-			// const type = this._getTokenCategoryType(actor);
-
-			// let tokens = type ? await this.getTokenByCategoryType(type) : await this.getAllTokensNode();
-
-			// if (!tokens) throw new OperationError("INVALID_TOKEN", HttpStatusCode.UNAUTHORIZED);
-
-			// const token = tokens.find((el) => el.info?.token?.get() === tokenParam);
-			// if (!token) throw new OperationError("INVALID_TOKEN", HttpStatusCode.UNAUTHORIZED);
-
-
-			// actor = actor || token.info.actor?.get();
-
-			const token_secret = this.generateTokenKey();
-			const decoded = jwt.verify(tokenParam, token_secret);
-
-			const { iat, exp, ...copyWithoutIatAndExp } = decoded;
-
-			const copy = Object.assign(copyWithoutIatAndExp, {
-				createdToken: decoded.iat,
-				expieredToken: decoded.exp,
-				token: tokenParam,
-				profile: await this._getProfileByActor(tokenParam, actor, platformId, decoded)
-			});
-
-
-			return copy;
-		} catch (error) {
-			throw error;
+			if (!tokenIsAlreadyInGraph) throw new OperationError("INVALID_TOKEN", HttpStatusCode.UNAUTHORIZED);
 		}
+
+		const resolvedActor = actor || (decoded as any).actor || "code";
+		const { iat, exp, ...copyWithoutIatAndExp } = decoded as any;
+
+		const copy = Object.assign(copyWithoutIatAndExp, {
+			createdToken: iat,
+			expieredToken: exp,
+			token: tokenParam,
+			profile: await this._getProfileByActor(tokenParam, resolvedActor, platformId, decoded),
+		});
+
+		return copy;
 	}
 
 	private _getProfileByActor(token: string, actor: ITokenActor, platformId: string, decoded: any) {
@@ -301,13 +264,13 @@ export class TokensService {
 				return this.getCodeProfileByToken(token, platformId, decoded);
 			// return {}
 		}
-
 	}
 
 	public async getTokenInfo(tokenParam: string) {
-		const tokens = await this.getAllTokensNode();
-		const token = tokens.find((el) => el.info?.token?.get() === tokenParam);
-		if (token) return this._formatToken(token);
+		const token = await this.getTokenNode(tokenParam);
+		if (!token) return;
+
+		return this._formatToken(token);
 	}
 
 	/////////////////////////////// PROFILE //////////////////////////////////////
@@ -332,26 +295,19 @@ export class TokensService {
 				if (!platform) return;
 			}
 
-
 			return {
 				token: Token,
 				platformId: platformId,
 				userProfileName: platform.userProfile.userProfileName,
 				userProfileBosConfigId: platform.userProfile.userProfileBosConfigId,
 			};
-
 		} catch (error) {
 			return;
 		}
-
-
-
 	}
 
 	public async getAppProfileByToken(token: string, platformId: string, decoded?: any) {
-
 		try {
-
 			decoded = decoded || this.decodeToken(token);
 			if (decoded && decoded.profile) return decoded.profile;
 
@@ -371,7 +327,6 @@ export class TokensService {
 		} catch (error) {
 			return;
 		}
-
 	}
 
 	public async getCodeProfileByToken(token: string, platformId: string, decoded?: any) {
@@ -391,29 +346,26 @@ export class TokensService {
 			if (platform.appProfile) {
 				res = {
 					appProfileName: platform.appProfile.appProfileName,
-					appProfileBosConfigId: platform.appProfile.appProfileBosConfigId
-				}
-			}
-
-			else if (platform.userProfile) {
+					appProfileBosConfigId: platform.appProfile.appProfileBosConfigId,
+				};
+			} else if (platform.userProfile) {
 				res = {
 					userProfileName: platform.userProfile.userProfileName,
-					userProfileBosConfigId: platform.userProfile.userProfileBosConfigId
-				}
+					userProfileBosConfigId: platform.userProfile.userProfileBosConfigId,
+				};
 			}
 
 			return { token, platformId: platformId, ...res };
 		} catch (error) {
 			return;
 		}
-
 	}
 
 	public async removeToken(token: string | SpinalNode): Promise<boolean> {
 		try {
-			let tokenNode: SpinalNode | undefined;
+			let tokenNode: SpinalNode | string | undefined = token;
 
-			if (!(token instanceof SpinalNode)) tokenNode = await this.getTokenNode(token);
+			if (typeof tokenNode == "string") tokenNode = await this.getTokenNode(token as string);
 
 			if (!tokenNode) return false;
 
@@ -425,7 +377,7 @@ export class TokensService {
 	}
 
 	async getTokenNode(token: string): Promise<SpinalNode | undefined> {
-		const tokens = await this.getAllTokensNode(token);
+		const tokens = await this.getAllTokensNode();
 		return tokens.find((el) => el.info?.token?.get() === token);
 	}
 
@@ -433,6 +385,7 @@ export class TokensService {
 
 	public async purgeInvalidToken() {
 		const tokens = await this.getAllTokensNode();
+
 		const now = Math.floor(Date.now() / 1000);
 		const promises = tokens.map(async (token) => {
 			if (now >= token.info.expieredToken.get()) return this.removeToken(token);
@@ -441,10 +394,11 @@ export class TokensService {
 		return Promise.all(promises);
 	}
 
-	public getAllTokensNode(token?: string): Promise<SpinalNode[]> {
+	public getAllTokensNode(): Promise<SpinalNode[]> {
 		return Promise.all([this._getApplicationTokensNode(), this._getUserTokensNode(), this._getCodeTokensNode()]).then((result) => {
-			if (!token) return result.flat();
-			return result.flat().filter((el) => el.info?.token?.get() === token);
+			return result.flat();
+			// if (!token) return result.flat();
+			// return result.flat().filter((el) => el.info?.token?.get() === token);
 		});
 	}
 
@@ -458,16 +412,20 @@ export class TokensService {
 		return categoryNode.getChildren(AUTH_SERVICE_TOKEN_RELATION_NAME);
 	}
 
+	////////////////////////////////////////////////////////////////
+	// Private helper methods for token management
+	/////////////////////////////////////////////////////////////////
+
 	private async _getUserTokensNode(): Promise<SpinalNode[]> {
-		return this.getTokenByCategoryType(USER_TOKEN_CATEGORY_TYPE)
+		return this.getTokenByCategoryType(USER_TOKEN_CATEGORY_TYPE);
 	}
 
 	private async _getApplicationTokensNode(): Promise<SpinalNode[]> {
-		return this.getTokenByCategoryType(APPLICATION_TOKEN_CATEGORY_TYPE)
+		return this.getTokenByCategoryType(APPLICATION_TOKEN_CATEGORY_TYPE);
 	}
 
 	private async _getCodeTokensNode(): Promise<SpinalNode[]> {
-		return this.getTokenByCategoryType(CODE_TOKEN_CATEGORY_TYPE)
+		return this.getTokenByCategoryType(CODE_TOKEN_CATEGORY_TYPE);
 	}
 
 	private _formatToken(token: SpinalNode) {
@@ -486,7 +444,7 @@ export class TokensService {
 
 	private _getPlatformList(actor: string, client: Client, user: User) {
 		if (actor === "application") {
-			return ApplicationService.getInstance()._getAppPlatformsByClientId((client.client_id as string));
+			return ApplicationService.getInstance()._getAppPlatformsByClientId(client.client_id as string);
 		} else {
 			return UserService.getInstance().getUserPlatformList(user.id, client.id);
 		}
@@ -514,21 +472,4 @@ export class TokensService {
 				return "1000y";
 		}
 	}
-
-	// private async _generatePossiblePlatformList(userProfile: string) {
-	// 	const platforms = await PlatformService.getInstance().getPlateforms();
-
-
-	// 	// platformList: [
-	// 	// 	{
-	// 	// 		platformId: platform.id,
-	// 	// 		platformName: platform.name,
-	// 	// 		idPlatformOfAdmin: platform.idPlatformOfAdmin,
-	// 	// 		userProfile: tokenData.profile
-	// 	// 	}
-	// 	// ],
-	// }
 }
-
-// 'UNKNOWN_TOKEN'
-// 'TOKEN_EXPIRED'

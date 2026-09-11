@@ -244,7 +244,7 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"IPlatform": {
+			"ITokenPlatform": {
 				"properties": {
 					"idPlatformOfAdmin": {
 						"type": "string"
@@ -263,7 +263,7 @@
 				],
 				"type": "object"
 			},
-			"IAppProfile": {
+			"IAppProfileToken": {
 				"properties": {
 					"appProfileName": {
 						"type": "string"
@@ -285,12 +285,12 @@
 			"IAppPlatformProfile": {
 				"allOf": [
 					{
-						"$ref": "#/components/schemas/IPlatform"
+						"$ref": "#/components/schemas/ITokenPlatform"
 					},
 					{
 						"properties": {
 							"appProfile": {
-								"$ref": "#/components/schemas/IAppProfile"
+								"$ref": "#/components/schemas/IAppProfileToken"
 							}
 						},
 						"required": [
@@ -465,6 +465,9 @@
 					"info": {
 						"type": "string"
 					},
+					"mustChangePassword": {
+						"type": "boolean"
+					},
 					"userType": {
 						"$ref": "#/components/schemas/IUserType"
 					},
@@ -505,6 +508,9 @@
 					"info": {
 						"type": "string"
 					},
+					"mustChangePassword": {
+						"type": "boolean"
+					},
 					"userType": {
 						"$ref": "#/components/schemas/IUserType"
 					},
@@ -538,6 +544,9 @@
 					},
 					"info": {
 						"type": "string"
+					},
+					"mustChangePassword": {
+						"type": "boolean"
 					},
 					"userType": {
 						"$ref": "#/components/schemas/IUserType"
@@ -603,7 +612,7 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"IUserProfile": {
+			"IUserProfileToken": {
 				"properties": {
 					"userProfileName": {
 						"type": "string"
@@ -625,12 +634,12 @@
 			"IUserPlatformProfile": {
 				"allOf": [
 					{
-						"$ref": "#/components/schemas/IPlatform"
+						"$ref": "#/components/schemas/ITokenPlatform"
 					},
 					{
 						"properties": {
 							"userProfile": {
-								"$ref": "#/components/schemas/IUserProfile"
+								"$ref": "#/components/schemas/IUserProfileToken"
 							}
 						},
 						"required": [
@@ -847,7 +856,17 @@
 						"type": "string"
 					},
 					"grant_type": {
-						"type": "string"
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
+							}
+						]
 					},
 					"endpoint": {
 						"type": "string"
@@ -1081,16 +1100,44 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"IPlateformCreationParams": {
+			"IPlatformCreateRequest": {
 				"properties": {
-					"idPlatformOfAdmin": {
+					"name": {
 						"type": "string"
 					},
-					"platformName": {
+					"redirectUrl": {
 						"type": "string"
 					},
-					"platformId": {
+					"url": {
 						"type": "string"
+					},
+					"address": {
+						"type": "string"
+					},
+					"clientId": {
+						"type": "string"
+					},
+					"clientSecret": {
+						"type": "string"
+					},
+					"grant_types": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
+							}
+						]
+					},
+					"profileClassifyByPriority": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					},
 					"loginServerIds": {
 						"items": {
@@ -1100,9 +1147,91 @@
 					}
 				},
 				"required": [
-					"idPlatformOfAdmin",
-					"platformName",
-					"platformId"
+					"name",
+					"redirectUrl",
+					"clientId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"statusPlatform": {
+				"enum": [
+					"connected",
+					"not connected"
+				],
+				"type": "string"
+			},
+			"IPlatform": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"statusPlatform": {
+						"$ref": "#/components/schemas/statusPlatform"
+					},
+					"lastSyncTime": {
+						"type": "number",
+						"format": "double",
+						"nullable": true
+					},
+					"url": {
+						"type": "string"
+					},
+					"address": {
+						"type": "string"
+					},
+					"TokenBosAdmin": {
+						"type": "string"
+					},
+					"TokenAdminBos": {
+						"type": "string"
+					},
+					"idPlatformOfAdmin": {
+						"type": "string"
+					},
+					"clientId": {
+						"type": "string"
+					},
+					"clientSecret": {
+						"type": "string"
+					},
+					"redirectUrl": {
+						"type": "string"
+					},
+					"grant_types": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
+							}
+						]
+					},
+					"profileClassifyByPriority": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"name",
+					"type",
+					"statusPlatform",
+					"url",
+					"clientId",
+					"redirectUrl",
+					"grant_types"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -1134,6 +1263,59 @@
 						"type": "array"
 					}
 				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IUserProfile": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"userProfileId": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"platformId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"userProfileId",
+					"name",
+					"type",
+					"platformId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IAppProfile": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"appProfileId": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"platformId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"appProfileId",
+					"platformId"
+				],
 				"type": "object",
 				"additionalProperties": false
 			},
@@ -1214,7 +1396,7 @@
 						"type": "string"
 					},
 					"platformCreationParms": {
-						"$ref": "#/components/schemas/IPlateformCreationParams"
+						"$ref": "#/components/schemas/IPlatformCreateRequest"
 					}
 				},
 				"required": [
@@ -1284,6 +1466,44 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"ITokenProfileRequest": {
+				"properties": {
+					"platformId": {
+						"type": "string"
+					},
+					"token": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"platformId",
+					"token"
+				],
+				"type": "object"
+			},
+			"IVerifyTokenRequest": {
+				"properties": {
+					"actor": {
+						"type": "string",
+						"enum": [
+							"user",
+							"application",
+							"app",
+							"code"
+						]
+					},
+					"platformId": {
+						"type": "string"
+					},
+					"tokenParam": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"tokenParam"
+				],
+				"type": "object"
 			},
 			"ICodeToken": {
 				"allOf": [
@@ -1480,7 +1700,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:write"
+							"authAdmin",
+							"applications:create"
 						]
 					}
 				],
@@ -1534,7 +1755,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"applications:read"
 						]
 					}
 				],
@@ -1577,8 +1799,9 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read",
-							"ownData:read"
+							"authAdmin",
+							"applications:read",
+							"self:read"
 						]
 					}
 				],
@@ -1621,7 +1844,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:delete"
+							"authAdmin",
+							"applications:delete"
 						]
 					}
 				],
@@ -1671,7 +1895,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:write"
+							"authAdmin",
+							"applications:update"
 						]
 					}
 				],
@@ -1783,7 +2008,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"applications:logs:read"
 						]
 					}
 				],
@@ -1835,7 +2061,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:write"
+							"authAdmin",
+							"users:create"
 						]
 					}
 				],
@@ -1889,7 +2116,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"users:read"
 						]
 					}
 				],
@@ -1930,8 +2158,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:write",
-							"ownData:write"
+							"authAdmin",
+							"self:update"
 						]
 					}
 				],
@@ -1984,8 +2212,9 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read",
-							"ownData:read"
+							"authAdmin",
+							"users:read",
+							"self:read"
 						]
 					}
 				],
@@ -2033,7 +2262,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:delete"
+							"authAdmin",
+							"users:delete"
 						]
 					}
 				],
@@ -2083,7 +2313,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:write"
+							"authAdmin",
+							"users:update"
 						]
 					}
 				],
@@ -2145,8 +2376,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read",
-							"ownData:read"
+							"authAdmin",
+							"self:read"
 						]
 					}
 				],
@@ -2205,7 +2436,9 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:write"
+							"authAdmin",
+							"users:password:update",
+							"self:password:update"
 						]
 					}
 				],
@@ -2267,7 +2500,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"users:admin:read"
 						]
 					}
 				],
@@ -2311,7 +2545,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:write"
+							"authAdmin",
+							"users:profiles:read"
 						]
 					}
 				],
@@ -2511,7 +2746,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"users:logs:read"
 						]
 					}
 				],
@@ -2546,7 +2782,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:write"
+							"authAdmin",
+							"loginservers:create"
 						]
 					}
 				],
@@ -2598,7 +2835,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"loginservers:read"
 						]
 					}
 				],
@@ -2624,7 +2862,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"loginservers:read"
 						]
 					}
 				],
@@ -2659,7 +2898,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:write"
+							"authAdmin",
+							"loginservers:update"
 						]
 					}
 				],
@@ -2729,7 +2969,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:delete"
+							"authAdmin",
+							"loginservers:delete"
 						]
 					}
 				],
@@ -2782,7 +3023,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"logs:read"
 						]
 					}
 				],
@@ -2826,7 +3068,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"logs:platforms:read"
 						]
 					}
 				],
@@ -2866,7 +3109,14 @@
 				"tags": [
 					"Notification"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin",
+							"notifications:create"
+						]
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
@@ -2916,7 +3166,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:write"
+							"authAdmin",
+							"organs:create"
 						]
 					}
 				],
@@ -2970,7 +3221,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"organs:read"
 						]
 					}
 				],
@@ -3022,7 +3274,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"organs:update"
 						]
 					}
 				],
@@ -3067,7 +3320,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:write"
+							"authAdmin",
+							"platforms:create"
 						]
 					}
 				],
@@ -3077,7 +3331,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/IPlateformCreationParams"
+								"$ref": "#/components/schemas/IPlatformCreateRequest"
 							}
 						}
 					}
@@ -3121,7 +3375,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"platforms:read"
 						]
 					}
 				],
@@ -3164,7 +3419,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"platforms:read"
 						]
 					}
 				],
@@ -3207,7 +3463,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:delete"
+							"authAdmin",
+							"platforms:delete"
 						]
 					}
 				],
@@ -3257,7 +3514,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:write"
+							"authAdmin",
+							"platforms:update"
 						]
 					}
 				],
@@ -3301,8 +3559,9 @@
 				],
 				"security": [
 					{
-						"all": [
-							"all"
+						"jwt": [
+							"authAdmin",
+							"platforms:loginservers:read"
 						]
 					}
 				],
@@ -3335,7 +3594,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:delete"
+							"authAdmin",
+							"platforms:loginservers:update"
 						]
 					}
 				],
@@ -3411,7 +3671,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"platforms:profiles:read"
 						]
 					}
 				],
@@ -3466,7 +3727,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"platforms:profiles:read"
 						]
 					}
 				],
@@ -3521,7 +3783,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"platforms:logs:read"
 						]
 					}
 				],
@@ -3573,7 +3836,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:write"
+							"authAdmin",
+							"registerKey:update"
 						]
 					}
 				],
@@ -3616,7 +3880,8 @@
 				"security": [
 					{
 						"jwt": [
-							"platform:write"
+							"authAdmin",
+							"platforms:token:update"
 						]
 					}
 				],
@@ -3664,7 +3929,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:write"
+							"authAdmin",
+							"platforms:data:update"
 						]
 					}
 				],
@@ -3716,7 +3982,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:write"
+							"authAdmin",
+							"registerKey:update"
 						]
 					}
 				],
@@ -3757,7 +4024,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"registerKey:read"
 						]
 					}
 				],
@@ -3861,7 +4129,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"tokens:read"
 						]
 					}
 				],
@@ -3907,7 +4176,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"tokens:users:read"
 						]
 					}
 				],
@@ -3953,7 +4223,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read"
+							"authAdmin",
+							"tokens:applications:read"
 						]
 					}
 				],
@@ -3979,8 +4250,9 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read",
-							"ownData:read"
+							"authAdmin",
+							"tokens:profiles:read",
+							"self:read"
 						]
 					}
 				],
@@ -3989,7 +4261,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"$ref": "#/components/schemas/ITokenProfileRequest"
+							}
 						}
 					}
 				}
@@ -4014,8 +4288,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read",
-							"ownData:read"
+							"authAdmin",
+							"tokens:profiles:read"
 						]
 					}
 				],
@@ -4024,7 +4298,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"$ref": "#/components/schemas/ITokenProfileRequest"
+							}
 						}
 					}
 				}
@@ -4049,8 +4325,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin:read",
-							"ownData:read"
+							"authAdmin",
+							"tokens:profiles:read"
 						]
 					}
 				],
@@ -4059,7 +4335,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"$ref": "#/components/schemas/ITokenProfileRequest"
+							}
 						}
 					}
 				}
@@ -4081,13 +4359,22 @@
 				"tags": [
 					"Tokens"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin",
+							"tokens:verify"
+						]
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"$ref": "#/components/schemas/IVerifyTokenRequest"
+							}
 						}
 					}
 				}
@@ -4134,7 +4421,14 @@
 				"tags": [
 					"Tokens"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin",
+							"tokens:redirect:create"
+						]
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
@@ -4253,7 +4547,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin"
+							"authAdmin",
+							"codes:read"
 						]
 					}
 				],
@@ -4299,7 +4594,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin"
+							"authAdmin",
+							"codes:create"
 						]
 					}
 				],
@@ -4374,7 +4670,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin"
+							"authAdmin",
+							"codes:read"
 						]
 					}
 				],
@@ -4426,7 +4723,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin"
+							"authAdmin",
+							"codes:delete"
 						]
 					}
 				],
@@ -4481,7 +4779,8 @@
 				"security": [
 					{
 						"jwt": [
-							"authAdmin"
+							"authAdmin",
+							"codes:delete"
 						]
 					}
 				],

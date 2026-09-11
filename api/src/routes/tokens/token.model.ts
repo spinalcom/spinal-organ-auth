@@ -30,65 +30,60 @@
  */
 
 export interface IToken {
-  id?: string;
-  name: string;
-  type?: string;
-  token: string;
-  createdToken?: number;
-  expieredToken?: number;
+	id?: string;
+	name: string;
+	type?: string;
+	token: string;
+	createdToken?: number;
+	expieredToken?: number;
 }
 export type IUserToken = IToken & {
-  userId?: string;
-  userType?: string;
-  userProfile?: string;
-  serverId?: string;
-  platformList?: IUserPlatformProfile[];
-}
+	userId?: string;
+	userType?: string;
+	userProfile?: string;
+	serverId?: string;
+	platformList?: IUserPlatformProfile[];
+};
 
 export type IApplicationToken = IToken & {
-  applicationId?: string;
-  applicationProfileList?: string[];
-  platformList?: IAppPlatformProfile[];
-}
+	applicationId?: string;
+	applicationProfileList?: string[];
+	platformList?: IAppPlatformProfile[];
+};
 
 export type ICodeToken = IToken & {
-  applicationId?: string;
-  userId?: string;
-  applicationProfileList?: string[];
-  platformList?: (IAppPlatformProfile | IUserPlatformProfile)[];
-}
+	applicationId?: string;
+	userId?: string;
+	applicationProfileList?: string[];
+	platformList?: (IAppPlatformProfile | IUserPlatformProfile)[];
+};
 
+export type IUserPlatformProfile = ITokenPlatform & {
+	userProfile: IUserProfileToken;
+};
 
-
-export type IUserPlatformProfile = IPlatform & {
-  userProfile: IUserProfile;
-}
-
-
-export type IAppPlatformProfile = IPlatform & {
-  appProfile: IAppProfile;
-}
-
-
+export type IAppPlatformProfile = ITokenPlatform & {
+	appProfile: IAppProfileToken;
+};
 
 export type ITokenActor = "user" | "application" | "app" | "code";
 
 /////////////////////////////////////////////////////////////
 
-type IPlatform = {
-  platformId: string;
-  platformName: string;
-  idPlatformOfAdmin: string;
-}
+type ITokenPlatform = {
+	platformId: string;
+	platformName: string;
+	idPlatformOfAdmin: string;
+};
 
-type IUserProfile = {
-  userProfileAdminId: string;
-  userProfileBosConfigId: string;
-  userProfileName: string;
-}
+type IUserProfileToken = {
+	userProfileAdminId: string;
+	userProfileBosConfigId: string;
+	userProfileName: string;
+};
 
-type IAppProfile = {
-  appProfileAdminId: string;
-  appProfileBosConfigId: string;
-  appProfileName: string;
+type IAppProfileToken = {
+	appProfileAdminId: string;
+	appProfileBosConfigId: string;
+	appProfileName: string;
 };

@@ -62,7 +62,6 @@ export const LOGIN_SERVER_TYPE = "LoginServer";
 export const UNIQUE_CODE_TYPE = "AuthServiceUniqueCode";
 export const UNIQUE_CODE_CONTEXT_TYPE = "AuthServiceUniqueCodeContext";
 
-
 // RelationName
 export const AUTH_SERVICE_PLATFORM_RELATION_NAME = "HasPlatform";
 export const AUTH_SERVICE_NOTIFICATION_RELATION_NAME = "HasNotification";
@@ -87,7 +86,6 @@ export const LOGIN_SERVER_RELATION_NAME = "HasLoginServer";
 export const PLATFORM_TO_LOGIN_SERVER = "PlatformHasLoginServer";
 export const AUTH_SERVICE_UNIQUE_CODE_RELATION_NAME = "HasUniqueCode";
 
-
 //ContextName
 export const PLATFORM_LIST = "platformList";
 export const USER_LIST = "userList";
@@ -101,13 +99,13 @@ export const AUTHORIZATION_CODE_CONTEXT_NAME = "AuthorizationCodes";
 export const LOGIN_SERVER_CONTEXT_NAME = "LoginServerList";
 export const UNIQUE_CODE_LIST = "uniqueCodeList";
 
-
 // logs categories
 
 export const USER_LOG_CATEGORY_NAME = "UserLogs";
 export const APPLICATION_LOG_CATEGORY_NAME = "ApplicationLogs";
 export const PLATFORM_LOG_CATEGORY_NAME = "PlatformLogs";
 export const ADMIN_LOG_CATEGORY_NAME = "AdminLogs";
+export const AUTH_ADMIN_NAME = "authAdmin";
 
 export enum EVENTS_NAMES {
 	CONNECTION = "Connection",
@@ -140,14 +138,64 @@ export enum EVENTS_REQUEST_NAMES {
 	UPDATE_TOKEN_NOT_VALID = "Update Token Not Valid",
 }
 
-export const AUTH_ADMIN_NAME = "authAdmin";
-
 // scopes
 export enum SCOPES {
-	"authAdmin:write" = "authAdmin:write",
-	"authAdmin:read" = "authAdmin:read",
-	"authAdmin:delete" = "authAdmin:delete",
-	"ownData:read" = "ownData:read",
+	authAdmin = "authAdmin",
+	selfRead = "self:read",
+	selfUpdate = "self:update",
+	selfPasswordUpdate = "self:password:update",
+	usersCreate = "users:create",
+	usersRead = "users:read",
+	usersUpdate = "users:update",
+	usersDelete = "users:delete",
+	usersPasswordUpdate = "users:password:update",
+	usersProfilesRead = "users:profiles:read",
+	usersLogsRead = "users:logs:read",
+	usersAdminRead = "users:admin:read",
+	applicationsCreate = "applications:create",
+	applicationsRead = "applications:read",
+	applicationsUpdate = "applications:update",
+	applicationsDelete = "applications:delete",
+	applicationsLogsRead = "applications:logs:read",
+	loginServersCreate = "loginservers:create",
+	loginServersRead = "loginservers:read",
+	loginServersUpdate = "loginservers:update",
+	loginServersDelete = "loginservers:delete",
+	logsRead = "logs:read",
+	logsPlatformsRead = "logs:platforms:read",
+	notificationsCreate = "notifications:create",
+	organsCreate = "organs:create",
+	organsRead = "organs:read",
+	organsUpdate = "organs:update",
+	platformsCreate = "platforms:create",
+	platformsRead = "platforms:read",
+	platformsUpdate = "platforms:update",
+	platformsDelete = "platforms:delete",
+	platformsLoginServersRead = "platforms:loginservers:read",
+	platformsLoginServersUpdate = "platforms:loginservers:update",
+	platformsProfilesRead = "platforms:profiles:read",
+	platformsLogsRead = "platforms:logs:read",
+	platformsTokenUpdate = "platforms:token:update",
+	platformsDataUpdate = "platforms:data:update",
+	registerKeyRead = "registerKey:read",
+	registerKeyUpdate = "registerKey:update",
+	registerWrite = "register:write",
+	tokensRead = "tokens:read",
+	tokensUsersRead = "tokens:users:read",
+	tokensApplicationsRead = "tokens:applications:read",
+	tokensProfilesRead = "tokens:profiles:read",
+	tokensVerify = "tokens:verify",
+	tokensRedirectCreate = "tokens:redirect:create",
+	codesConsume = "codes:consume",
+	codesRead = "codes:read",
+	codesCreate = "codes:create",
+	codesDelete = "codes:delete",
+	rolesRead = "roles:read",
+
+	// Backward compatibility with existing scopes
+	ownDataRead = "ownData:read",
+	ownDataWrite = "ownData:write",
+	platformWrite = "platform:write",
 }
 
 export enum CONNECTION_METHODS {

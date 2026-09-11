@@ -29,12 +29,13 @@ import { HttpStatusCode } from "../../utilities/http-status-code";
 import { IOrganCreationParams, IOrganUpdateParams, IOrgan } from "./organ.model";
 import SpinalMiddleware from "../../spinalMiddleware";
 import { PlatformService } from "../platform/platformServices";
+import { platform } from "process";
 
 export class OrganService {
 	public context: SpinalContext<any>;
 	static instance: OrganService;
 
-	private constructor() { }
+	private constructor() {}
 
 	static getInstance() {
 		if (!this.instance) this.instance = new OrganService();
@@ -45,6 +46,8 @@ export class OrganService {
 		const platformService = PlatformService.getInstance();
 		const platformContext = await platformService.getContext();
 		const [platform] = await platformService.getPlatformsNodes(organCreationParms.platformId);
+
+		if (!platform) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 
 		const organNode = new SpinalNode(organCreationParms.name, ORGAN_TYPE);
 
@@ -80,7 +83,7 @@ export class OrganService {
 	}
 
 	public async updateOrgan(organId: string, requestBody: IOrganUpdateParams): Promise<IOrgan> {
-		const [platform] = await PlatformService.getInstance().getPlatformsNodes(organId);
+		const [platform] = await PlatformService.getInstance().getPlatformsNodes(requestBody.platformId);
 		const organs = await platform.getChildren(AUTH_SERVICE_ORGAN_RELATION_NAME);
 		const organ = organs.find((organ) => organ.getId().get() === organId);
 

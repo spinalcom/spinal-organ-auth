@@ -26,10 +26,10 @@ import * as express from "express";
 import { AuthError } from "./AuthError";
 import { HttpStatusCode } from "../utilities/http-status-code";
 import { TokensService } from "../routes/tokens/tokenService";
+import { UserService } from "../routes/authUser/userService";
 import { SCOPES } from "../constant";
 import { AuthServerModel } from "../SSO/oauth/AuthServerModel";
 import { InsufficientScopeError, InvalidTokenError, Token } from "@node-oauth/oauth2-server";
-// import { spinalOAuth2Server } from "../oauth";
 
 export async function expressAuthentication(request: express.Request, securityName: string, scopes?: string[]): Promise<any> {
 	try {
@@ -41,39 +41,19 @@ export async function expressAuthentication(request: express.Request, securityNa
 
 		if (!token) throw new Error("No token provided");
 
-		return token;
-		// let tokenInfo = await getTokenInfo(token);
-		// tokenInfo = await validateAccessToken(tokenInfo);
-		// // if (scopes) await verifyScope(tokenInfo, scopes);
+		const { decoded, tokenInfo, isPlatformToken } = await verifyToken(token);
 
-		// return tokenInfo;
-	} catch (error) {
+		if (isPlatformToken) return tokenInfo;
+
+		const isAdmin = itIsAdmin(tokenInfo, decoded);
+		if (isAdmin) return tokenInfo;
+
+		if (scopes) await verifyScope(tokenInfo, scopes);
+		if (scopes) await verifySelfScopeOwnership(request, scopes, tokenInfo, decoded, token);
+		return tokenInfo;
+	} catch (error: any) {
 		throw new AuthError(HttpStatusCode.UNAUTHORIZED, error.message);
 	}
-
-	// return new Promise((resolve, reject) => {
-	// 	const secret = TokensService.getInstance().generateTokenKey();
-	// 	jwt.verify(token, secret, function (err: any, decoded: any) {
-	// 		if (err) return reject(new AuthError(HttpStatusCode.UNAUTHORIZED, err.message));
-
-	// 		for (let scope of scopes) {
-	// 			if (!decoded.scopes.includes(scope)) {
-	// 				return reject(new AuthError(HttpStatusCode.UNAUTHORIZED, "JWT does not contain required scope."));
-	// 			}
-	// 		}
-
-	// 		return resolve(decoded);
-	// 	});
-	// });
-
-	// spinalOAuth2Server
-	// 	.verifyToken(request, null)
-	// 	.then((result) => {
-	// 		return result;
-	// 	})
-	// 	.catch((err) => {
-	// 		throw new AuthError(HttpStatusCode.UNAUTHORIZED, err.message);
-	// 	});
 }
 
 export function getToken(request: express.Request): string {
@@ -85,31 +65,112 @@ export function getToken(request: express.Request): string {
 		if (token) return token;
 	}
 
-	return request.body?.token || request.query?.token || request.headers["x-access-token"];
+	return request.body?.tokenParam || request.body?.token || request.query?.token || request.headers["x-access-token"];
 }
 
-export async function getTokenInfo(token: string): Promise<Token> {
-	const accessToken = await AuthServerModel.instance.getAccessToken(token);
+export async function verifyToken(token: string): Promise<any> {
+	const tokenIstance = TokensService.getInstance();
+	const decoded = await tokenIstance.decodeToken(token); // verify token structure
+	const tokenInfo = await tokenIstance.getTokenInfo(token); // verify token in graph
+	let isPlatformToken = false;
 
-	if (!accessToken) {
-		throw new InvalidTokenError("Invalid token: access token is invalid");
+	if (!tokenInfo) {
+		const tokenPlat = await tokenIstance.checkIfItsPlatformToken(token);
+		if (!tokenPlat) throw new AuthError(HttpStatusCode.UNAUTHORIZED, "Invalid token: access token has expired");
+
+		isPlatformToken = true;
 	}
 
-	return accessToken;
+	return { decoded, tokenInfo, isPlatformToken };
 }
 
-export function validateAccessToken(accessToken): Token {
-	if (accessToken.accessTokenExpiresAt < new Date()) {
-		throw new InvalidTokenError("Invalid token: access token has expired");
-	}
-
-	return accessToken;
-}
+type ITokenWithScopes = Token & { scope?: string | string[]; scopes?: string | string[]; user?: { scope?: string | string[]; scopes?: string | string[] } };
 
 async function verifyScope(accessToken: Token, scope: string[]) {
-	const verifedScope = await AuthServerModel.instance.verifyScope(accessToken, scope);
+	const granted = getTokenScopes(accessToken as ITokenWithScopes);
+	const hasScope = scope.some((requiredScope) => granted.includes(requiredScope));
 
-	if (!verifedScope) {
+	if (hasScope) return;
+
+	const verifiedScope = await AuthServerModel.instance.verifyScope(accessToken, scope);
+
+	if (!verifiedScope) {
 		throw new InsufficientScopeError("Insufficient scope: authorized scope is insufficient");
 	}
+}
+
+function itIsAdmin(tokenInfo: Token, decoded?: any): boolean {
+	if (decoded?.isAuthAdmin) return true;
+
+	return getTokenScopes(tokenInfo as ITokenWithScopes).some((el) => el.includes(SCOPES.authAdmin));
+}
+
+function getTokenScopes(tokenInfo: ITokenWithScopes): string[] {
+	const tokenScope = tokenInfo?.scope ?? tokenInfo?.scopes ?? tokenInfo?.user?.scope ?? tokenInfo?.user?.scopes;
+
+	if (!tokenScope) return [];
+	if (Array.isArray(tokenScope)) return tokenScope;
+
+	if (typeof tokenScope === "string")
+		return tokenScope
+			.split(" ")
+			.map((el) => el.trim())
+			.filter(Boolean);
+
+	return [];
+}
+
+const SELF_SCOPES = new Set([SCOPES.selfRead, SCOPES.selfUpdate, SCOPES.selfPasswordUpdate]);
+
+function hasSelfScope(scopes?: string[]): boolean {
+	if (!scopes) return false;
+	return scopes.some((scope) => SELF_SCOPES.has(scope as SCOPES));
+}
+
+async function verifySelfScopeOwnership(request: express.Request, scopes: string[], tokenInfo: any, decoded: any, authToken: string): Promise<void> {
+	if (!hasSelfScope(scopes)) return;
+
+	const tokenUserId = tokenInfo?.userId || decoded?.userId;
+	const tokenApplicationId = tokenInfo?.applicationId || decoded?.applicationId;
+
+	if (request.params?.userId) {
+		if (!tokenUserId || tokenUserId !== request.params.userId) {
+			throw new AuthError(HttpStatusCode.FORBIDDEN, "Self scope violation: userId mismatch");
+		}
+	}
+
+	if (request.params?.applicationId || request.params?.applicationid) {
+		if (!tokenApplicationId || tokenApplicationId !== (request.params.applicationId || request.params.applicationid)) {
+			throw new AuthError(HttpStatusCode.FORBIDDEN, "Self scope violation: applicationId mismatch");
+		}
+	}
+
+	if (request.params?.userName || request.params?.username) {
+		if (!tokenUserId) throw new AuthError(HttpStatusCode.FORBIDDEN, "Self scope violation: missing user identity");
+
+		const requestedUserId = await getUserIdFromUserName(request.params.userName || request.params.username);
+		if (!requestedUserId || requestedUserId !== tokenUserId) {
+			throw new AuthError(HttpStatusCode.FORBIDDEN, "Self scope violation: userName mismatch");
+		}
+	}
+
+	if (request.body?.userName || request.body?.username) {
+		if (!tokenUserId) throw new AuthError(HttpStatusCode.FORBIDDEN, "Self scope violation: missing user identity");
+
+		const requestedUserId = await getUserIdFromUserName(request.body.userName || request.body.username);
+		if (!requestedUserId || requestedUserId !== tokenUserId) {
+			throw new AuthError(HttpStatusCode.FORBIDDEN, "Self scope violation: body userName mismatch");
+		}
+	}
+
+	const bodyToken = request.body?.token || request.body?.tokenParam;
+	if (bodyToken && bodyToken !== authToken) {
+		throw new AuthError(HttpStatusCode.FORBIDDEN, "Self scope violation: token mismatch");
+	}
+}
+
+async function getUserIdFromUserName(userName: string): Promise<string | undefined> {
+	const users = await UserService.getInstance().getUserNodes();
+	const found = users.find((user) => user.info?.userName?.get?.() === userName);
+	return found?.getId?.().get?.();
 }
