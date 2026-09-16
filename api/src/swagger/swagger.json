@@ -1457,6 +1457,15 @@
 					},
 					"jsonData": {
 						"$ref": "#/components/schemas/IJsonData"
+					},
+					"idPlatformOfAdmin": {
+						"type": "string"
+					},
+					"TokenAdminBos": {
+						"type": "string"
+					},
+					"URLBos": {
+						"type": "string"
 					}
 				},
 				"required": [
@@ -1502,6 +1511,17 @@
 				},
 				"required": [
 					"tokenParam"
+				],
+				"type": "object"
+			},
+			"IRevokeTokenRequest": {
+				"properties": {
+					"token": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"token"
 				],
 				"type": "object"
 			},
@@ -4452,6 +4472,53 @@
 									"bosurl"
 								],
 								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/tokens/revokeToken": {
+			"post": {
+				"operationId": "RevokeToken",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"error": {
+											"type": "string"
+										},
+										"message": {
+											"type": "string"
+										}
+									},
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Tokens"
+				],
+				"security": [
+					{
+						"jwt": [
+							"authAdmin",
+							"tokens:verify"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IRevokeTokenRequest"
 							}
 						}
 					}

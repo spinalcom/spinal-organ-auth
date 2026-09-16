@@ -1,35 +1,57 @@
 <template>
-    <div class="authorizePlatform">
-        <div class="userAccess">
-
-            <div class="accessheader">
-                <div>Autoriser l'accès aux plateformes</div>
-                <div>
-                    <v-btn @click="addPlatform" outlined>
-                        <v-icon>mdi-plus</v-icon>
-                        AJOUTER UNE PLATFORME
-                    </v-btn>
-                </div>
-            </div>
-
-            <div class="platContainer">
-                <div v-for="(item, index) in platformToSelect" :key="item" class="ajout-platform" :id="index">
-                    <div class="selector">
-                        <SelectUser :id="index" class="platform" @select="setItemProfileList(item, index)"
-                            :tab="platformList" v-model="item.platformSelected" title="PLATFORM"
-                            :value="item.platformSelected" />
-
-                        <SelectUser :id="index" class="profilut" :tab="item.profiles" v-model="item.profileSelected"
-                            @select="sendChangeEvent" :value="item.profileSelected" title="PROFIL" />
-                    </div>
-                    <button v-if="index > 0" @click="deletePlatformObjectitemapp(item, index)" type="button"
-                        class="red-cross">X</button>
-                </div>
-            </div>
+  <div class="authorizePlatform">
+    <div class="userAccess">
+      <div class="accessheader">
+        <div>Autoriser l'accès aux plateformes</div>
+        <div>
+          <v-btn @click="addPlatform" outlined>
+            <v-icon>mdi-plus</v-icon>
+            AJOUTER UNE PLATFORME
+          </v-btn>
         </div>
+      </div>
 
+      <div class="platContainer">
+        <div
+          v-for="(item, index) in platformToSelect"
+          :key="item"
+          class="ajout-platform"
+          :id="index"
+        >
+          <div class="selector">
+            <SelectUser
+              :id="index"
+              class="platform"
+              @select="setItemProfileList(item, index)"
+              :tab="platformList"
+              v-model="item.platformSelected"
+              title="PLATFORM"
+              :value="item.platformSelected"
+            />
 
-        <!-- <div v-if="types == 'user'" class="userAccess">
+            <SelectUser
+              :id="index"
+              class="profilut"
+              :tab="item.profiles"
+              v-model="item.profileSelected"
+              @select="sendChangeEvent"
+              :value="item.profileSelected"
+              title="PROFIL"
+            />
+          </div>
+          <button
+            v-if="index > 0"
+            @click="deletePlatformObjectitemapp(item, index)"
+            type="button"
+            class="red-cross"
+          >
+            X
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- <div v-if="types == 'user'" class="userAccess">
             <div class="accessheader">
                 <div>Autoriser l'accès aux plateformes</div>
                 <div>
@@ -87,23 +109,24 @@
                 </div>
             </div>
         </div> -->
-    </div>
+  </div>
 </template>
 
 <script>
 import SelectUser from "../Components/SelectUser.vue";
 import { mapActions, mapGetters } from "vuex";
+import { showPopup } from "../services/popup";
 export default {
-    name: "add-platform",
-    components: {
-        SelectUser,
-    },
-    props: ['types', 'tab', 'sendplatform'],
-    data() {
-        return {
-            platformToSelect: [this._getNewPlatform()],
+  name: "add-platform",
+  components: {
+    SelectUser,
+  },
+  props: ["types", "tab", "sendplatform"],
+  data() {
+    return {
+      platformToSelect: [this._getNewPlatform()],
 
-            /*
+      /*
             platformsend: [],
             nbPlatform: 1,
             formPlatformObject: {
@@ -125,79 +148,82 @@ export default {
             userList: [],
             platformObjectList: [],
             */
-        };
+    };
+  },
+  methods: {
+    ...mapActions({
+      lafonction: "users/lafonction",
+      lafonctionapp: "applications/lafonctionapp",
+    }),
+
+    getDataFromStore() {
+      this.$store.dispatch("users/getplatformList");
     },
-    methods: {
-        ...mapActions({
-            lafonction: 'users/lafonction',
-            lafonctionapp: 'applications/lafonctionapp'
-        }),
 
-        getDataFromStore() {
-            this.$store.dispatch('users/getplatformList');
-        },
+    addPlatform() {
+      this.platformToSelect = [
+        ...this.platformToSelect,
+        this._getNewPlatform(),
+      ];
+    },
 
-        addPlatform() {
-            this.platformToSelect = [...this.platformToSelect, this._getNewPlatform()];
-        },
+    _getNewPlatform() {
+      return {
+        profiles: [],
+        platformSelected: null,
+        profileSelected: null,
+      };
+    },
 
-        _getNewPlatform() {
-            return {
-                profiles: [],
-                platformSelected: null,
-                profileSelected: null,
-            }
-        },
+    getProfileList(platformId) {
+      if (this.types == "user") {
+        return this.getuserProfiles(platformId);
+      } else if (this.types == "app") {
+        return this.getAppProfileList(platformId);
+      }
 
-        getProfileList(platformId) {
-            if (this.types == 'user') {
-                return this.getuserProfiles(platformId);
-            } else if (this.types == 'app') {
-                return this.getAppProfileList(platformId);
-            }
+      return [];
+    },
 
-            return [];
-        },
+    async getuserProfiles(platformId) {
+      return this.$store.dispatch("users/getUserProfileList", platformId);
+    },
 
+    async getAppProfileList(platformId) {
+      return this.$store.dispatch("applications/getAppProfileList", platformId);
+    },
 
-        async getuserProfiles(platformId) {
-            return this.$store.dispatch('users/getUserProfileList', platformId);
-        },
+    async setItemProfileList(item, index) {
+      let firstIndex = this.platformToSelect.findIndex(
+        (el) => el.platformSelected.id === item.platformSelected.id
+      );
+      if (firstIndex !== -1 && firstIndex !== index) {
+        // Si la plateforme est déjà sélectionnée dans un autre élément
+        alert("vous ne pouvez pas sélectionner la même plateforme deux fois");
+        item.platformSelected = null;
+        item.profileSelected = null;
+        return;
+      }
+      const platformId = item.platformSelected.id;
+      item.profiles = await this.getProfileList(platformId);
+      item.profileSelected = null;
+    },
 
+    deletePlatformObjectitemapp(item, index) {
+      this.platformToSelect = this.platformToSelect
+        .slice(0, index)
+        .concat(this.platformToSelect.slice(index + 1));
+      this.sendChangeEvent(); // Emit the change event after deletion;
+    },
 
-        async getAppProfileList(platformId) {
-            return this.$store.dispatch('applications/getAppProfileList', platformId);
-        },
+    sendChangeEvent() {
+      const data = this.platformToSelect.filter(
+        (item) => item.platformSelected && item.profileSelected
+      );
+      this.$emit("change", data);
+    },
 
-
-        async setItemProfileList(item, index) {
-
-            let firstIndex = this.platformToSelect.findIndex((el) => el.platformSelected.id === item.platformSelected.id);
-            if (firstIndex !== -1 && firstIndex !== index) {
-                // Si la plateforme est déjà sélectionnée dans un autre élément
-                alert("vous ne pouvez pas sélectionner la même plateforme deux fois");
-                item.platformSelected = null;
-                item.profileSelected = null;
-                return;
-            }
-            const platformId = item.platformSelected.id;
-            item.profiles = await this.getProfileList(platformId);
-            item.profileSelected = null;
-        },
-
-        deletePlatformObjectitemapp(item, index) {
-            this.platformToSelect = this.platformToSelect.slice(0, index).concat(this.platformToSelect.slice(index + 1));
-            this.sendChangeEvent(); // Emit the change event after deletion;
-        },
-
-
-        sendChangeEvent() {
-            const data = this.platformToSelect.filter((item) => item.platformSelected && item.profileSelected);
-            this.$emit("change", data);
-        },
-
-
-        /*detailPlatform(tab) {
+    /*detailPlatform(tab) {
             if (this.types == 'user') {
                 this.nbPlatform = tab.length
             } else {
@@ -229,7 +255,7 @@ export default {
 
             for (const platformObject of this.platformObjectList) {
                 if (platformObject.platformId === this.formPlatformObject.platform.id) {//verification unicité
-                    alert("you cannot select platform even twice");
+                alert("Vous ne pouvez pas selectionner la meme plateforme deux fois");
                     this.formPlatformObject.platform = [];
                     this.formPlatformObject.userProfileValue = [];
                     test = false;
@@ -255,7 +281,7 @@ export default {
             if (this.platformObjectList.length > 0) {
                 this.platformObjectList.forEach((element, index) => {
                     if (element.userProfile.userProfileId == undefined) {
-                        alert("platform vide");
+                  alert("plateforme vide");
                         // this.nbPlatform--;
                         //  this.disableobjet.splice(-1, 1);
                         test = false;
@@ -302,7 +328,7 @@ export default {
 
             for (const platformObject of this.platformObjectList) {
                 if (platformObject.platformId === this.formPlatformObjectapp.platform.id) {
-                    alert("you cannot select platform even twice");
+                alert("Vous ne pouvez pas selectionner la meme plateforme deux fois");
                     this.formPlatformObjectapp.platform = [];
                     this.formPlatformObjectapp.appProfileValue = [];
                     test = false;
@@ -326,7 +352,7 @@ export default {
             if (this.platformObjectList.length > 0) {
                 this.platformObjectList.forEach((element, index) => {
                     if (element.appProfile.appProfileId == undefined) {
-                        alert("platform vide");
+                  alert("plateforme vide");
                         // this.nbPlatform--;
                         //  this.disableobjet.splice(-1, 1);
                         test = false;
@@ -415,159 +441,157 @@ export default {
             // this.nbPlatform = this.sendplatform.length
 
         }*/
+  },
+  computed: {
+    ...mapGetters({
+      platformList: "users/platformList",
+    }),
+  },
+  mounted() {
+    this.getDataFromStore();
+    // this.setplatform();
+  },
+
+  watch: {
+    types: function () {
+      this.platformToSelect = [this._getNewPlatform()];
     },
-    computed: {
-        ...mapGetters({
-            platformList: 'users/platformList',
-        }),
-
-    },
-    mounted() {
-        this.getDataFromStore();
-        // this.setplatform();
-    },
-
-    watch: {
-        types: function () {
-            this.platformToSelect = [this._getNewPlatform()];
-        },
-        // "formPlatformObject.userProfileValue": function (newVal) {
-        //     this.$emit("change", this.platformObjectList);
-        // },
-        // "formPlatformObjectapp.appProfileValue": function (newVal) {
-        //     this.$emit("change", this.platformObjectList);
-        // }
-    }
-
-
+    // "formPlatformObject.userProfileValue": function (newVal) {
+    //     this.$emit("change", this.platformObjectList);
+    // },
+    // "formPlatformObjectapp.appProfileValue": function (newVal) {
+    //     this.$emit("change", this.platformObjectList);
+    // }
+  },
 };
 </script>
 
 <style>
 .authorizePlatform {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .authorizePlatform .userAccess {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .authorizePlatform .userAccess .accessheader {
-    width: 100%;
-    height: 50px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  width: 100%;
+  height: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .authorizePlatform .userAccess .platContainer {
-    width: 100%;
-    height: calc(100% - 50px);
-    overflow-y: auto;
+  width: 100%;
+  height: calc(100% - 50px);
+  overflow-y: auto;
 }
 
-
 .platform {
-    z-index: 99;
+  z-index: 99;
 }
 
 .ajout-platform {
-    margin-top: 20px;
-    background: #EAEEF0;
-    border-radius: 10px;
-    display: flex;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-bottom: 10px;
-    -webkit-animation: slide-in-fwd-center 0.7s cubic-beplatform_copieier(0.250, 0.460, 0.450, 0.940) both;
-    animation: slide-in-fwd-center 0.7s cubic-beplatform_copieier(0.250, 0.460, 0.450, 0.940) both;
+  margin-top: 20px;
+  background: #eaeef0;
+  border-radius: 10px;
+  display: flex;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+  -webkit-animation: slide-in-fwd-center 0.7s
+    cubic-beplatform_copieier(0.25, 0.46, 0.45, 0.94) both;
+  animation: slide-in-fwd-center 0.7s
+    cubic-beplatform_copieier(0.25, 0.46, 0.45, 0.94) both;
 }
 
 @-webkit-keyframes slide-in-fwd-center {
-    0% {
-        -webkit-transform: translateplatform_copie(-1400px);
-        transform: translateplatform_copie(-1400px);
-        opacity: 0;
-    }
+  0% {
+    -webkit-transform: translateplatform_copie(-1400px);
+    transform: translateplatform_copie(-1400px);
+    opacity: 0;
+  }
 
-    100% {
-        -webkit-transform: translateplatform_copie(0);
-        transform: translateplatform_copie(0);
-        opacity: 1;
-    }
+  100% {
+    -webkit-transform: translateplatform_copie(0);
+    transform: translateplatform_copie(0);
+    opacity: 1;
+  }
 }
 
 @keyframes slide-in-fwd-center {
-    0% {
-        -webkit-transform: translateplatform_copie(-1400px);
-        transform: translateplatform_copie(-1400px);
-        opacity: 0;
-    }
+  0% {
+    -webkit-transform: translateplatform_copie(-1400px);
+    transform: translateplatform_copie(-1400px);
+    opacity: 0;
+  }
 
-    100% {
-        -webkit-transform: translateplatform_copie(0);
-        transform: translateplatform_copie(0);
-        opacity: 1;
-    }
+  100% {
+    -webkit-transform: translateplatform_copie(0);
+    transform: translateplatform_copie(0);
+    opacity: 1;
+  }
 }
 
 .btn-ajout-platform {
-    border: 0px;
-    height: 40px;
-    margin-top: 10px;
-    padding-left: 20px;
-    padding-right: 20px;
-    border-radius: 6px;
-    background: #EAEEF0;
-    font: normal normal normal 11px/13px Charlevoix Pro;
-    letter-spacing: 1.1px;
+  border: 0px;
+  height: 40px;
+  margin-top: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-radius: 6px;
+  background: #eaeef0;
+  font: normal normal normal 11px/13px Charlevoix Pro;
+  letter-spacing: 1.1px;
 }
 
 .red-cross {
-    margin-top: 22px;
-    margin-left: 10px;
-    border-radius: 10px;
-    height: 42px;
-    width: 45px;
-    color: orangered;
-    border: 1px solid orangered;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 500;
-    font-siplatform_copiee: 15px;
-    padding-top: 2px;
-    transition: 0.2s;
+  margin-top: 22px;
+  margin-left: 10px;
+  border-radius: 10px;
+  height: 42px;
+  width: 45px;
+  color: orangered;
+  border: 1px solid orangered;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 500;
+  font-size: 15px;
+  padding-top: 2px;
+  transition: 0.2s;
 }
 
 .red-cross:hover {
-    background: #EF5F32;
-    color: #ffffff;
-    border: 1px solid #ffffff;
+  background: #ef5f32;
+  color: #ffffff;
+  border: 1px solid #ffffff;
 }
 
 .selector {
-    position: relative;
-    width: 100%;
-    z-index: 0;
+  position: relative;
+  width: 100%;
+  z-index: 0;
 }
 
 .btn-ajout-platform {
-    border: 0px;
-    height: 40px;
-    margin-top: 10px;
-    padding-left: 20px;
-    padding-right: 20px;
-    border-radius: 6px;
-    background: #ebf0ea;
-    font-family: Arial, Helvetica, sans-serif;
-    letter-spacing: 1.3px;
-    transition: 0.2s;
+  border: 0px;
+  height: 40px;
+  margin-top: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-radius: 6px;
+  background: #ebf0ea;
+  font-family: Arial, Helvetica, sans-serif;
+  letter-spacing: 1.3px;
+  transition: 0.2s;
 }
 
 .btn-ajout-platform:hover {
-    background-color: rgb(189, 189, 189);
+  background-color: rgb(189, 189, 189);
 }
 </style>

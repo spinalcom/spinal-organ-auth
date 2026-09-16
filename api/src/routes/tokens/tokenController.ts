@@ -40,6 +40,10 @@ type IVerifyTokenRequest = {
 	actor?: "user" | "application" | "app" | "code";
 };
 
+type IRevokeTokenRequest = {
+	token: string;
+};
+
 @Tags("Tokens")
 @Route("tokens")
 export class TokensController extends Controller {
@@ -143,6 +147,19 @@ export class TokensController extends Controller {
 
 			this.setStatus(HttpStatusCode.OK);
 			return { sessionId };
+		} catch (error: any) {
+			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+			return { error: error.message };
+		}
+	}
+
+	@Security("jwt", [SCOPES.authAdmin, SCOPES.tokensVerify])
+	@Post("/revokeToken")
+	public async revokeToken(@Body() requestBody: IRevokeTokenRequest): Promise<{ message?: string; error?: string }> {
+		try {
+			await TokensService.getInstance().removeToken(requestBody.token);
+			this.setStatus(HttpStatusCode.OK);
+			return { message: "Token revoked" };
 		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };

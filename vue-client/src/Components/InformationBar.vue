@@ -1,7 +1,11 @@
 <template>
   <div class="header-bar">
     <!-- style="min-width: 800px; width: 100%" -->
-    <v-card class="bar-bloc-left" :class="{ 'partial': btn != 'off' }" elevation="4">
+    <v-card
+      class="bar-bloc-left"
+      :class="{ partial: btn != 'off' }"
+      elevation="4"
+    >
       <div class="bar-icon">
         <img :src="icon" alt="person" />
       </div>
@@ -16,38 +20,51 @@
     </v-card>
 
     <v-card v-if="btn != 'off'" class="bar-bloc-right" elevation="4">
-
-      <v-btn @click.native="$emit('btn4')" title="Modifier le mot de passe" depressed dark class="actionBtn">
-        <v-icon left>
-          mdi-security
-        </v-icon>
+      <v-btn
+        @click.native="$emit('btn4')"
+        title="Modifier le mot de passe"
+        depressed
+        dark
+        class="actionBtn"
+      >
+        <v-icon left> mdi-security </v-icon>
         Modifier le mot de passe
       </v-btn>
 
-      <v-btn @click.native="$emit('btn1')" title="AUTORISER UNE PLATFORME" depressed dark class="actionBtn">
-        <v-icon left>
-          mdi-plus
-        </v-icon>
+      <v-btn
+        @click.native="$emit('btn1')"
+        title="AUTORISER UNE PLATFORME"
+        depressed
+        dark
+        class="actionBtn"
+      >
+        <v-icon left> mdi-plus </v-icon>
 
         AUTORISER UNE PLATFORME
       </v-btn>
 
-      <v-btn @click.native="$emit('btn2')" title="EDITER" color="warning" depressed class="actionBtn">
-        <v-icon left>
-          mdi-pencil-outline
-        </v-icon>
+      <v-btn
+        @click.native="$emit('btn2')"
+        title="EDITER"
+        color="warning"
+        depressed
+        class="actionBtn"
+      >
+        <v-icon left> mdi-pencil-outline </v-icon>
         EDITER
       </v-btn>
 
-
-      <v-btn @click.native="$emit('btn3')" title="SUPPRMIER" color="error" depressed class="actionBtn">
-        <v-icon left>
-          mdi-close
-        </v-icon>
+      <v-btn
+        @click.native="$emit('btn3')"
+        title="SUPPRMIER"
+        color="error"
+        depressed
+        class="actionBtn"
+      >
+        <v-icon left> mdi-close </v-icon>
         SUPPRMIER
       </v-btn>
     </v-card>
-
   </div>
 </template>
 <script>
@@ -80,7 +97,6 @@ export default {
 .bar-bloc-left.partial {
   width: calc(100% - 320px);
   /* height: 100%; */
-
 }
 
 .bar-bloc-right {

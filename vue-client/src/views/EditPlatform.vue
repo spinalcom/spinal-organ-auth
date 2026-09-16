@@ -2,42 +2,39 @@
   <v-app>
     <v-main>
       <!-- <BachupInformation title="MODIFIER UNE PLATEFORME"> -->
-      <form class="formulaire" novalidate @submit.prevent="validateApp">
+      <form class="formulaire" novalidate @submit.prevent="submitForm">
         <div class="title">MODIFIER UNE PLATEFORME</div>
         <InputUser title="NOM DE LA PLATEFORME" id="name" v-model="formPlatform.name" />
-        <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.name.minLength">Nom
-          invalide</span>
-        <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formPlatform.name.required">Un nom de
-          plateforme est requis</span>
+        <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.name.required">Un nom de plateforme
+          est requis</span>
+        <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formPlatform.name.minLength">Le nom doit
+          contenir au moins 3 caractères.</span>
 
         <InputUser title="L'URL DE MIS A JOUR DE LA PLATEFORME" id="url" v-model="formPlatform.url" />
-        <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.url.required">L'url de mis à jour
-          est requis</span>
-        <span class="errors" :class="{ showspan: iserrors }"
-          v-if="!$v.formPlatform.url.minLength && $v.formPlatform.url.format">l'url de mis à jour est invalide</span>
-
-
+        <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.url.required">L'URL de la plateforme
+          est requise.</span>
+        <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.url.format">L'URL de la plateforme
+          est invalide.</span>
 
         <InputUser title="L'URL DE REDIRECTION DE LA PLATEFORME" id="redirectUrl" v-model="formPlatform.redirectUrl" />
         <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.redirectUrl.required">
-          L'url de redirection est requis
+          L'URL de redirection est requise.
         </span>
 
-        <span class="errors" :class="{ showspan: iserrors }"
-          v-if="!$v.formPlatform.redirectUrl.minLength && $v.formPlatform.redirectUrl.format">
-          l'url de redirection est invalide
+        <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.redirectUrl.format">
+          L'URL de redirection est invalide.
         </span>
 
         <SelectGrant title="GRANT TYPES" id="grant_types" v-model="formPlatform.grant_types"
           :value="formPlatform.grant_types" />
         <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.grant_types.isValid">Au moins un
-          type d'autorisation est nécessaire
+          type d'autorisation est requis.
         </span>
 
         <div class="loginServerContainer">
           <h5 class="title">Ajouter le(s) serveur(s) d'authentification</h5>
 
-          <div v-for="(item, index) in servers" :key="item.id" class="serverItem">
+          <div v-for="item in servers" :key="item.id" class="serverItem">
             <div class="selector">
               <div class="icon">
                 <v-icon>mdi-server-security</v-icon>
@@ -48,7 +45,6 @@
                       :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false" /> -->
             </div>
 
-
             <button type="button" class="serverBtn delete" v-if="isLinked(item)" @click="unlinkItem(item)">
               <v-icon>mdi-trash-can-outline</v-icon>
             </button>
@@ -56,12 +52,13 @@
             <button type="button" class="serverBtn add" v-else @click="linkItem(item)">
               <v-icon>mdi-plus</v-icon>
             </button>
-
           </div>
         </div>
 
         <div class="d-flex justify-end">
-          <div class="btn-retour" @click="cancelAdd()">RETOUR</div>
+          <button type="button" class="btn-retour" @click="goBack()">
+            ANNULER
+          </button>
           <button type="submit" class="btn-creer">
             MODIFIER LA PLATEFORME
           </button>
@@ -73,18 +70,17 @@
 </template>
 
 <script>
-import BachupInformation from "../Components/BackupInformation.vue";
 import InputUser from "../Components/InputUser";
 import { required, minLength } from "vuelidate/lib/validators";
 import { mapActions, mapGetters } from "vuex";
 import SelectGrant from "../Components/SelectGrants.vue";
+import { URL_REGEX } from "../services/formUtils";
 
 export default {
   name: "App",
   components: {
-    BachupInformation,
     InputUser,
-    SelectGrant
+    SelectGrant,
   },
   data() {
     return {
@@ -93,10 +89,9 @@ export default {
         name: null,
         url: null,
         redirectUrl: null,
-        loginServerIds: []
+        loginServerIds: [],
       },
       iserrors: true,
-      error_platform: false,
     };
   },
   validations: {
@@ -108,17 +103,13 @@ export default {
       redirectUrl: {
         required,
         format: (value) => {
-          const regex =
-            /https?:\/\/(?:w{1,3}\.)?[^\s.]+(?:\.[a-z]+)*(?::\d+)?(?![^<]*(?:<\/\w+>|\/?>))/gm;
-          return regex.test(value);
+          return URL_REGEX.test(value);
         },
       },
       url: {
         required,
         format: (value) => {
-          const regex =
-            /https?:\/\/(?:w{1,3}\.)?[^\s.]+(?:\.[a-z]+)*(?::\d+)?(?![^<]*(?:<\/\w+>|\/?>))/gm;
-          return regex.test(value);
+          return URL_REGEX.test(value);
         },
       },
       grant_types: {
@@ -130,38 +121,46 @@ export default {
     },
   },
   methods: {
-    cancelAdd() {
+    goBack() {
       // this.$router.push("/PlatformsList");
       this.$router.go(-1);
     },
 
-    async getPlatform() {
+    async loadFormData() {
+      const id = this.$route.query.id;
+      const platformData = await this.$store.dispatch(
+        "platforms/getPlatformInfo",
+        id
+      );
 
-      const id = this.$route.query.id
-      const tem_plat = await this.$store.dispatch("platforms/getPlatformInfo", id);
-
-      this.formPlatform.name = tem_plat.name;
-      this.formPlatform.url = tem_plat.url;
-      this.formPlatform.redirectUrl = tem_plat.redirectUrl;
-      this.formPlatform.grant_types = tem_plat.grant_types;
+      this.formPlatform.name = platformData.name;
+      this.formPlatform.url = platformData.url;
+      this.formPlatform.redirectUrl = platformData.redirectUrl;
+      this.formPlatform.grant_types = platformData.grant_types;
       this.formPlatform.loginServerIds = await this.getServersIds(id);
     },
 
-    ...mapActions({ editPlatformItem: "platforms/editPlatformItem", getAllServers: "serverLogin/getAllServers" }),
+    ...mapActions({
+      editPlatformItem: "platforms/editPlatformItem",
+      getAllServers: "serverLogin/getAllServers",
+    }),
     async getServersIds(id) {
-      const data = await this.$store.dispatch("platforms/getServerList", id);
-      return data.map(el => el.id);
+      const serverList = await this.$store.dispatch(
+        "platforms/getServerList",
+        id
+      );
+      return serverList.map((el) => el.id);
     },
-    async validateApp() {
+    async submitForm() {
       this.$v.$touch();
 
       if (!this.$v.$invalid) {
         this.editPlatformItem({
           platform: this.formPlatform,
           platformId: this.$route.query.id,
-        }).then((result) => {
-          console.log(result);
-          this.$router.push("/PlatformsList");
+        }).then(() => {
+          // this.$router.push("/PlatformsList");
+          this.$router.go(-1);
         });
       } else {
         this.iserrors = false;
@@ -173,24 +172,30 @@ export default {
     },
 
     linkItem(item) {
-      this.formPlatform.loginServerIds = [...this.formPlatform.loginServerIds, item.id];
+      this.formPlatform.loginServerIds = [
+        ...this.formPlatform.loginServerIds,
+        item.id,
+      ];
     },
 
     unlinkItem(item) {
-      this.formPlatform.loginServerIds = this.formPlatform.loginServerIds.filter(el => el !== item.id);
-    }
+      this.formPlatform.loginServerIds =
+        this.formPlatform.loginServerIds.filter((el) => el !== item.id);
+    },
   },
   computed: {
     ...mapGetters({ servers: "serverLogin/servers" }),
   },
   async created() {
-    await this.getPlatform();
+    await this.loadFormData();
     await this.getAllServers();
   },
 };
 </script>
 
 <style scoped>
+@import "../assets/form-common.css";
+
 .v-application {
   background-color: #d6e2e600;
 }
@@ -200,45 +205,14 @@ export default {
   padding-right: 25%;
   padding-bottom: 20px;
   padding-top: 20px;
-
 }
 
 .btn-retour {
-  border: 1px solid #14202c;
-  border-radius: 6px;
-  width: 120px;
-  height: 40px;
   margin-right: 5px;
-  margin-top: 20px;
-  font: normal normal normal 11px/13px Charlevoix Pro;
-  letter-spacing: 1.1px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
 }
 
 .btn-creer {
-  border: 0px;
-  padding-left: 30px;
-  padding-right: 30px;
-  background: #14202c;
-  border-radius: 6px;
-  color: white;
   margin-left: 5px;
-  margin-top: 20px;
-  font: normal normal normal 11px/13px Charlevoix Pro;
-  letter-spacing: 1.1px;
-}
-
-.errors {
-  position: absolute;
-  color: rgb(255, 0, 0);
-  font: normal normal normal 11px/13px Charlevoix Pro;
-}
-
-.showspan {
-  display: none;
 }
 
 .loginServerContainer {

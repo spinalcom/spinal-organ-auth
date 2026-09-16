@@ -5,18 +5,18 @@ const { instanceAxios } = require("../services/axiosConfig");
 export default {
   namespaced: true,
   state: {
-    authorized: false
+    authorized: false,
   },
   mutations: {
     SET_STATE(state, payload) {
       state.authorized = payload;
-    }
+    },
   },
   actions: {
     async authorize({ commit }, data) {
       try {
         const response = await instanceAxios.post("/oauth/authorize", data, {
-          headers: { "content-type": "application/x-www-form-urlencoded" }
+          headers: { "content-type": "application/x-www-form-urlencoded" },
         });
         commit("SET_STATE", true);
 
@@ -28,12 +28,14 @@ export default {
     },
     async getServers({ commit }, platformId) {
       try {
-        const response = await instanceAxios.get(`/platforms/${platformId}/loginServers`);
+        const response = await instanceAxios.get(
+          `/platforms/${platformId}/loginServers`
+        );
 
         return response.data;
       } catch (error) {
         return [];
       }
-    }
-  }
+    },
+  },
 };

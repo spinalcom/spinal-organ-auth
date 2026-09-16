@@ -1,8 +1,14 @@
 <template>
   <v-app>
     <v-main>
-      <InformationBar :btn="'off'" v-on:btn2="displayEdit()" v-on:btn3="deletePlatformItem()"
-        :title="this.platform.name" :icon="require('../assets/image/BOS_icon.svg')" class="header-bar">
+      <InformationBar
+        :btn="'off'"
+        v-on:btn2="displayEdit()"
+        v-on:btn3="deletePlatformItem()"
+        :title="this.platform.name"
+        :icon="require('../assets/image/BOS_icon.svg')"
+        class="header-bar"
+      >
         <div class="platformInfo">
           <div class="d-flex platform-information-bar">
             <div class="d-flex flex-column mr-16">
@@ -21,13 +27,15 @@
             </div>
             <div class="d-flex flex-column mr-16">
               <span class="bar-sub-title">STATUT</span>
-              <StatutButton :val="getStatus(platform.statusPlatform)" :title="platform.statusPlatform || 'unknown'">
+              <StatutButton
+                :val="getStatus(platform.statusPlatform)"
+                :title="platform.statusPlatform || 'unknown'"
+              >
               </StatutButton>
             </div>
           </div>
 
           <div class="platform-action">
-
             <v-btn outlined color="success" @click="syncData">
               <v-icon class="mx-1" dark>mdi-sync</v-icon>
               Synchroniser les données
@@ -39,23 +47,35 @@
             </v-btn>
 
             <v-btn outlined color="red" @click="deletePlatform">
-              <v-icon class="mx-1" color="orange darken-2" dark>mdi-close</v-icon>
+              <v-icon class="mx-1" color="orange darken-2" dark
+                >mdi-close</v-icon
+              >
               SUPPRIMER
             </v-btn>
           </div>
         </div>
-
       </InformationBar>
 
-      <BackupInformation style="max-height: 70%; min-height: 70%" title="INFORMATION DE LA PLATFORME">
+      <BackupInformation
+        style="max-height: 70%; min-height: 70%"
+        title="INFORMATION DE LA PLATFORME"
+      >
         <Tabs :items="items">
           <v-tab-item v-if="this.platform">
             <v-card style="background-color: #f7f7f7">
               <div @click="affichage()">
-                <v-data-table fixed-header style="background-color: #f7f7f7" :footer-props="{
-                  'items-per-page-options': [10, -1],
-                }" :items-per-page="30" height="45vh" :headers="headersorgane" :items="this.platform.organs"
-                  :search="search">
+                <v-data-table
+                  fixed-header
+                  style="background-color: #f7f7f7"
+                  :footer-props="{
+                    'items-per-page-options': [10, -1],
+                  }"
+                  :items-per-page="30"
+                  height="45vh"
+                  :headers="headersorgane"
+                  :items="this.platform.organs"
+                  :search="search"
+                >
                 </v-data-table>
               </div>
             </v-card>
@@ -64,10 +84,18 @@
           <v-tab-item v-if="this.platform">
             <v-card style="background-color: #f7f7f7">
               <div @click="affichage()">
-                <v-data-table fixed-header style="background-color: #f7f7f7" :footer-props="{
-                  'items-per-page-options': [10, -1],
-                }" :items-per-page="30" height="45vh" :headers="headers2" :items="this.platform.userProfiles"
-                  :search="search">
+                <v-data-table
+                  fixed-header
+                  style="background-color: #f7f7f7"
+                  :footer-props="{
+                    'items-per-page-options': [10, -1],
+                  }"
+                  :items-per-page="30"
+                  height="45vh"
+                  :headers="headers2"
+                  :items="this.platform.userProfiles"
+                  :search="search"
+                >
                 </v-data-table>
               </div>
             </v-card>
@@ -76,10 +104,18 @@
           <v-tab-item v-if="this.platform">
             <v-card style="background-color: #f7f7f7">
               <div @click="affichage()">
-                <v-data-table fixed-header style="background-color: #f7f7f7" :footer-props="{
-                  'items-per-page-options': [10, -1],
-                }" :items-per-page="30" height="45vh" :headers="headers2" :items="this.platform.appProfiles"
-                  :search="search">
+                <v-data-table
+                  fixed-header
+                  style="background-color: #f7f7f7"
+                  :footer-props="{
+                    'items-per-page-options': [10, -1],
+                  }"
+                  :items-per-page="30"
+                  height="45vh"
+                  :headers="headers2"
+                  :items="this.platform.appProfiles"
+                  :search="search"
+                >
                 </v-data-table>
               </div>
             </v-card>
@@ -88,10 +124,18 @@
           <v-tab-item v-if="userListLinkPlatform">
             <v-card style="background-color: #f7f7f7">
               <div @click="affichage()">
-                <v-data-table fixed-header style="background-color: #f7f7f7" :footer-props="{
-                  'items-per-page-options': [10, -1],
-                }" :items-per-page="30" height="45vh" :headers="headersuser" :items="userListLinkPlatform"
-                  :search="search">
+                <v-data-table
+                  fixed-header
+                  style="background-color: #f7f7f7"
+                  :footer-props="{
+                    'items-per-page-options': [10, -1],
+                  }"
+                  :items-per-page="30"
+                  height="45vh"
+                  :headers="headersuser"
+                  :items="userListLinkPlatform"
+                  :search="search"
+                >
                 </v-data-table>
               </div>
             </v-card>
@@ -100,10 +144,18 @@
           <v-tab-item v-if="appListLinkPlatform">
             <v-card style="background-color: #f7f7f7">
               <div @click="affichage()">
-                <v-data-table fixed-header style="background-color: #f7f7f7" :footer-props="{
-                  'items-per-page-options': [10, -1],
-                }" :items-per-page="30" height="45vh" :headers="headersapp" :items="appListLinkPlatform"
-                  :search="search">
+                <v-data-table
+                  fixed-header
+                  style="background-color: #f7f7f7"
+                  :footer-props="{
+                    'items-per-page-options': [10, -1],
+                  }"
+                  :items-per-page="30"
+                  height="45vh"
+                  :headers="headersapp"
+                  :items="appListLinkPlatform"
+                  :search="search"
+                >
                 </v-data-table>
               </div>
             </v-card>
@@ -113,13 +165,27 @@
             <v-card style="background-color: #f7f7f7">
               <div @click="affichage()">
                 <v-card-title>
-                  <v-text-field v-model="search" append-icon="mdi-magnify" label="Rechercher" single-line hide-details>
+                  <v-text-field
+                    v-model="search"
+                    append-icon="mdi-magnify"
+                    label="Rechercher"
+                    single-line
+                    hide-details
+                  >
                   </v-text-field>
                 </v-card-title>
-                <v-data-table fixed-header style="background-color: #f7f7f7" :footer-props="{
-                  'items-per-page-options': [10, -1],
-                }" :items-per-page="30" height="45vh" :headers="headers" :items="this.formattedLogList"
-                  :search="search">
+                <v-data-table
+                  fixed-header
+                  style="background-color: #f7f7f7"
+                  :footer-props="{
+                    'items-per-page-options': [10, -1],
+                  }"
+                  :items-per-page="30"
+                  height="45vh"
+                  :headers="headers"
+                  :items="this.formattedLogList"
+                  :search="search"
+                >
                 </v-data-table>
               </div>
             </v-card>
@@ -132,10 +198,18 @@
                   <v-text-field v-model="search" append-icon="mdi-magnify" label="Rechercher" single-line hide-details>
                   </v-text-field>
                 </v-card-title> -->
-                <v-data-table fixed-header style="background-color: #f7f7f7" :footer-props="{
-                  'items-per-page-options': [10, -1],
-                }" :items-per-page="30" height="45vh" :headers="serverLoginHeader" :items="this.loginServerList"
-                  :search="search">
+                <v-data-table
+                  fixed-header
+                  style="background-color: #f7f7f7"
+                  :footer-props="{
+                    'items-per-page-options': [10, -1],
+                  }"
+                  :items-per-page="30"
+                  height="45vh"
+                  :headers="serverLoginHeader"
+                  :items="this.loginServerList"
+                  :search="search"
+                >
                 </v-data-table>
               </div>
             </v-card>
@@ -150,8 +224,8 @@
 import InformationBar from "../Components/InformationBar.vue";
 import StatutButton from "../Components/StatutButton.vue";
 import Tabs from "../Components/Tabs.vue";
+import { askConfirmation } from "../services/popup";
 import BackupInformation from "../Components/BackupInformation.vue";
-import FiltreBar from "../Components/FiltreBar.vue";
 import { mapGetters } from "vuex";
 
 export default {
@@ -161,7 +235,6 @@ export default {
     BackupInformation,
     StatutButton,
     Tabs,
-    FiltreBar,
   },
   data() {
     return {
@@ -205,13 +278,6 @@ export default {
         { text: "Id profil", value: "id" },
         { text: "Type", value: "type" },
       ],
-      mounted: false,
-      platformId: null,
-
-      userList: [],
-      itemSelected: null,
-      appList: [],
-      tab: null,
       items: [
         "ORGANES",
         "PROFILS D'UTILISATEURS",
@@ -219,7 +285,7 @@ export default {
         "UTILISATEURS",
         "APPLICATIONS",
         "LOGS",
-        "SERVEURS D'AUTHENTIFICATION"
+        "SERVEURS D'AUTHENTIFICATION",
       ],
     };
   },
@@ -232,10 +298,12 @@ export default {
       this.$store.dispatch("platforms/getServerList", this.$route.query.id);
     },
     affichage() {
-      var a = document.querySelector(
+      const menu = document.querySelector(
         "#app > div.v-menu__content.theme--light.menuable__content__active"
       );
-      a.style.position = "fixed";
+      if (menu) {
+        menu.style.position = "fixed";
+      }
     },
 
     getStatus(status) {
@@ -250,15 +318,22 @@ export default {
     },
 
     async deletePlatform() {
-      const res = confirm(`Voulez-vous supprimer la plateforme "${this.platform.name}"`);
+      const res = await askConfirmation(
+        `Voulez-vous supprimer la plateforme "${this.platform.name}"`
+      );
       if (res) {
-        await this.$store.dispatch("platforms/deletePlatform", this.platform.id);
+        await this.$store.dispatch(
+          "platforms/deletePlatform",
+          this.platform.id
+        );
         this.$router.push({ name: "Platforms" });
       }
     },
 
     syncData() {
-      this.$store.dispatch("platforms/syncData", { paltformId: this.platform.id })
+      this.$store.dispatch("platforms/syncData", {
+        paltformId: this.platform.id,
+      });
     },
   },
   computed: {
@@ -267,23 +342,22 @@ export default {
       logList: "platforms/platformlog",
       appListLinkPlatform: "platforms/appListLinkPlatform",
       userListLinkPlatform: "platforms/userListLinkPlatform",
-      loginServerList: "platforms/loginServerList"
+      loginServerList: "platforms/loginServerList",
     }),
 
     formattedLogList() {
       return this.logList.map((log) => {
-        log.date = new Date(log.date).toLocaleString();
-        return log;
+        return {
+          ...log,
+          date: new Date(log.date).toLocaleString(),
+        };
       });
     },
-
-
   },
 
   async created() {
     await this.updatePlatform();
   },
-
 };
 </script>
 
@@ -292,7 +366,7 @@ export default {
   background: #eeeeee00;
 }
 
-.v-data-table>>>td {
+.v-data-table >>> td {
   background-color: white;
   border-top: 10px solid #f7f7f7;
   border-bottom: solid 0px black !important;
@@ -304,16 +378,39 @@ export default {
   height: 150px;
 }
 
-#content>div>main>div>div.d-flex.flex-column.rounded-lg.backup-bar.v-card.v-sheet.theme--light.elevation-2>div.v-tabs.v-tabs--grow.theme--light>div.v-window.v-item-group.theme--light.v-tabs-items>div>div.v-window-item.v-window-item--active>div>div>div.v-card__title>div {
+#content
+  > div
+  > main
+  > div
+  > div.d-flex.flex-column.rounded-lg.backup-bar.v-card.v-sheet.theme--light.elevation-2
+  > div.v-tabs.v-tabs--grow.theme--light
+  > div.v-window.v-item-group.theme--light.v-tabs-items
+  > div
+  > div.v-window-item.v-window-item--active
+  > div
+  > div
+  > div.v-card__title
+  > div {
   margin-top: 0;
   padding-top: 0;
 }
 
-.v-data-table>>>th {
+.v-data-table >>> th {
   background: #f7f7f7 !important;
 }
 
-#content>div>main>div>div.d-flex.flex-column.rounded-lg.backup-bar.v-card.v-sheet.theme--light.elevation-2>div.v-tabs.v-tabs--grow.theme--light>div.v-window.v-item-group.theme--light.v-tabs-items>div>div.v-window-item.v-window-item--active>div>div>div.v-card__title {
+#content
+  > div
+  > main
+  > div
+  > div.d-flex.flex-column.rounded-lg.backup-bar.v-card.v-sheet.theme--light.elevation-2
+  > div.v-tabs.v-tabs--grow.theme--light
+  > div.v-window.v-item-group.theme--light.v-tabs-items
+  > div
+  > div.v-window-item.v-window-item--active
+  > div
+  > div
+  > div.v-card__title {
   padding: 10px;
   background-color: white;
   border: 1px solid #e3e7e8;

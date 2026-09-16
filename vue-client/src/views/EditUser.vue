@@ -2,36 +2,33 @@
   <v-app>
     <v-main>
       <BachupInformation title="">
-        <form class="formulaire" novalidate @submit.prevent="validateUser">
+        <form class="formulaire" novalidate @submit.prevent="submitForm">
           <div class="formContainer">
             <div class="title">Modifier un utilisateur</div>
             <InputUser title="NOM DE L'UTILISATEUR" id="userName" v-model="formUser.userName" />
-            <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.userName.required">Un nom est
+            <span class="errors" v-if="$v.formUser.userName.$error && !$v.formUser.userName.required">Un nom est
               requis</span>
-            <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formUser.userName.minLength">Le nom
-              d'utilisateur contenir au moins 3 caractères.
+            <span class="errors" v-else-if="$v.formUser.userName.$error && !$v.formUser.userName.minLength">Le nom
+              d'utilisateur doit contenir au moins 3 caractères.
             </span>
 
             <SelectUser title="TYPE D'UTILISATEUR" id="userType" :tab="userType" v-model="formUser.userType"
               :value="formUser.userType" />
 
             <InputUser title="EMAIL" id="email" v-model="formUser.email" />
-            <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.email.required">Un Email est
-              requis</span>
+            <span class="errors" v-if="$v.formUser.email.$dirty && formUser.email && !$v.formUser.email.email">Format
+              d'email incorrect.</span>
+
             <InputUser title="TELEPHONE" id="telephone" v-model="formUser.telephone" />
-            <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.telephone.required">Un numero de
-              téléphone est requis</span>
-            <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formUser.telephone.numeric">Le numéro de
+            <span class="errors"
+              v-if="$v.formUser.telephone.$dirty && formUser.telephone && !$v.formUser.telephone.numeric">Le numéro de
               téléphone doit être composé uniquement de
               chiffre.</span>
-            <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formUser.telephone.minLength">Le numero
-              de
-              telephone est invalide</span>
-            <TextareaUser title="INFORMATION" id="information" v-model="formUser.info" />
-            <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formUser.info.required">Une information est
-              requise</span>
 
-            <div v-for="(platform, index) in newuserplatform" class="mt-5 platform-valid">
+            <TextareaUser title="INFORMATION" id="information" v-model="formUser.info" />
+
+            <div v-for="(platform, index) in newuserplatform" :key="platform.platformId || index"
+              class="mt-5 platform-valid">
               <!-- <span style="position: absolute; margin-top: -45px" class="errors" :class="{ showspan: !error_platform }">
                 Liez au moins un profile à cet utilisateur.
               </span> -->
@@ -46,16 +43,18 @@
               </button>
             </div>
 
-
             <div class="noPlatform" v-if="newuserplatform.length === 0">
               Aucune plateforme n'est liée à cet utilisateur.
             </div>
-
+            <span class="errors" v-if="error_platform">
+              Les accès aux utilisateurs sont incorrects.
+            </span>
           </div>
 
-
           <div class="footer">
-            <div class="btn-retour" @click="cancelAdd()">RETOUR</div>
+            <button type="button" class="btn-retour" @click="goBack()">
+              ANNULER
+            </button>
             <button type="submit" class="btn-creer">
               MODIFIER L'UTILISATEUR
             </button>
@@ -69,23 +68,20 @@
 <script>
 import BachupInformation from "../Components/BackupInformation.vue";
 import InputUser from "../Components/InputUser";
-import InputPass from "../Components/InputPassword";
 import SelectUser from "../Components/SelectUser.vue";
-import AddPlatform from "../Components/AddPlatform";
 import TextareaUser from "../Components/TextareaUser.vue";
 
 import { validationMixin } from "vuelidate";
 import { required, email, minLength, numeric } from "vuelidate/lib/validators";
 import { mapActions, mapGetters } from "vuex";
+import { USER_TYPES } from "../services/formUtils";
 
 export default {
   components: {
     TextareaUser,
     BachupInformation,
     InputUser,
-    InputPass,
     SelectUser,
-    AddPlatform,
   },
   data() {
     return {
@@ -98,15 +94,8 @@ export default {
         userType: null,
         platformList: null,
       },
-      userType: [
-        {
-          name: "Simple User",
-        },
-        {
-          name: "Super User",
-        },
-      ],
-      iserrors: true,
+      userType: USER_TYPES,
+      error_platform: false,
     };
   },
   validations: {
@@ -118,95 +107,88 @@ export default {
       email: {
         email,
       },
-      info: {
-        // required,
-      },
       telephone: {
-        // required,
         numeric,
-        minLength: minLength(8),
-      },
-      userType: {
-        required,
       },
     },
   },
   methods: {
-    deletePlatformObjectitem(index) {
-      if (this.newuserplatform.hasOwnProperty(index)) {
-        this.newuserplatform.splice(index, 1);
-      }
-      console.log(this.newuserplatform);
+    buildPlatformList(platformList = []) {
+      return platformList.map((el) => {
+        return {
+          platformId: el.platformId,
+          platformName: el.platformName,
+          userProfile: {
+            userProfileAdminId: el.userProfile.userProfileAdminId,
+            userProfileBosConfigId: el.userProfile.userProfileBosConfigId,
+            userProfileName: el.userProfile.userProfileName,
+          },
+        };
+      });
     },
 
-    cancelAdd() {
+    deletePlatformObjectitem(index) {
+      if (Object.prototype.hasOwnProperty.call(this.newuserplatform, index)) {
+        this.newuserplatform.splice(index, 1);
+      }
+    },
+
+    goBack() {
       // this.$router.push("/UsersList");
       this.$router.go(-1);
     },
 
-    async updateUserform() {
+    async loadFormData() {
       await this.$store.dispatch("users/getUser", this.$route.query.id);
-      console.log("this.detailUser", this.detailUser);
       this.formUser.userName = this.detailUser.userName;
       this.formUser.telephone = this.detailUser.telephone;
       this.formUser.email = this.detailUser.email;
       this.formUser.info = this.detailUser.info;
       this.formUser.userType = this.detailUser.userType;
-      this.newuserplatform = this.detailUser.platformList;
+      this.newuserplatform = [...(this.detailUser.platformList || [])];
     },
 
     ...mapActions({ updateUser: "users/updateUser" }),
 
-    async validateUser() {
-      // await this.$refs.refplatform.maFonction();
+    async submitForm() {
       this.$v.$touch();
+      this.error_platform = this.newuserplatform.length === 0;
 
-      if (!this.$v.$invalid) {
-        var objectBody = {
-          userName: this.formUser.userName,
-          email: this.formUser.email,
-          telephone: this.formUser.telephone,
-          info: this.formUser.info,
-          userType: this.getUserType(this.formUser.userType),
-          platformList: this.newuserplatform.map((el) => {
-            return {
-              platformId: el.platformId,
-              platformName: el.platformName,
-              userProfile: {
-                userProfileAdminId: el.userProfile.userProfileAdminId,
-                userProfileBosConfigId: el.userProfile.userProfileBosConfigId,
-                userProfileName: el.userProfile.userProfileName,
-              },
-            };
-          }),
-        };
+      if (this.$v.$invalid || this.error_platform) return;
 
-        var profile = [objectBody, this.$route.query.id];
-        await this.updateUser(profile);
-      } else {
-        this.iserrors = false;
-      }
+      const payload = {
+        userName: this.formUser.userName,
+        email: this.formUser.email,
+        telephone: this.formUser.telephone,
+        info: this.formUser.info,
+        userType: this.getUserType(this.formUser.userType),
+        platformList: this.buildPlatformList(this.newuserplatform),
+      };
+
+      const updateArgs = [payload, this.$route.query.id];
+      await this.updateUser(updateArgs);
     },
 
     getUserType(userType) {
-      if (!userType) return 'Simple User';
+      if (!userType) return "Simple User";
       if (userType.name) return userType.name;
       return userType;
-    }
+    },
   },
   computed: {
     ...mapGetters({
       detailUser: "users/detailUser",
-      platformObjectList: "users/selectedplatformObjectList",
     }),
   },
   created() {
-    this.updateUserform();
+    this.loadFormData();
   },
 };
 </script>
 
 <style scoped>
+@import "../assets/form-common.css";
+
 .platform-valid {
   width: 99%;
   height: 150px;
@@ -231,7 +213,7 @@ export default {
 .formulaire .title {
   font-size: 2em !important;
   font-weight: 500;
-  letter-spacing: .0125em !important;
+  letter-spacing: 0.0125em !important;
   text-align: center;
 }
 
@@ -248,7 +230,6 @@ export default {
   justify-content: flex-end;
   align-items: center;
 }
-
 
 .noPlatform {
   width: 100%;
@@ -272,7 +253,7 @@ export default {
   justify-content: center;
   align-items: center;
   font-weight: 500;
-  font-siplatform_copiee: 15px;
+  font-size: 15px;
   padding-top: 2px;
   transition: 0.2s;
 }
@@ -304,32 +285,11 @@ export default {
 }
 
 .btn-retour {
-  border: 1px solid #14202c;
-  border-radius: 6px;
-  width: 120px;
-  height: 40px;
   margin-right: 10px;
-  margin-top: 20px;
-  font: normal normal normal 11px/13px Charlevoix Pro;
-  letter-spacing: 1.1px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
 }
 
 .btn-creer {
   min-height: 35px;
-  border: 0px;
-  padding-left: 30px;
-  padding-right: 30px;
-  background: #14202c;
-  border-radius: 6px;
-  color: white;
-  /* margin-left: 5px; */
-  margin-top: 20px;
-  font: normal normal normal 11px/13px Charlevoix Pro;
-  letter-spacing: 1.1px;
 }
 
 .fade_in {
@@ -337,12 +297,13 @@ export default {
 }
 
 .errors {
-  position: absolute;
+  position: static;
+  display: block;
+  margin: 2px 0 6px;
+  transform: none;
+  font-size: 10px;
+  padding-left: 4px;
+  letter-spacing: 1.1px;
   color: rgb(255, 0, 0);
-  font: normal normal normal 11px/13px Charlevoix Pro;
-}
-
-.showspan {
-  display: none;
 }
 </style>

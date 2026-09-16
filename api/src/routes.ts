@@ -535,6 +535,9 @@ const models: TsoaRoute.Models = {
             "TokenBosAdmin": {"dataType":"string","required":true},
             "platformId": {"dataType":"string","required":true},
             "jsonData": {"ref":"IJsonData","required":true},
+            "idPlatformOfAdmin": {"dataType":"string"},
+            "TokenAdminBos": {"dataType":"string"},
+            "URLBos": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
@@ -547,6 +550,11 @@ const models: TsoaRoute.Models = {
     "IVerifyTokenRequest": {
         "dataType": "refAlias",
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"actor":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["user"]},{"dataType":"enum","enums":["application"]},{"dataType":"enum","enums":["app"]},{"dataType":"enum","enums":["code"]}]},"platformId":{"dataType":"string"},"tokenParam":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IRevokeTokenRequest": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"token":{"dataType":"string","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ICodeToken": {
@@ -2062,6 +2070,32 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.createRedirectToBosUrl.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/tokens/revokeToken',
+            authenticateMiddleware([{"jwt":["authAdmin","tokens:verify"]}]),
+            ...(fetchMiddlewares<RequestHandler>(TokensController)),
+            ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.revokeToken)),
+
+            function TokensController_revokeToken(request: any, response: any, next: any) {
+            const args = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"IRevokeTokenRequest"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new TokensController();
+
+
+              const promise = controller.revokeToken.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

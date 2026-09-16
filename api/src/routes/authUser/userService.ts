@@ -34,6 +34,7 @@ const bcrypt = require("bcrypt");
 import { PlatformService } from "../platform/platformServices";
 import { TokensService } from "../tokens/tokenService";
 import { updateProfileRelations } from "../platform/profileRelations";
+import { getUserScopes } from "../../scopes";
 
 type UserPlatformDetails = {
 	platformId: string;
@@ -134,10 +135,11 @@ export class UserService {
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 		}
 
+		const scopes = getUserScopes();
 		const platformList = await this.getUserPlatformList(user, platformId);
 		const tokenData = await this._generateTokenData(platformList, user, platformId || "");
 
-		const tokenNode = await TokensService.getInstance().createToken(user, tokenData, platformList, "user");
+		const tokenNode = await TokensService.getInstance().createToken(user, tokenData, platformList, "user", scopes);
 
 		await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.LOGIN_VALID, EVENTS_REQUEST_NAMES.LOGIN_VALID);
 		return this._getUserTokenResponse(tokenNode, user, platformList);
@@ -155,8 +157,9 @@ export class UserService {
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 		}
 
+		const scopes = [SCOPES.authAdmin];
 		const tokenData = { userId: user.getId().get(), ...(user.info?.get() || {}), isAuthAdmin: true };
-		const tokenNode = await TokensService.getInstance().createToken(user, tokenData, [], "user");
+		const tokenNode = await TokensService.getInstance().createToken(user, tokenData, [], "user", scopes);
 		await LogsService.getInstance().createLog(user, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.CONNECTION_VALID, " Connection Valid");
 
 		return this._getUserTokenResponse(tokenNode, user);

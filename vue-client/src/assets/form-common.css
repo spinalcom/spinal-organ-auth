@@ -1,0 +1,35 @@
+.btn-retour {
+  border: 1px solid #14202c;
+  border-radius: 6px;
+  width: 120px;
+  height: 40px;
+  margin-top: 20px;
+  font: normal normal normal 11px/13px Charlevoix Pro;
+  letter-spacing: 1.1px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.btn-creer {
+  border: 0;
+  padding-left: 30px;
+  padding-right: 30px;
+  background: #14202c;
+  border-radius: 6px;
+  color: white;
+  margin-top: 20px;
+  font: normal normal normal 11px/13px Charlevoix Pro;
+  letter-spacing: 1.1px;
+}
+
+.errors {
+  position: absolute;
+  color: rgb(255, 0, 0);
+  font: normal normal normal 11px/13px Charlevoix Pro;
+}
+
+.showspan {
+  display: none;
+}

@@ -1,5 +1,9 @@
 <template>
-  <v-card class="d-flex flex-column rounded-lg backup-bar" color="#F7F7F7" elevation="2">
+  <v-card
+    class="d-flex flex-column rounded-lg backup-bar"
+    color="#F7F7F7"
+    elevation="2"
+  >
     <div class="header">
       <div class="title-backupbar">{{ title }}</div>
       <div class="subtitle-backupbar" v-if="subtitle1">{{ subtitle1 }}</div>
@@ -15,7 +19,7 @@
 <script>
 export default {
   name: "backup-information",
-  props: ['title', 'subtitle1', 'subtitle2'],
+  props: ["title", "subtitle1", "subtitle2"],
 };
 </script>
 
@@ -63,15 +67,12 @@ export default {
   padding: 20px;
   font: normal normal normal 9px/11px Charlevoix Pro;
   letter-spacing: 0.9px;
-
 }
 
 .slotContainer {
   width: 100%;
   height: calc(100% - 60px);
 }
-
-
 
 /*
 * Custom scrollbar styles

@@ -1,17 +1,22 @@
 <template>
   <div>
     <label class="title-input">{{ title }}</label>
-    <input :readonly="readonly" :value="value" :placeholder="placeholder" @input="$emit('input', $event.target.value)"
-      class="input-user" type="text">
+    <input
+      :readonly="readonly"
+      :value="value"
+      :placeholder="placeholder"
+      @input="$emit('input', $event.target.value)"
+      class="input-user"
+      type="text"
+    />
   </div>
 </template>
 
 <script>
 export default {
   name: "input-user",
-  props: ['value', 'title', 'readonly', 'placeholder'],
+  props: ["value", "title", "readonly", "placeholder"],
 };
-
 </script>
 
 <style scoped>

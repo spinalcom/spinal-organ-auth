@@ -2,8 +2,14 @@
   <div>
     <label class="title-input">{{ title }}</label>
     <div class="input-Div">
-      <input :readonly="readonly" :required="required" :value="value" :type="show3 ? 'text' : 'password'"
-        @input="$emit('input', $event.target.value)" class="input-user" />
+      <input
+        :readonly="readonly"
+        :required="required"
+        :value="value"
+        :type="show3 ? 'text' : 'password'"
+        @input="$emit('input', $event.target.value)"
+        class="input-user"
+      />
 
       <div class="btn-eye" v-if="generate" @click="generatePassword">
         <v-icon style="color: white"> mdi-autorenew </v-icon>

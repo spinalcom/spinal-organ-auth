@@ -11,24 +11,35 @@
         </v-card-title>
 
         <v-card-text class="loginCardContent">
-
           <div class="externalLogin" v-if="externalServers.length > 0">
             <!-- <form v-for="(server, index) in externalServers" :key="index" method="post"
               :action="`/login/${platformId}/${server.id}`"> -->
-            <v-btn class="ma-2 connectionBtn" outlined rounded block v-for="(server, index) in externalServers"
-              :key="index" @click="connectWithExternalServer(server)">
+            <v-btn
+              class="ma-2 connectionBtn"
+              outlined
+              rounded
+              block
+              v-for="(server, index) in externalServers"
+              :key="index"
+              @click="connectWithExternalServer(server)"
+            >
               Login with {{ server.name }}
             </v-btn>
             <!-- </form> -->
           </div>
 
-          <div class="divider" v-if="localServers.length > 0 && externalServers.length > 0">
+          <div
+            class="divider"
+            v-if="localServers.length > 0 && externalServers.length > 0"
+          >
             <v-row>
               <v-col cols="4" class="text-center dividerBar">
                 <v-divider />
               </v-col>
 
-              <v-col cols="4" class="text-center class dividerText"> or connect with </v-col>
+              <v-col cols="4" class="text-center class dividerText">
+                or connect with
+              </v-col>
 
               <v-col cols="4" class="text-center dividerBar">
                 <v-divider />
@@ -37,22 +48,44 @@
           </div>
 
           <div class="localLogin" v-if="localServers.length > 0">
-            <div class="alertDiv" :class="{ 'hide': !showError }">
+            <div class="alertDiv" :class="{ hide: !showError }">
               incorrect login and/or password !
             </div>
 
-            <v-text-field outlined height="35" autocomplete="username" dense label="Username" name="username"
-              v-model="credential.username" required></v-text-field>
+            <v-text-field
+              outlined
+              height="35"
+              autocomplete="username"
+              dense
+              label="Username"
+              name="username"
+              v-model="credential.username"
+              required
+            ></v-text-field>
 
-            <v-text-field outlined name="password" v-model="credential.password" height="35" dense label="Password"
-              required :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-              :type="showPassword ? 'text' : 'password'" class="input-group--focused"
-              @click:append="showPassword = !showPassword"></v-text-field>
+            <v-text-field
+              outlined
+              name="password"
+              v-model="credential.password"
+              height="35"
+              dense
+              label="Password"
+              required
+              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              :type="showPassword ? 'text' : 'password'"
+              class="input-group--focused"
+              @click:append="showPassword = !showPassword"
+            ></v-text-field>
 
-            <v-text-field v-for="key in hiddenKeys" :key="key" style="display: none" :name="key" type="hidden"
-              v-model="hiddenData[key]"></v-text-field>
+            <v-text-field
+              v-for="key in hiddenKeys"
+              :key="key"
+              style="display: none"
+              :name="key"
+              type="hidden"
+              v-model="hiddenData[key]"
+            ></v-text-field>
           </div>
-
         </v-card-text>
 
         <v-card-actions class="loginCardAction">
@@ -75,8 +108,7 @@ export default {
       logoSvg,
       showPassword: false,
       showError: false,
-      hide: true,
-      hiddenData: undefined,
+      hiddenData: {},
       hiddenKeys: [],
       externalServers: [],
       localServers: [],
@@ -86,42 +118,47 @@ export default {
       },
     };
   },
-  async created() { },
-
   async mounted() {
-    this.hiddenData = this.$route.query;
+    this.hiddenData = this.$route.query || {};
 
     Object.entries(this.hiddenData).forEach(([key, value]) => {
       this.credential[key] = value;
     });
 
-    this.hiddenKeys = Object.keys(this.hiddenData).filter((key) => key !== "username" && key !== "password");
+    this.hiddenKeys = Object.keys(this.hiddenData).filter(
+      (key) => key !== "username" && key !== "password"
+    );
 
     if (this.hiddenData.error) {
       this.showError = true;
     }
 
     await this.setServers();
-
   },
   methods: {
-    ...mapActions({ authorize: "authorization/authorize", getServers: "authorization/getServers" }),
+    ...mapActions({
+      getServers: "authorization/getServers",
+    }),
 
     async setServers() {
       const servers = await this.getServers(this.credential.client_id);
-      const { localServers, externalServers } = this.getLocalAndExternalServer(servers);
+      const { localServers, externalServers } =
+        this.getLocalAndExternalServer(servers);
 
       this.localServers = localServers;
       this.externalServers = externalServers;
     },
 
     getLocalAndExternalServer(servers) {
-      return servers.reduce((obj, server) => {
-        if (server.type === "INTERNAL_SERVER") obj.localServers.push(server);
-        else obj.externalServers.push(server);
+      return servers.reduce(
+        (obj, server) => {
+          if (server.type === "INTERNAL_SERVER") obj.localServers.push(server);
+          else obj.externalServers.push(server);
 
-        return obj;
-      }, { localServers: [], externalServers: [] });
+          return obj;
+        },
+        { localServers: [], externalServers: [] }
+      );
     },
 
     connectWithExternalServer(server) {
@@ -129,13 +166,15 @@ export default {
       const method = server.authentication_method;
       const endpoint = this.getAuthEndpoint(method);
 
-      this.$router.push({ path: endpoint, query: { platformId, serverId: server.id } }, () => location.reload());
+      this.$router.push(
+        { path: endpoint, query: { platformId, serverId: server.id } },
+        () => location.reload()
+      );
       // console.log(server);
       // this.$router.push({ name: "ExternalServer", params: { platformId: this.credential.client_id, serverId: server.id } });
     },
 
     getAuthEndpoint(authentication_method) {
-      console.log(authentication_method);
       switch (authentication_method.toLowerCase()) {
         case "saml":
           return "saml/login";
@@ -143,9 +182,10 @@ export default {
           return "oauth2/login";
         case "openid connect":
           return "openid/login";
+        default:
+          return "";
       }
-    }
-
+    },
   },
   watch: {
     credential: {

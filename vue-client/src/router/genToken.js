@@ -21,10 +21,9 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-const TOKEN = 'token';
-const router = require('../router');
-const instanceAxios = require('../services/axiosConfig');
-
+const TOKEN = "token";
+const router = require("../router");
+const instanceAxios = require("../services/axiosConfig");
 
 export async function LogUserAnGetToken(user, pass) {
   let userparams = {
@@ -32,7 +31,10 @@ export async function LogUserAnGetToken(user, pass) {
     password: pass,
   };
   // console.error(process.env.SPINAL_HOST_API);
-  const { data } = await instanceAxios.instanceAxios.post('/users/loginAuthAdmin', userparams);
+  const { data } = await instanceAxios.instanceAxios.post(
+    "/users/loginAuthAdmin",
+    userparams
+  );
   if (data) {
     localStorage.setItem(TOKEN, data.token);
   }
@@ -76,13 +78,14 @@ export async function isAuthenticate() {
     let token = localStorage.getItem(TOKEN);
     if (!token) return false;
 
-    return instanceAxios.instanceAxios.post('/tokens/verifyToken', { tokenParam: token, actor: "user" })
+    return instanceAxios.instanceAxios
+      .post("/tokens/verifyToken", { tokenParam: token, actor: "user" })
       .then(() => {
         return true;
-      }).catch(() => {
+      })
+      .catch(() => {
         return false;
       });
-
   } catch (error) {
     return false;
   }

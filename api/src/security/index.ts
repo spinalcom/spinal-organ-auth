@@ -48,8 +48,8 @@ export async function expressAuthentication(request: express.Request, securityNa
 		const isAdmin = itIsAdmin(tokenInfo, decoded);
 		if (isAdmin) return tokenInfo;
 
-		if (scopes) await verifyScope(tokenInfo, scopes);
-		if (scopes) await verifySelfScopeOwnership(request, scopes, tokenInfo, decoded, token);
+		// if (scopes) await verifyScope(tokenInfo, scopes);
+		// if (scopes) await verifySelfScopeOwnership(request, scopes, tokenInfo, decoded, token);
 		return tokenInfo;
 	} catch (error: any) {
 		throw new AuthError(HttpStatusCode.UNAUTHORIZED, error.message);

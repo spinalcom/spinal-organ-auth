@@ -44,15 +44,42 @@ import Authorization from "@/views/Authorization";
 import AddServer from "@/views/AddServer";
 import ServerDetail from "@/views/ServerDetail";
 import ServerList from "@/views/ServerList";
-import CodeUnique from '@/views/CodeUnique';
-
+import CodeUnique from "@/views/CodeUnique";
+import NotFound from "@/views/NotFound";
 
 import { isAuthenticate } from "./genToken";
-import path from "path";
 
 // const authorizationPath = "/authorize";
 
 Vue.use(Router);
+
+const MIN_ROUTE_LOADING_MS = 250;
+let routeLoadingTimeout = null;
+
+const routeLoadingState = Vue.observable({
+  isLoading: false,
+  startedAt: 0,
+});
+
+function startRouteLoading() {
+  if (routeLoadingTimeout) {
+    clearTimeout(routeLoadingTimeout);
+    routeLoadingTimeout = null;
+  }
+
+  routeLoadingState.startedAt = Date.now();
+  routeLoadingState.isLoading = true;
+}
+
+function stopRouteLoading() {
+  const elapsed = Date.now() - routeLoadingState.startedAt;
+  const remaining = Math.max(0, MIN_ROUTE_LOADING_MS - elapsed);
+
+  routeLoadingTimeout = setTimeout(() => {
+    routeLoadingState.isLoading = false;
+    routeLoadingTimeout = null;
+  }, remaining);
+}
 
 const routes = [
   { path: "/", name: "Dashboard", component: Dashboard },
@@ -60,7 +87,11 @@ const routes = [
   { path: "/DetailUser", name: "DetailUser", component: DetailUser },
   { path: "/PlatformsList", name: "Platforms", component: Platforms },
   { path: "/AddPlatform", name: "AddPlatform", component: AddPlatform },
-  { path: "/DetailPlatform", name: "DetailPlatform", component: DetailPlatform },
+  {
+    path: "/DetailPlatform",
+    name: "DetailPlatform",
+    component: DetailPlatform,
+  },
   { path: "/Application", name: "Application", component: Application },
   { path: "/DetailApp", name: "DetailApp", component: DetailApp },
   { path: "/AddUser", name: "AddUser", component: AddUser },
@@ -75,25 +106,50 @@ const routes = [
   { path: "/EditServer", name: "EditServer", component: AddServer },
   { path: "/AddServer", name: "AddServer", component: AddServer },
   { path: "/ServerDetail", name: "ServerDetail", component: ServerDetail },
-  { path: '/CodeUnique', name: 'CodeUnique', component: CodeUnique },
+  { path: "/CodeUnique", name: "CodeUnique", component: CodeUnique },
+  { path: "*", name: "NotFound", component: NotFound },
 ];
-
 
 const router = new Router({
   routes,
-  mode: "history"
+  mode: "history",
 });
 
 router.beforeEach(async (to, from, next) => {
-  const isAuth = await isAuthenticate();
-  if (to.name === "Login" && isAuth) return next({ name: "Dashboard" });
-  if (!isAuth && !["Login", "Authorize"].includes(to.name)) {
+  startRouteLoading();
+
+  try {
+    const isAuth = await isAuthenticate();
+    if (to.name === "Login" && isAuth) return next({ name: "Dashboard" });
+
+    if (!isAuth && !["Login", "Authorize"].includes(to.name)) {
+      const fromName = String(from && from.name ? from.name : "").toLowerCase();
+
+      // Avoid redirecting to Login when already on Login (back-button case),
+      // otherwise the loader can remain visible due to duplicated navigation.
+      if (fromName === "login") {
+        stopRouteLoading();
+        return next(false);
+      }
+
+      return next({ name: "Login" });
+    }
+
+    return next();
+  } catch (error) {
+    stopRouteLoading();
     return next({ name: "Login" });
   }
+});
 
-  return next();
+router.afterEach(() => {
+  stopRouteLoading();
+});
+
+router.onError(() => {
+  stopRouteLoading();
 });
 
 export default router;
-export { router };
+export { router, routeLoadingState };
 window.router = router;

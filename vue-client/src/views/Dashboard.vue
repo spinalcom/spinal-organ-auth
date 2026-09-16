@@ -3,9 +3,14 @@
     <v-main class="ml-12">
       <div>
         <div class="d-flex">
-          <div style="min-width: 325px;">
+          <div style="min-width: 325px">
             <v-icon style="color: black" class="input-icon">mdi-magnify</v-icon>
-            <input v-model="filtersData.search" class="input-menu" placeholder="rechercher" type="text">
+            <input
+              v-model="filtersData.search"
+              class="input-menu"
+              placeholder="rechercher"
+              type="text"
+            />
           </div>
           <!-- <div style="min-width: 500px;">
             <v-icon style="color: black" class="input-icon">mdi-chevron-down</v-icon>
@@ -20,15 +25,21 @@
         <span class="admin-title">ADMINISTRATION</span>
         <div class="menu-card">
           <div class="menu-title">
-            <hr class="line-division">
+            <hr class="line-division" />
             CONFIGURATION
           </div>
           <div class="menu-administraton">
-            <hr style="min-width: 1100px;" class="line-division">
+            <hr style="min-width: 1100px" class="line-division" />
             <div class="container-cardmenu">
-
-              <CardMenu v-for="item in menuList" :key="item.name" :icon="item.icon" :verif="filtersData.search"
-                :link="item.route" :title="item.name" :subtitle="item.subtitle">
+              <CardMenu
+                v-for="item in menuList"
+                :key="item.name"
+                :icon="item.icon"
+                :verif="filtersData.search"
+                :link="item.route"
+                :title="item.name"
+                :subtitle="item.subtitle"
+              >
               </CardMenu>
 
               <!--
@@ -56,20 +67,35 @@
         </div>
         <div class="menu-card">
           <div class="menu-title">
-            <hr class="line-division">
+            <hr class="line-division" />
             CRÉATION
           </div>
           <div class="menu-administraton">
-            <hr style="min-width: 1100px;" class="line-division">
+            <hr style="min-width: 1100px" class="line-division" />
             <div class="container-cardmenu">
-              <CardMenu :icon="'mdi-account'" :verif="filtersData.search" :link="'AddUser'"
-                :title="'AJOUTER UN UTILISATEUR'" :subtitle="'Créer un utilisateur'"></CardMenu>
+              <CardMenu
+                :icon="'mdi-account'"
+                :verif="filtersData.search"
+                :link="'AddUser'"
+                :title="'AJOUTER UN UTILISATEUR'"
+                :subtitle="'Créer un utilisateur'"
+              ></CardMenu>
 
-              <CardMenu :icon="'mdi-apps'" :verif="filtersData.search" :link="'AddApp'"
-                :title="'AJOUTER UNE APPLICATION'" :subtitle="'Créer une application'"></CardMenu>
+              <CardMenu
+                :icon="'mdi-apps'"
+                :verif="filtersData.search"
+                :link="'AddApp'"
+                :title="'AJOUTER UNE APPLICATION'"
+                :subtitle="'Créer une application'"
+              ></CardMenu>
 
-              <CardMenu :icon="'mdi-server-security'" :verif="filtersData.search" :link="'AddServer'"
-                :title="'AJOUTER UN SERVER D\'AUTHENTIFICATION'" :subtitle="'Créer un serveur d\'authentification'">
+              <CardMenu
+                :icon="'mdi-server-security'"
+                :verif="filtersData.search"
+                :link="'AddServer'"
+                :title="'AJOUTER UN SERVER D\'AUTHENTIFICATION'"
+                :subtitle="'Créer un serveur d\'authentification'"
+              >
               </CardMenu>
             </div>
           </div>
@@ -81,8 +107,8 @@
 
 <script>
 import CardMenu from "../Components/CardMenu";
-import { mapState } from 'vuex'
-import { mapActions } from 'vuex'
+import { mapState } from "vuex";
+import { mapActions } from "vuex";
 import { menuList } from "../router/microAppsRoutes";
 export default {
   components: {
@@ -96,21 +122,19 @@ export default {
   }),
   computed: {
     ...mapState({
-      data: state => state.module.data
-    })
-
+      data: (state) => state.module.data,
+    }),
   },
   methods: {
     ...mapActions({
-      fetchData: 'module/fetchData',
-      getToken: 'login/getToken'
+      fetchData: "module/fetchData",
+      getToken: "login/getToken",
     }),
-
   },
   mounted() {
     this.getToken();
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -121,8 +145,8 @@ export default {
 .input-icon {
   background-color: white;
   height: 40px;
-  background: #FFFFFF 0% 0% no-repeat padding-box;
-  border: 1px solid #F0F0F0;
+  background: #ffffff 0% 0% no-repeat padding-box;
+  border: 1px solid #f0f0f0;
   border-right: 0px;
   left: 5px;
   z-index: 1;
@@ -139,8 +163,8 @@ export default {
 }
 
 .input-menu {
-  background: #FFFFFF 0% 0% no-repeat padding-box;
-  border: 1px solid #F0F0F0;
+  background: #ffffff 0% 0% no-repeat padding-box;
+  border: 1px solid #f0f0f0;
   border-bottom-right-radius: 6px;
   border-top-right-radius: 6px;
   height: 40px;
@@ -152,8 +176,8 @@ export default {
 }
 
 .input-select {
-  background: #FFFFFF 0% 0% no-repeat padding-box;
-  border: 1px solid #F0F0F0;
+  background: #ffffff 0% 0% no-repeat padding-box;
+  border: 1px solid #f0f0f0;
   border-bottom-right-radius: 6px;
   border-top-right-radius: 6px;
   height: 40px;
@@ -169,7 +193,7 @@ export default {
 
 .admin-title {
   letter-spacing: 2.2px;
-  color: #9BBCC4;
+  color: #9bbcc4;
   margin-left: 100px;
   font-family: Arial, Helvetica, sans-serif;
   font-weight: 1000;
@@ -196,9 +220,9 @@ export default {
 
 .menu-title {
   letter-spacing: 1.7px;
-  color: #6AA0AD;
+  color: #6aa0ad;
   opacity: 1;
-  color: #6AA0AD;
+  color: #6aa0ad;
   min-width: 91px;
   width: 91px;
   font-size: 7px;
@@ -210,6 +234,6 @@ export default {
 }
 
 hr.line-division {
-  border-top: 1px solid #6AA0AD;
+  border-top: 1px solid #6aa0ad;
 }
 </style>

@@ -1,7 +1,6 @@
 <template>
   <v-app>
     <v-main>
-
       <!-- Modal 1, Autoriser une plateforme -->
       <div v-if="show" class="popup_platform">
         <v-card class="popup">
@@ -10,11 +9,23 @@
           </div>
           <p class="mb-6">AUTORISER UNE PLATFORME</p>
           <div class="choix_platform">
-            <SelectUser style="z-index: 99" v-model="formPlatformObject.platform" @select="getuserfromplatform()"
-              title="PLATFORME" id="userType" :tab="platformList" :value="formPlatformObject.platform" />
+            <SelectUser
+              style="z-index: 99"
+              v-model="formPlatformObject.platform"
+              @select="getuserfromplatform()"
+              title="PLATFORME"
+              id="userType"
+              :tab="platformList"
+              :value="formPlatformObject.platform"
+            />
 
-            <SelectUser v-model="formPlatformObject.userProfileValue" :tab="userProfileList"
-              title="PROFILE D'UTILISATEUR" id="userType" :value="formPlatformObject.userProfileValue" />
+            <SelectUser
+              v-model="formPlatformObject.userProfileValue"
+              :tab="userProfileList"
+              title="PROFILE D'UTILISATEUR"
+              id="userType"
+              :value="formPlatformObject.userProfileValue"
+            />
           </div>
           <div @click="editUserPlatform()" class="mt-4 ml-1 popup-btn-ajouter">
             <span>AJOUTER</span>
@@ -25,7 +36,6 @@
         </v-card>
       </div>
 
-
       <!-- Modal 2, Modifier le mot de passe -->
       <div v-if="showrestpass" class="popup_platform">
         <v-card class="popup">
@@ -35,11 +45,25 @@
             {{ passwordErrorMessages[passwordError] }}
           </v-alert>
 
-          <InputPass :required="true" v-model="auth_password" class="entrance" title="MOT DE PASSE DE l'ADMINISTRATEUR"
-            id="password" @input="passwordError = null" />
+          <InputPass
+            :required="true"
+            v-model="auth_password"
+            class="entrance"
+            title="MOT DE PASSE DE l'ADMINISTRATEUR"
+            id="password"
+            @input="passwordError = null"
+          />
 
-          <InputPass :required="true" :generate="true" v-model="password" class="entrance" title="NOUVEAU MOT DE PASSE"
-            id="password" @input="passwordError = null" @generate="generatePassword" />
+          <InputPass
+            :required="true"
+            :generate="true"
+            v-model="password"
+            class="entrance"
+            title="NOUVEAU MOT DE PASSE"
+            id="password"
+            @input="passwordError = null"
+            @generate="generatePassword"
+          />
 
           <div @click="editUserPassWord" class="mt-2 ml-1 popup-btn-ajouter">
             <span>MODIFIER</span>
@@ -53,27 +77,37 @@
 
       <!-- Fin des modals -->
 
-      <InformationBar v-on:btn1="showplatform()" v-on:btn2="displayEditUser()" v-on:btn3="deletebtn()"
-        v-on:btn4="showrestpass = true" :title="this.detailUser.userName"
-        :icon="require('../assets/image/USE_icon.svg')">
+      <InformationBar
+        v-on:btn1="showplatform()"
+        v-on:btn2="displayEditUser()"
+        v-on:btn3="deletebtn()"
+        v-on:btn4="showrestpass = true"
+        :title="this.detailUser.userName"
+        :icon="require('../assets/image/USE_icon.svg')"
+      >
         <div class="d-flex flex-column">
-          <div class="textDiv d-flex  mr-16">
+          <div class="textDiv d-flex mr-16">
             <span class="bar-sub-title">NOM D'UTILISATEUR</span>
-            <span class="bar-information">{{ this.detailUser.userName || "-" }}</span>
+            <span class="bar-information">{{
+              this.detailUser.userName || "-"
+            }}</span>
           </div>
-          <div class="textDiv d-flex  mr-16" :title="this.detailUser.email">
+          <div class="textDiv d-flex mr-16" :title="this.detailUser.email">
             <span class="bar-sub-title">EMAIL</span>
-            <span class="bar-information">{{ this.detailUser.email || "-" }}</span>
+            <span class="bar-information">{{
+              this.detailUser.email || "-"
+            }}</span>
           </div>
           <!-- <div class="d-flex flex-column mr-16" :title="this.detailUser.email">
             <span class="bar-sub-title">TYPE</span>
             <span class="bar-information">{{ this.detailUser.type }}</span>
           </div> -->
-          <div class="textDiv d-flex  mr-16" :title="this.detailUser.telephone">
+          <div class="textDiv d-flex mr-16" :title="this.detailUser.telephone">
             <span class="bar-sub-title">TELEPHONE</span>
-            <span class="bar-information">{{ this.detailUser.telephone || "-" }}</span>
+            <span class="bar-information">{{
+              this.detailUser.telephone || "-"
+            }}</span>
           </div>
-
         </div>
         <!-- <div class="d-flex flex-column mr-16">
           <span class="bar-sub-title">INFO</span>
@@ -86,10 +120,18 @@
           <v-tab-item>
             <v-card style="background-color: #f7f7f7">
               <div @click="affichage()">
-                <v-data-table fixed-header style="background-color: #f7f7f7" :footer-props="{
-                  'items-per-page-options': [10, -1],
-                }" :items-per-page="30" height="45vh" :headers="headers1" :items="this.platformObjectList"
-                  :search="search">
+                <v-data-table
+                  fixed-header
+                  style="background-color: #f7f7f7"
+                  :footer-props="{
+                    'items-per-page-options': [10, -1],
+                  }"
+                  :items-per-page="30"
+                  height="45vh"
+                  :headers="headers1"
+                  :items="this.platformObjectList"
+                  :search="search"
+                >
                 </v-data-table>
               </div>
             </v-card>
@@ -98,12 +140,26 @@
             <!-- <v-card style="background-color: #f7f7f7"> -->
             <div @click="affichage()">
               <v-card-title>
-                <v-text-field v-model="search" append-icon="mdi-magnify" label="Rechercher" outlined hide-details>
+                <v-text-field
+                  v-model="search"
+                  append-icon="mdi-magnify"
+                  label="Rechercher"
+                  outlined
+                  hide-details
+                >
                 </v-text-field>
               </v-card-title>
-              <v-data-table fixed-header :footer-props="{
-                'items-per-page-options': [10, -1],
-              }" :items-per-page="30" height="45vh" :headers="headers" :items="this.formattedLogList" :search="search">
+              <v-data-table
+                fixed-header
+                :footer-props="{
+                  'items-per-page-options': [10, -1],
+                }"
+                :items-per-page="30"
+                height="45vh"
+                :headers="headers"
+                :items="this.formattedLogList"
+                :search="search"
+              >
               </v-data-table>
             </div>
             <!-- </v-card> -->
@@ -117,12 +173,22 @@
 <script>
 import InformationBar from "../Components/InformationBar.vue";
 import BackupInformation from "../Components/BackupInformation.vue";
-import BlueButton from "../Components/BlueButton.vue";
 import Tabs from "../Components/Tabs.vue";
-import FiltreBar from "../Components/FiltreBar.vue";
 import SelectUser from "../Components/SelectUser.vue";
 import { mapActions, mapGetters } from "vuex";
 import InputPass from "../Components/InputPassword.vue";
+
+const PASSWORD_ERROR_TYPES = {
+  minLength: "minLength",
+  authPassword: "authPassword",
+};
+
+const PASSWORD_ERROR_MESSAGES = {
+  [PASSWORD_ERROR_TYPES.minLength]:
+    "Le mot de passe doit contenir au moins 8 caracteres.",
+  [PASSWORD_ERROR_TYPES.authPassword]:
+    "Le mot de passe de l'admin est incorrect.",
+};
 
 export default {
   name: "App",
@@ -130,28 +196,14 @@ export default {
     InformationBar,
     BackupInformation,
     Tabs,
-    FiltreBar,
     SelectUser,
-    BlueButton,
     InputPass,
   },
   data() {
-    this.passwordErrorTypes = {
-      minLength: "minLength",
-      authPassword: "authPassword",
-    };
-
-    this.passwordErrorMessages = {
-      [this.passwordErrorTypes.minLength]:
-        "Le mot de passe doit contenir au moins 8 caractères.",
-
-      [this.passwordErrorTypes.authPassword]:
-        "Le mot de passe de l'admin est incorrect.",
-    };
-
     return {
+      passwordErrorTypes: PASSWORD_ERROR_TYPES,
+      passwordErrorMessages: PASSWORD_ERROR_MESSAGES,
       passwordError: null,
-      newuser: {},
       password: "",
       auth_password: "",
 
@@ -188,6 +240,25 @@ export default {
       updateUserPassWord: "users/updateUserPassword",
     }),
 
+    getEditableUser() {
+      const clone = JSON.parse(JSON.stringify(this.detailUser || {}));
+      delete clone.type;
+      delete clone.id;
+      delete clone.name;
+
+      if (Array.isArray(clone.platformList)) {
+        clone.platformList = clone.platformList.map((platform) => {
+          const mapped = { ...platform };
+          delete mapped.idPlatformOfAdmin;
+          return mapped;
+        });
+      } else {
+        clone.platformList = [];
+      }
+
+      return clone;
+    },
+
     copiepass() {
       const dummyElement = document.createElement("input");
       dummyElement.value = this.password;
@@ -210,37 +281,33 @@ export default {
           .then(() => {
             this.passwordError = null;
             this.showrestpass = false;
+            this.auth_password = "";
+            this.password = "";
           })
           .catch((error) => {
             this.passwordError = this.passwordErrorTypes.authPassword;
-            console.log(error);
+            console.error(error);
           });
-
       } else {
         this.passwordError = this.passwordErrorTypes.minLength;
       }
-
     },
 
     editUser() {
       if (this.auth_password.length > 8 && this.password.length > 8) {
-        this.newuser = this.detailUser;
-        this.newuser.password = this.password;
-        this.formateduser();
-        var profile = [this.newuser, this.$route.query.id];
+        const newUser = this.getEditableUser();
+        newUser.password = this.password;
+        const profile = [newUser, this.$route.query.id];
         this.editUserPass(profile);
         this.showrestpass = false;
       }
     },
 
     editUserPlatform() {
-      // console.log('toto');
       this.show = false;
-      this.newuser = this.detailUser;
-      this.formateduser();
-      // console.log(this.formPlatformObject.userProfileValue);
+      const newUser = this.getEditableUser();
 
-      let newPlatform = {
+      const newPlatform = {
         platformId: this.formPlatformObject.platform.id,
         platformName: this.formPlatformObject.platform.name,
         userProfile: {
@@ -251,31 +318,17 @@ export default {
         },
       };
 
-      // console.log(newPlatform);
-      let existingPlatform = this.newuser.platformList.some(
+      const existingPlatform = newUser.platformList.some(
         (platform) => platform.platformName === newPlatform.platformName
       );
 
       if (existingPlatform) {
-        console.log("Error: Platform name already exists.");
-        alert("Error: Platform name already exists.");
+        alert("Erreur : le nom de la plateforme existe deja.");
       } else {
-        this.newuser.platformList.push(newPlatform);
-        var profile = [this.newuser, this.$route.query.id];
+        newUser.platformList.push(newPlatform);
+        const profile = [newUser, this.$route.query.id];
         this.editUserPass(profile);
-        // console.log('pas pareil');
       }
-
-      // console.log(this.newuser);
-    },
-
-    formateduser() {
-      delete this.newuser.type;
-      delete this.newuser.id;
-      delete this.newuser.name;
-      this.newuser.platformList.forEach((platform) => {
-        delete platform.idPlatformOfAdmin;
-      });
     },
 
     generatePassword() {
@@ -300,13 +353,12 @@ export default {
 
     showplatform() {
       this.show = true;
-      // console.log(this.platformList);
     },
 
     ...mapActions({ deleteUser: "users/deleteUser" }),
 
     deletebtn() {
-      var user = {
+      const user = {
         id: this.$route.query.id,
         name: this.detailUser.userName,
       };
@@ -325,19 +377,18 @@ export default {
       });
     },
     affichage() {
-      var a = document.querySelector(
+      const menu = document.querySelector(
         "#app > div.v-menu__content.theme--light.menuable__content__active"
       );
-      if (a != null) {
-        a.style.position = "fixed";
+      if (menu) {
+        menu.style.position = "fixed";
       }
     },
     getDataFromStore() {
       this.$store.dispatch("users/getplatformList");
     },
     async getuserfromplatform() {
-      var id = this.formPlatformObject.platform.id;
-      // console.log(id);
+      const id = this.formPlatformObject.platform.id;
       this.userProfileList = await this.$store.dispatch(
         "users/getUserProfileList",
         id
@@ -353,8 +404,10 @@ export default {
     }),
     formattedLogList() {
       return this.logList.map((log) => {
-        log.date = new Date(log.date).toLocaleString();
-        return log;
+        return {
+          ...log,
+          date: new Date(log.date).toLocaleString(),
+        };
       });
     },
   },
@@ -390,7 +443,7 @@ export default {
   justify-content: space-between;
 }
 
-.v-data-table>>>td {
+.v-data-table >>> td {
   background-color: white;
   border-top: 10px solid #f7f7f7;
   border-bottom: solid 0px black !important;
@@ -398,16 +451,39 @@ export default {
   font-size: 11px !important;
 }
 
-#content>div>main>div>div.d-flex.flex-column.rounded-lg.backup-bar.v-card.v-sheet.theme--light.elevation-2>div.v-tabs.v-tabs--grow.theme--light>div.v-window.v-item-group.theme--light.v-tabs-items>div>div.v-window-item.v-window-item--active>div>div>div.v-card__title>div {
+#content
+  > div
+  > main
+  > div
+  > div.d-flex.flex-column.rounded-lg.backup-bar.v-card.v-sheet.theme--light.elevation-2
+  > div.v-tabs.v-tabs--grow.theme--light
+  > div.v-window.v-item-group.theme--light.v-tabs-items
+  > div
+  > div.v-window-item.v-window-item--active
+  > div
+  > div
+  > div.v-card__title
+  > div {
   margin-top: 0;
   padding-top: 0;
 }
 
-.v-data-table>>>th {
+.v-data-table >>> th {
   background: #f7f7f7 !important;
 }
 
-#content>div>main>div>div.d-flex.flex-column.rounded-lg.backup-bar.v-card.v-sheet.theme--light.elevation-2>div.v-tabs.v-tabs--grow.theme--light>div.v-window.v-item-group.theme--light.v-tabs-items>div>div.v-window-item.v-window-item--active>div>div>div.v-card__title {
+#content
+  > div
+  > main
+  > div
+  > div.d-flex.flex-column.rounded-lg.backup-bar.v-card.v-sheet.theme--light.elevation-2
+  > div.v-tabs.v-tabs--grow.theme--light
+  > div.v-window.v-item-group.theme--light.v-tabs-items
+  > div
+  > div.v-window-item.v-window-item--active
+  > div
+  > div
+  > div.v-card__title {
   padding: 10px;
   background-color: white;
   border: 1px solid #e3e7e8;

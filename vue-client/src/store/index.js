@@ -38,7 +38,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    count: 2
+    count: 2,
   },
   mutations: {},
   actions: {},
@@ -51,6 +51,6 @@ export default new Vuex.Store({
     logs,
     authorization,
     serverLogin,
-    codeUnique
-  }
+    codeUnique,
+  },
 });

@@ -27,15 +27,34 @@ import router from "../router";
 export default {
   namespaced: true,
   state: {
-    data: []
+    data: [],
   },
   getters: {
-    dataList: state => state.data
+    dataList: (state) => state.data,
   },
   actions: {
-    logout() {
-      localStorage.removeItem("token");
-      router.push("/Login");
+    async logout() {
+      const token = localStorage.getItem("token");
+
+      try {
+        if (token) {
+          await instanceAxios.instanceAxios.post(
+            "/tokens/revokeToken",
+            { token },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                "x-access-token": token,
+              },
+            }
+          );
+        }
+      } catch (error) {
+        console.error("Error while revoking token:", error);
+      } finally {
+        localStorage.removeItem("token");
+        router.replace("/Login");
+      }
     },
     async login(context, formuser) {
       try {
@@ -50,8 +69,8 @@ export default {
       const rep = await instanceAxios.instanceAxios.get("/users", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token")
-        }
+          "x-access-token": localStorage.getItem("token"),
+        },
       });
       // console.log(rep.data);
     },
@@ -60,13 +79,13 @@ export default {
       const rep = await instanceAxios.instanceAxios.get("/tokens/UserToken", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token")
-        }
+          "x-access-token": localStorage.getItem("token"),
+        },
       });
       // console.log(rep.data);
-    }
+    },
   },
   mutations: {
-    setData: (state, data) => (state.data = data)
-  }
+    setData: (state, data) => (state.data = data),
+  },
 };

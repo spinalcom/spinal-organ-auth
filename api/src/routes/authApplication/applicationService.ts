@@ -264,6 +264,7 @@ export class ApplicationService {
 			type: application.getType().get(),
 			name: application.getName().get(),
 			appType: application.info.appType?.get() || "",
+			redirectUri: application.info.redirectUri?.get() || "",
 			grant_types: application.info.grant_types?.get() || [],
 			clientId: application.info.clientId.get(),
 			clientSecret: application.info.clientSecret.get(),

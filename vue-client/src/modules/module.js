@@ -22,27 +22,24 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import axios from 'axios';
+import axios from "axios";
 export default {
   namespaced: true,
   state: {
-    data: []
+    data: [],
   },
   getters: {
-    dataList: state => state.data
+    dataList: (state) => state.data,
   },
   actions: {
     async fetchData({ commit }) {
-      const response = await axios.get("http://localhost:9056/api/v1/context/list");
+      const response = await axios.get(
+        "http://localhost:9056/api/v1/context/list"
+      );
       commit("setData", response.data);
-    }
+    },
   },
   mutations: {
-    setData: (state, data) => (
-      state.data = data
-    )
-  }
-}
-
-
-
+    setData: (state, data) => (state.data = data),
+  },
+};

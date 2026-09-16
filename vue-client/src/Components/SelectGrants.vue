@@ -7,8 +7,13 @@
         <span class="arrow" :class="{ 'arrow-rotate': rotateArrow }"></span>
       </div>
       <div class="options" v-show="showOptions">
-        <div v-for="(item, index) in tab" :key="index" class="option"
-          :class="{ selected: selectedValue.includes(item.value) }" @click="selectItem(item.value)">
+        <div
+          v-for="(item, index) in tab"
+          :key="index"
+          class="option"
+          :class="{ selected: selectedValue.includes(item.value) }"
+          @click="selectItem(item.value)"
+        >
           {{ item.name }}
         </div>
       </div>
@@ -47,7 +52,9 @@ export default {
       const isAreadySelected = this.selectedValue.includes(item);
 
       if (isAreadySelected) {
-        this.selectedValue = this.selectedValue.filter((value) => value !== item);
+        this.selectedValue = this.selectedValue.filter(
+          (value) => value !== item
+        );
       } else {
         this.selectedValue = [...this.selectedValue, item];
       }
@@ -55,7 +62,6 @@ export default {
       this.$emit("input", this.selectedValue);
       this.$emit("select", this.selectedValue); // émettre l'événement 'select'
       // this.showOptions = false;
-
     },
 
     toggleOptions() {
@@ -72,7 +78,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 .custom-select {

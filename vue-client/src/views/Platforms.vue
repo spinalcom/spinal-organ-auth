@@ -1,40 +1,43 @@
 <template>
   <v-card class="platformListCard" elevation="4">
-
     <div class="addPlatformBtn">
       <!-- <BlueButton @click.native="goToCreatePlatform()" :icon="'mdi-plus'" title="AJOUTER UNE PLATEFORME"
         :val="'blue'" /> -->
 
+      <v-text-field v-model="search" class="platformSearch" append-icon="mdi-magnify" label="Rechercher" outlined dense
+        clearable hide-details></v-text-field>
+
       <v-btn color="#14202C" dark large @click.native="goToCreatePlatform()">
-        <v-icon left>
-          mdi-plus
-        </v-icon>
+        <v-icon left> mdi-plus </v-icon>
         AJOUTER UNE PLATEFORME
       </v-btn>
     </div>
 
+    <div v-if="isUsingDemoData" class="demoDataInfo">
+      Donnees de demonstration affichees (liste API vide)
+    </div>
 
-    <v-data-table class="tableContent" :headers="headers" :items="platformList" disable-pagination hide-default-footer>
-
-      <template v-slot:item.userProfiles="{ item }">
+    <v-data-table class="tableContent" :headers="headers" :items="displayedPlatformList" :search="search"
+      disable-pagination hide-default-footer>
+      <template slot="item.userProfiles" slot-scope="{ item }">
         {{ item.userProfiles.length }}
       </template>
 
-      <template v-slot:item.organs="{ item }">
+      <template slot="item.organs" slot-scope="{ item }">
         {{ item.organs.length }}
       </template>
 
-      <template v-slot:item.appProfiles="{ item }">
+      <template slot="item.appProfiles" slot-scope="{ item }">
         {{ item.appProfiles.length }}
       </template>
 
-      <template v-slot:item.lastSyncTime="{ item }">
+      <template slot="item.lastSyncTime" slot-scope="{ item }">
         <div class="btn-valider-user">
           <span>{{ getLastTimeSyncValue(item.lastSyncTime) }}</span>
         </div>
       </template>
 
-      <template v-slot:item.actions="{ item }">
+      <template slot="item.actions" slot-scope="{ item }">
         <div class="actions">
           <div class="btn-valider-user rounded-r-lg pr-2 hover">
             <button @click="deletePlatform(item)" title="Supprimer">
@@ -60,80 +63,44 @@
             </button>
           </div>
         </div>
-
       </template>
     </v-data-table>
   </v-card>
-
 </template>
 
 <script>
-import BlueButton from "../Components/BlueButton.vue";
-import StatutButton from "../Components/StatutButton.vue";
-import InputUser from "../Components/InputUser.vue";
-import BachupInformation from "../Components/BackupInformation.vue";
-import StateButton from "../Components/StateButton.vue";
-import InputPassword from "../Components/InputPassword.vue";
-import { mapActions, mapGetters } from "vuex";
+import { mapGetters } from "vuex";
 import * as moment from "moment";
-// import test from "./test";
+import { askConfirmation } from "../services/popup";
+
 
 export default {
   name: "App",
-  components: {
-    BlueButton,
-    BachupInformation,
-    StatutButton,
-    InputUser,
-    StateButton,
-    InputPassword,
-  },
   data: () => ({
-    // token: "",
-    show: false,
-    // searched: test,
+    search: "",
     headers: [
       { cellClass: "longText", text: "Nom", value: "name", width: "300px" },
-      { cellClass: "longText", text: "Id client", value: "clientId", width: "300px" },
+      {
+        cellClass: "longText",
+        text: "Id client",
+        value: "clientId",
+        width: "300px",
+      },
       { text: "Nombre de Profil d'utilisateur", value: "userProfiles" },
       { text: "Nombre d'organe", value: "organs" },
       { text: "Nombre de Profil d'application", value: "appProfiles" },
       { text: "dernière synchronisation", value: "lastSyncTime" },
       { text: "", value: "actions", width: "300px" },
     ],
-    // headers: [
-    //   { cellClass: "longText", text: "Nom", value: "name", width: "calc(50% - 450px)" },
-    //   { cellClass: "longText", text: "Id client", value: "clientId", width: "calc(50% - 450px)" },
-    //   { text: "Nombre de Profil d'utilisateur", value: "userProfiles", width: "150px" },
-    //   { text: "Nombre d'organe", value: "organs", width: "150px" },
-    //   { text: "Nombre de Profil d'application", value: "appProfiles", width: "150px" },
-    //   { text: "dernière synchronisation", value: "lastSyncTime", width: "200px" },
-    //   { text: "", value: "actions", width: "250px" },
-    // ],
   }),
 
-  filters: {
-    formatDate(val) {
-      return moment(val).fromNow();
-    }
-  },
-
   methods: {
-
     getLastTimeSyncValue(date) {
-      console.log("date", date)
-      return date ? moment(date).fromNow() : "never"
+      return date ? moment(date).fromNow() : "never";
     },
 
     getDataFromStore() {
       this.$store.dispatch("platforms/getPlatformlist");
-      this.$store.dispatch("platforms/getRegisterKey");
-      // this.$store.dispatch('platforms/getApplications');
-    },
-
-    async generateKey() {
-      this.show = true;
-      this.generateRegisterKey();
     },
 
     goToCreatePlatform() {
@@ -144,36 +111,36 @@ export default {
       this.$router.push({ name: "DetailPlatform", query: { id: item.id } });
     },
 
-    deletePlatform(item) {
-      const res = confirm(`Voulez-vous supprimer la plateforme "${item.name}"`);
+    async deletePlatform(item) {
+      const res = await askConfirmation(
+        `Voulez-vous supprimer la plateforme "${item.name}"`
+      );
       if (res) this.$store.dispatch("platforms/deletePlatform", item.id);
     },
 
     syncData(platform) {
-      this.$store.dispatch("platforms/syncData", { paltformId: platform.id })
+      this.$store.dispatch("platforms/syncData", { paltformId: platform.id });
     },
 
     goToEdit(plateforme) {
       this.$router.push({ name: "EditPlatform", query: { id: plateforme.id } });
     },
-
-    ...mapActions({
-      generateRegisterKey: "platforms/generateRegisterKey",
-    }),
-
-    getStatus(status) {
-      return status ? status : "unknown";
-    },
   },
   computed: {
     ...mapGetters({
       platformList: "platforms/platformList",
-      registerKey: "platforms/registerKey",
     }),
-    token() {
-      return this.registerKey && this.registerKey.value
-        ? this.registerKey.value
-        : null;
+    displayedPlatformList() {
+      if (Array.isArray(this.platformList) && this.platformList.length > 0) {
+        return this.platformList;
+      }
+
+      return [];
+    },
+    isUsingDemoData() {
+      return (
+        !Array.isArray(this.platformList) || this.platformList.length === 0
+      );
     },
   },
   created() {
@@ -194,8 +161,23 @@ export default {
   width: 100%;
   height: 70px;
   display: flex;
+  gap: 12px;
   justify-content: flex-end;
   align-items: center;
+}
+
+.platformSearch {
+  max-width: 320px;
+}
+
+.demoDataInfo {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  font-size: 12px;
 }
 
 .actions {
@@ -210,8 +192,6 @@ export default {
   overflow-y: auto;
   background: transparent;
 }
-
-
 
 .btn-valider-user {
   height: 100%;
@@ -321,7 +301,6 @@ export default {
 
  */
 </style>
-
 
 <style>
 .tableContent th {

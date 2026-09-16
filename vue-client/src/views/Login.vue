@@ -1,14 +1,12 @@
 <template>
   <v-app>
     <div class="app">
-
-
       <v-card class="pops" elevation="4">
         <!-- <div class="popup-closebtn">
         <span>X</span>
       </div> -->
         <p class="mb-12 title">CONNEXION</p>
-        <div class="form_div">
+        <form class="form_div" novalidate @submit.prevent="submitLogin">
           <v-alert type="error" v-show="displayError">
             Username and/or password incorrect !
           </v-alert>
@@ -21,13 +19,10 @@
             <InputPass title="MOT DE PASSE" id="clientSecret" v-model="formUser.password"
               @input="displayError = false" />
           </div>
-
-        </div>
-
-        <div @click="login()" class="mt-4 ml-1 popup-btn-fermer">
-          <span>VALIDER</span>
-        </div>
-
+          <button type="submit" class="mt-4 ml-1 popup-btn-fermer">
+            <span>VALIDER</span>
+          </button>
+        </form>
       </v-card>
     </div>
   </v-app>
@@ -56,7 +51,7 @@ export default {
   },
 
   methods: {
-    login() {
+    submitLogin() {
       this.$store.dispatch("login/login", this.formUser).catch((err) => {
         this.displayError = true;
       });
@@ -76,12 +71,11 @@ export default {
   display: flex !important;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(121deg, #f8fafa, #d6e2e6) !important;
 }
 
 .app .pops {
-  width: 600px;
-  min-height: 360px;
+  width: 500px;
+  min-height: 350px;
   padding: 20px;
 }
 
@@ -98,14 +92,10 @@ export default {
   justify-content: space-between;
 }
 
-
-
-
-
 .popup-btn-fermer {
   /* right: 20px;
   bottom: 20px; */
-  width: 145px;
+  width: 100%;
   height: 40px;
   float: right;
   background-color: #14202c;

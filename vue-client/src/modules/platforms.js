@@ -35,16 +35,16 @@ export default {
     platformlog: [],
     appListLinkPlatform: [],
     userListLinkPlatform: [],
-    loginServerList: []
+    loginServerList: [],
   },
   getters: {
-    platformList: state => state.platformlist,
-    registerKey: state => state.registerKey,
-    platform: state => state.platform,
-    platformlog: state => state.platformlog,
-    appListLinkPlatform: state => state.appListLinkPlatform,
-    userListLinkPlatform: state => state.userListLinkPlatform,
-    loginServerList: state => state.loginServerList
+    platformList: (state) => state.platformlist,
+    registerKey: (state) => state.registerKey,
+    platform: (state) => state.platform,
+    platformlog: (state) => state.platformlog,
+    appListLinkPlatform: (state) => state.appListLinkPlatform,
+    userListLinkPlatform: (state) => state.userListLinkPlatform,
+    loginServerList: (state) => state.loginServerList,
   },
   actions: {
     async savePlatform({ commit }, platform) {
@@ -54,8 +54,8 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token")
-          }
+            "x-access-token": localStorage.getItem("token"),
+          },
         }
       );
       commit("addPlatform", rep.data);
@@ -65,8 +65,8 @@ export default {
       const rep = await instanceAxios.instanceAxios.get("/users", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token")
-        }
+          "x-access-token": localStorage.getItem("token"),
+        },
       });
       // console.log(platformId);
       console.log("rep.data", rep.data);
@@ -91,8 +91,8 @@ export default {
       const rep = await instanceAxios.instanceAxios.get("/applications", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token")
-        }
+          "x-access-token": localStorage.getItem("token"),
+        },
       });
       dispatch("getAPPSFromPltaform", { platformId, data: rep.data });
     },
@@ -117,8 +117,8 @@ export default {
       const rep = await instanceAxios.instanceAxios.get("/platforms", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token")
-        }
+          "x-access-token": localStorage.getItem("token"),
+        },
       });
       this.platformList = rep.data;
       const test = await Promise.all(
@@ -139,13 +139,12 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token")
-          }
+            "x-access-token": localStorage.getItem("token"),
+          },
         }
       );
       commit("setPlatformLog", rep.data);
     },
-
 
     async getServerList({ commit }, platformId) {
       const rep = await instanceAxios.instanceAxios.get(
@@ -153,28 +152,30 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token")
-          }
+            "x-access-token": localStorage.getItem("token"),
+          },
         }
       );
       commit("setPlatformServerList", rep.data);
-      return rep.data
+      return rep.data;
     },
     async deletePlatform({ commit, dispatch }, platformId) {
       try {
-        const rep = await instanceAxios.instanceAxios.delete(`/platforms/${platformId}`, {
-          headers: {
-            "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token")
+        const rep = await instanceAxios.instanceAxios.delete(
+          `/platforms/${platformId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token": localStorage.getItem("token"),
+            },
           }
-        });
+        );
 
         // console.log(test);
         commit("deletePlatform", platformId);
       } catch (error) {
         console.error(error);
       }
-
     },
 
     async getPlatformInfo({ commit }, platformId) {
@@ -183,8 +184,8 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token")
-          }
+            "x-access-token": localStorage.getItem("token"),
+          },
         }
       );
       return rep.data;
@@ -204,8 +205,8 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token")
-          }
+            "x-access-token": localStorage.getItem("token"),
+          },
         }
       );
       return rep.data;
@@ -217,8 +218,8 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token")
-          }
+            "x-access-token": localStorage.getItem("token"),
+          },
         }
       );
       return rep.data;
@@ -230,8 +231,8 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token")
-          }
+            "x-access-token": localStorage.getItem("token"),
+          },
         }
       );
       return rep.data;
@@ -244,8 +245,8 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token")
-          }
+            "x-access-token": localStorage.getItem("token"),
+          },
         }
       );
       commit("setregisterkey", rep.data);
@@ -255,8 +256,8 @@ export default {
       const rep = await instanceAxios.instanceAxios.get("/registerKey", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token")
-        }
+          "x-access-token": localStorage.getItem("token"),
+        },
       });
       commit("setregisterkey", rep.data);
     },
@@ -268,29 +269,36 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token")
-          }
+            "x-access-token": localStorage.getItem("token"),
+          },
         }
       );
     },
     async syncData({ commit }, { paltformId }) {
       const rep = await instanceAxios.instanceAxios.post(
-        `/platforms/updatePlatformData/${paltformId}`, {},
+        `/platforms/updatePlatformData/${paltformId}`,
+        {},
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token")
-          }
+            "x-access-token": localStorage.getItem("token"),
+          },
         }
       );
-      commit("updateSyncDate", { platformId: paltformId, date: rep.data.lastSyncTime });
-    }
+      commit("updateSyncDate", {
+        platformId: paltformId,
+        date: rep.data.lastSyncTime,
+      });
+    },
   },
   mutations: {
     addPlatform: (state, platform) =>
       (state.platformlist = [...state.platformlist, platform]),
 
-    deletePlatform: (state, platformId) => (state.platformlist = state.platformlist.filter(el => el.id !== platformId)),
+    deletePlatform: (state, platformId) =>
+      (state.platformlist = state.platformlist.filter(
+        (el) => el.id !== platformId
+      )),
     setplatformList: (state, platformlist) =>
       (state.platformlist = platformlist),
     setregisterkey: (state, registerKey) => (state.registerKey = registerKey),
@@ -301,7 +309,8 @@ export default {
     setuserListLinkPlatform: (state, userListLinkPlatform) =>
       (state.userListLinkPlatform = userListLinkPlatform),
 
-    setPlatformServerList: (state, servers) => (state.loginServerList = servers),
+    setPlatformServerList: (state, servers) =>
+      (state.loginServerList = servers),
     updateSyncDate: (state, { platformId, date }) => {
       let i = -1;
       const platform = state.platformlist.find((p, index) => {
@@ -316,7 +325,6 @@ export default {
         platform.lastSyncTime = date;
         state.platformlist.splice(i, 1, platform);
       }
-
-    }
-  }
+    },
+  },
 };

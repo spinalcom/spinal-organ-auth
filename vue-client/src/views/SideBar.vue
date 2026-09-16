@@ -2,28 +2,41 @@
   <v-app>
     <v-main>
       <div class="navBarItem">
-        <div @click="menu2IsOpen ? menu2IsOpen = false : menu2IsOpen = true" class="navBarDropMenu">
+        <div @click="toggleUserMenu" class="navBarDropMenu">
           <div class="list"></div>
           <div class="list"></div>
           <div class="list"></div>
         </div>
-        <div v-on:mouseleave="menu2IsOpen = false" v-if="menu2IsOpen" class="menu2">
+        <div
+          v-on:mouseleave="menu2IsOpen = false"
+          v-if="menu2IsOpen"
+          class="menu2"
+        >
           <div @click="logout" class="btn_menu2">Déconnexion</div>
         </div>
         <a href="https://www.spinalcom.com">
           <div class="navBarIcon">
-            <img width="100" src="../assets/logo1.jpg" alt="">
+            <img width="100" src="../assets/logo1.jpg" alt="" />
           </div>
         </a>
-        <div v-on:mouseleave="menuIsOpen = false" @click="menuIsOpen ? menuIsOpen = false : menuIsOpen = true"
-          :style="menuIsOpen ? 'border : 1px solid black' : ''" class="navBarSelector">
+        <div
+          v-on:mouseleave="menuIsOpen = false"
+          @click="toggleAppMenu"
+          :style="menuIsOpen ? 'border : 1px solid black' : ''"
+          class="navBarSelector"
+        >
           <span class="mt-1">
-            <v-icon class="mr-2" color="black">{{ itemSelected.icon }}</v-icon>
-            {{ itemSelected.name }}
+            <v-icon class="mr-2" color="black">{{ selectedItem.icon }}</v-icon>
+            {{ selectedItem.name }}
           </span>
           <div class="navBarSelectorTitle">APPLICATION</div>
           <div v-if="menuIsOpen" class="navBarItemSelection">
-            <div @click="gotoView(item)" v-for="(item, index) in menuList" :key="index" class="navBarItemElement">
+            <div
+              @click="gotoView(item)"
+              v-for="item in menuList"
+              :key="item.route || item.name"
+              class="navBarItemElement"
+            >
               <v-icon class="mr-2" color="black">{{ item.icon }}</v-icon>
               {{ item.name }}
             </div>
@@ -34,67 +47,77 @@
   </v-app>
 </template>
 <script>
-import { mapActions } from 'vuex';
+import { mapActions } from "vuex";
 import { menuList } from "../router/microAppsRoutes";
 
-
 export default {
-
   data() {
     return {
-
       menuList: [
-        { name: "Toutes les applications", icon: "mdi-chart-tree", route: "", subRoutes: [] },
-        ...menuList
+        {
+          name: "Toutes les applications",
+          icon: "mdi-chart-tree",
+          route: "",
+          subRoutes: [],
+        },
+        ...menuList,
       ],
 
       menuIsOpen: false,
       menu2IsOpen: false,
-      itemSelected: false,
-      currentRoute: ''
+      itemSelected: null,
     };
   },
-  components: {
-
-  },
   methods: {
+    toggleUserMenu() {
+      this.menu2IsOpen = !this.menu2IsOpen;
+    },
+
+    toggleAppMenu() {
+      this.menuIsOpen = !this.menuIsOpen;
+    },
 
     gotoView(item) {
-      let currentPath = this.$route.path;
-      if (currentPath != "/" + item.route) {
+      const currentPath = this.$route.path;
+      if (currentPath !== "/" + item.route) {
         this.$router.push("/" + item.route);
         this.itemSelected = item;
       }
     },
 
     checkroute() {
-
       const path = this.$route.path.replace(/^\//, "");
 
-      const found = this.menuList.find(item => {
-        if (item.route.toLowerCase() == path.toLowerCase()) return true;
-        const subRoute = item.subRoutes.find(subItem => subItem.toLowerCase() == path.toLowerCase());
+      const found = this.menuList.find((item) => {
+        if (item.route.toLowerCase() === path.toLowerCase()) return true;
+        const subRoute = item.subRoutes.find(
+          (subItem) => subItem.toLowerCase() === path.toLowerCase()
+        );
         if (subRoute) return true;
         return false;
       });
 
       if (found) this.itemSelected = found;
       else this.itemSelected = this.menuList[0];
-
     },
     ...mapActions({
-      logout: 'login/logout'
+      logout: "login/logout",
     }),
+  },
+  computed: {
+    selectedItem() {
+      return this.itemSelected || this.menuList[0];
+    },
   },
   created() {
     this.checkroute();
   },
   watch: {
-    $route(to, from) {
-      this.checkroute()
-    }
-  }
-}
+    $route() {
+      this.checkroute();
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -124,9 +147,9 @@ export default {
   position: fixed;
   width: 432px;
   height: 65px;
-  background: #FFFFFF 0% 0% no-repeat padding-box;
-  box-shadow: 0px 3px 10px #49545C29;
-  border: 1px solid #F7F7F7;
+  background: #ffffff 0% 0% no-repeat padding-box;
+  box-shadow: 0px 3px 10px #49545c29;
+  border: 1px solid #f7f7f7;
   border-radius: 0px 10px 10px 0px;
   opacity: 1;
   display: flex;
@@ -139,7 +162,7 @@ export default {
 .navBarDropMenu {
   width: 40px;
   height: 40px;
-  border: 1px solid #EDF0F2;
+  border: 1px solid #edf0f2;
   border-radius: 6px;
   opacity: 1;
   justify-content: center;
@@ -151,9 +174,8 @@ export default {
   z-index: 99;
 }
 
-
 .navBarDropMenu:hover {
-  background-color: #14202C;
+  background-color: #14202c;
 }
 
 .list {
@@ -182,8 +204,8 @@ export default {
   border: 1px solid black;
   display: flex;
   align-items: flex-end;
-  -webkit-animation: scale-in-tl 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-  animation: scale-in-tl 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+  -webkit-animation: scale-in-tl 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation: scale-in-tl 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
 @-webkit-keyframes scale-in-tl {
@@ -222,11 +244,10 @@ export default {
   }
 }
 
-
 .navBarSelector {
   width: 242px;
   height: 40px;
-  border: 1px solid #EDF0F2;
+  border: 1px solid #edf0f2;
   border-radius: 6px;
   opacity: 1;
   cursor: pointer;
@@ -272,7 +293,6 @@ export default {
   }
 }
 
-
 .navBarSelectorTitle {
   position: absolute;
   top: 6px;
@@ -298,13 +318,14 @@ export default {
   border-bottom-right-radius: 6px;
   flex-direction: column;
   user-select: none;
-  -webkit-animation: scale-in-ver-top 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-  animation: scale-in-ver-top 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+  -webkit-animation: scale-in-ver-top 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)
+    both;
+  animation: scale-in-ver-top 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
 .navBarItemElement {
   height: 40px;
-  border: 1px solid #EDF0F2;
+  border: 1px solid #edf0f2;
   align-items: center;
   display: flex;
   padding-left: 10px;

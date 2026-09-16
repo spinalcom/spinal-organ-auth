@@ -1,4 +1,4 @@
-<template >
+<template>
   <div class="d-flex justify-center">
     <div
       v-if="val.toUpperCase() == 'CONNECTED'"
@@ -31,15 +31,15 @@
     </div>
   </div>
 </template>
-  
+
 <script>
 export default {
   name: "statut-button",
   props: ["icon", "title", "val"],
 };
 </script>
-  
-<style >
+
+<style>
 .online-btn {
   background: #3fa57a;
   font: normal normal normal 12px/14px Charlevoix Pro;

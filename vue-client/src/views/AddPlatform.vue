@@ -2,11 +2,9 @@
   <v-app>
     <v-main>
       <BackupInformation title="" class="add_platform_card">
-        <form class="formulaire" novalidate @submit.prevent="validateApp">
+        <form class="formulaire" novalidate @submit.prevent="submitForm">
           <div class="formulaire_info">
-            <div class="title">
-              AJOUTER UNE PLATEFORME
-            </div>
+            <div class="title">AJOUTER UNE PLATEFORME</div>
 
             <div class="left_side">
               <!-- <p>Saisissez les informations de la plateforme.</p> -->
@@ -14,17 +12,16 @@
 
               <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.name.required">Un nom est
                 requis</span>
-              <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formApp.name.minLength">Le doit
-                contenir au moins 2 caractères</span>
+              <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formApp.name.minLength">Le nom doit
+                contenir au moins 3 caractères.</span>
 
               <InputUser title="L'URL  DE LA PLATEFORME" id="appName" v-model="formApp.url" />
 
-              <span class=" errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.url.required">L'url de mis à jour
-                est requis</span>
+              <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.url.required">L'URL de la
+                plateforme est requise.</span>
 
-              <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.url.format">l'url de mis à jour
-                est
-                invalide</span>
+              <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.url.format">L'URL de la plateforme
+                est invalide.</span>
 
               <!-- <InputUser title="L'URL DE MIS A JOUR DE LA PLATEFORME" id="appName" v-model="formApp.url"
                 :placeholder="'http://lienApi/api/v1/update_data'" />
@@ -45,24 +42,24 @@
                 redirection est invalide</span> -->
 
               <InputPass readonly="true" title="CLIENT ID" id="clientId" v-model="formApp.clientId" />
-              <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.clientId.required">un id client
-                est
-                requis</span>
+              <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.clientId.required">Un ID client est
+                requis.</span>
 
               <InputPass readonly="true" title="CLIENT SECRET" id="clientSecret" v-model="formApp.clientSecret" />
               <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.clientSecret.required">
-                Le mot de passe est nécessaire
+                Le secret client est requis.
               </span>
 
               <SelectGrant title="GRANT TYPES" id="grant_types" v-model="formApp.grant_types" />
               <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.grant_types.isValid">Au moins un
-                type
-                d'autorisation est nécessaire</span>
+                type d'autorisation est requis.</span>
 
               <div class="loginServerContainer">
-                <h5 class="title">Ajouter le(s) serveur(s) d'authentification</h5>
+                <h5 class="title">
+                  Ajouter le(s) serveur(s) d'authentification
+                </h5>
 
-                <div v-for="(item, index) in servers" :key="item.id" class="serverItem">
+                <div v-for="item in servers" :key="item.id" class="serverItem">
                   <div class="selector">
                     <div class="icon">
                       <v-icon>mdi-server-security</v-icon>
@@ -73,7 +70,6 @@
                       :disabled="disableobjet[index] ? disableobjet[index].plat == true ? true : false : false" /> -->
                   </div>
 
-
                   <button type="button" class="serverBtn delete" v-if="isLinked(item)" @click="unlinkItem(item)">
                     <v-icon color="red">mdi-trash-can-outline</v-icon>
                   </button>
@@ -81,7 +77,6 @@
                   <button type="button" class="serverBtn add" v-else @click="linkItem(item)">
                     <v-icon>mdi-plus</v-icon>
                   </button>
-
                 </div>
               </div>
 
@@ -94,8 +89,12 @@
           </div>
 
           <div class="footer">
-            <button class="btn-retour" @click="cancelAdd()">RETOUR</button>
-            <button type="submit" class="btn-creer">AJOUTER LA PLATEFORME </button>
+            <button type="button" class="btn-retour" @click="goBack()">
+              ANNULER
+            </button>
+            <button type="submit" class="btn-creer">
+              AJOUTER LA PLATEFORME
+            </button>
           </div>
         </form>
       </BackupInformation>
@@ -105,47 +104,36 @@
 
 <script>
 import InputUser from "../Components/InputUser";
-import TextareaUser from "../Components/TextareaUser"
 import InputPass from "../Components/InputPassword";
-import AddPlatform from "../Components/AddPlatform.vue";
 import BackupInformation from "../Components/BackupInformation.vue";
-import SelectConnectionType from "../Components/SelectPatformConnexionType.vue";
 import SelectGrant from "../Components/SelectGrants.vue";
 import { validationMixin } from "vuelidate";
 import { required, minLength } from "vuelidate/lib/validators";
 import { mapActions, mapGetters } from "vuex";
+import { URL_REGEX, generateRegisterKey } from "../services/formUtils";
 
 export default {
   mixins: [validationMixin],
   components: {
     InputUser,
     InputPass,
-    AddPlatform,
     BackupInformation,
-    SelectConnectionType,
-    TextareaUser,
-    SelectGrant
+    SelectGrant,
   },
   data() {
     return {
       formApp: {
         grant_types: [],
         name: null,
-        clientId: this.generateRegisterKey(),
-        clientSecret: this.generateRegisterKey(),
+        clientId: generateRegisterKey(),
+        clientSecret: generateRegisterKey(),
         redirectUrl: null,
         url: null,
-        loginServerIds: []
+        loginServerIds: [],
         // authentication_method: "",
         // authentication_info: {}
       },
       iserrors: true,
-      error_platform: false,
-      connectionMethods: [
-        { name: "local", value: "local" },
-        { name: "saml", value: "saml" },
-        { name: "oauth2", value: "oauth2" }
-      ],
     };
   },
   async mounted() {
@@ -176,9 +164,7 @@ export default {
       url: {
         required,
         format: (value) => {
-          const regex =
-            /https?:\/\/(?:w{1,3}\.)?[^\s.]+(?:\.[a-z]+)*(?::\d+)?(?![^<]*(?:<\/\w+>|\/?>))/gm;
-          return regex.test(value);
+          return URL_REGEX.test(value);
         },
       },
       grant_types: {
@@ -198,20 +184,15 @@ export default {
   },
 
   methods: {
-    ...mapActions({ savePlatform: "platforms/savePlatform", getAllServers: "serverLogin/getAllServers" }),
+    ...mapActions({
+      savePlatform: "platforms/savePlatform",
+      getAllServers: "serverLogin/getAllServers",
+    }),
 
-    cancelAdd() {
-      this.$router.push("/PlatformsList");
+    goBack() {
+      // this.$router.push("/PlatformsList");
+      this.$router.go(-1);
     },
-    generateRegisterKey() {
-      const generator = require("generate-password");
-      var registerKey = generator.generate({
-        length: 30,
-        numbers: true,
-      });
-      return registerKey;
-    },
-
     cleanUrl(url) {
       if (!url) return url;
       let sanitized = url.trim();
@@ -222,28 +203,34 @@ export default {
       return sanitized;
     },
 
-    async validateApp() {
+    async submitForm() {
       this.$v.$touch();
-      if (!this.$v.$invalid) {
-
-        this.formApp.url = this.cleanUrl(this.formApp.url);
-        this.formApp.redirectUrl = `${this.formApp.url}/callback`;
-        this.formApp.url = `${this.formApp.url}/api/v1/update_data`;
-
-        this.savePlatform(this.formApp)
-          .then((result) => {
-            this.$router.push("/PlatformsList");
-          })
-          .catch((err) => {
-            console.error(err);
-          });
-      } else {
+      if (this.$v.$invalid) {
         this.iserrors = false;
+        return;
       }
+
+      const cleanedUrl = this.cleanUrl(this.formApp.url);
+      const payload = {
+        ...this.formApp,
+        url: `${cleanedUrl}/api/v1/update_data`,
+        redirectUrl: `${cleanedUrl}/callback`,
+      };
+
+      this.savePlatform(payload)
+        .then(() => {
+          // this.$router.push("/PlatformsList");
+          this.$router.go(-1);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     },
 
     selectLocalServer() {
-      const found = this.servers.find(server => server.authentication_method === "local");
+      const found = this.servers.find(
+        (server) => server.authentication_method === "local"
+      );
       if (found) this.linkItem(found);
     },
 
@@ -256,79 +243,38 @@ export default {
     },
 
     unlinkItem(item) {
-      this.formApp.loginServerIds = this.formApp.loginServerIds.filter(el => el !== item.id);
-    }
+      this.formApp.loginServerIds = this.formApp.loginServerIds.filter(
+        (el) => el !== item.id
+      );
+    },
   },
 
   computed: {
-    ...mapGetters({ servers: "serverLogin/servers" })
+    ...mapGetters({ servers: "serverLogin/servers" }),
   },
-  watch: {
-    // "formApp.authentication_method": function () {
-    //   if (this.formApp.authentication_method === 'saml') {
-    //     this.formApp.authentication_info = {
-    //       issuer: "",
-    //       entryPoint: "",
-    //       cert: "",
-    //       callbackUrl: "",
-    //       logoutUrl: "",
-    //     }
-    //   } else if (this.formApp.authentication_method === 'oauth2') {
-    //     this.formApp.authentication_info = {
-    //       clientId: "",
-    //       clientSecret: "",
-    //       callbackUrl: "",
-    //       endpoint: "",
-    //       logoutUrl: "",
-    //       grant_type: [],
-    //       scopes: ""
-    //     }
-    //   } else {
-    //     delete this.formApp.authentication_info;
-    //   }
-    // }
-  }
 };
 </script>
 
 <style scoped>
+@import "../assets/form-common.css";
+
 .add_platform_card {
   height: calc(100% - 150px) !important;
 }
 
 .btn-retour {
-  border: 1px solid #14202c;
-  border-radius: 6px;
   opacity: 1;
-  width: 120px;
-  height: 40px;
   margin-right: 5px;
-  margin-top: 20px;
-  font: normal normal normal 11px/13px Charlevoix Pro;
-  letter-spacing: 1.1px;
 }
 
 .btn-creer {
-  border: 0px;
-  padding-left: 30px;
-  padding-right: 30px;
-  background: #14202c;
-  border-radius: 6px;
-  color: white;
   margin-left: 5px;
-  margin-top: 20px;
-  font: normal normal normal 11px/13px Charlevoix Pro;
-  letter-spacing: 1.1px;
 }
 
 .errors {
   margin: 0;
-  position: absolute;
-  /* background-color: red; */
-  /* position: absolute; */
   transform: translate(0, -10%);
   font-size: 10px;
-  color: red;
   padding-left: 2px;
   letter-spacing: 1.1px;
 }
@@ -337,10 +283,6 @@ export default {
   position: absolute;
   color: rgb(255, 0, 0);
   font: normal normal normal 11px/13px Charlevoix Pro;
-}
-
-.showspan {
-  display: none;
 }
 
 .v-application {
@@ -363,7 +305,6 @@ export default {
   align-items: center;
   justify-content: space-around;
 }
-
 
 .formulaire .footer {
   width: 100%;

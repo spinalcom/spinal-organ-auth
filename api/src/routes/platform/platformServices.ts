@@ -502,14 +502,21 @@ export class PlatformService {
 
 	private async _assertPlatformUniqueness(platformCreationParms: IPlatformCreateRequest): Promise<void> {
 		const platforms = await this.getPlatformsNodes();
-		const normalizedName = String(platformCreationParms.name || "").trim().toLowerCase();
+		const normalizedName = String(platformCreationParms.name || "")
+			.trim()
+			.toLowerCase();
 		const normalizedClientId = String(platformCreationParms.clientId || "").trim();
 
 		if (!normalizedName || !normalizedClientId) {
 			throw new OperationError("INVALID_PLATFORM_DATA", HttpStatusCode.BAD_REQUEST);
 		}
 
-		const hasSameName = platforms.some((platform) => String(platform.getName()?.get() || "").trim().toLowerCase() === normalizedName);
+		const hasSameName = platforms.some(
+			(platform) =>
+				String(platform.getName()?.get() || "")
+					.trim()
+					.toLowerCase() === normalizedName,
+		);
 		if (hasSameName) throw new OperationError("PLATFORM_NAME_ALREADY_USED", HttpStatusCode.BAD_REQUEST);
 
 		const hasSameClientId = platforms.some((platform) => String(platform.info.clientId?.get() || "").trim() === normalizedClientId);

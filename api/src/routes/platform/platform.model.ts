@@ -97,6 +97,9 @@ export interface IplateformUpdate {
 	TokenBosAdmin: string;
 	platformId: string;
 	jsonData: IJsonData;
+	idPlatformOfAdmin?: string;
+	TokenAdminBos?: string;
+	URLBos?: string;
 }
 interface IJsonData {
 	userProfileList: IUserProfileListItem[];

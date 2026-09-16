@@ -78,7 +78,7 @@ export class TokensService {
 		return tokenCategory.addChildInContext(tokenNode, AUTH_SERVICE_TOKEN_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
 	}
 
-	public async createToken(node: SpinalNode, tokenData: any, platformList: any[], actor: ITokenActor) {
+	public async createToken(node: SpinalNode, tokenData: any, platformList: any[], actor: ITokenActor, scope?: string[]) {
 		const token = this.generateToken(tokenData, actor);
 		let decodedToken: any = jwt_decode(token);
 
@@ -93,7 +93,7 @@ export class TokensService {
 			...(actor === "application" && { applicationId: node.getId().get() }),
 			...(actor === "user" && { userId: node.getId().get() }),
 			...(actor === "code" && { userId: node.getId().get(), applicationId: node.getId().get() }),
-			...(node.info?.scope && { scope: node.info.scope.get() }),
+			...(scope && { scope: scope }),
 		});
 
 		await node.addChild(tokenNode, AUTH_SERVICE_TOKEN_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
@@ -229,7 +229,7 @@ export class TokensService {
 		}
 	}
 
-	public async verifyToken(tokenParam: string, platformId: string, actor?: ITokenActor) {
+	public async verifyToken(tokenParam: string, platformId?: string, actor?: ITokenActor) {
 		const decoded = await this.decodeToken(tokenParam);
 
 		let tokenIsAlreadyInGraph = await this.getTokenNode(tokenParam);
@@ -252,7 +252,7 @@ export class TokensService {
 		return copy;
 	}
 
-	private _getProfileByActor(token: string, actor: ITokenActor, platformId: string, decoded: any) {
+	private _getProfileByActor(token: string, actor: ITokenActor, platformId: string | undefined, decoded: any) {
 		switch (actor) {
 			case "user":
 				return this.getUserProfileByToken(token, platformId, decoded);
@@ -275,7 +275,7 @@ export class TokensService {
 
 	/////////////////////////////// PROFILE //////////////////////////////////////
 
-	public async getUserProfileByToken(Token: string, platformId: string, decoded?: any) {
+	public async getUserProfileByToken(Token: string, platformId?: string, decoded?: any) {
 		try {
 			decoded = decoded || this.decodeToken(Token);
 			if (decoded && decoded.profile) return decoded.profile;
@@ -306,7 +306,7 @@ export class TokensService {
 		}
 	}
 
-	public async getAppProfileByToken(token: string, platformId: string, decoded?: any) {
+	public async getAppProfileByToken(token: string, platformId?: string, decoded?: any) {
 		try {
 			decoded = decoded || this.decodeToken(token);
 			if (decoded && decoded.profile) return decoded.profile;
@@ -329,7 +329,7 @@ export class TokensService {
 		}
 	}
 
-	public async getCodeProfileByToken(token: string, platformId: string, decoded?: any) {
+	public async getCodeProfileByToken(token: string, platformId?: string, decoded?: any) {
 		try {
 			decoded = decoded || this.decodeToken(token);
 			if (decoded && decoded.profile) return decoded.profile;

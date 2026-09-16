@@ -22,32 +22,28 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-
 const instanceAxios = require("../services/axiosConfig");
 export default {
-    namespaced: true,
-    state: {
-        data: [],
-        loglist: [],
-    },
-    getters: {
-        getlogList: state => state.loglist,
-    },
-    actions: {
-        async getLogs({ commit }) {
-            
-            const rep = await instanceAxios.instanceAxios.get("/logs", {
-                headers: {
-                  "Content-Type": "application/json",
-                  "x-access-token": localStorage.getItem("token")
-                }
-              });
-            commit("setlogList", rep.data);
+  namespaced: true,
+  state: {
+    data: [],
+    loglist: [],
+  },
+  getters: {
+    getlogList: (state) => state.loglist,
+  },
+  actions: {
+    async getLogs({ commit }) {
+      const rep = await instanceAxios.instanceAxios.get("/logs", {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": localStorage.getItem("token"),
         },
+      });
+      commit("setlogList", rep.data);
     },
-    mutations: {
-        setlogList: (state, loglist) => (
-            state.loglist = loglist
-        ),
-    },
-}
+  },
+  mutations: {
+    setlogList: (state, loglist) => (state.loglist = loglist),
+  },
+};

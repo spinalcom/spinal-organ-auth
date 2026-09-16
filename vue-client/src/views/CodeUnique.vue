@@ -1,196 +1,217 @@
 <template>
-    <v-card elevation="4" outlined class="cardContainer">
-        <div class="header">
-            <code-unique-dialog :data="data" @generateKey="generateKey"></code-unique-dialog>
+  <v-card elevation="4" outlined class="cardContainer">
+    <div class="header">
+      <code-unique-dialog
+        :data="data"
+        @generateKey="generateKey"
+      ></code-unique-dialog>
+    </div>
+    <div class="table">
+      <div class="tableHeader">
+        <div>
+          <h2>Codes Uniques</h2>
         </div>
-        <div class="table">
 
-            <div class="tableHeader">
-                <div>
-                    <h2>Codes Uniques</h2>
-                </div>
-
-                <div>
-
-                    <v-text-field v-model="textSearched" append-icon="mdi-magnify" outlined label="Search" clearable
-                        dense hide-details></v-text-field>
-                </div>
-            </div>
-
-            <v-data-table :headers="headers" :items="codesDisplayed" :search="textSearched" :items-per-page="13"
-                class="datatable" height="calc(100% - 150px)" elevation="0">
-
-                <template v-slot:item.code="{ item }">
-                    {{ item.code.toUpperCase() }}
-                </template>
-
-                <template v-slot:item.used="{ item }">
-                    <v-chip class="ma-2" :color="getColor(item.used)" outlined>
-                        <v-avatar left>
-                            <v-icon>{{ item.used ? 'mdi-check' : "mdi-minus" }}</v-icon>
-                        </v-avatar>
-                        {{ item.useText }}
-                    </v-chip>
-                </template>
-
-
-                <template v-slot:item.createdAt="{ item }">
-                    {{ formatDate(item.createdAt) }}
-                </template>
-
-
-                <template v-slot:item.usedAt="{ item }">
-                    {{ formatDate(item.usedAt) }}
-                </template>
-
-
-                <template v-slot:item.actions="{ item }">
-                    <div class="actions">
-                        <v-btn icon @click="deleteCode(item)">
-                            <v-icon>mdi-delete</v-icon>
-                        </v-btn>
-                    </div>
-                </template>
-
-
-                <template v-slot:bottom="{ pagination, options, updateOptions }">
-                    <v-data-footer :pagination="pagination" :options="options" @update:options="updateOptions"
-                        items-per-page-text="$vuetify.dataTable.itemsPerPageText" />
-                </template>
-
-            </v-data-table>
+        <div>
+          <v-text-field
+            v-model="textSearched"
+            append-icon="mdi-magnify"
+            outlined
+            label="Rechercher"
+            clearable
+            dense
+            hide-details
+          ></v-text-field>
         </div>
-    </v-card>
+      </div>
+
+      <v-data-table
+        :headers="headers"
+        :items="codesDisplayed"
+        :search="textSearched"
+        :items-per-page="13"
+        class="datatable"
+        height="calc(100% - 150px)"
+        elevation="0"
+      >
+        <template slot="item.code" slot-scope="{ item }">
+          {{ item.code.toUpperCase() }}
+        </template>
+
+        <template slot="item.used" slot-scope="{ item }">
+          <v-chip class="ma-2" :color="getColor(item.used)" outlined>
+            <v-avatar left>
+              <v-icon>{{ item.used ? "mdi-check" : "mdi-minus" }}</v-icon>
+            </v-avatar>
+            {{ item.useText }}
+          </v-chip>
+        </template>
+
+        <template slot="item.createdAt" slot-scope="{ item }">
+          {{ formatDate(item.createdAt) }}
+        </template>
+
+        <template slot="item.usedAt" slot-scope="{ item }">
+          {{ formatDate(item.usedAt) }}
+        </template>
+
+        <template slot="item.actions" slot-scope="{ item }">
+          <div class="actions">
+            <v-btn icon @click="deleteCode(item)">
+              <v-icon>mdi-delete</v-icon>
+            </v-btn>
+          </div>
+        </template>
+
+        <template v-slot:bottom="{ pagination, options, updateOptions }">
+          <v-data-footer
+            :pagination="pagination"
+            :options="options"
+            @update:options="updateOptions"
+            items-per-page-text="$vuetify.dataTable.itemsPerPageText"
+          />
+        </template>
+      </v-data-table>
+    </div>
+  </v-card>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
-import codeUniqueDialog from '../Components/codeUniqueDialog.vue';
+import { mapActions, mapGetters } from "vuex";
+import codeUniqueDialog from "../Components/codeUniqueDialog.vue";
+import { askConfirmation } from "../services/popup";
 
 export default {
-    components: {
-        codeUniqueDialog
-    },
-    data() {
-        this.headers = [
-            { class: 'headerCell', text: 'Code', value: 'code' },
-            { class: 'headerCell', text: 'Date de creation', value: 'createdAt' },
-            { class: 'headerCell', text: 'Utilisation', value: 'used' },
-            { class: 'headerCell', text: 'Date d\'utilisation', value: 'usedAt' },
-            { class: 'headerCell', text: '', value: 'actions' }
-        ];
+  components: {
+    codeUniqueDialog,
+  },
+  data() {
+    return {
+      headers: [
+        { class: "headerCell", text: "Code", value: "code" },
+        { class: "headerCell", text: "Date de creation", value: "createdAt" },
+        { class: "headerCell", text: "Utilisation", value: "used" },
+        { class: "headerCell", text: "Date d'utilisation", value: "usedAt" },
+        { class: "headerCell", text: "", value: "actions" },
+      ],
+      data: {
+        profiles: [],
+        count: 0,
+      },
 
-        return {
-            data: {
-                profiles: [],
-                count: 0,
-            },
+      textSearched: "",
+      codesDisplayed: [],
+    };
+  },
+  async mounted() {
+    await this.getAllCode();
+  },
+  methods: {
+    ...mapActions("codeUnique", [
+      "getAllCode",
+      "generateCode",
+      "getCode",
+      "removeCode",
+      "removeCodes",
+    ]),
 
-            textSearched: '',
-            codesDisplayed: [],
-        };
-    },
-    async mounted() {
-        await this.getAllCode();
-        console.log(this.codes);
-    },
-    methods: {
-        ...mapActions('codeUnique', ['getAllCode', 'generateCode', 'getCode', 'removeCode', 'removeCodes']),
-
-        async generateKey(data) {
-            await this.generateCode(data);
-        },
-
-        deleteCode(item) {
-            const yes = confirm(`Voulez-vous vraiment supprimer le code ${item.code} ?`);
-            if (yes) this.removeCode(item.id);
-        },
-
-        deleteCodes(codes) {
-            const yes = confirm(`Voulez-vous vraiment supprimer le code ${codes.length} items ?`);
-            if (yes) this.removeCodes(codes);
-        },
-
-        getColor(used) {
-            console.log("used", used);
-            return used ? 'green' : 'red';
-        },
-
-        formatDate(date) {
-            if (date == -1 || !date) return "-";
-
-            return new Date(date).toLocaleDateString('fr-FR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-            });
-        },
+    async generateKey(data) {
+      await this.generateCode(data);
     },
 
-    computed: {
-        ...mapGetters('codeUnique', ['codes', 'codeById']),
+    async deleteCode(item) {
+      const yes = await askConfirmation(
+        `Voulez-vous vraiment supprimer le code ${item.code} ?`
+      );
+      if (yes) this.removeCode(item.id);
     },
-    watch: {
-        codes: {
-            handler(newVal) {
-                this.codesDisplayed = newVal.map(code => {
-                    return {
-                        ...code,
-                        useText: code.used ? 'utilisé' : 'Non utilisé'
-                    };
-                });
-            },
-            immediate: true,
-        },
+
+    async deleteCodes(codes) {
+      const yes = await askConfirmation(
+        `Voulez-vous vraiment supprimer ${codes.length} elements ?`
+      );
+      if (yes) this.removeCodes(codes);
     },
-}
+
+    getColor(used) {
+      return used ? "green" : "red";
+    },
+
+    formatDate(date) {
+      if (date == -1 || !date) return "-";
+
+      return new Date(date).toLocaleDateString("fr-FR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    },
+  },
+
+  computed: {
+    ...mapGetters("codeUnique", ["codes", "codeById"]),
+  },
+  watch: {
+    codes: {
+      handler(newVal) {
+        this.codesDisplayed = newVal.map((code) => {
+          return {
+            ...code,
+            useText: code.used ? "utilisé" : "Non utilisé",
+          };
+        });
+      },
+      immediate: true,
+    },
+  },
+};
 </script>
 
 <style scoped>
 .cardContainer {
-    margin: 20px;
-    width: calc(100% - 40px);
-    height: calc(100vh - 100px);
-    background: transparent !important;
+  margin: 20px;
+  width: calc(100% - 40px);
+  height: calc(100vh - 100px);
+  background: transparent !important;
 }
 
 .cardContainer .header {
-    height: 70px;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
+  height: 70px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .cardContainer .table {
-    height: calc(100% - 70px);
-    border-radius: 0 0 10px 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  height: calc(100% - 70px);
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .headerCell {
-    text-align: left !important;
+  text-align: left !important;
 }
 
 .cardContainer .table .datatable {
-    height: 100%;
-    background: transparent !important;
+  height: 100%;
+  background: transparent !important;
 }
 
 .tableHeader {
-    width: 100%;
-    height: 70px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+  width: 100%;
+  height: 70px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>
 
 <style>
 .cardContainer .v-data-footer {
-    justify-content: end;
+  justify-content: end;
 }
 </style>
