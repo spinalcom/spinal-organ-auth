@@ -1111,6 +1111,12 @@
 					"url": {
 						"type": "string"
 					},
+					"vueClientUrl": {
+						"type": "string"
+					},
+					"updateUrl": {
+						"type": "string"
+					},
 					"address": {
 						"type": "string"
 					},
@@ -1183,6 +1189,12 @@
 					"url": {
 						"type": "string"
 					},
+					"updateUrl": {
+						"type": "string"
+					},
+					"vueClientUrl": {
+						"type": "string"
+					},
 					"address": {
 						"type": "string"
 					},
@@ -1242,6 +1254,12 @@
 						"type": "string"
 					},
 					"redirectUrl": {
+						"type": "string"
+					},
+					"updateUrl": {
+						"type": "string"
+					},
+					"vueClientUrl": {
 						"type": "string"
 					},
 					"url": {
@@ -1465,6 +1483,12 @@
 						"type": "string"
 					},
 					"URLBos": {
+						"type": "string"
+					},
+					"vueClientUrl": {
+						"type": "string"
+					},
+					"updateUrl": {
 						"type": "string"
 					}
 				},

@@ -296,9 +296,9 @@ export default {
       (state.platformlist = [...state.platformlist, platform]),
 
     deletePlatform: (state, platformId) =>
-      (state.platformlist = state.platformlist.filter(
-        (el) => el.id !== platformId
-      )),
+    (state.platformlist = state.platformlist.filter(
+      (el) => el.id !== platformId
+    )),
     setplatformList: (state, platformlist) =>
       (state.platformlist = platformlist),
     setregisterkey: (state, registerKey) => (state.registerKey = registerKey),

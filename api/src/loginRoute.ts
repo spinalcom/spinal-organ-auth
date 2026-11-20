@@ -7,6 +7,7 @@ import loginService from "./routes/loginServer/loginServerService";
 import * as path from "path";
 import { UserService } from "./routes/authUser/userService";
 import { formatResponseHtml } from "./utilities/formatResponseHtml";
+import { sendResponseToClientUrl } from "./SSO/utils";
 
 export async function redirectToLoginPage(req: express.Request, res: express.Response) {
 	try {
@@ -81,6 +82,13 @@ async function loginWithLocal(req: express.Request, res: express.Response) {
 		const body = req.body;
 
 		const userToken = await UserService.getInstance().login(body, platform.id);
+		const vueClientUrl = platform.vueClientUrl;
+
+		if (vueClientUrl) {
+			const token = userToken.token;
+			return sendResponseToClientUrl(res, vueClientUrl, token);
+		}
+
 		const html = formatResponseHtml(platform.redirectUrl, userToken);
 
 		res.send(html);

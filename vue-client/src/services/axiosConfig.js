@@ -28,6 +28,7 @@ export const instanceAxios = axios.create({
   // baseURL: 'http://localhost:9060/',
   baseURL: "/",
   timeout: 1000,
+  withCredentials: true,
   headers: { "X-Custom-Header": "foobar" },
 });
 

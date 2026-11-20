@@ -1,5 +1,5 @@
 const assert = require("assert").strict;
-const { expressAuthentication } = require("../src/security");
+const { expressAuthentication, getToken } = require("../src/security");
 const { AuthServerModel } = require("../src/SSO/oauth/AuthServerModel");
 const { TokensService } = require("../src/routes/tokens/tokenService");
 const { SCOPES } = require("../src/constant");
@@ -21,6 +21,47 @@ describe("expressAuthentication scope checks", () => {
         originalGetAccessToken = AuthServerModel.instance.getAccessToken;
         originalVerifyScope = AuthServerModel.instance.verifyScope;
         originalCheckIfItsPlatformToken = TokensService.getInstance().checkIfItsPlatformToken;
+    });
+
+    describe("getToken cookie authentication", () => {
+        const originalCorsOrigins = process.env.CORS_ORIGINS;
+
+        after(() => {
+            if (originalCorsOrigins === undefined) delete process.env.CORS_ORIGINS;
+            else process.env.CORS_ORIGINS = originalCorsOrigins;
+        });
+
+        it("reads the HttpOnly token cookie for a configured client origin", () => {
+            process.env.CORS_ORIGINS = "https://client.example.com";
+
+            assert.equal(
+                getToken({
+                    headers: {
+                        origin: "https://client.example.com",
+                        cookie: "theme=dark; token=jwt-token",
+                    },
+                    body: {},
+                    query: {},
+                }),
+                "jwt-token"
+            );
+        });
+
+        it("does not use a token cookie for an unconfigured origin", () => {
+            process.env.CORS_ORIGINS = "https://client.example.com";
+
+            assert.equal(
+                getToken({
+                    headers: {
+                        origin: "https://untrusted.example.com",
+                        cookie: "token=jwt-token",
+                    },
+                    body: {},
+                    query: {},
+                }),
+                undefined
+            );
+        });
     });
 
     afterEach(() => {

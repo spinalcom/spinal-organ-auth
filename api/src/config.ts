@@ -38,4 +38,12 @@ const config = {
 		path: process.env.SPINAL_DTWIN_PATH,
 	},
 };
+
+export function getCorsAllowedOrigins(): string[] {
+	return (process.env.CORS_ORIGINS || "")
+		.split(",")
+		.map((origin) => origin.trim())
+		.filter(Boolean);
+}
+
 export default config;

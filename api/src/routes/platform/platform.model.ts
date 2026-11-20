@@ -68,6 +68,8 @@ export interface IPlatform {
 	statusPlatform: statusPlatform;
 	lastSyncTime?: number | null;
 	url: string;
+	updateUrl?: string;
+	vueClientUrl?: string;
 	address?: string;
 	TokenBosAdmin?: string;
 	TokenAdminBos?: string;
@@ -85,6 +87,8 @@ export interface IPlatformCreateRequest {
 	name: string;
 	redirectUrl: string;
 	url?: string;
+	vueClientUrl?: string;
+	updateUrl?: string;
 	address?: string;
 	clientId: string;
 	clientSecret?: string;
@@ -100,6 +104,8 @@ export interface IplateformUpdate {
 	idPlatformOfAdmin?: string;
 	TokenAdminBos?: string;
 	URLBos?: string;
+	vueClientUrl?: string;
+	updateUrl?: string;
 }
 interface IJsonData {
 	userProfileList: IUserProfileListItem[];
@@ -129,6 +135,8 @@ interface IUserProfileListItem {
 export interface IPlatformUpdateParams {
 	name?: string;
 	redirectUrl?: string;
+	updateUrl?: string;
+	vueClientUrl?: string;
 	url?: string;
 	address?: string;
 	loginServerIds?: string[];

@@ -31,7 +31,7 @@ import * as https from "https";
 import * as fs from "fs";
 import * as path from "path";
 
-import config from "./config";
+import config, { getCorsAllowedOrigins } from "./config";
 import { RegisterRoutes } from "./routes";
 import { ValidateError } from "tsoa";
 import { AuthError } from "./security/AuthError";
@@ -58,7 +58,8 @@ function Server(): express.Express {
 	// enable files upload
 	app.use(fileUpload({ createParentPath: true }));
 	app.use(morgan("tiny"));
-	app.use(cors());
+	const allowedOrigins = getCorsAllowedOrigins();
+	app.use(cors({ origin: allowedOrigins.length ? allowedOrigins : "*", credentials: true }));
 	app.disable("x-powered-by");
 	app.use(express.json());
 	app.use(express.urlencoded({ extended: true }));

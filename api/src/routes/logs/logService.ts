@@ -32,9 +32,9 @@ import { log } from "console";
 
 export class LogsService {
 	static instance: LogsService;
-	public context: SpinalContext;
+	public context: SpinalContext | null = null;
 
-	private constructor() { }
+	private constructor() {}
 
 	public static getInstance(): LogsService {
 		if (!this.instance) this.instance = new LogsService();
@@ -47,68 +47,98 @@ export class LogsService {
 	}
 
 	public async createLogsContext() {
-		const graph = await SpinalMiddleware.getInstance().getGraph();
-		const context = new SpinalContext(LOG_LIST);
-		return graph.addContext(context);
+		try {
+			const graph = await SpinalMiddleware.getInstance().getGraph();
+			const context = new SpinalContext(LOG_LIST);
+			return graph.addContext(context);
+		} catch (error) {
+			return null;
+		}
 	}
 
 	public async createUserLogsCategory() {
-		const context = await this.getLogsContext();
-		const node = new SpinalNode(USER_LOG_CATEGORY_NAME, USER_LOG_CATEGORY_TYPE);
-		const nodeNames = [EVENTS_NAMES.CONNECTION, EVENTS_NAMES.EDIT, EVENTS_NAMES.CREATE, EVENTS_NAMES.DELETE];
-		await this.createEventLogNodes(node, context, nodeNames, USER_LOG_EVENT_TYPE, AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME);
-		return node;
+		try {
+			const context = await this.getLogsContext();
+			const node = new SpinalNode(USER_LOG_CATEGORY_NAME, USER_LOG_CATEGORY_TYPE);
+			const nodeNames = [EVENTS_NAMES.CONNECTION, EVENTS_NAMES.EDIT, EVENTS_NAMES.CREATE, EVENTS_NAMES.DELETE];
+			await this.createEventLogNodes(node, context, nodeNames, USER_LOG_EVENT_TYPE, AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME);
+			return node;
+		} catch (error) {
+			return null;
+		}
 	}
 
 	public async createApplicationLogsCategory() {
-		const context = await this.getLogsContext();
-		const node = new SpinalNode(APPLICATION_LOG_CATEGORY_NAME, APPLICATION_LOG_CATEGORY_TYPE);
-		const nodeNames = [EVENTS_NAMES.CONNECTION, EVENTS_NAMES.EDIT, EVENTS_NAMES.CREATE, EVENTS_NAMES.DELETE];
-		await this.createEventLogNodes(node, context, nodeNames, APPLICATION_LOG_EVENT_TYPE, AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME);
-		return node;
+		try {
+			const context = await this.getLogsContext();
+			const node = new SpinalNode(APPLICATION_LOG_CATEGORY_NAME, APPLICATION_LOG_CATEGORY_TYPE);
+			const nodeNames = [EVENTS_NAMES.CONNECTION, EVENTS_NAMES.EDIT, EVENTS_NAMES.CREATE, EVENTS_NAMES.DELETE];
+			await this.createEventLogNodes(node, context, nodeNames, APPLICATION_LOG_EVENT_TYPE, AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME);
+			return node;
+		} catch (error) {
+			return null;
+		}
 	}
 
 	public async createPlatformLogsCategory() {
-		const context = await this.getLogsContext();
-		const node = new SpinalNode(PLATFORM_LOG_CATEGORY_NAME, PLATFORM_LOG_CATEGORY_TYPE);
-		const nodeNames = [EVENTS_NAMES.REGISTER, EVENTS_NAMES.PUSH_DATA, EVENTS_NAMES.UPDATE_TOKEN, EVENTS_NAMES.DELETE, EVENTS_NAMES.EDIT];
-		await this.createEventLogNodes(node, context, nodeNames, PLATFORM_LOG_EVENT_TYPE, AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME);
-		return node;
+		try {
+			const context = await this.getLogsContext();
+			const node = new SpinalNode(PLATFORM_LOG_CATEGORY_NAME, PLATFORM_LOG_CATEGORY_TYPE);
+			const nodeNames = [EVENTS_NAMES.REGISTER, EVENTS_NAMES.PUSH_DATA, EVENTS_NAMES.UPDATE_TOKEN, EVENTS_NAMES.DELETE, EVENTS_NAMES.EDIT];
+			await this.createEventLogNodes(node, context, nodeNames, PLATFORM_LOG_EVENT_TYPE, AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME);
+			return node;
+		} catch (error) {
+			return null;
+		}
 	}
 
 	public async createAdminLogsCategory() {
-		const context = await this.getLogsContext();
-		const node = new SpinalNode(ADMIN_LOG_CATEGORY_NAME, ADMIN_LOG_CATEGORY_TYPE);
-		const nodeNames = [EVENTS_NAMES.CONNECTION, EVENTS_NAMES.CREATE, EVENTS_NAMES.EDIT];
-		await this.createEventLogNodes(node, context, nodeNames, ADMIN_LOG_EVENT_TYPE, AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME);
-		return node;
+		try {
+			const context = await this.getLogsContext();
+			const node = new SpinalNode(ADMIN_LOG_CATEGORY_NAME, ADMIN_LOG_CATEGORY_TYPE);
+			const nodeNames = [EVENTS_NAMES.CONNECTION, EVENTS_NAMES.CREATE, EVENTS_NAMES.EDIT];
+			await this.createEventLogNodes(node, context, nodeNames, ADMIN_LOG_EVENT_TYPE, AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME);
+			return node;
+		} catch (error) {
+			return null;
+		}
 	}
 
 	public async createLogTree(): Promise<SpinalNode[]> {
-		const promises = [this.createUserLogsCategory(), this.createApplicationLogsCategory(), this.createPlatformLogsCategory(), this.createAdminLogsCategory()];
-		return Promise.all(promises).then(async (nodes) => {
-			const context = await this.getLogsContext();
-			const res = [];
-			for (const node of nodes) {
-				const n = await context.addChildInContext(node, AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
-				res.push(n);
-			}
+		try {
+			const promises = [this.createUserLogsCategory(), this.createApplicationLogsCategory(), this.createPlatformLogsCategory(), this.createAdminLogsCategory()];
+			return Promise.all(promises).then(async (nodes) => {
+				const context = await this.getLogsContext();
+				const res = [];
+				for (const node of nodes) {
+					if (!node) continue;
 
-			// return res;
-			return nodes;
-		});
+					const n = await context.addChildInContext(node, AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+					res.push(n);
+				}
+
+				// return res;
+				return res;
+			});
+		} catch (error) {
+			return [];
+		}
 	}
 
 	public async createEventLogNodes(parent: SpinalNode, contextNode: SpinalNode, nodeNames: string[], nodeType: string, relationFromParentName: string) {
-		const promises = nodeNames.map(async (name) => {
-			const node = new SpinalNode(name, nodeType);
-			return this.createEventTypeGraph(parent, node, contextNode);
-		});
+		try {
+			const promises = nodeNames.map(async (name) => {
+				const node = new SpinalNode(name, nodeType);
+				return this.createEventTypeGraph(parent, node, contextNode);
+			});
 
-		Promise.all(promises).then(async (nodes) => {
-			const promises = nodes.map((node) => parent.addChildInContext(node, relationFromParentName, AUTH_SERVICE_RELATION_TYPE_PTR_LST, contextNode));
-			return Promise.all(promises);
-		});
+			Promise.all(promises).then(async (nodes) => {
+				const promises = nodes.map((node) => parent.addChildInContext(node, relationFromParentName, AUTH_SERVICE_RELATION_TYPE_PTR_LST, contextNode));
+				return Promise.all(promises);
+			});
+		} catch (error) {
+			return [];
+		}
 	}
 
 	public async createEventTypeGraph(category: SpinalNode, eventLogNode: SpinalNode, context?: SpinalContext) {
@@ -147,158 +177,185 @@ export class LogsService {
 	}
 
 	public async createEventRequestsUserLogs(eventLog: SpinalNode, context?: SpinalContext) {
-		let names = [];
-		context = context || (await this.getLogsContext());
-		const eventName = eventLog.getName().get();
+		try {
+			let names: string[] = [];
+			context = context || (await this.getLogsContext());
+			if (!context) throw new Error("Logs context not found");
 
-		switch (eventName) {
-			case EVENTS_NAMES.CONNECTION:
-				names = [EVENTS_REQUEST_NAMES.LOGIN_VALID, EVENTS_REQUEST_NAMES.USER_VALID_UNKNOWN_PASSWORD, EVENTS_REQUEST_NAMES.USER_NOT_VALID];
-				break;
-			case EVENTS_NAMES.CREATE:
-				names = [EVENTS_REQUEST_NAMES.CREATE_VALID, EVENTS_REQUEST_NAMES.CREATE_NOT_VALID];
-				break;
-			case EVENTS_NAMES.EDIT:
-				names = [EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID];
-				break;
-			case EVENTS_NAMES.DELETE:
-				names = [EVENTS_REQUEST_NAMES.DELETE_VALID, EVENTS_REQUEST_NAMES.DELETE_NOT_VALID];
-				break;
+			const eventName = eventLog.getName().get();
+
+			switch (eventName) {
+				case EVENTS_NAMES.CONNECTION:
+					names = [EVENTS_REQUEST_NAMES.LOGIN_VALID, EVENTS_REQUEST_NAMES.USER_VALID_UNKNOWN_PASSWORD, EVENTS_REQUEST_NAMES.USER_NOT_VALID];
+					break;
+				case EVENTS_NAMES.CREATE:
+					names = [EVENTS_REQUEST_NAMES.CREATE_VALID, EVENTS_REQUEST_NAMES.CREATE_NOT_VALID];
+					break;
+				case EVENTS_NAMES.EDIT:
+					names = [EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID];
+					break;
+				case EVENTS_NAMES.DELETE:
+					names = [EVENTS_REQUEST_NAMES.DELETE_VALID, EVENTS_REQUEST_NAMES.DELETE_NOT_VALID];
+					break;
+			}
+
+			const nodes = this.createEventRequestNodes(names, USER_REQUEST_EVENT_LOG_TYPE);
+			const promises = nodes.map((node) => eventLog.addChildInContext(node, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context!));
+
+			return Promise.all(promises);
+		} catch (error) {
+			return [];
 		}
-
-		const nodes = this.createEventRequestNodes(names, USER_REQUEST_EVENT_LOG_TYPE);
-		const promises = nodes.map((node) => eventLog.addChildInContext(node, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context));
-
-		return Promise.all(promises);
 	}
 
 	public async createEventRequestsApplicationLogs(eventLog: SpinalNode, context?: SpinalContext) {
-		let names = [];
-		context = context || (await this.getLogsContext());
-		const eventName = eventLog.getName().get();
+		try {
+			let names: string[] = [];
+			context = context || (await this.getLogsContext());
+			if (!context) throw new Error("Logs context not found");
+			const eventName = eventLog.getName().get();
 
-		switch (eventName) {
-			case EVENTS_NAMES.CONNECTION:
-				names = [EVENTS_REQUEST_NAMES.LOGIN_VALID, EVENTS_REQUEST_NAMES.LOGIN_NOT_VALID];
-				break;
-			case EVENTS_NAMES.CREATE:
-				names = [EVENTS_REQUEST_NAMES.CREATE_VALID, EVENTS_REQUEST_NAMES.CREATE_NOT_VALID];
-				break;
-			case EVENTS_NAMES.EDIT:
-				names = [EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID];
-				break;
-			case EVENTS_NAMES.DELETE:
-				names = [EVENTS_REQUEST_NAMES.DELETE_VALID, EVENTS_REQUEST_NAMES.DELETE_NOT_VALID];
-				break;
+			switch (eventName) {
+				case EVENTS_NAMES.CONNECTION:
+					names = [EVENTS_REQUEST_NAMES.LOGIN_VALID, EVENTS_REQUEST_NAMES.LOGIN_NOT_VALID];
+					break;
+				case EVENTS_NAMES.CREATE:
+					names = [EVENTS_REQUEST_NAMES.CREATE_VALID, EVENTS_REQUEST_NAMES.CREATE_NOT_VALID];
+					break;
+				case EVENTS_NAMES.EDIT:
+					names = [EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID];
+					break;
+				case EVENTS_NAMES.DELETE:
+					names = [EVENTS_REQUEST_NAMES.DELETE_VALID, EVENTS_REQUEST_NAMES.DELETE_NOT_VALID];
+					break;
+			}
+
+			const nodes = this.createEventRequestNodes(names, APPLICATION_REQUEST_EVENT_LOG_TYPE);
+			const promises = nodes.map((node) => eventLog.addChildInContext(node, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context!));
+
+			return Promise.all(promises);
+		} catch (error) {
+			return [];
 		}
-
-		const nodes = this.createEventRequestNodes(names, APPLICATION_REQUEST_EVENT_LOG_TYPE);
-		const promises = nodes.map((node) => eventLog.addChildInContext(node, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context));
-
-		return Promise.all(promises);
 	}
 
 	public async createEventRequestsPlatformLogs(eventLog: SpinalNode, context?: SpinalContext) {
-		let names = [];
-		context = context || (await this.getLogsContext());
-		const eventName = eventLog.getName().get();
+		try {
+			let names: string[] = [];
+			context = context || (await this.getLogsContext());
+			if (!context) throw new Error("Logs context not found");
+			const eventName = eventLog.getName().get();
 
-		switch (eventName) {
-			case EVENTS_NAMES.REGISTER:
-				names = [EVENTS_REQUEST_NAMES.REGISTER_VALID, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID];
-				break;
-			case EVENTS_NAMES.PUSH_DATA:
-				names = [EVENTS_REQUEST_NAMES.PUSH_DATA, EVENTS_REQUEST_NAMES.PUSH_DATA_NOT_VALID];
-				break;
-			case EVENTS_NAMES.DELETE:
-				names = [EVENTS_REQUEST_NAMES.DELETE_VALID, EVENTS_REQUEST_NAMES.DELETE_NOT_VALID];
-				break;
-			case EVENTS_NAMES.UPDATE_TOKEN:
-				names = [EVENTS_REQUEST_NAMES.UPDATE_TOKEN_VALID, EVENTS_REQUEST_NAMES.UPDATE_TOKEN_NOT_VALID];
-				break;
-			case EVENTS_NAMES.EDIT:
-				names = [EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID];
-				break;
+			switch (eventName) {
+				case EVENTS_NAMES.REGISTER:
+					names = [EVENTS_REQUEST_NAMES.REGISTER_VALID, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID];
+					break;
+				case EVENTS_NAMES.PUSH_DATA:
+					names = [EVENTS_REQUEST_NAMES.PUSH_DATA, EVENTS_REQUEST_NAMES.PUSH_DATA_NOT_VALID];
+					break;
+				case EVENTS_NAMES.DELETE:
+					names = [EVENTS_REQUEST_NAMES.DELETE_VALID, EVENTS_REQUEST_NAMES.DELETE_NOT_VALID];
+					break;
+				case EVENTS_NAMES.UPDATE_TOKEN:
+					names = [EVENTS_REQUEST_NAMES.UPDATE_TOKEN_VALID, EVENTS_REQUEST_NAMES.UPDATE_TOKEN_NOT_VALID];
+					break;
+				case EVENTS_NAMES.EDIT:
+					names = [EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID];
+					break;
+			}
+
+			const nodes = this.createEventRequestNodes(names, PLATFORM_REQUEST_EVENT_LOG_TYPE);
+			const promises = nodes.map((node) => eventLog.addChildInContext(node, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context!));
+
+			return Promise.all(promises);
+		} catch (error) {
+			return [];
 		}
-
-		const nodes = this.createEventRequestNodes(names, PLATFORM_REQUEST_EVENT_LOG_TYPE);
-		const promises = nodes.map((node) => eventLog.addChildInContext(node, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context));
-
-		return Promise.all(promises);
 	}
 
 	public async createEventRequestsAdminLogs(eventLog: SpinalNode, context?: SpinalContext) {
-		let names = [];
-		context = context || (await this.getLogsContext());
-		const eventName = eventLog.getName().get();
+		try {
+			let names: string[] = [];
+			context = context || (await this.getLogsContext());
+			if (!context) throw new Error("Logs context not found");
+			const eventName = eventLog.getName().get();
 
-		switch (eventName) {
-			case EVENTS_NAMES.CONNECTION:
-				names = [EVENTS_REQUEST_NAMES.CONNECTION_VALID, EVENTS_REQUEST_NAMES.CONNECTION_NOT_VALID];
-				break;
-			case EVENTS_NAMES.CREATE:
-				names = [EVENTS_REQUEST_NAMES.CREATE_VALID, EVENTS_REQUEST_NAMES.CREATE_NOT_VALID];
-				break;
-			case EVENTS_NAMES.EDIT:
-				names = [EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID];
-				break;
-			case EVENTS_NAMES.DELETE:
-				names = [EVENTS_REQUEST_NAMES.DELETE_VALID, EVENTS_REQUEST_NAMES.DELETE_NOT_VALID];
-				break;
+			switch (eventName) {
+				case EVENTS_NAMES.CONNECTION:
+					names = [EVENTS_REQUEST_NAMES.CONNECTION_VALID, EVENTS_REQUEST_NAMES.CONNECTION_NOT_VALID];
+					break;
+				case EVENTS_NAMES.CREATE:
+					names = [EVENTS_REQUEST_NAMES.CREATE_VALID, EVENTS_REQUEST_NAMES.CREATE_NOT_VALID];
+					break;
+				case EVENTS_NAMES.EDIT:
+					names = [EVENTS_REQUEST_NAMES.EDIT_VALID, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID];
+					break;
+				case EVENTS_NAMES.DELETE:
+					names = [EVENTS_REQUEST_NAMES.DELETE_VALID, EVENTS_REQUEST_NAMES.DELETE_NOT_VALID];
+					break;
+			}
+
+			const nodes = this.createEventRequestNodes(names, ADMIN_REQUEST_EVENT_LOG_TYPE);
+			const promises = nodes.map((node) => eventLog.addChildInContext(node, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context!));
+
+			return Promise.all(promises);
+		} catch (error) {
+			return [];
 		}
-
-		const nodes = this.createEventRequestNodes(names, ADMIN_REQUEST_EVENT_LOG_TYPE);
-		const promises = nodes.map((node) => eventLog.addChildInContext(node, AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context));
-
-		return Promise.all(promises);
 	}
 
-	public async getLogCategory(categoryName: string): Promise<SpinalNode> {
+	public async getLogCategory(categoryName: string): Promise<SpinalNode | undefined> {
 		const context = await this.getLogsContext();
 		const categories = await context.getChildren(AUTH_SERVICE_LOG_CATEGORY_RELATION_NAME);
 
 		return categories.find((category) => category.getName().get() === categoryName);
 	}
 
-	public async getEventLog(category: SpinalNode | string, eventLog: string): Promise<SpinalNode> {
-		let categoryNode = category instanceof SpinalNode && category;
+	public async getEventLog(category: SpinalNode | string, eventLog: string): Promise<SpinalNode | undefined> {
+		let categoryNode: any = category instanceof SpinalNode && category;
 		if (!categoryNode) categoryNode = await this.getLogCategory(category as string);
+		if (!categoryNode) throw new Error("Log category not found");
 
 		const relationNames = [AUTH_SERVICE_LOG_USER_EVENT_RELATION_NAME, AUTH_SERVICE_LOG_APPLICATION_EVENT_RELATION_NAME, AUTH_SERVICE_LOG_PLATFORM_EVENT_RELATION_NAME, AUTH_SERVICE_LOG_ADMIN_EVENT_RELATION_NAME];
 
 		const eventLogs = await categoryNode.getChildren(relationNames);
 
-		return eventLogs.find((event) => event.getName().get() === eventLog);
+		return eventLogs.find((event: SpinalNode) => event.getName().get() === eventLog);
 	}
 
-	public async getEventRequestLog(eventLog: SpinalNode | string, eventRequest: string, category: SpinalNode | string) {
-		let eventLogNode = eventLog instanceof SpinalNode && eventLog;
+	public async getEventRequestLog(eventLog: SpinalNode | string, eventRequest: string, category: SpinalNode | string): Promise<SpinalNode | undefined> {
+		let eventLogNode: any = eventLog instanceof SpinalNode && eventLog;
 		if (!eventLogNode) eventLogNode = await this.getEventLog(category, eventLog as string);
+		if (!eventLogNode) throw new Error("Event log not found");
 
 		const eventRequestLogs = await eventLogNode.getChildren([AUTH_SERVICE_LOG_REQUEST_EVENT_RELATION_NAME]);
 
-		return eventRequestLogs.find((event) => event.getName().get() === eventRequest);
+		return eventRequestLogs.find((event: SpinalNode) => event.getName().get() === eventRequest);
 	}
 
-	public async createLog(_actor: SpinalNode<any>, _category: string, _eventLog: string, _eventrequest: string, message: string): Promise<void> {
-		const context = await this.getLogsContext();
-		const eventRequestLog = await this.getEventRequestLog(_eventLog, _eventrequest, _category);
+	public async createLog(_actor: SpinalNode | undefined, _category: string, _eventLog: string, _eventrequest: string, message: string): Promise<void> {
+		try {
+			const context = await this.getLogsContext();
+			if (!context) throw new Error("Logs context not found");
+			const eventRequestLog = await this.getEventRequestLog(_eventLog, _eventrequest, _category);
+			if (!eventRequestLog) throw new Error("Event request log not found");
 
-		const logNode = new SpinalNode("Log", USER_LOG_TYPE);
-		logNode.info.add_attr({
-			actor: {
-				actorId: _actor !== undefined ? _actor.getId().get() : "",
-				actorName: _actor !== undefined ? _actor?.getName().get() : "",
-			},
-			message: message,
-			date: Date.now(),
-		});
+			const logNode = new SpinalNode("Log", USER_LOG_TYPE);
+			logNode.info.add_attr({
+				actor: {
+					actorId: _actor !== undefined ? _actor.getId().get() : "",
+					actorName: _actor !== undefined ? _actor?.getName().get() : "",
+				},
+				message: message,
+				date: Date.now(),
+			});
 
-		await eventRequestLog.addChildInContext(logNode, AUTH_SERVICE_LOG_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
+			await eventRequestLog.addChildInContext(logNode, AUTH_SERVICE_LOG_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context!);
 
-		if (_actor !== undefined) await _actor.addChildInContext(logNode, AUTH_SERVICE_LOG_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
+			if (_actor !== undefined) await _actor.addChildInContext(logNode, AUTH_SERVICE_LOG_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context!);
 
-		await this.purgeLogs();
+			await this.purgeLogs();
+		} catch (error) {}
 	}
 
 	public async purgeLogs() {
@@ -388,7 +445,7 @@ export class LogsService {
 	}
 
 	private getLogLimit() {
-		let limit = parseInt(process.env.LIMIT_LOG);
+		let limit: any = process.env.LIMIT_LOG && parseInt(process.env.LIMIT_LOG);
 
 		if (isNaN(limit)) limit = 3000;
 

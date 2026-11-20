@@ -30,6 +30,7 @@ import { UserService } from "../routes/authUser/userService";
 import { SCOPES } from "../constant";
 import { AuthServerModel } from "../SSO/oauth/AuthServerModel";
 import { InsufficientScopeError, InvalidTokenError, Token } from "@node-oauth/oauth2-server";
+import { getCorsAllowedOrigins } from "../config";
 
 export async function expressAuthentication(request: express.Request, securityName: string, scopes?: string[]): Promise<any> {
 	try {
@@ -65,7 +66,20 @@ export function getToken(request: express.Request): string {
 		if (token) return token;
 	}
 
-	return request.body?.tokenParam || request.body?.token || request.query?.token || request.headers["x-access-token"];
+	const requestToken = request.body?.tokenParam || request.body?.token || request.query?.token || request.headers["x-access-token"];
+	if (requestToken) return requestToken;
+
+	const origin = request.headers.origin;
+	if (!origin || !getCorsAllowedOrigins().includes(origin)) return undefined;
+
+	return getCookieToken(request.headers.cookie);
+}
+
+function getCookieToken(cookieHeader?: string): string | undefined {
+	if (!cookieHeader) return undefined;
+
+	const tokenCookie = cookieHeader.split(";").find((cookie) => cookie.trim().startsWith("token="));
+	return tokenCookie?.slice(tokenCookie.indexOf("=") + 1).trim();
 }
 
 export async function verifyToken(token: string): Promise<any> {

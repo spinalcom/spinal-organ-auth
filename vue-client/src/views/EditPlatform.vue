@@ -10,20 +10,15 @@
         <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formPlatform.name.minLength">Le nom doit
           contenir au moins 3 caractères.</span>
 
-        <InputUser title="L'URL DE MIS A JOUR DE LA PLATEFORME" id="url" v-model="formPlatform.url" />
-        <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.url.required">L'URL de la plateforme
-          est requise.</span>
+        <InputUser title="L'URL  DE L'API PLATEFORME" id="appName" v-model="formPlatform.url" />
+        <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.url.required">L'URL de la
+          plateforme est requise.</span>
         <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.url.format">L'URL de la plateforme
           est invalide.</span>
 
-        <InputUser title="L'URL DE REDIRECTION DE LA PLATEFORME" id="redirectUrl" v-model="formPlatform.redirectUrl" />
-        <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.redirectUrl.required">
-          L'URL de redirection est requise.
-        </span>
-
-        <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.redirectUrl.format">
-          L'URL de redirection est invalide.
-        </span>
+        <InputUser title="L'URL  DU PORTAIL PLATEFORME" id="portalName" v-model="formPlatform.vueClientUrl" />
+        <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formPlatform.vueClientUrl.format">
+          L'URL du portail de la plateforme est invalide.</span>
 
         <SelectGrant title="GRANT TYPES" id="grant_types" v-model="formPlatform.grant_types"
           :value="formPlatform.grant_types" />
@@ -72,6 +67,7 @@
 <script>
 import InputUser from "../Components/InputUser";
 import { required, minLength } from "vuelidate/lib/validators";
+import { url } from "vuelidate/lib/validators";
 import { mapActions, mapGetters } from "vuex";
 import SelectGrant from "../Components/SelectGrants.vue";
 import { URL_REGEX } from "../services/formUtils";
@@ -89,7 +85,9 @@ export default {
         name: null,
         url: null,
         redirectUrl: null,
+        updateUrl: null,
         loginServerIds: [],
+        vueClientUrl: null,
       },
       iserrors: true,
     };
@@ -100,14 +98,19 @@ export default {
         required,
         minLength: minLength(3),
       },
-      redirectUrl: {
+      // redirectUrl: {
+      //   required,
+      //   format: (value) => {
+      //     return URL_REGEX.test(value);
+      //   },
+      // },
+      url: {
         required,
         format: (value) => {
           return URL_REGEX.test(value);
         },
       },
-      url: {
-        required,
+      vueClientUrl: {
         format: (value) => {
           return URL_REGEX.test(value);
         },
@@ -126,16 +129,28 @@ export default {
       this.$router.go(-1);
     },
 
+    getUrlBase(url) {
+      return new URL(url).origin;
+    },
+
+    cleanUrl(url) {
+      if (!url) return url;
+      let sanitized = url.trim();
+      if (!/^https?:\/\//i.test(sanitized)) {
+        sanitized = `https://${sanitized}`;
+      }
+      sanitized = sanitized.replace(/\/+$/, "");
+      return sanitized;
+    },
+
     async loadFormData() {
       const id = this.$route.query.id;
-      const platformData = await this.$store.dispatch(
-        "platforms/getPlatformInfo",
-        id
-      );
+      const platformData = await this.$store.dispatch("platforms/getPlatformInfo", id);
 
       this.formPlatform.name = platformData.name;
-      this.formPlatform.url = platformData.url;
-      this.formPlatform.redirectUrl = platformData.redirectUrl;
+      this.formPlatform.url = this.getUrlBase(platformData.url);
+      // this.formPlatform.redirectUrl = platformData.redirectUrl;
+      this.formPlatform.vueClientUrl = platformData.vueClientUrl;
       this.formPlatform.grant_types = platformData.grant_types;
       this.formPlatform.loginServerIds = await this.getServersIds(id);
     },
@@ -154,17 +169,28 @@ export default {
     async submitForm() {
       this.$v.$touch();
 
-      if (!this.$v.$invalid) {
-        this.editPlatformItem({
-          platform: this.formPlatform,
-          platformId: this.$route.query.id,
-        }).then(() => {
-          // this.$router.push("/PlatformsList");
-          this.$router.go(-1);
-        });
-      } else {
+      if (this.$v.$invalid) {
         this.iserrors = false;
+        return;
       }
+
+      const cleanedUrl = this.cleanUrl(this.formPlatform.url);
+      const payload = {
+        ...this.formPlatform,
+        url: cleanedUrl,
+        updateUrl: `${cleanedUrl}/api/v1/update_data`,
+        redirectUrl: `${cleanedUrl}/api/v1/callback`,
+      };
+
+
+      this.editPlatformItem({
+        platform: payload,
+        platformId: this.$route.query.id,
+      }).then(() => {
+        // this.$router.push("/PlatformsList");
+        this.$router.go(-1);
+      });
+
     },
 
     isLinked(item) {

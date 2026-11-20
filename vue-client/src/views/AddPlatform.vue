@@ -15,13 +15,18 @@
               <span class="errors" :class="{ showspan: iserrors }" v-else-if="!$v.formApp.name.minLength">Le nom doit
                 contenir au moins 3 caractères.</span>
 
-              <InputUser title="L'URL  DE LA PLATEFORME" id="appName" v-model="formApp.url" />
-
+              <InputUser title="L'URL  DE L'API PLATEFORME" id="appName" v-model="formApp.url" />
               <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.url.required">L'URL de la
                 plateforme est requise.</span>
-
               <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.url.format">L'URL de la plateforme
                 est invalide.</span>
+
+              <InputUser title="L'URL  DU PORTAIL PLATEFORME" id="portalName" v-model="formApp.vueClientUrl" />
+              <span class="errors" :class="{ showspan: iserrors }" v-if="!$v.formApp.vueClientUrl.format">
+                L'URL du portail de la plateforme est invalide.</span>
+
+
+
 
               <!-- <InputUser title="L'URL DE MIS A JOUR DE LA PLATEFORME" id="appName" v-model="formApp.url"
                 :placeholder="'http://lienApi/api/v1/update_data'" />
@@ -128,8 +133,10 @@ export default {
         clientId: generateRegisterKey(),
         clientSecret: generateRegisterKey(),
         redirectUrl: null,
+        updateUrl: null,
         url: null,
         loginServerIds: [],
+        vueClientUrl: null,
         // authentication_method: "",
         // authentication_info: {}
       },
@@ -163,6 +170,11 @@ export default {
       },*/
       url: {
         required,
+        format: (value) => {
+          return URL_REGEX.test(value);
+        },
+      },
+      vueClientUrl: {
         format: (value) => {
           return URL_REGEX.test(value);
         },
@@ -213,8 +225,9 @@ export default {
       const cleanedUrl = this.cleanUrl(this.formApp.url);
       const payload = {
         ...this.formApp,
-        url: `${cleanedUrl}/api/v1/update_data`,
+        url: cleanedUrl,
         redirectUrl: `${cleanedUrl}/callback`,
+        updateUrl: `${cleanedUrl}/api/v1/update_data`,
       };
 
       this.savePlatform(payload)

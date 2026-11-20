@@ -40,8 +40,8 @@ import axios from "axios";
 
 export class PlatformService {
 	static instance: PlatformService;
-	public platFormContext: SpinalContext;
-	public registerKeyContext: SpinalContext;
+	public platFormContext: SpinalContext | null = null;
+	public registerKeyContext: SpinalContext | null = null;
 
 	private constructor() {}
 
@@ -136,9 +136,11 @@ export class PlatformService {
 		return found;
 	}
 
-	public async getPlateformByApiUrl(apiUrl: string): Promise<SpinalNode> {
+	public async getPlateformByApiUrl(apiUrl: string): Promise<SpinalNode | undefined> {
 		const platforms = await this.getPlatformsNodes();
-		const found = platforms.find((platform) => platform.info.redirectUrl?.get().includes(apiUrl) || platform.info.url?.get().includes(apiUrl));
+		const found = platforms.find((platform) => {
+			return platform.info.redirectUrl?.get().includes(apiUrl) || platform.info.url?.get().includes(apiUrl) || platform.info.updateUrl?.get().includes(apiUrl);
+		});
 
 		return found;
 	}
@@ -148,7 +150,7 @@ export class PlatformService {
 		if (!platform) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 
 		for (const [key, value] of Object.entries(requestBody)) {
-			if (platform.info[key] && value !== undefined && value !== null) platform.info.mod_attr(key, value);
+			if (value !== undefined && value !== null) platform.info.mod_attr(key, value);
 		}
 
 		if (requestBody.loginServerIds) {
@@ -177,8 +179,8 @@ export class PlatformService {
 
 		if (lastToken !== platformCredential.token) throw new OperationError("UNAUTHORIZED", HttpStatusCode.UNAUTHORIZED);
 
-		const token = this.generateTokenBosAdmin(client.getName().get());
-		client.info.mod_attr("TokenBosAdmin", token);
+		const token = this.generateTokenBosAdmin(client?.getName()?.get());
+		client?.info?.mod_attr("TokenBosAdmin", token);
 		return token;
 	}
 
@@ -220,6 +222,8 @@ export class PlatformService {
 
 	public async updateRegisterKeyNode(): Promise<IRegisterKeyObject> {
 		const child = await this.getRegisterKeySpinalNode();
+		if (!child) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+
 		child.info.value.set(this.generateRegisterKey());
 
 		return {
@@ -232,6 +236,7 @@ export class PlatformService {
 
 	public async getRegisterKeyNode(): Promise<IRegisterKeyObject> {
 		const found = await this.getRegisterKeySpinalNode();
+		if (!found) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 
 		return {
 			id: found.getId().get(),
@@ -273,7 +278,7 @@ export class PlatformService {
 		return this._formatPlatform(plateform);
 	}
 
-	public async updateNewPlatform(updateParams) {
+	public async updateNewPlatform(updateParams: any) {
 		const [platform] = await this.getPlatformsNodes(updateParams.platformId);
 		if (!platform) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 
@@ -323,7 +328,9 @@ export class PlatformService {
 	public async sendUpdatePlatformDataRequest(plateformId: string) {
 		const [plateform] = await this.getPlatformsNodes(plateformId);
 		const token = plateform?.info?.TokenAdminBos?.get();
-		let url = plateform?.info?.url?.get();
+		const tempUrl = plateform?.info?.updateUrl?.get();
+
+		let url = tempUrl || plateform?.info?.url?.get();
 
 		if (!token || !url) {
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
@@ -366,7 +373,7 @@ export class PlatformService {
 		}
 	}
 
-	public async getRegisterKeySpinalNode(): Promise<SpinalNode> {
+	public async getRegisterKeySpinalNode(): Promise<SpinalNode | undefined> {
 		const context = await this.getRegisterKeyContext();
 		const childrens = await context.getChildren(AUTH_SERVICE_INFO_ADMIN_RELATION_NAME);
 		return childrens.find((child) => child.getName().get() === "registerKey");
@@ -380,7 +387,7 @@ export class PlatformService {
 		return nodes.filter((platform) => platform.getId().get() === id || platform.info.clientId?.get() === id);
 	}
 
-	public async getPlatformByClientId(clientId: string): Promise<SpinalNode> {
+	public async getPlatformByClientId(clientId: string): Promise<SpinalNode | undefined> {
 		const nodes = await this.getPlatformsNodes();
 		return nodes.find((platform) => platform.info.clientId?.get() === clientId);
 	}
@@ -414,7 +421,7 @@ export class PlatformService {
 			const id = el.getId().get();
 			obj[id] = el;
 			return obj;
-		}, {});
+		}, {} as Record<string, SpinalNode>);
 
 		const idsToAdd = [];
 
@@ -451,6 +458,8 @@ export class PlatformService {
 			statusPlatform: platform.info.statusPlatform?.get(),
 			url: platform.info.url?.get(),
 			redirectUrl: platform.info.redirectUrl?.get(),
+			updateUrl: platform.info.updateUrl?.get(),
+			vueClientUrl: platform.info.vueClientUrl?.get(),
 			address: platform.info.address?.get(),
 			TokenBosAdmin: platform.info.TokenBosAdmin?.get(),
 			TokenAdminBos: platform.info.TokenAdminBos?.get(),

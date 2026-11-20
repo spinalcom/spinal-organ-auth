@@ -69,6 +69,11 @@ SERVER_PROTOCOL="http" # https / http
 SSL_CERT_PATH=""
 SSL_KEY_PATH=""
 NODE_TLS_REJECT_UNAUTHORIZED=0
+
+# CORS / cookie authentication
+# Comma-separated exact origins of browser clients that call this API with credentials.
+# Required for cross-site HttpOnly cookie authentication; use HTTPS in production.
+CORS_ORIGINS="https://client.example.com"
 ```
 
 Start the application from the repository root:
