@@ -81,9 +81,13 @@ function isTrustedCookieOrigin(request: express.Request, origin: string): boolea
 
 	const host = request.get?.("host") || request.headers.host;
 	if (!host) return false;
-	const forwardedProtocol = request.headers["x-forwarded-proto"];
-	const protocol = request.protocol || (typeof forwardedProtocol === "string" ? forwardedProtocol.split(",")[0].trim() : request.secure ? "https" : "http");
-	return origin === `${protocol}://${host}`;
+
+	const originWithoutProtocol = origin.replace(/^https?:\/\//, "");
+	return originWithoutProtocol === host;
+
+	// const forwardedProtocol = request.headers["x-forwarded-proto"];
+	// const protocol = request.protocol || (typeof forwardedProtocol === "string" ? forwardedProtocol.split(",")[0].trim() : request.secure ? "https" : "http");
+	// return origin === `${protocol}://${host}`;
 }
 
 export async function verifyToken(token: string): Promise<any> {
