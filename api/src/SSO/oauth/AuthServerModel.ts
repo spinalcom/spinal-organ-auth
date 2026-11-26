@@ -67,7 +67,7 @@ export class AuthServerModel implements AuthorizationCodeModel, ClientCredential
 	}
 
 	public async getUser(username: string, password: string, client: Client): Promise<User | Falsey> {
-		const user = await UserService.getInstance().getUserByCredentials(username, password);
+		const user = await UserService.getInstance().getUserByCredentials(username, password, false, true, true);
 		if (!user) return null;
 
 		const obj = {

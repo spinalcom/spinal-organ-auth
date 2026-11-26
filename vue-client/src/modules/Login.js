@@ -21,7 +21,7 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-import { LogUserAnGetToken } from "@/router/genToken.js";
+import { loginUser } from "@/router/genToken.js";
 const instanceAxios = require("../services/axiosConfig");
 import router from "../router";
 export default {
@@ -34,31 +34,17 @@ export default {
   },
   actions: {
     async logout() {
-      const token = localStorage.getItem("token");
-
       try {
-        if (token) {
-          await instanceAxios.instanceAxios.post(
-            "/tokens/revokeToken",
-            { token },
-            {
-              headers: {
-                "Content-Type": "application/json",
-                "x-access-token": token,
-              },
-            }
-          );
-        }
+        await instanceAxios.instanceAxios.post("/tokens/logout");
       } catch (error) {
         console.error("Error while revoking token:", error);
       } finally {
-        localStorage.removeItem("token");
         router.replace("/Login");
       }
     },
     async login(context, formuser) {
       try {
-        await LogUserAnGetToken(formuser.userName, formuser.password);
+        await loginUser(formuser.userName, formuser.password);
         router.push("/");
       } catch (error) {
         console.log(error);
@@ -69,7 +55,6 @@ export default {
       const rep = await instanceAxios.instanceAxios.get("/users", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
       // console.log(rep.data);
@@ -79,7 +64,6 @@ export default {
       const rep = await instanceAxios.instanceAxios.get("/tokens/UserToken", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
       // console.log(rep.data);

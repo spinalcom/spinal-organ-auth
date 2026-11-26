@@ -45,6 +45,18 @@ export type IUserToken = IToken & {
 	platformList?: IUserPlatformProfile[];
 };
 
+export interface IUserSession {
+	name: string;
+	type?: string;
+	createdToken?: number;
+	expieredToken?: number;
+	userId?: string;
+	userType?: string;
+	userProfile?: string;
+	serverId?: string;
+	platformList?: IUserPlatformProfile[];
+}
+
 export type IApplicationToken = IToken & {
 	applicationId?: string;
 	applicationProfileList?: string[];

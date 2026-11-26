@@ -35,7 +35,7 @@ export function RegisterOpenIdRoutes(app: express.Application) {
 					const vueClientUrl = (platform as any)?.vueClientUrl;
 
 					if (vueClientUrl) {
-						return sendResponseToClientUrl(res, vueClientUrl, resData.token);
+						return sendResponseToClientUrl(res, vueClientUrl, resData.token, resData.expieredToken);
 					}
 
 					const html = formatResponseHtml((platform as any).redirectUrl, resData);

@@ -229,9 +229,20 @@ const models: TsoaRoute.Models = {
         "type": {"dataType":"intersection","subSchemas":[{"ref":"ITokenPlatform"},{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfile":{"ref":"IUserProfileToken","required":true}}}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "IUserToken": {
-        "dataType": "refAlias",
-        "type": {"dataType":"intersection","subSchemas":[{"ref":"IToken"},{"dataType":"nestedObjectLiteral","nestedProperties":{"platformList":{"dataType":"array","array":{"dataType":"refAlias","ref":"IUserPlatformProfile"}},"serverId":{"dataType":"string"},"userProfile":{"dataType":"string"},"userType":{"dataType":"string"},"userId":{"dataType":"string"}}}],"validators":{}},
+    "IUserSession": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string","required":true},
+            "type": {"dataType":"string"},
+            "createdToken": {"dataType":"double"},
+            "expieredToken": {"dataType":"double"},
+            "userId": {"dataType":"string"},
+            "userType": {"dataType":"string"},
+            "userProfile": {"dataType":"string"},
+            "serverId": {"dataType":"string"},
+            "platformList": {"dataType":"array","array":{"dataType":"refAlias","ref":"IUserPlatformProfile"}},
+        },
+        "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IUserLoginParams": {
@@ -1061,6 +1072,7 @@ export function RegisterRoutes(app: express.Router) {
             function UsersController_login(request: any, response: any, next: any) {
             const args = {
                     requestBody: {"in":"body","name":"requestBody","required":true,"ref":"IUserLoginParams"},
+                    request: {"in":"request","name":"request","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1087,6 +1099,7 @@ export function RegisterRoutes(app: express.Router) {
             function UsersController_loginAuthAdmin(request: any, response: any, next: any) {
             const args = {
                     requestBody: {"in":"body","name":"requestBody","required":true,"ref":"IUserLoginParams"},
+                    request: {"in":"request","name":"request","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1874,6 +1887,57 @@ export function RegisterRoutes(app: express.Router) {
 
               const promise = controller.updatePlatform.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, 201, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/tokens/verifySession',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(TokensController)),
+            ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.verifySession)),
+
+            function TokensController_verifySession(request: any, response: any, next: any) {
+            const args = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new TokensController();
+
+
+              const promise = controller.verifySession.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/tokens/logout',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(TokensController)),
+            ...(fetchMiddlewares<RequestHandler>(TokensController.prototype.logout)),
+
+            function TokensController_logout(request: any, response: any, next: any) {
+            const args = {
+                    request: {"in":"request","name":"request","required":true,"dataType":"object"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new TokensController();
+
+
+              const promise = controller.logout.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
             }

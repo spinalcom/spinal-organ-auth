@@ -649,35 +649,46 @@
 					}
 				]
 			},
-			"IUserToken": {
-				"allOf": [
-					{
-						"$ref": "#/components/schemas/IToken"
+			"IUserSession": {
+				"properties": {
+					"name": {
+						"type": "string"
 					},
-					{
-						"properties": {
-							"platformList": {
-								"items": {
-									"$ref": "#/components/schemas/IUserPlatformProfile"
-								},
-								"type": "array"
-							},
-							"serverId": {
-								"type": "string"
-							},
-							"userProfile": {
-								"type": "string"
-							},
-							"userType": {
-								"type": "string"
-							},
-							"userId": {
-								"type": "string"
-							}
+					"type": {
+						"type": "string"
+					},
+					"createdToken": {
+						"type": "number",
+						"format": "double"
+					},
+					"expieredToken": {
+						"type": "number",
+						"format": "double"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"userType": {
+						"type": "string"
+					},
+					"userProfile": {
+						"type": "string"
+					},
+					"serverId": {
+						"type": "string"
+					},
+					"platformList": {
+						"items": {
+							"$ref": "#/components/schemas/IUserPlatformProfile"
 						},
-						"type": "object"
+						"type": "array"
 					}
-				]
+				},
+				"required": [
+					"name"
+				],
+				"type": "object",
+				"additionalProperties": false
 			},
 			"IUserLoginParams": {
 				"properties": {
@@ -2608,7 +2619,7 @@
 								"schema": {
 									"anyOf": [
 										{
-											"$ref": "#/components/schemas/IUserToken"
+											"$ref": "#/components/schemas/IUserSession"
 										},
 										{
 											"properties": {
@@ -2659,7 +2670,7 @@
 								"schema": {
 									"anyOf": [
 										{
-											"$ref": "#/components/schemas/IUserToken"
+											"$ref": "#/components/schemas/IUserSession"
 										},
 										{
 											"properties": {
@@ -4132,6 +4143,74 @@
 						}
 					}
 				}
+			}
+		},
+		"/tokens/verifySession": {
+			"get": {
+				"operationId": "VerifySession",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"authenticated": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"authenticated"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Tokens"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/tokens/logout": {
+			"post": {
+				"operationId": "Logout",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Tokens"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
 			}
 		},
 		"/tokens": {

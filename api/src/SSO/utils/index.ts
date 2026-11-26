@@ -7,9 +7,10 @@ import { PlatformService } from "../../routes/platform/platformServices";
 import { TokensService } from "../../routes/tokens/tokenService";
 import { ISSOUser } from "../interfaces/ISSOUser";
 import loginService from "../../routes/loginServer/loginServerService";
+import { setAuthCookie } from "../../security/authCookie";
 
-export function sendResponseToClientUrl(res: express.Response, url: string, token: string) {
-	res.cookie("token", token, { httpOnly: false, sameSite: "none", secure: true });
+export function sendResponseToClientUrl(res: express.Response, url: string, token: string, expirationInSeconds?: number) {
+	setAuthCookie(res, token, expirationInSeconds);
 	return res.redirect(url);
 }
 

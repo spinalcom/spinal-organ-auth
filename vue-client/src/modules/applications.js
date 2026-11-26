@@ -48,7 +48,6 @@ export default {
       const rep = await instanceAxios.instanceAxios.get("/applications", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
       commit("setappList", rep.data);
@@ -59,7 +58,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -72,7 +70,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -84,7 +81,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -113,7 +109,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -128,7 +123,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -146,7 +140,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -164,7 +157,6 @@ export default {
       await instanceAxios.instanceAxios.delete(`/applications/${id}`, {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
       router.push("/Application");

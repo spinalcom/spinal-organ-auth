@@ -22,12 +22,14 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Body, Controller, Delete, Get, Path, Post, Put, Route, Security, SuccessResponse, Tags } from "tsoa";
+import { Body, Controller, Delete, Get, Path, Post, Put, Request, Route, Security, SuccessResponse, Tags } from "tsoa";
+import * as express from "express";
 import { IUser, IUserCreationParams, IUserUpdateParams, IUserLoginParams, IAuthAdminUpdateParams, IUserLogs, IUpdateUserPassword } from "./user.model";
 import { UserService } from "./userService";
-import { IUserToken } from "../tokens/token.model";
+import { IUserSession, IUserToken } from "../tokens/token.model";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 import { SCOPES } from "../../constant";
+import { setAuthCookie } from "../../security/authCookie";
 
 @Tags("Users")
 @Route("users")
@@ -165,11 +167,12 @@ export class UsersController extends Controller {
 
 	@Security("all")
 	@Post("/login")
-	public async login(@Body() requestBody: IUserLoginParams): Promise<IUserToken | { error: string }> {
+	public async login(@Body() requestBody: IUserLoginParams, @Request() request: express.Request): Promise<IUserSession | { error: string }> {
 		try {
 			const userToken = await UserService.getInstance().login(requestBody);
+			setAuthCookie(request.res, userToken.token, userToken.expieredToken);
 			this.setStatus(HttpStatusCode.OK);
-			return userToken;
+			return this._formatSession(userToken);
 		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
@@ -178,11 +181,12 @@ export class UsersController extends Controller {
 
 	@Security("all")
 	@Post("/loginAuthAdmin")
-	public async loginAuthAdmin(@Body() requestBody: IUserLoginParams): Promise<IUserToken | { error: string }> {
+	public async loginAuthAdmin(@Body() requestBody: IUserLoginParams, @Request() request: express.Request): Promise<IUserSession | { error: string }> {
 		try {
 			const userToken = await UserService.getInstance().loginAuthAdmin(requestBody);
+			setAuthCookie(request.res, userToken.token, userToken.expieredToken);
 			this.setStatus(HttpStatusCode.OK);
-			return userToken;
+			return this._formatSession(userToken);
 		} catch (error: any) {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
@@ -212,5 +216,10 @@ export class UsersController extends Controller {
 			this.setStatus(error.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
 			return { error: error.message };
 		}
+	}
+
+	private _formatSession(userToken: IUserToken): IUserSession {
+		const { token, ...session } = userToken;
+		return session;
 	}
 }

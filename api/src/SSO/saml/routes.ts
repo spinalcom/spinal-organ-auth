@@ -32,7 +32,7 @@ export function RegisterSamlRoutes(app: express.Application) {
 				const vueClientUrl = data.platform.vueClientUrl;
 
 				if (vueClientUrl) {
-					return sendResponseToClientUrl(res, vueClientUrl, resData.token);
+					return sendResponseToClientUrl(res, vueClientUrl, resData.token, resData.expieredToken);
 				}
 
 				const html = formatResponseHtml(data.platform.redirectUrl, resData);

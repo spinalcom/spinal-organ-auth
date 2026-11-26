@@ -36,7 +36,6 @@ export default {
       const rep = await instanceAxios.instanceAxios.post("/users", objectBody, {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
       if (rep) {
@@ -66,7 +65,6 @@ export default {
         await instanceAxios.instanceAxios.delete(`/users/${user.id}`, {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         });
 
@@ -85,7 +83,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -101,7 +98,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -111,7 +107,6 @@ export default {
       const rep = await instanceAxios.instanceAxios.get(`/platforms`, {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
       commit("setplatformList", rep.data);
@@ -124,7 +119,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -139,7 +133,6 @@ export default {
       const rep = await instanceAxios.instanceAxios.get("/users", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
       commit("setUserList", rep.data);
@@ -149,7 +142,6 @@ export default {
       const rep = await instanceAxios.instanceAxios.get(`/users/${userId}`, {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
       await dispatch("getplatforms", rep.data);
@@ -162,7 +154,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -190,7 +181,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );

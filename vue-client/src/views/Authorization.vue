@@ -49,7 +49,7 @@
 
           <div class="localLogin" v-if="localServers.length > 0">
             <div class="alertDiv" :class="{ hide: !showError }">
-              incorrect login and/or password !
+              {{ errorMessage }}
             </div>
 
             <v-text-field
@@ -108,6 +108,7 @@ export default {
       logoSvg,
       showPassword: false,
       showError: false,
+      errorMessage: "Nom d'utilisateur et/ou mot de passe incorrect.",
       hiddenData: {},
       hiddenKeys: [],
       externalServers: [],
@@ -120,17 +121,27 @@ export default {
   },
   async mounted() {
     this.hiddenData = this.$route.query || {};
+    this.credential.username = this.hiddenData.username || "";
+    this.credential.password = "";
 
-    Object.entries(this.hiddenData).forEach(([key, value]) => {
-      this.credential[key] = value;
-    });
+    // Let the credential watcher process the restored username before showing
+    // the authentication error, so the initial update cannot hide the message.
+    await this.$nextTick();
 
     this.hiddenKeys = Object.keys(this.hiddenData).filter(
-      (key) => key !== "username" && key !== "password"
+      (key) =>
+        key !== "username" &&
+        key !== "password" &&
+        key !== "error" &&
+        key !== "account_locked"
     );
 
     if (this.hiddenData.error) {
       this.showError = true;
+      if (String(this.hiddenData.account_locked) === "true") {
+        this.errorMessage =
+          "Ce compte est temporairement verrouillé. Réessayez plus tard.";
+      }
     }
 
     await this.setServers();

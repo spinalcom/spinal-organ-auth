@@ -16,15 +16,13 @@
           @generate="generatePassword" />
         <span class="errors" v-if="$v.formUser.password.$error && !$v.formUser.password.required">Le mot de passe est
           obligatoire.</span>
-        <span class="errors" v-else-if="$v.formUser.password.$error && !$v.formUser.password.minLength">Le mot de passe
-          doit contenir au moins 8 caractères.</span>
+        <span class="errors" v-else-if="$v.formUser.password.$error && !$v.formUser.password.passwordPolicy">
+          {{ passwordPolicyMessage }}
+        </span>
 
         <InputPass title="CONFIRMER MOT DE PASSE" id="confirmPassword" v-model="formUser.confirm_password" />
         <span class="errors" v-if="$v.formUser.confirm_password.$error && !$v.formUser.confirm_password.required">La
           confirmation de mot de passe est obligatoire.</span>
-        <span class="errors"
-          v-else-if="$v.formUser.confirm_password.$error && !$v.formUser.confirm_password.minLength">La
-          confirmation doit contenir au moins 8 caractères.</span>
         <span class="errors" v-else-if="conf_pass">
           La confirmation de mot de passe doit être identique au mot de passe.
         </span>
@@ -72,6 +70,14 @@ import { validationMixin } from "vuelidate";
 import { required, minLength, email, numeric } from "vuelidate/lib/validators";
 import { mapActions } from "vuex";
 import { USER_TYPES } from "../services/formUtils";
+import {
+  generateCompliantPassword,
+  isPasswordValid,
+  PASSWORD_POLICY_MESSAGE,
+} from "../services/passwordPolicy";
+
+const passwordPolicy = (password, formUser) =>
+  isPasswordValid(password, formUser && formUser.userName);
 
 export default {
   mixins: [validationMixin],
@@ -98,6 +104,7 @@ export default {
       userType: USER_TYPES,
       conf_pass: false,
       platformList: [],
+      passwordPolicyMessage: PASSWORD_POLICY_MESSAGE,
     };
   },
 
@@ -109,11 +116,10 @@ export default {
       },
       password: {
         required,
-        minLength: minLength(8),
+        passwordPolicy,
       },
       confirm_password: {
         required,
-        minLength: minLength(8),
       },
       email: {
         email,
@@ -132,32 +138,7 @@ export default {
 
   methods: {
     generatePassword() {
-      const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
-      const lower = "abcdefghijkmnopqrstuvwxyz";
-      const numbers = "23456789";
-      const symbols = "!@#$%*_-";
-      const allChars = upper + lower + numbers + symbols;
-
-      const pick = (chars) => chars[Math.floor(Math.random() * chars.length)];
-      const passwordChars = [
-        pick(upper),
-        pick(lower),
-        pick(numbers),
-        pick(symbols),
-      ];
-
-      for (let i = passwordChars.length; i < 12; i += 1) {
-        passwordChars.push(pick(allChars));
-      }
-
-      for (let i = passwordChars.length - 1; i > 0; i -= 1) {
-        const j = Math.floor(Math.random() * (i + 1));
-        const tmp = passwordChars[i];
-        passwordChars[i] = passwordChars[j];
-        passwordChars[j] = tmp;
-      }
-
-      const generatedPassword = passwordChars.join("");
+      const generatedPassword = generateCompliantPassword(16, this.formUser.userName);
       this.formUser.password = generatedPassword;
       this.formUser.confirm_password = generatedPassword;
       this.conf_pass = false;

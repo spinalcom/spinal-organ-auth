@@ -31,6 +31,7 @@ import { SCOPES } from "../constant";
 import { AuthServerModel } from "../SSO/oauth/AuthServerModel";
 import { InsufficientScopeError, InvalidTokenError, Token } from "@node-oauth/oauth2-server";
 import { getCorsAllowedOrigins } from "../config";
+import { getAuthCookie } from "./authCookie";
 
 export async function expressAuthentication(request: express.Request, securityName: string, scopes?: string[]): Promise<any> {
 	try {
@@ -70,16 +71,19 @@ export function getToken(request: express.Request): string {
 	if (requestToken) return requestToken;
 
 	const origin = request.headers.origin;
-	if (!origin || !getCorsAllowedOrigins().includes(origin)) return undefined;
+	if (origin && !isTrustedCookieOrigin(request, origin)) return undefined;
 
-	return getCookieToken(request.headers.cookie);
+	return getAuthCookie(request.headers.cookie);
 }
 
-function getCookieToken(cookieHeader?: string): string | undefined {
-	if (!cookieHeader) return undefined;
+function isTrustedCookieOrigin(request: express.Request, origin: string): boolean {
+	if (getCorsAllowedOrigins().includes(origin)) return true;
 
-	const tokenCookie = cookieHeader.split(";").find((cookie) => cookie.trim().startsWith("token="));
-	return tokenCookie?.slice(tokenCookie.indexOf("=") + 1).trim();
+	const host = request.get?.("host") || request.headers.host;
+	if (!host) return false;
+	const forwardedProtocol = request.headers["x-forwarded-proto"];
+	const protocol = request.protocol || (typeof forwardedProtocol === "string" ? forwardedProtocol.split(",")[0].trim() : request.secure ? "https" : "http");
+	return origin === `${protocol}://${host}`;
 }
 
 export async function verifyToken(token: string): Promise<any> {

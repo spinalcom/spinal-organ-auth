@@ -47,6 +47,35 @@ describe("expressAuthentication scope checks", () => {
             );
         });
 
+        it("reads the token cookie for a same-origin request without an Origin header", () => {
+            assert.equal(
+                getToken({
+                    headers: { cookie: "token=jwt-token" },
+                    body: {},
+                    query: {},
+                }),
+                "jwt-token"
+            );
+        });
+
+        it("reads the token cookie for an explicit same-origin request", () => {
+            delete process.env.CORS_ORIGINS;
+            assert.equal(
+                getToken({
+                    protocol: "https",
+                    get: (name) => name === "host" ? "auth.example.com" : undefined,
+                    headers: {
+                        origin: "https://auth.example.com",
+                        host: "auth.example.com",
+                        cookie: "token=jwt-token",
+                    },
+                    body: {},
+                    query: {},
+                }),
+                "jwt-token"
+            );
+        });
+
         it("does not use a token cookie for an unconfigured origin", () => {
             process.env.CORS_ORIGINS = "https://client.example.com";
 

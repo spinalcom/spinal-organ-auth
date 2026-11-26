@@ -54,7 +54,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -65,7 +64,6 @@ export default {
       const rep = await instanceAxios.instanceAxios.get("/users", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
       // console.log(platformId);
@@ -91,7 +89,6 @@ export default {
       const rep = await instanceAxios.instanceAxios.get("/applications", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
       dispatch("getAPPSFromPltaform", { platformId, data: rep.data });
@@ -117,7 +114,6 @@ export default {
       const rep = await instanceAxios.instanceAxios.get("/platforms", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
       this.platformList = rep.data;
@@ -139,7 +135,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -152,7 +147,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -166,7 +160,6 @@ export default {
           {
             headers: {
               "Content-Type": "application/json",
-              "x-access-token": localStorage.getItem("token"),
             },
           }
         );
@@ -184,7 +177,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -205,7 +197,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -218,7 +209,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -231,7 +221,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -245,7 +234,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -256,7 +244,6 @@ export default {
       const rep = await instanceAxios.instanceAxios.get("/registerKey", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
       commit("setregisterkey", rep.data);
@@ -269,7 +256,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -281,7 +267,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );

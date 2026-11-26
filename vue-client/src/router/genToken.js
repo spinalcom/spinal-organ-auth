@@ -21,71 +21,25 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-const TOKEN = "token";
-const router = require("../router");
 const instanceAxios = require("../services/axiosConfig");
 
-export async function LogUserAnGetToken(user, pass) {
-  let userparams = {
+export async function loginUser(user, pass) {
+  localStorage.removeItem("token"); // Remove tokens left by versions prior to HttpOnly cookies.
+  const userparams = {
     userName: user,
     password: pass,
   };
-  // console.error(process.env.SPINAL_HOST_API);
-  const { data } = await instanceAxios.instanceAxios.post(
+  return instanceAxios.instanceAxios.post(
     "/users/loginAuthAdmin",
     userparams
   );
-  if (data) {
-    localStorage.setItem(TOKEN, data.token);
-  }
-  return {
-    limit: data.expieredToken,
-    token: data.token,
-  };
 }
-
-// async function* genToken(user, pass) {
-//   let token;
-//   if (user && pass) {
-//     token = await getToken(user, pass);
-//     // isLogedin = true;
-//     yield token;
-//   } else token = localStorage.getItem(TOKEN);
-
-//   // isLogedin = true;
-//   while (true) {
-//     yield token;
-//   }
-// }
-
-// // export let isLogedin = false;
-// let _tokenGen = null;
-
-// export async function tokenGen(user = null, pass = null) {
-//   try {
-//     if (!_tokenGen) {
-//       _tokenGen = await genToken(user, pass);
-//     }
-//     return await _tokenGen.next();
-//   } catch (error) {
-//     _tokenGen = null;
-//     throw error;
-//   }
-// }
 
 export async function isAuthenticate() {
   try {
-    let token = localStorage.getItem(TOKEN);
-    if (!token) return false;
-
-    return instanceAxios.instanceAxios
-      .post("/tokens/verifyToken", { tokenParam: token, actor: "user" })
-      .then(() => {
-        return true;
-      })
-      .catch(() => {
-        return false;
-      });
+    localStorage.removeItem("token"); // One-time migration cleanup for existing browsers.
+    await instanceAxios.instanceAxios.get("/tokens/verifySession");
+    return true;
   } catch (error) {
     return false;
   }

@@ -37,7 +37,6 @@ export default {
       const rep = await instanceAxios.instanceAxios.get("/logs", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
       commit("setlogList", rep.data);

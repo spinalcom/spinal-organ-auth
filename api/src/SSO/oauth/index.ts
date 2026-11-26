@@ -45,7 +45,8 @@ export class SpinalOAuth2Server extends OAuth2Server {
 		} catch (error) {
 			console.error("error.message", error.message);
 
-			const query = Object.assign({ error: true }, { ...req.body });
+			const accountLocked = error?.status === HttpStatusCode.LOCKED || error?.message === "ACCOUNT_LOCKED";
+			const query = Object.assign({ error: true, ...(accountLocked && { account_locked: true }) }, { ...req.body });
 			delete query.password;
 
 			res.redirect(url.format({ pathname: "/authorize", query }));

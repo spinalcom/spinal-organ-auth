@@ -8,6 +8,7 @@ import * as path from "path";
 import { UserService } from "./routes/authUser/userService";
 import { formatResponseHtml } from "./utilities/formatResponseHtml";
 import { sendResponseToClientUrl } from "./SSO/utils";
+import { URLSearchParams } from "url";
 
 export async function redirectToLoginPage(req: express.Request, res: express.Response) {
 	try {
@@ -86,7 +87,7 @@ async function loginWithLocal(req: express.Request, res: express.Response) {
 
 		if (vueClientUrl) {
 			const token = userToken.token;
-			return sendResponseToClientUrl(res, vueClientUrl, token);
+			return sendResponseToClientUrl(res, vueClientUrl, token, userToken.expieredToken);
 		}
 
 		const html = formatResponseHtml(platform.redirectUrl, userToken);
@@ -94,6 +95,15 @@ async function loginWithLocal(req: express.Request, res: express.Response) {
 		res.send(html);
 	} catch (error) {
 		console.error(error);
-		res.redirect(`/login/${platformId}?error=true`);
+		const accountLocked = error?.status === HttpStatusCode.LOCKED || error?.message === "ACCOUNT_LOCKED";
+		res.redirect(buildLocalLoginFailureUrl(platformId, req.body?.userName, accountLocked));
 	}
+}
+
+export function buildLocalLoginFailureUrl(platformId: string, userName?: unknown, accountLocked: boolean = false): string {
+	const query = new URLSearchParams({ error: "true" });
+	if (accountLocked) query.set("account_locked", "true");
+	if (typeof userName === "string" && userName.length > 0) query.set("userName", userName);
+
+	return `/login/${encodeURIComponent(platformId)}?${query.toString()}`;
 }

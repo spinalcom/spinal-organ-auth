@@ -22,12 +22,14 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Body, Controller, Get, Post, Route, Security, Tags } from "tsoa";
+import { Body, Controller, Get, Post, Request, Route, Security, Tags } from "tsoa";
+import * as express from "express";
 import { IToken, IUserToken, IApplicationToken } from "./token.model";
 import { TokensService } from "./tokenService";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 import { createRedirectToBosUrl } from "../../utilities/redirectToBos";
 import { SCOPES } from "../../constant";
+import { clearAuthCookie, getAuthCookie } from "../../security/authCookie";
 
 type ITokenProfileRequest = {
 	token: string;
@@ -47,6 +49,26 @@ type IRevokeTokenRequest = {
 @Tags("Tokens")
 @Route("tokens")
 export class TokensController extends Controller {
+	@Security("jwt")
+	@Get("/verifySession")
+	public verifySession(): { authenticated: boolean } {
+		this.setStatus(HttpStatusCode.OK);
+		return { authenticated: true };
+	}
+
+	@Security("jwt")
+	@Post("/logout")
+	public async logout(@Request() request: express.Request): Promise<{ message: string }> {
+		try {
+			const token = getAuthCookie(request.headers.cookie);
+			if (token) await TokensService.getInstance().removeToken(token);
+		} finally {
+			clearAuthCookie(request.res);
+		}
+		this.setStatus(HttpStatusCode.OK);
+		return { message: "Logged out" };
+	}
+
 	@Security("jwt", [SCOPES.authAdmin, SCOPES.tokensRead])
 	@Get("")
 	public async getTokens(): Promise<IToken[] | { error: string }> {

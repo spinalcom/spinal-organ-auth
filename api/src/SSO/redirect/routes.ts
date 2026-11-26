@@ -13,7 +13,7 @@ export function registerRedirectToBosRoute(app: express.Application) {
 			if (!tokenInfo || !tokenInfo.token) throw { status: HttpStatusCode.BAD_REQUEST, message: "tokenInfo not found" };
 
 			if (vueClientUrl) {
-				return sendResponseToClientUrl(res, vueClientUrl, tokenInfo.token);
+				return sendResponseToClientUrl(res, vueClientUrl, tokenInfo.token, tokenInfo.expieredToken);
 			}
 
 			if (!callbackUrl) throw { status: HttpStatusCode.BAD_REQUEST, message: "callbackUrl not found" };

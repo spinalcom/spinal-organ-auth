@@ -18,7 +18,6 @@ export default {
       const res = await instanceAxios.post("/loginserver/create", server, {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
 
@@ -32,7 +31,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -46,7 +44,6 @@ export default {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-access-token": localStorage.getItem("token"),
           },
         }
       );
@@ -61,7 +58,6 @@ export default {
       const res = await instanceAxios.get("/loginserver/" + serverId, {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
 
@@ -74,7 +70,6 @@ export default {
       const res = await instanceAxios.get("/loginserver/all_servers", {
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": localStorage.getItem("token"),
         },
       });
 

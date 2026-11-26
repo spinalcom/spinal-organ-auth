@@ -37,21 +37,12 @@ instanceAxios.interceptors.response.use(
     return response;
   },
   (error) => {
-    // if (error?.response?.status === 401) {
-    // localStorage.removeItem('token');
-    // router.push("/Login");
-    // }
-    if (error.response && error.response.data) {
-      return Promise.reject(error.response.data);
-    }
-
-    return Promise.reject(error.message);
+    return Promise.reject(error);
   }
 );
 
 export function getAxiosHeader() {
   return {
     "Content-Type": "application/json",
-    "x-access-token": localStorage.getItem("token"),
   };
 }

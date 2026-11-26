@@ -43,6 +43,7 @@ import { registerRedirectToBosRoute } from "./SSO/redirect/routes";
 import { initSwagger } from "./initSwagger";
 import { buildApiErrorResponse, getErrorStatus } from "./utilities/apiErrorResponse";
 import { OperationError } from "./utilities/operation-error";
+import { getAuthCookieOptions } from "./security/authCookie";
 
 // const jsonFile = require("../build/swagger.json");
 // var history = require("connect-history-api-fallback");
@@ -52,6 +53,10 @@ function Server(): express.Express {
 	const authorizationPagePath = path.resolve(__dirname, "../authorizationPage");
 
 	const app: any = express();
+	const secureCookies = Boolean(getAuthCookieOptions().secure);
+	const sessionSecret = process.env.TOKEN_SECRET;
+	if (!sessionSecret) throw new Error("MISSING_TOKEN_SECRET");
+	if (secureCookies) app.set("trust proxy", 1);
 
 	app.set("view engine", "ejs");
 
@@ -63,7 +68,19 @@ function Server(): express.Express {
 	app.disable("x-powered-by");
 	app.use(express.json());
 	app.use(express.urlencoded({ extended: true }));
-	app.use(session({ secret: "sessionSecret", resave: true, saveUninitialized: true, cookie: { secure: false, maxAge: 60000 } }));
+	app.use(
+		session({
+			secret: sessionSecret,
+			resave: false,
+			saveUninitialized: false,
+			cookie: {
+				httpOnly: true,
+				secure: secureCookies,
+				sameSite: "lax",
+				maxAge: 60 * 60 * 1000,
+			},
+		}),
+	);
 	app.use(passport.initialize());
 	app.use(passport.session());
 

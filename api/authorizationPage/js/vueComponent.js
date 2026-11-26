@@ -2,7 +2,7 @@
 new Vue({
     el: '#app',
     vuetify: new Vuetify(),
-    mounted() {
+    async mounted() {
         this.platformId = location.pathname.split("/").filter(el => el)[1];
         let serversJson = JSON.parse(servers);
         const { local, external } = serversJson.reduce((data, ser) => {
@@ -16,6 +16,12 @@ new Vue({
         this.externalServers = external;
 
         this.queries = this.getQueries();
+        this.credential.userName = this.queries.userName || "";
+        this.credential.password = "";
+
+        // Wait for the credential watcher triggered by the restored username.
+        // Otherwise it hides the authentication error immediately afterwards.
+        await this.$nextTick();
 
         if (this.queries.error) {
             this.hide = false;
@@ -31,6 +37,9 @@ new Vue({
     },
     computed: {
         errorMessage() {
+            if (this.queries.account_locked === "true") {
+                return "Ce compte est temporairement verrouillé. Réessayez plus tard."
+            }
             return this.queries.error_description || "incorrect login and/or password !"
         }
     },
@@ -59,8 +68,13 @@ new Vue({
     },
     methods: {
         getQueries() {
-            return location.search.substr(1).split("&").reduce((obj, q) => {
-                const [key, value] = q.split("=")
+            if (!location.search) return {};
+            return location.search.substr(1).split("&").reduce((obj, queryPart) => {
+                const separatorIndex = queryPart.indexOf("=");
+                const rawKey = separatorIndex === -1 ? queryPart : queryPart.slice(0, separatorIndex);
+                const rawValue = separatorIndex === -1 ? "" : queryPart.slice(separatorIndex + 1);
+                const key = decodeURIComponent(rawKey.replace(/\+/g, " "));
+                const value = decodeURIComponent(rawValue.replace(/\+/g, " "));
                 obj[key] = value;
                 return obj;
             }, {})

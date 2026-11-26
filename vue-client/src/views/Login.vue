@@ -8,7 +8,7 @@
         <p class="mb-12 title">CONNEXION</p>
         <form class="form_div" novalidate @submit.prevent="submitLogin">
           <v-alert type="error" v-show="displayError">
-            Username and/or password incorrect !
+            {{ loginErrorMessage }}
           </v-alert>
 
           <div>
@@ -41,6 +41,7 @@ export default {
   data() {
     return {
       displayError: false,
+      loginErrorMessage: "Nom d'utilisateur et/ou mot de passe incorrect.",
       formUser: {
         // userName: "authAdmin",
         // password: "123456789",
@@ -53,6 +54,10 @@ export default {
   methods: {
     submitLogin() {
       this.$store.dispatch("login/login", this.formUser).catch((err) => {
+        this.loginErrorMessage =
+          err.response && err.response.status === 423
+            ? "Ce compte est temporairement verrouillé. Réessayez plus tard."
+            : "Nom d'utilisateur et/ou mot de passe incorrect.";
         this.displayError = true;
       });
     },

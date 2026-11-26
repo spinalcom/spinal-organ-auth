@@ -35,6 +35,8 @@ import { PlatformService } from "../platform/platformServices";
 import { TokensService } from "../tokens/tokenService";
 import { updateProfileRelations } from "../platform/profileRelations";
 import { getUserScopes } from "../../scopes";
+import { getPasswordPolicyError } from "./passwordPolicy";
+import { getLoginSecurityConfig, LoginAttemptState, normalizeLoginAttemptState, registerFailedLogin } from "./loginAttemptPolicy";
 
 type UserPlatformDetails = {
 	platformId: string;
@@ -53,7 +55,6 @@ type UserPlatformDetails = {
  */
 export class UserService {
 	public context!: SpinalContext;
-	private readonly MIN_PASSWORD_LENGTH = 8;
 
 	static instance: UserService;
 
@@ -83,7 +84,7 @@ export class UserService {
 	}
 
 	public async createUser(userCreationParams: IUserCreationParams): Promise<IUser> {
-		this._assertPasswordCoherence(userCreationParams.password, "password");
+		this._assertPasswordCoherence(userCreationParams.password, userCreationParams.userName);
 
 		const [user] = await this.getUserNodes(userCreationParams.userName);
 
@@ -115,20 +116,32 @@ export class UserService {
 		return context.addChildInContext(userNode, AUTH_SERVICE_USER_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST, context);
 	}
 
-	public async getUserByCredentials(userName: string, password: string, isAuthAdmin: boolean = false): Promise<SpinalNode | null> {
+	public async getUserByCredentials(userName: string, password: string, isAuthAdmin: boolean = false, trackLoginFailures: boolean = false, reportLockedAccount: boolean = false): Promise<SpinalNode | null> {
 		const user = await this._findUserByUserName(userName, isAuthAdmin);
 
 		if (!user) return null;
 
 		const valid = await bcrypt.compare(password, user.info.password.get());
+		if (!trackLoginFailures) return valid ? user : null;
 
-		if (!valid) return null;
+		const now = Date.now();
+		const loginAttemptState = normalizeLoginAttemptState(this._getLoginAttemptState(user), now);
+		if (loginAttemptState.lockedUntil > now) {
+			if (valid && reportLockedAccount) throw new OperationError("ACCOUNT_LOCKED", HttpStatusCode.LOCKED);
+			return null;
+		}
 
+		if (!valid) {
+			this._setLoginAttemptState(user, registerFailedLogin(loginAttemptState, getLoginSecurityConfig(), now));
+			return null;
+		}
+
+		this._resetLoginAttemptState(user);
 		return user;
 	}
 
 	public async login(userLoginParams: IUserLoginParams, platformId?: string): Promise<IUserToken> {
-		const user = await this.getUserByCredentials(userLoginParams.userName, userLoginParams.password);
+		const user = await this.getUserByCredentials(userLoginParams.userName, userLoginParams.password, false, true, true);
 
 		if (!user) {
 			await LogsService.getInstance().createLog(undefined as any, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.USER_NOT_VALID, EVENTS_REQUEST_NAMES.USER_NOT_VALID);
@@ -146,14 +159,10 @@ export class UserService {
 	}
 
 	public async loginAuthAdmin(userLoginParams: IUserLoginParams): Promise<IUserToken> {
-		const user = await this._findUserByUserName(userLoginParams.userName, true);
+		const user = await this.getUserByCredentials(userLoginParams.userName, userLoginParams.password, true, true, true);
 
-		if (!user) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
-
-		const valid = await bcrypt.compare(userLoginParams.password, user.info.password.get());
-
-		if (!valid) {
-			await LogsService.getInstance().createLog(user, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.CONNECTION_NOT_VALID, " Unknown AuthAdmin Password");
+		if (!user) {
+			await LogsService.getInstance().createLog(undefined as any, ADMIN_LOG_CATEGORY_NAME, EVENTS_NAMES.CONNECTION, EVENTS_REQUEST_NAMES.CONNECTION_NOT_VALID, " Unknown AuthAdmin Password");
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 		}
 
@@ -271,7 +280,7 @@ export class UserService {
 	 * updateUserPassword
 	 */
 	public async updateUserPassword(userName: string, requestBody: IUpdateUserPassword) {
-		this._assertPasswordCoherence(requestBody.newPassword, "newPassword");
+		this._assertPasswordCoherence(requestBody.newPassword, userName);
 
 		const itsComeFromAuthAdmin = Boolean(requestBody.authAdminPassword);
 		let userFound: SpinalNode | null | undefined;
@@ -289,6 +298,7 @@ export class UserService {
 
 		const newPassword = await bcrypt.hash(requestBody.newPassword, 10);
 		userFound.info.password.set(newPassword);
+		this._resetLoginAttemptState(userFound);
 
 		if (userFound.info.mustChangePassword) userFound.info.mustChangePassword.set(itsComeFromAuthAdmin);
 		else userFound.info.add_attr("mustChangePassword", itsComeFromAuthAdmin);
@@ -307,6 +317,7 @@ export class UserService {
 	async createAuthAdmin(): Promise<IUser> {
 		try {
 			const password = this.getAuthPassword();
+			this._assertPasswordCoherence(password, AUTH_ADMIN_NAME);
 			const hash = await bcrypt.hash(password, 10);
 
 			const authAdminNode = new SpinalNode(AUTH_ADMIN_NAME, USER_TYPE);
@@ -317,6 +328,8 @@ export class UserService {
 				telephone: "",
 				info: "",
 				mustChangePassword: false,
+				failedLoginAttempts: 0,
+				lockedUntil: 0,
 				userType: IUserType.authAdmin,
 				scope: [SCOPES.authAdmin],
 			});
@@ -334,7 +347,7 @@ export class UserService {
 
 	public async updateAuthAdmin(requestBody: IAuthAdminUpdateParams): Promise<IUser> {
 		if (!requestBody.newPassword) throw new OperationError("NEW_PASSWORD_REQUIRED", HttpStatusCode.BAD_REQUEST);
-		this._assertPasswordCoherence(requestBody.newPassword, "newPassword");
+		this._assertPasswordCoherence(requestBody.newPassword, requestBody.userName);
 
 		const [user] = await this.getUserNodes(requestBody.userName);
 		if (!user) {
@@ -351,6 +364,7 @@ export class UserService {
 
 		const newPassword = await bcrypt.hash(requestBody.newPassword, 10);
 		user.info.password.set(newPassword);
+		this._resetLoginAttemptState(user);
 
 		const keys: (keyof IAuthAdminUpdateParams)[] = ["email", "telephone", "info"];
 
@@ -470,6 +484,8 @@ export class UserService {
 			telephone: userCreationParams.telephone,
 			info: userCreationParams.info,
 			mustChangePassword: true,
+			failedLoginAttempts: 0,
+			lockedUntil: 0,
 			password: hash,
 		};
 	}
@@ -520,14 +536,27 @@ export class UserService {
 		return password;
 	}
 
-	private _assertPasswordCoherence(password: unknown, fieldName: string): void {
-		if (typeof password !== "string") {
-			throw new OperationError(`${fieldName.toUpperCase()}_INVALID_FORMAT`, HttpStatusCode.BAD_REQUEST);
-		}
+	private _assertPasswordCoherence(password: unknown, userName?: string): void {
+		const policyError = getPasswordPolicyError(password, userName);
+		if (policyError) throw new OperationError(policyError, HttpStatusCode.BAD_REQUEST);
+	}
 
-		if (password.length < this.MIN_PASSWORD_LENGTH) {
-			throw new OperationError("PASSWORD_TOO_SHORT", HttpStatusCode.BAD_REQUEST);
+	private _getLoginAttemptState(user: SpinalNode): LoginAttemptState {
+		return {
+			failedLoginAttempts: Number(user.info?.failedLoginAttempts?.get?.() || 0),
+			lockedUntil: Number(user.info?.lockedUntil?.get?.() || 0),
+		};
+	}
+
+	private _setLoginAttemptState(user: SpinalNode, state: LoginAttemptState): void {
+		for (const [key, value] of Object.entries(state)) {
+			if (user.info[key]) user.info[key].set(value);
+			else user.info.add_attr(key, value);
 		}
+	}
+
+	private _resetLoginAttemptState(user: SpinalNode): void {
+		this._setLoginAttemptState(user, { failedLoginAttempts: 0, lockedUntil: 0 });
 	}
 
 	private _assertUserUpdatePayload(requestBody: IUserUpdateParams): void {

@@ -177,15 +177,19 @@ import Tabs from "../Components/Tabs.vue";
 import SelectUser from "../Components/SelectUser.vue";
 import { mapActions, mapGetters } from "vuex";
 import InputPass from "../Components/InputPassword.vue";
+import {
+  generateCompliantPassword,
+  isPasswordValid,
+  PASSWORD_POLICY_MESSAGE,
+} from "../services/passwordPolicy";
 
 const PASSWORD_ERROR_TYPES = {
-  minLength: "minLength",
+  policy: "policy",
   authPassword: "authPassword",
 };
 
 const PASSWORD_ERROR_MESSAGES = {
-  [PASSWORD_ERROR_TYPES.minLength]:
-    "Le mot de passe doit contenir au moins 8 caracteres.",
+  [PASSWORD_ERROR_TYPES.policy]: PASSWORD_POLICY_MESSAGE,
   [PASSWORD_ERROR_TYPES.authPassword]:
     "Le mot de passe de l'admin est incorrect.",
 };
@@ -269,7 +273,12 @@ export default {
     },
 
     editUserPassWord() {
-      if (this.auth_password.length >= 8 && this.password.length >= 8) {
+      if (this.auth_password.length === 0) {
+        this.passwordError = this.passwordErrorTypes.authPassword;
+        return;
+      }
+
+      if (isPasswordValid(this.password, this.detailUser.userName)) {
         const body = {
           authAdminPassword: this.auth_password,
           newPassword: this.password,
@@ -285,11 +294,15 @@ export default {
             this.password = "";
           })
           .catch((error) => {
-            this.passwordError = this.passwordErrorTypes.authPassword;
+            const apiError = error.response && error.response.data && error.response.data.error;
+            this.passwordError =
+              apiError && apiError.indexOf("PASSWORD_") === 0
+                ? this.passwordErrorTypes.policy
+                : this.passwordErrorTypes.authPassword;
             console.error(error);
           });
       } else {
-        this.passwordError = this.passwordErrorTypes.minLength;
+        this.passwordError = this.passwordErrorTypes.policy;
       }
     },
 
@@ -332,21 +345,7 @@ export default {
     },
 
     generatePassword() {
-      let password = "";
-      const minLength = 16;
-      const possibleCharacters =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{};':\"<>,.?/\\|";
-      for (let i = 0; i < minLength; i++) {
-        password += possibleCharacters.charAt(
-          Math.floor(Math.random() * possibleCharacters.length)
-        );
-      }
-      if (!/[A-Z]/.test(password)) {
-        password =
-          password.substring(0, 15) +
-          "ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(Math.floor(Math.random() * 26));
-      }
-      this.password = password;
+      this.password = generateCompliantPassword(16, this.detailUser.userName);
 
       this.copiepass();
     },
