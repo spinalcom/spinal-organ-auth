@@ -2,8 +2,7 @@ import * as express from "express";
 import spinalPassportSaml from ".";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 import { IPlatform, ISAMLAuthenticationInfo } from "../../routes/platform/platform.model";
-import { formatResponseHtml } from "../../utilities/formatResponseHtml";
-import { sendResponseToClientUrl } from "../utils";
+import { sendResponseToClientUrl } from "../../utilities/formatResponseHtml";
 import { convertSSOData } from "../utils";
 
 export function RegisterSamlRoutes(app: express.Application) {
@@ -15,7 +14,7 @@ export function RegisterSamlRoutes(app: express.Application) {
 			if (!serverId) return res.status(HttpStatusCode.BAD_REQUEST).send({ message: "no authentication server specified" });
 
 			spinalPassportSaml.auth.bind(spinalPassportSaml)("saml", { failureRedirect: "/error", failureFlash: true })(req, res, next);
-		} catch (error) {
+		} catch (error: any) {
 			return res.status(HttpStatusCode.MOVED_PERMANENTLY).redirect(`/login/${platformId}?error=true&error_description=${error.message}`);
 			// return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({ message: error.message });
 		}
@@ -29,15 +28,9 @@ export function RegisterSamlRoutes(app: express.Application) {
 
 			try {
 				const resData: any = await convertSSOData(data.user, data.platform);
-				const vueClientUrl = data.platform.vueClientUrl;
-
-				if (vueClientUrl) {
-					return sendResponseToClientUrl(res, vueClientUrl, resData.token, resData.expieredToken);
-				}
-
-				const html = formatResponseHtml(data.platform.redirectUrl, resData);
-				res.status(HttpStatusCode.OK).send(html);
-			} catch (error) {
+				res.status(HttpStatusCode.OK);
+				return sendResponseToClientUrl(res, data.platform, data.platform.url, resData);
+			} catch (error: Error | any) {
 				// res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({ status: HttpStatusCode.INTERNAL_SERVER_ERROR, message: error.message })
 				return res.status(HttpStatusCode.MOVED_PERMANENTLY).redirect(`/login/${data.platform.id}?error=true&error_description=${error.message}`);
 			}

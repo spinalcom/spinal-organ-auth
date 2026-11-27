@@ -9,8 +9,9 @@ import { ISSOUser } from "../interfaces/ISSOUser";
 import loginService from "../../routes/loginServer/loginServerService";
 import { setAuthCookie } from "../../security/authCookie";
 
-export function sendResponseToClientUrl(res: express.Response, url: string, token: string, expirationInSeconds?: number) {
-	setAuthCookie(res, token, expirationInSeconds);
+export async function sendResponseToClientUrl(res: express.Response, url: string, token: string, apiUrl: string, expirationInSeconds?: number) {
+	const cookieName = await PlatformService.getInstance().getPlatformCookieName(apiUrl);
+	setAuthCookie(res, token, expirationInSeconds, cookieName);
 	return res.redirect(url);
 }
 

@@ -226,7 +226,7 @@ export default {
       const payload = {
         ...this.formApp,
         url: cleanedUrl,
-        redirectUrl: `${cleanedUrl}/callback`,
+        redirectUrl: `${cleanedUrl}/api/v1/callback`,
         updateUrl: `${cleanedUrl}/api/v1/update_data`,
       };
 

@@ -79,6 +79,12 @@ for (const [relationName, profileKey, idKey] of [
 			assert.deepEqual(f.calls, [f.call("add", f.added)]);
 		});
 
+		it("rejects an unknown profile before changing existing links", async () => {
+			const f = setup();
+			await assert.rejects(f.update([f.removed], ["unknown"]), /INVALID_PLATFORM_PROFILE/);
+			assert.deepEqual(f.calls, []);
+		});
+
 		it("propagates removal failures and stops before adding links", async () => {
 			const f = setup();
 			const error = new Error("Removal failed");

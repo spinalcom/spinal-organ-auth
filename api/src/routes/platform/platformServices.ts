@@ -37,6 +37,7 @@ const { setEnvValue } = require("../../../writeToenvFile");
 import { isLocalAuthenticationInfo, isOAuthAuthenticationInfo, isSAMLAuthenticationInfo } from "./utils";
 import loginService from "../loginServer/loginServerService";
 import axios from "axios";
+import { validatePlatformCreationPayload, validatePlatformUpdatePayload } from "./platformPayloadValidation";
 
 export class PlatformService {
 	static instance: PlatformService;
@@ -84,7 +85,9 @@ export class PlatformService {
 
 	public async createPlateform(platformCreationParms: IPlatformCreateRequest): Promise<IPlatform> {
 		try {
+			platformCreationParms = validatePlatformCreationPayload(platformCreationParms);
 			await this._assertPlatformUniqueness(platformCreationParms);
+			await this._assertLoginServersExist(platformCreationParms.loginServerIds);
 			const _platformCreationParms = this._formatPlatformCreationParams(platformCreationParms);
 
 			// const isValid = this._verifyAuthInfo(platformCreationParms.authentication_method, platformCreationParms.authentication_info);
@@ -108,6 +111,7 @@ export class PlatformService {
 			return this._formatPlatform(res);
 		} catch (error) {
 			await LogsService.getInstance().createLog(undefined, PLATFORM_LOG_CATEGORY_NAME, EVENTS_NAMES.REGISTER, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID, EVENTS_REQUEST_NAMES.REGISTER_NOT_VALID);
+			if (error instanceof OperationError) throw error;
 			throw new OperationError("NOT_CREATED", HttpStatusCode.BAD_REQUEST);
 		}
 	}
@@ -148,9 +152,15 @@ export class PlatformService {
 	public async updatePlateform(id: string, requestBody: IPlatformUpdateParams): Promise<IPlatform> {
 		const [platform] = await this.getPlatformsNodes(id);
 		if (!platform) throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
+		requestBody = validatePlatformUpdatePayload(requestBody);
+		await this._assertPlatformUpdateUniqueness(id, requestBody);
+		await this._assertLoginServersExist(requestBody.loginServerIds);
 
 		for (const [key, value] of Object.entries(requestBody)) {
-			if (value !== undefined && value !== null) platform.info.mod_attr(key, value);
+			if (key !== "loginServerIds" && value !== undefined) {
+				if (platform.info[key]) platform.info[key].set(value);
+				else platform.info.add_attr(key, value);
+			}
 		}
 
 		if (requestBody.loginServerIds) {
@@ -342,6 +352,17 @@ export class PlatformService {
 		});
 	}
 
+	public async getPlatformCookieName(url: string): Promise<string | undefined> {
+		const platform = await this.getPlateformByApiUrl(url);
+		if (!platform) return undefined;
+
+		const token = platform.info.TokenAdminBos?.get();
+		return axios
+			.get(`${url}/api/v1/get_bos_cookie_name`, { headers: { Authorization: `Bearer ${token}` } })
+			.then((result) => result.data?.name)
+			.catch(() => undefined);
+	}
+
 	public async updateTokenAdminBosInGraph(platform: string | SpinalNode, token: string): Promise<string> {
 		if (typeof platform === "string") {
 			const [platformNode] = await this.getPlatformsNodes(platform);
@@ -490,13 +511,14 @@ export class PlatformService {
 	}
 
 	private _formatPlatformCreationParams(platformCreationParms: IPlatformCreateRequest) {
-		let grant_types = platformCreationParms.grant_types || [];
+		let grant_types = platformCreationParms.grant_types;
 		if (!Array.isArray(grant_types)) grant_types = [grant_types];
+		const { loginServerIds, ...storedParameters } = platformCreationParms;
 
-		return Object.assign({}, platformCreationParms, {
+		return Object.assign({}, storedParameters, {
 			clientSecret: platformCreationParms.clientSecret,
-			url: platformCreationParms.url || platformCreationParms.redirectUrl,
-			redirectUrl: platformCreationParms.redirectUrl || platformCreationParms.url,
+			url: platformCreationParms.url,
+			redirectUrl: platformCreationParms.redirectUrl,
 			address: platformCreationParms.address || "",
 			statusPlatform: statusPlatform["not connected"],
 			grant_types,
@@ -530,6 +552,26 @@ export class PlatformService {
 
 		const hasSameClientId = platforms.some((platform) => String(platform.info.clientId?.get() || "").trim() === normalizedClientId);
 		if (hasSameClientId) throw new OperationError("PLATFORM_CLIENT_ID_ALREADY_USED", HttpStatusCode.BAD_REQUEST);
+	}
+
+	private async _assertPlatformUpdateUniqueness(platformId: string, requestBody: IPlatformUpdateParams): Promise<void> {
+		if (requestBody.name === undefined) return;
+		const platforms = await this.getPlatformsNodes();
+		const normalizedName = requestBody.name.toLowerCase();
+		const duplicateName = platforms.some(
+			(platform) =>
+				platform.getId().get() !== platformId &&
+				String(platform.getName()?.get() || "")
+					.trim()
+					.toLowerCase() === normalizedName,
+		);
+		if (duplicateName) throw new OperationError("PLATFORM_NAME_ALREADY_USED", HttpStatusCode.BAD_REQUEST);
+	}
+
+	private async _assertLoginServersExist(ids?: string[]): Promise<void> {
+		if (ids === undefined || ids.length === 0) return;
+		const servers = await loginService.getServeralServersById(ids);
+		if (servers.length !== ids.length) throw new OperationError("LOGIN_SERVER_NOT_FOUND", HttpStatusCode.BAD_REQUEST);
 	}
 }
 

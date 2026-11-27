@@ -6,8 +6,7 @@ import { IPlatform } from "./routes/platform/platform.model";
 import loginService from "./routes/loginServer/loginServerService";
 import * as path from "path";
 import { UserService } from "./routes/authUser/userService";
-import { formatResponseHtml } from "./utilities/formatResponseHtml";
-import { sendResponseToClientUrl } from "./SSO/utils";
+import { sendResponseToClientUrl } from "./utilities/formatResponseHtml";
 import { URLSearchParams } from "url";
 
 export async function redirectToLoginPage(req: express.Request, res: express.Response) {
@@ -83,16 +82,7 @@ async function loginWithLocal(req: express.Request, res: express.Response) {
 		const body = req.body;
 
 		const userToken = await UserService.getInstance().login(body, platform.id);
-		const vueClientUrl = platform.vueClientUrl;
-
-		if (vueClientUrl) {
-			const token = userToken.token;
-			return sendResponseToClientUrl(res, vueClientUrl, token, userToken.expieredToken);
-		}
-
-		const html = formatResponseHtml(platform.redirectUrl, userToken);
-
-		res.send(html);
+		return sendResponseToClientUrl(res, platform, platform.url, userToken);
 	} catch (error) {
 		console.error(error);
 		const accountLocked = error?.status === HttpStatusCode.LOCKED || error?.message === "ACCOUNT_LOCKED";

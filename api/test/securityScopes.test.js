@@ -2,6 +2,7 @@ const assert = require("assert").strict;
 const { expressAuthentication, getToken } = require("../src/security");
 const { AuthServerModel } = require("../src/SSO/oauth/AuthServerModel");
 const { TokensService } = require("../src/routes/tokens/tokenService");
+const { AUTH_COOKIE_NAME } = require("../src/security/authCookie");
 const { SCOPES } = require("../src/constant");
 
 function createRequest(token) {
@@ -38,7 +39,7 @@ describe("expressAuthentication scope checks", () => {
                 getToken({
                     headers: {
                         origin: "https://client.example.com",
-                        cookie: "theme=dark; token=jwt-token",
+                        cookie: `theme=dark; ${AUTH_COOKIE_NAME}=jwt-token`,
                     },
                     body: {},
                     query: {},
@@ -50,7 +51,7 @@ describe("expressAuthentication scope checks", () => {
         it("reads the token cookie for a same-origin request without an Origin header", () => {
             assert.equal(
                 getToken({
-                    headers: { cookie: "token=jwt-token" },
+                    headers: { cookie: `${AUTH_COOKIE_NAME}=jwt-token` },
                     body: {},
                     query: {},
                 }),
@@ -67,7 +68,7 @@ describe("expressAuthentication scope checks", () => {
                     headers: {
                         origin: "https://auth.example.com",
                         host: "auth.example.com",
-                        cookie: "token=jwt-token",
+                        cookie: `${AUTH_COOKIE_NAME}=jwt-token`,
                     },
                     body: {},
                     query: {},
@@ -83,7 +84,7 @@ describe("expressAuthentication scope checks", () => {
                 getToken({
                     headers: {
                         origin: "https://untrusted.example.com",
-                        cookie: "token=jwt-token",
+                        cookie: `${AUTH_COOKIE_NAME}=jwt-token`,
                     },
                     body: {},
                     query: {},

@@ -78,13 +78,11 @@ export interface IUpdateUserPassword {
 
 export interface IUserUpdateParams {
 	userName?: string;
-	password?: string;
 	email?: string;
 	telephone?: string;
 	info?: string; // champs libre optionnel
 	mustChangePassword?: boolean;
 	userType?: IUserType;
-	grant_types?: string[];
 	platformList?: IPlatformList[];
 }
 export interface IAuthAdminUpdateParams {

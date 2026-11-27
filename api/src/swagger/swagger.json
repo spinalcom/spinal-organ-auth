@@ -533,9 +533,6 @@
 					"userName": {
 						"type": "string"
 					},
-					"password": {
-						"type": "string"
-					},
 					"email": {
 						"type": "string"
 					},
@@ -550,12 +547,6 @@
 					},
 					"userType": {
 						"$ref": "#/components/schemas/IUserType"
-					},
-					"grant_types": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
 					},
 					"platformList": {
 						"items": {
@@ -645,6 +636,36 @@
 						"required": [
 							"userProfile"
 						],
+						"type": "object"
+					}
+				]
+			},
+			"IUserToken": {
+				"allOf": [
+					{
+						"$ref": "#/components/schemas/IToken"
+					},
+					{
+						"properties": {
+							"platformList": {
+								"items": {
+									"$ref": "#/components/schemas/IUserPlatformProfile"
+								},
+								"type": "array"
+							},
+							"serverId": {
+								"type": "string"
+							},
+							"userProfile": {
+								"type": "string"
+							},
+							"userType": {
+								"type": "string"
+							},
+							"userId": {
+								"type": "string"
+							}
+						},
 						"type": "object"
 					}
 				]
@@ -1166,7 +1187,10 @@
 				"required": [
 					"name",
 					"redirectUrl",
-					"clientId"
+					"url",
+					"clientId",
+					"clientSecret",
+					"grant_types"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -2618,6 +2642,9 @@
 							"application/json": {
 								"schema": {
 									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IUserToken"
+										},
 										{
 											"$ref": "#/components/schemas/IUserSession"
 										},

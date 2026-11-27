@@ -1,5 +1,6 @@
 const assert = require("assert").strict;
 const {
+    AUTH_COOKIE_NAME,
     clearAuthCookie,
     getAuthCookie,
     getAuthCookieOptions,
@@ -10,6 +11,11 @@ describe("authentication cookie", () => {
     const originalProtocol = process.env.SERVER_PROTOCOL;
     const originalSecure = process.env.AUTH_COOKIE_SECURE;
     const originalSameSite = process.env.AUTH_COOKIE_SAME_SITE;
+    const originalDomain = process.env.AUTH_COOKIE_DOMAIN;
+
+    it("uses a cookie name dedicated to the Auth service", () => {
+        assert.equal(AUTH_COOKIE_NAME, process.env.AUTH_COOKIE_NAME?.trim() || "auth_token");
+    });
 
     afterEach(() => {
         if (originalProtocol === undefined) delete process.env.SERVER_PROTOCOL;
@@ -18,6 +24,8 @@ describe("authentication cookie", () => {
         else process.env.AUTH_COOKIE_SECURE = originalSecure;
         if (originalSameSite === undefined) delete process.env.AUTH_COOKIE_SAME_SITE;
         else process.env.AUTH_COOKIE_SAME_SITE = originalSameSite;
+        if (originalDomain === undefined) delete process.env.AUTH_COOKIE_DOMAIN;
+        else process.env.AUTH_COOKIE_DOMAIN = originalDomain;
     });
 
     it("uses an HttpOnly, same-site cookie by default", () => {
@@ -44,6 +52,11 @@ describe("authentication cookie", () => {
         assert.throws(() => getAuthCookieOptions(), /REQUIRES_SECURE/);
     });
 
+    it("uses the configured parent domain when subdomains share the cookie", () => {
+        process.env.AUTH_COOKIE_DOMAIN = "spinalcom.com";
+        assert.equal(getAuthCookieOptions().domain, "spinalcom.com");
+    });
+
     it("sets, reads and clears the authentication cookie", () => {
         process.env.AUTH_COOKIE_SECURE = "false";
         const calls = [];
@@ -55,10 +68,10 @@ describe("authentication cookie", () => {
         setAuthCookie(response, "header.payload.signature");
         clearAuthCookie(response);
 
-        assert.equal(calls[0][1], "token");
+        assert.equal(calls[0][1], AUTH_COOKIE_NAME);
         assert.equal(calls[0][2], "header.payload.signature");
         assert.equal(calls[0][3].httpOnly, true);
-        assert.equal(calls[1][1], "token");
-        assert.equal(getAuthCookie("theme=dark; token=header.payload.signature"), "header.payload.signature");
+        assert.equal(calls[1][1], AUTH_COOKIE_NAME);
+        assert.equal(getAuthCookie(`theme=dark; ${AUTH_COOKIE_NAME}=header.payload.signature`), "header.payload.signature");
     });
 });

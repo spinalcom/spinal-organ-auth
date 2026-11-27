@@ -87,7 +87,9 @@ NODE_TLS_REJECT_UNAUTHORIZED="1"
 # Comma-separated exact origins of browser clients that call this API with credentials.
 # Required for cross-site HttpOnly cookie authentication; use HTTPS in production.
 CORS_ORIGINS=""
+AUTH_COOKIE_NAME="auth_token"
 AUTH_COOKIE_SECURE=""
+AUTH_COOKIE_DOMAIN=""
 # Use "none" only when the Vue client and API are on different sites (HTTPS required).
 AUTH_COOKIE_SAME_SITE="lax"
 ```
@@ -115,6 +117,11 @@ The API build generates missing `TOKEN_SECRET`, `SESSION_SECRET`,
 production secret manager are preferable.
 
 ### Cookie deployment scenarios
+
+Keep `AUTH_COOKIE_NAME=auth_token` (or another Auth-specific name) so the Auth
+administrator session cannot collide with a project session. Leave
+`AUTH_COOKIE_DOMAIN` empty when Auth and its UI share a host. A parent domain
+must only be configured when the cookie genuinely has to cross subdomains.
 
 | Deployment | `AUTH_COOKIE_SECURE` | `AUTH_COOKIE_SAME_SITE` | `CORS_ORIGINS` |
 |---|---:|---|---|

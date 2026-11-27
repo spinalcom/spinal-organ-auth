@@ -55,7 +55,9 @@ SSL_KEY_PATH=""
 NODE_TLS_REJECT_UNAUTHORIZED=0
 
 # Cookie authentication (leave blank to infer Secure from SERVER_PROTOCOL)
+AUTH_COOKIE_NAME="auth_token"
 AUTH_COOKIE_SECURE=""
+AUTH_COOKIE_DOMAIN=""
 AUTH_COOKIE_SAME_SITE="lax"
       `);
   }

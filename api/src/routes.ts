@@ -184,13 +184,11 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "userName": {"dataType":"string"},
-            "password": {"dataType":"string"},
             "email": {"dataType":"string"},
             "telephone": {"dataType":"string"},
             "info": {"dataType":"string"},
             "mustChangePassword": {"dataType":"boolean"},
             "userType": {"ref":"IUserType"},
-            "grant_types": {"dataType":"array","array":{"dataType":"string"}},
             "platformList": {"dataType":"array","array":{"dataType":"refObject","ref":"IPlatformList"}},
         },
         "additionalProperties": false,
@@ -227,6 +225,11 @@ const models: TsoaRoute.Models = {
     "IUserPlatformProfile": {
         "dataType": "refAlias",
         "type": {"dataType":"intersection","subSchemas":[{"ref":"ITokenPlatform"},{"dataType":"nestedObjectLiteral","nestedProperties":{"userProfile":{"ref":"IUserProfileToken","required":true}}}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IUserToken": {
+        "dataType": "refAlias",
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"IToken"},{"dataType":"nestedObjectLiteral","nestedProperties":{"platformList":{"dataType":"array","array":{"dataType":"refAlias","ref":"IUserPlatformProfile"}},"serverId":{"dataType":"string"},"userProfile":{"dataType":"string"},"userType":{"dataType":"string"},"userId":{"dataType":"string"}}}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IUserSession": {
@@ -412,13 +415,13 @@ const models: TsoaRoute.Models = {
         "properties": {
             "name": {"dataType":"string","required":true},
             "redirectUrl": {"dataType":"string","required":true},
-            "url": {"dataType":"string"},
+            "url": {"dataType":"string","required":true},
             "vueClientUrl": {"dataType":"string"},
             "updateUrl": {"dataType":"string"},
             "address": {"dataType":"string"},
             "clientId": {"dataType":"string","required":true},
-            "clientSecret": {"dataType":"string"},
-            "grant_types": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"array","array":{"dataType":"string"}}]},
+            "clientSecret": {"dataType":"string","required":true},
+            "grant_types": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"array","array":{"dataType":"string"}}],"required":true},
             "profileClassifyByPriority": {"dataType":"array","array":{"dataType":"string"}},
             "loginServerIds": {"dataType":"array","array":{"dataType":"string"}},
         },

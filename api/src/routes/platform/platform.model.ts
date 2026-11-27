@@ -86,13 +86,13 @@ export interface IPlatform {
 export interface IPlatformCreateRequest {
 	name: string;
 	redirectUrl: string;
-	url?: string;
+	url: string;
 	vueClientUrl?: string;
 	updateUrl?: string;
 	address?: string;
 	clientId: string;
-	clientSecret?: string;
-	grant_types?: string | string[];
+	clientSecret: string;
+	grant_types: string | string[];
 	profileClassifyByPriority?: string[];
 	loginServerIds?: string[];
 }

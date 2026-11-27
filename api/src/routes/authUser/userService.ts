@@ -37,6 +37,7 @@ import { updateProfileRelations } from "../platform/profileRelations";
 import { getUserScopes } from "../../scopes";
 import { getPasswordPolicyError } from "./passwordPolicy";
 import { getLoginSecurityConfig, LoginAttemptState, normalizeLoginAttemptState, registerFailedLogin } from "./loginAttemptPolicy";
+import { validateUserCreationPayload, validateUserUpdatePayload } from "./userPayloadValidation";
 
 type UserPlatformDetails = {
 	platformId: string;
@@ -84,6 +85,7 @@ export class UserService {
 	}
 
 	public async createUser(userCreationParams: IUserCreationParams): Promise<IUser> {
+		userCreationParams = validateUserCreationPayload(userCreationParams);
 		this._assertPasswordCoherence(userCreationParams.password, userCreationParams.userName);
 
 		const [user] = await this.getUserNodes(userCreationParams.userName);
@@ -93,12 +95,16 @@ export class UserService {
 			throw new OperationError("USERNAME_IS_ALREADY_USED", HttpStatusCode.FORBIDDEN);
 		}
 
-		const userNode = await this.createUserNode(userCreationParams);
-
+		const profiles: SpinalNode[] = [];
 		for (const platform of userCreationParams.platformList || []) {
-			if (!platform.platformId || !platform.userProfile?.userProfileId) continue;
 			const pro = await this.getProfile(platform.platformId, platform.userProfile.userProfileId);
-			await userNode.addChild(pro, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
+			if (!pro) throw new OperationError("INVALID_PLATFORM_PROFILE", HttpStatusCode.BAD_REQUEST);
+			profiles.push(pro);
+		}
+
+		const userNode = await this.createUserNode(userCreationParams);
+		for (const profile of profiles) {
+			await userNode.addChild(profile, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, AUTH_SERVICE_RELATION_TYPE_PTR_LST);
 		}
 
 		await LogsService.getInstance().createLog(userNode, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.CREATE, EVENTS_REQUEST_NAMES.CREATE_VALID, EVENTS_REQUEST_NAMES.CREATE_VALID);
@@ -227,6 +233,7 @@ export class UserService {
 	}
 
 	public async updateUser(userId: string, requestBody: IUserUpdateParams): Promise<IUser> {
+		requestBody = validateUserUpdatePayload(requestBody);
 		const users = await this.getUserNodes();
 		const user = users.find((user) => user.getId().get() === userId);
 
@@ -235,26 +242,26 @@ export class UserService {
 			throw new OperationError("NOT_FOUND", HttpStatusCode.NOT_FOUND);
 		}
 
-		const { userName, id } = user.info.get();
+		const { userName } = user.info.get();
 
 		if (userName === AUTH_ADMIN_NAME) {
 			await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID, "modify this user with a username that is not authorized");
 			throw new OperationError("UNAUTHORIZED ROLE", HttpStatusCode.FORBIDDEN);
 		}
 
-		if (id !== userId && userName === requestBody.userName) {
+		const duplicateUserName = requestBody.userName && requestBody.userName !== userName && users.some((candidate) => candidate.getId().get() !== userId && candidate.info.userName?.get() === requestBody.userName);
+		if (duplicateUserName) {
 			await LogsService.getInstance().createLog(user, USER_LOG_CATEGORY_NAME, EVENTS_NAMES.EDIT, EVENTS_REQUEST_NAMES.EDIT_NOT_VALID, "modify this user with a username that already exists");
 			throw new OperationError("USERNAME_IS_ALREADY_USED", HttpStatusCode.FORBIDDEN);
 		}
-
-		this._assertUserUpdatePayload(requestBody);
 
 		const keys: (keyof IUserUpdateParams)[] = ["userName", "userType", "email", "telephone", "info"];
 
 		for (const key of keys) {
 			const value = requestBody[key];
 			if (value !== undefined && value !== null) {
-				user.info[key].set(value);
+				if (user.info[key]?.set) user.info[key].set(value);
+				else user.info.add_attr(key, value);
 				if (key === "userName") user.info.name.set(value);
 			}
 		}
@@ -265,10 +272,10 @@ export class UserService {
 		}
 
 		const oldUserProfileList = await user.getChildren(AUTH_SERVICE_USER_PROFILE_RELATION_NAME);
-		const newUserPlatformList = requestBody.platformList || [];
-
-		const graph = await SpinalMiddleware.getInstance().getGraph();
-		await updateProfileRelations(graph, user, oldUserProfileList, newUserPlatformList, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, (platform) => platform.userProfile.userProfileAdminId || "");
+		if (requestBody.platformList !== undefined) {
+			const graph = await SpinalMiddleware.getInstance().getGraph();
+			await updateProfileRelations(graph, user, oldUserProfileList, requestBody.platformList, AUTH_SERVICE_USER_PROFILE_RELATION_NAME, (platform) => platform.userProfile.userProfileAdminId || "");
+		}
 
 		const platformList = await this._getUserPlatforms(user);
 
@@ -421,7 +428,7 @@ export class UserService {
 		const users = await context.getChildren(AUTH_SERVICE_USER_RELATION_NAME);
 		if (!userId) return users;
 
-		return users.filter((user) => user.info.username?.get() === userId || user.getId().get() === userId);
+		return users.filter((user) => user.info.userName?.get() === userId || user.getId().get() === userId);
 	}
 
 	private async _getUserPlatforms(user: SpinalNode): Promise<{ platform: SpinalNode | undefined; profile: SpinalNode }[]> {
@@ -483,7 +490,7 @@ export class UserService {
 			email: userCreationParams.email,
 			telephone: userCreationParams.telephone,
 			info: userCreationParams.info,
-			mustChangePassword: true,
+			mustChangePassword: userCreationParams.mustChangePassword ?? true,
 			failedLoginAttempts: 0,
 			lockedUntil: 0,
 			password: hash,
@@ -559,25 +566,4 @@ export class UserService {
 		this._setLoginAttemptState(user, { failedLoginAttempts: 0, lockedUntil: 0 });
 	}
 
-	private _assertUserUpdatePayload(requestBody: IUserUpdateParams): void {
-		if (requestBody.userName !== undefined) {
-			if (typeof requestBody.userName !== "string" || requestBody.userName.trim().length === 0) {
-				throw new OperationError("INVALID_USERNAME", HttpStatusCode.BAD_REQUEST);
-			}
-		}
-
-		if (requestBody.email !== undefined) {
-			const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-			if (typeof requestBody.email !== "string" || !emailPattern.test(requestBody.email.trim())) {
-				throw new OperationError("INVALID_EMAIL", HttpStatusCode.BAD_REQUEST);
-			}
-		}
-
-		if (requestBody.telephone !== undefined) {
-			const phonePattern = /^[0-9+()\-\s]{6,20}$/;
-			if (typeof requestBody.telephone !== "string" || !phonePattern.test(requestBody.telephone.trim())) {
-				throw new OperationError("INVALID_TELEPHONE", HttpStatusCode.BAD_REQUEST);
-			}
-		}
-	}
 }

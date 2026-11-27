@@ -2,8 +2,7 @@ import * as express from "express";
 import { spinalPassportOpenId } from ".";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 import { convertSSOData } from "../utils";
-import { formatResponseHtml } from "../../utilities/formatResponseHtml";
-import { sendResponseToClientUrl } from "../utils";
+import { sendResponseToClientUrl } from "../../utilities/formatResponseHtml";
 
 export function RegisterOpenIdRoutes(app: express.Application) {
 	app.get("/openid/login/", async (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -32,14 +31,8 @@ export function RegisterOpenIdRoutes(app: express.Application) {
 
 					const resData: any = await convertSSOData(userinfo as any, platform as any);
 
-					const vueClientUrl = (platform as any)?.vueClientUrl;
-
-					if (vueClientUrl) {
-						return sendResponseToClientUrl(res, vueClientUrl, resData.token, resData.expieredToken);
-					}
-
-					const html = formatResponseHtml((platform as any).redirectUrl, resData);
-					res.status(HttpStatusCode.OK).send(html);
+					res.status(HttpStatusCode.OK);
+					return sendResponseToClientUrl(res, platform as any, (platform as any).url, resData);
 				} catch (error: any) {
 					return res.status(HttpStatusCode.MOVED_PERMANENTLY).redirect(`/login/${(platform as any).id as string}?error=true&error_description=${error.message}`);
 				}

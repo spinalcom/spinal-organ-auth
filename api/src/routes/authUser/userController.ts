@@ -27,6 +27,7 @@ import * as express from "express";
 import { IUser, IUserCreationParams, IUserUpdateParams, IUserLoginParams, IAuthAdminUpdateParams, IUserLogs, IUpdateUserPassword } from "./user.model";
 import { UserService } from "./userService";
 import { IUserSession, IUserToken } from "../tokens/token.model";
+import { TokensService } from "../tokens/tokenService";
 import { HttpStatusCode } from "../../utilities/http-status-code";
 import { SCOPES } from "../../constant";
 import { setAuthCookie } from "../../security/authCookie";
@@ -167,10 +168,24 @@ export class UsersController extends Controller {
 
 	@Security("all")
 	@Post("/login")
-	public async login(@Body() requestBody: IUserLoginParams, @Request() request: express.Request): Promise<IUserSession | { error: string }> {
+	public async login(@Body() requestBody: IUserLoginParams, @Request() request: express.Request): Promise<IUserToken | IUserSession | { error: string }> {
 		try {
-			const userToken = await UserService.getInstance().login(requestBody);
-			setAuthCookie(request.res, userToken.token, userToken.expieredToken);
+			const platformHeader = request.headers["x-access-token"];
+			const platformToken = Array.isArray(platformHeader) ? platformHeader[0] : platformHeader;
+			let platformId: string | undefined;
+
+			if (platformToken) {
+				const platform = await TokensService.getInstance().checkIfItsPlatformToken(platformToken);
+				platformId = platform.getId().get();
+			}
+
+			const userToken = await UserService.getInstance().login(requestBody, platformId);
+			if (platformToken) {
+				this.setStatus(HttpStatusCode.OK);
+				return userToken;
+			}
+
+			setAuthCookie(request.res as any, userToken.token, userToken.expieredToken);
 			this.setStatus(HttpStatusCode.OK);
 			return this._formatSession(userToken);
 		} catch (error: any) {
@@ -184,7 +199,7 @@ export class UsersController extends Controller {
 	public async loginAuthAdmin(@Body() requestBody: IUserLoginParams, @Request() request: express.Request): Promise<IUserSession | { error: string }> {
 		try {
 			const userToken = await UserService.getInstance().loginAuthAdmin(requestBody);
-			setAuthCookie(request.res, userToken.token, userToken.expieredToken);
+			setAuthCookie(request.res as any, userToken.token, userToken.expieredToken);
 			this.setStatus(HttpStatusCode.OK);
 			return this._formatSession(userToken);
 		} catch (error: any) {

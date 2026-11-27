@@ -11,7 +11,7 @@ export function createRedirectToBosUrl(data: { bosurl: string; bosApiUrl: string
 	return id;
 }
 
-export async function getSessionData(id: string): Promise<{ callbackUrl: string; vueClientUrl?: string; tokenInfo: any } | undefined> {
+export async function getSessionData(id: string): Promise<{ platform: IPlatform; callbackUrl: string; vueClientUrl?: string; apiUrl: string; tokenInfo: any } | undefined> {
 	const data = globalCache.get(id) as { bosurl: string; bosApiUrl: string; token: string } | undefined;
 
 	if (!data) throw new Error("Session not found or expired");
@@ -25,8 +25,10 @@ export async function getSessionData(id: string): Promise<{ callbackUrl: string;
 	globalCache.delete(id); // remove after retrieval
 
 	return {
+		platform: plateform,
 		callbackUrl: plateform.redirectUrl,
 		vueClientUrl: plateform.vueClientUrl,
+		apiUrl: plateform.url,
 		tokenInfo: {
 			name: tokenInfo.token,
 			token: tokenInfo.token,
